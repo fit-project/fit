@@ -24,10 +24,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
-
-import pyautogui
+######
 import cv2
+import pyautogui
 import numpy as np
 import sys
 
@@ -50,10 +49,10 @@ class ScreenRecorder(QObject):
         
     def set_options(self, options):
         # Specify resolution
-        self.resolution = tuple(int(el) for el in options['resolution'])
+        #self.resolution = tuple(int(el) for el in options['resolution'])
 
         # Specify video codec
-        self.codec = cv2.VideoWriter_fourcc(*options['codec'])
+        #self.codec = cv2.VideoWriter_fourcc(*options['codec'])
 
         # Specify frames rate. We can choose any
         # value and experiment with it
@@ -63,8 +62,13 @@ class ScreenRecorder(QObject):
         self.filename = options['filename']
         
     def start(self):
+        # workaround, get codec from db
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        # workaround, resolution input should match output
+        RESOLUTION = tuple(pyautogui.size())
+
         # Creating a VideoWriter object
-        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, self.resolution)
+        self.out = cv2.VideoWriter(self.filename, fourcc, self.fps, RESOLUTION)
         try:
             while self.run:
                 # Take screenshot using PyAutoGUI
