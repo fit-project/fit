@@ -28,9 +28,17 @@
 
 from controller.mail import Mail as MailController
 
-# definire l'interfaccia
-def Mail():
+
+# TODO: Implement this view as a two input window (email an password),
+#  then call the proper method inside the controller to start the acquisition
+
+# this view is defined as a foo method, just for testing.
+# you can test it with mail = MailView() inside fit.py's main
+# I kept the button disabled but changed the color of the frame and the image in the wizard
+# still under development
+def mail():
     email = input('inserire la mail: ')
-    MailController.get_mails(email)
-
-
+    password = input('inserire la password: ')
+    mail_controller = MailController(email, password)
+    mail_controller.get_mails_from_every_folder()
+    return

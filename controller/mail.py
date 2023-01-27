@@ -25,12 +25,68 @@
 # SOFTWARE.
 # -----
 ######
+import imaplib
+import email
+import re
+import email.message
+
 
 class Mail:
-    def get_mails(email):
-        print(email.partition('@')[0])
-        print(email.partition('@')[2])
+    def __init__(self, email_address, password):
+        self.email_address = email_address
+        # TODO: implement secure password handling
+        self.password = password
+
+    def get_mails_from_every_folder(self):
+        server, port = self.set_parameters()
+
+        # Connect and log to the mailbox using IMAP
+        mailbox = imaplib.IMAP4_SSL(server, port)
+        mailbox.login(self.email_address, self.password)
+        # Clear password after usage
+        self.password = ''
+
+        # Select messages from Inbox folder
+        self.download_messages(mailbox, 'Inbox')
+        # self.download_messages(mailbox, 'Sent') #??? check docs
+        # self.download_messages(mailbox, 'Draft') #??? check docs
+        # self.download_messages(mailbox, 'Trashbin') #??? check docs
+        # self.download_messages(mailbox, 'Spam') #??? check docs
         return
+
+    def download_messages(self,mailbox, folder):
+        mailbox.select(folder)
+        type, data = mailbox.search(None, 'ALL')
+
+        # Fetch every message in specified folder
+        for numer_of_messages in data[0].split():
+            type, data = mailbox.fetch(numer_of_messages, '(RFC822)')
+            for response_part in data:
+                if isinstance(response_part, tuple):
+                    # Decode the message
+                    msg = email.message_from_string(response_part[1].decode('utf-8'))
+                    if msg['Message-Id']:
+                        # Write message as eml file
+                        filename = re.sub('[^a-zA-Z0-9_\-\.()\s]+', '', msg['Message-Id'])
+                        with open('%s/%s.eml' % ('/Users/Routi/Desktop/' + folder + '/', filename), 'w') as f:
+                            f.write(response_part[1].decode('utf-8'))
+                            f.close()
+        return
+
+    # TODO: define different servers based on providers
+    def set_parameters(self):
+        provider = (self.email_address.partition('@')[2]).partition('.')[0]
+        #domain = provider.partition('.')[2]
+
+        if provider.lower() == 'google':
+            server = 'imap.gmail.com'
+            port = 993
+        else:
+            # change this into proper configuration based on provider
+            server = 'imap.gmail.com'
+            port = 993
+
+        return server, port
 
 
 
