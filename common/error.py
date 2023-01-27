@@ -37,6 +37,7 @@ class ErrorMessage:
             'capture_packet' : 'Capture error',
             'screen_recoder' : 'Screen Recoder error',
             'save_web_page' : 'Save Web Page',
+            'save_mail' : 'Save Messages',
             'mrsign_configuration_options' : 'MRSign configuration options error'
         }
 
@@ -50,6 +51,7 @@ class ErrorMessage:
             'capture_packet' : 'An error occurred during network packets acquisition! \nSee bellow for more detail.',
             'screen_recoder' : 'An error occurred during screen recoder acquisition! \nSee bellow for more detail.',
             'save_web_page' : 'An error occurred during the execution of save_webpage pywebcopy API',
+            'save_mail': 'An error occurred during the execution of save_mailmessaages',
             'delete_project_folder' : 'An error occurred during the execution of shutil.rmtree method',
             'mrsign_path' : 'MRSign seem don\'t installed on this path "{}"\nPlease check the configuration.',
             'mrsign_executable' : 'MRSign seem not be an executable file "{}"\nPlease check the installation.',

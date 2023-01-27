@@ -27,15 +27,17 @@
 ######
 import imaplib
 import email
+import os
 import re
 import email.message
 
 
 class Mail:
-    def __init__(self, email_address, password):
+    def __init__(self, email_address, password,project_folder):
         self.email_address = email_address
         # TODO: implement secure password handling
         self.password = password
+        self.project_folder = project_folder
 
     def get_mails_from_every_folder(self):
         server, port = self.set_parameters()
@@ -57,7 +59,9 @@ class Mail:
     def download_messages(self,mailbox, folder):
         mailbox.select(folder)
         type, data = mailbox.search(None, 'ALL')
-
+        # Create acquisition folder
+        if not os.path.exists(self.project_folder + '//' +folder):
+            os.makedirs(self.project_folder + '//emails//' +folder)
         # Fetch every message in specified folder
         for numer_of_messages in data[0].split():
             type, data = mailbox.fetch(numer_of_messages, '(RFC822)')
@@ -68,7 +72,8 @@ class Mail:
                     if msg['Message-Id']:
                         # Write message as eml file
                         filename = re.sub('[^a-zA-Z0-9_\-\.()\s]+', '', msg['Message-Id'])
-                        with open('%s/%s.eml' % ('/Users/Routi/Desktop/' + folder + '/', filename), 'w') as f:
+
+                        with open('%s/%s.eml' % (self.project_folder + '//emails//' +folder + '/', filename), 'w') as f:
                             f.write(response_part[1].decode('utf-8'))
                             f.close()
         return

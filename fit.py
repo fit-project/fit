@@ -33,7 +33,7 @@ from PyQt5.QtGui import *
 import sys
 from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
-from view.mail import mail as MailView
+from view.mail import Mail as MailView
 
 
 if __name__ == '__main__':
@@ -42,15 +42,15 @@ if __name__ == '__main__':
     wizard.init_wizard()
     web = WebView()
     web.hide()
-    #mail = MailView()
-    #mail.hide()
+    mail = MailView()
+    mail.hide()
 
     
     def start_task(task, case_info):
         if (task == 'web'):
             acquisition_window = web
         elif (task == 'mail'):
-            #acquisition_window = mail
+            acquisition_window = mail
             pass
         elif (task == 'fb'):
             pass
