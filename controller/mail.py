@@ -72,8 +72,8 @@ class Mail:
                     if msg['Message-Id']:
                         # Write message as eml file
                         filename = re.sub('[^a-zA-Z0-9_\-\.()\s]+', '', msg['Message-Id'])
-
-                        with open('%s/%s.eml' % (self.project_folder + '//emails//' +folder + '/', filename), 'w') as f:
+                        # testing solution for filname problems
+                        with open('%s/%s.eml' % (self.project_folder + '//emails//' +folder + '/', filename.replace('\r\n','')), 'w') as f:
                             f.write(response_part[1].decode('utf-8'))
                             f.close()
         return
@@ -82,13 +82,19 @@ class Mail:
     def set_parameters(self):
         provider = (self.email_address.partition('@')[2]).partition('.')[0]
         #domain = provider.partition('.')[2]
-
-        if provider.lower() == 'google':
+        print(provider)
+        if provider.lower() == 'gmail':
             server = 'imap.gmail.com'
+            port = 993
+        elif provider.lower() == 'outlook':
+            server = 'outlook.office365.com'
+            port = 993
+        elif provider.lower() in ('live', 'hotmail'):  # check the server
+            server = 'imap-mail.outlook.com'
             port = 993
         else:
             # change this into proper configuration based on provider
-            server = 'imap.gmail.com'
+            server = 'outlook.office365.com'
             port = 993
 
         return server, port

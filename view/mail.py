@@ -85,7 +85,7 @@ class Screenshot(QtWebEngineWidgets.QWebEngineView):
         self.grab().save(self.output_file, b'PNG')
         self.close()
 
-
+# TODO: change interface, check for logger not writing in file
 class Mail(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
 
