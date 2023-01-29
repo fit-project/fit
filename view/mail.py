@@ -62,29 +62,6 @@ import common.utility as utility
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
 
-
-class Screenshot(QtWebEngineWidgets.QWebEngineView):
-
-    def capture(self, url, output_file):
-        self.output_file = output_file
-        self.load(QtCore.QUrl(url))
-        self.loadFinished.connect(self.on_loaded)
-        # Create hidden view without scrollbars
-        self.setAttribute(QtCore.Qt.WA_DontShowOnScreen)
-        self.page().settings().setAttribute(
-            QtWebEngineWidgets.QWebEngineSettings.ShowScrollBars, False)
-        self.show()
-
-    def on_loaded(self):
-        size = self.page().contentsSize().toSize()
-        self.resize(size)
-        # Wait for resize
-        QtCore.QTimer.singleShot(1000, self.take_screenshot)
-
-    def take_screenshot(self):
-        self.grab().save(self.output_file, b'PNG')
-        self.close()
-
 # TODO: change interface, check for logger not writing in file
 class Mail(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
