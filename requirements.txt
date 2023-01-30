@@ -14,6 +14,7 @@ msgpack==1.0.4
 ntplib==0.4.0
 numpy==1.23.5
 opencv-python==4.5.1.48
+opentimestamps-client==0.7.1
 packaging==21.3
 parse==1.19.0
 py==1.11.0
