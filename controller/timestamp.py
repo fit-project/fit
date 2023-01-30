@@ -1,6 +1,6 @@
 import os
 
-# requires libeay.dll (openssl)
+# requires libeay32.dll (openssl)
 PATH_TO_FILE = 'path/to/file'
 PATH_TO_TIMESTAMP = 'path/to/file.ots'
 
