@@ -254,7 +254,6 @@ class Web(QtWidgets.QMainWindow):
                                                     )
         if self.acquisition_directory is not None:
 
-            print('qui sono in start')
             #show progress bar
             self.progress_bar.setHidden(False)
 
@@ -269,6 +268,7 @@ class Web(QtWidgets.QMainWindow):
             self.log_confing.change_filehandlers_path(self.acquisition_directory)
             logging.config.dictConfig(self.log_confing.config)
             logger_acquisition.info('Acquisition started')
+            logger_acquisition.info(f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])}')
             self.acquisition_status.add_task('Logger')
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
@@ -308,8 +308,6 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('')
     
     def stop_acquisition(self):
-   
-        print('qui sono in stop')
         if self.acquisition_is_started:
             self.progress_bar.setHidden(False)
         
@@ -376,7 +374,7 @@ class Web(QtWidgets.QMainWindow):
                 algorithm = 'sha256'
                 logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
 
-
+            logger_acquisition.info(f'NTP end acquisition time: {utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])}')
             logger_acquisition.info('Acquisition end')
 
             #### open the acquisition folder ####
