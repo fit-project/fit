@@ -32,6 +32,8 @@ import sys
 import hashlib
 import platform
 import subprocess
+import ntplib
+from datetime import datetime, timezone
 
 def get_platform():
 
@@ -107,20 +109,15 @@ def calculate_hash(filename, algorithm):
 
         return file_hash.hexdigest()
 
-def start_mrsign_sever(executable):
-    #START mrsign 
-    #TODO the mrsign server starts in the local environment just for the developing test. 
-    # In the production environment the server will be located in remote position and this part of code will be removed 
-    if get_platform() == 'win':
-        subprocess.run(r'start /MIN "mrsign server" "'+ executable +'" -s -c mrsign/config.json', shell=True, 
-                        stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+def get_ntp_date_and_time(server):
+    try:
+        ntpDate = None
+        client = ntplib.NTPClient()
+        response = client.request(server, version=3)
+    except Exception as exception:
+        return exception
 
-def stop_mrsign_sever():
-    #STOP mrsign 
-    #TODO the mrsign server starts in the local environment just for the developing test. 
-    # In the production environment the server will be located in remote position and this part of code will be removed 
-    if get_platform() == 'win':
-        subprocess.run("taskkill /f /im mrsign.exe", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    return datetime.fromtimestamp(response.tx_time, timezone.utc)
 
 def import_modules(start_path, start_module_name = ""):
     
