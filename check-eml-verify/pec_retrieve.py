@@ -99,11 +99,11 @@ for uid in list_mail:
     result, data = imap.uid('fetch', uid, '(BODY.PEEK[])')
     if result != "OK":
         continue
-    mail = email.message_from_string(data[0][1])
+    mail = email.message_from_string(data[0][1].decode('utf-8'))
     for part in mail.walk():
         type_ext = part.get_content_type()
         if type_ext == 'text/plain':
-            body = part.get_payload(decode=True)
+            body = part.get_payload(decode=True).decode('utf-8')
             if CONTENT in body:
                 print ( body )
                 read.append(uid)
