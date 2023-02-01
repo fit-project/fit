@@ -69,17 +69,27 @@ class CaseInfoPage(QtWidgets.QWizardPage):
     
     def set_case_information(self, name):
         self.case_info = next((item for item in self.form.cases if item["name"] == name), None)
-        self.form.lawyer_name.setText(self.case_info['lawyer_name'])
-        self.form.set_index_from_type_proceedings_id(self.case_info['types_proceedings_id'])
-        self.form.courthouse.setText(self.case_info['courthouse'])
-        self.form.proceedings_number.setText(str(self.case_info['proceedings_number']))
+        if self.case_info is not None:
+            for keyword, value in self.case_info.items():
+                item = self.findChild(QtCore.QObject, keyword)
+                if item is not None:
+                    if isinstance(item, QtWidgets.QLineEdit) is not False:
+                        if value is not None:
+                            item.setText(value)
+                    if isinstance(item, QtWidgets.QComboBox):
+                        if keyword in 'types_proceedings_id': 
+                            if value is not None:
+                                item.setCurrentIndex(value)
+                        else:
+                            if value is not None:
+                                item.setCurrentText(value)
     
     def clear_case_information(self):
         self.case_info = {}
-        self.form.lawyer_name.setText(None)
+        self.form.lawyer_name.setText("")
         self.form.types_proceedings.setCurrentIndex(-1)
-        self.form.courthouse.setText(None)
-        self.form.proceedings_number.setText(None)
+        self.form.courthouse.setText("")
+        self.form.proceedings_number.setText("")
     
 
 

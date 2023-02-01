@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "fit"
+version = "1.1.0-beta"
+description = "FIT is a Python3 application for forensic acquisition of contents like web pages, emails, social media, etc. directly from the internet."
+authors = ["Fit Project <info@fit-project.org>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+ntplib = "^0.4.0"
+numpy = "^1.24.1"
+PyQt5 = "^5.15.8"
+pywebcopy = "^7.0.2"
+SQLAlchemy = "^2.0.0"
+pyqtwebengine = "^5.15.6"
+pyshark = "^0.4.3"
+opencv-python = "^4.5.1.48"
+pyautogui = "^0.9.52"
+pillow = "^9.4.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

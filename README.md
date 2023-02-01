@@ -35,26 +35,18 @@ Once you've downloaded FIT and installed all the prerequisites:
 ```
 cd fit
 ```
-* create a virtual environment with following command (below its showed windows OS and git-bash):
+* If you don't have poetry, install it (below its showed windows Powershell):
 ```
-python -m venv env
-```
-* activate the virtual environment (below its showed windows OS and git-bash):
-```
-source ./env/Scripts/activate
-```
-* update pip in the virtual environment by running the following command:
-```
-python -m pip install --upgrade pip
+Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 ```
 * install the dependencies:
 ```
-pip install -r requirements.txt
+poetry install
 ```
 ## Running FIT
 
 Run your application:
 
 ```
-python fit.py
+poetry run python fit.py
 ```
