@@ -49,9 +49,10 @@ class Mail:
         self.password = ''
 
         # Select messages from Inbox folder
-        self.download_messages(mailbox, 'Inbox')
-        # self.download_messages(mailbox, 'Sent') #??? check docs
-        # self.download_messages(mailbox, 'Draft') #??? check docs
+        folders = ['Inbox', 'Sent', 'Drafts', 'Deleted']
+        #self.download_messages(mailbox, 'Inbox')
+        #self.download_messages(mailbox, 'Sent')
+        #self.download_messages(mailbox, 'Draft') #??? check docs
         # self.download_messages(mailbox, 'Trashbin') #??? check docs
         # self.download_messages(mailbox, 'Spam') #??? check docs
         return
@@ -80,7 +81,6 @@ class Mail:
     def set_parameters(self):
         provider = (self.email_address.partition('@')[2]).partition('.')[0]
         #domain = provider.partition('.')[2]
-        print(provider)
         if provider.lower() == 'gmail':
             server = 'imap.gmail.com'
             port = 993
