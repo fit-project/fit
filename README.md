@@ -35,7 +35,7 @@ Once you've downloaded FIT and installed all the prerequisites:
 ```
 cd fit
 ```
-* If you don't have poetry, install it (below its showed windows Powershell):
+* If you don't have [poetry](https://python-poetry.org/), install it (below its showed windows Powershell):
 ```
 Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 ```
