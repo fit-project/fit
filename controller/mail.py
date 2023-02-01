@@ -30,10 +30,11 @@ import email
 import os
 import re
 import email.message
+from email.header import decode_header
 
 
 class Mail:
-    def __init__(self, email_address, password,project_folder):
+    def __init__(self, email_address, password, project_folder):
         self.email_address = email_address
         # TODO: implement secure password handling
         self.password = password
@@ -48,39 +49,65 @@ class Mail:
         # Clear password after usage
         self.password = ''
 
-        # Select messages from Inbox folder
-        folders = ['Inbox', 'Sent', 'Drafts', 'Deleted']
-        #self.download_messages(mailbox, 'Inbox')
-        #self.download_messages(mailbox, 'Sent')
-        #self.download_messages(mailbox, 'Draft') #??? check docs
-        # self.download_messages(mailbox, 'Trashbin') #??? check docs
-        # self.download_messages(mailbox, 'Spam') #??? check docs
+        # Retrieve every folder from the mailbox
+        folders = []
+        for folder in mailbox.list()[1]:
+            name = folder.decode().split(' "/" ')
+            folders.append(name[1])
+
+        # Scrape every message from the folders
+        self.download_messages(mailbox, folders)
+        mailbox.close()
+        mailbox.logout()
         return
 
-    def download_messages(self,mailbox, folder):
-        mailbox.select(folder)
-        type, data = mailbox.search(None, 'ALL')
-        # Create acquisition folder
-        if not os.path.exists(self.project_folder + '//' +folder):
-            os.makedirs(self.project_folder + '//emails//' +folder)
-        # Fetch every message in specified folder
+    def download_messages(self, mailbox, folders):
+        for folder in folders:
+            try:
+                mailbox.select(folder)
+                type, data = mailbox.search(None, 'ALL')
+                # Create acquisition folder
+                if not os.path.exists(self.project_folder + '//' + folder):
+                    os.makedirs(self.project_folder + '//emails//' + folder)
+                # Fetch every message in specified folder
+                messages = data[0].split()
+                for email_id in messages:
+                    status, email_data = mailbox.fetch(email_id, "(RFC822)")
+                    email_message = email_data[0][1].decode("utf-8")
 
-        messages = data[0].split()
+                    email_part = email.message_from_bytes(email_data[0][1])
+                    acquisition_dir = self.project_folder + '//emails//' + folder + '/'
+                    with open(
+                            '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
+                            'w') as f:
+                        f.write(email_message)
+                        f.close()
 
-        for email_id in messages:
-            status, email_data = mailbox.fetch(email_id, "(RFC822)")
-            email_data = email_data[0][1].decode("utf-8")
+                    # attachments acquisition
+                    for part in email_part.walk():
+                        if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
+                            filename, encoding = decode_header(part.get_filename())[0]
+                            path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
+                            os.makedirs(path)
+                            if (encoding is None):
+                                with open(self.project_folder + '//emails//'+ folder + '/' +email_id.decode("utf-8") + '/' + filename, 'wb')as f:
+                                    f.write(part.get_payload(decode=True))
+                                    f.close()
+                            else:
+                                with open(self.project_folder + '//emails//'+ folder + '/' +email_id.decode("utf-8") + '/' + filename.decode(encoding), 'wb') as f:
+                                    f.write(part.get_payload(decode=True))
+                                    f.close()
 
-            with open('%s/%s.eml' % (self.project_folder + '//emails//' + folder + '/', email_id.decode("utf-8")), 'w') as f:
-                f.write(email_data)
-                f.close()
+
+            except: # add exception
+                pass
 
         return
 
     # TODO: define different servers based on providers
     def set_parameters(self):
         provider = (self.email_address.partition('@')[2]).partition('.')[0]
-        #domain = provider.partition('.')[2]
+        # domain = provider.partition('.')[2]
         if provider.lower() == 'gmail':
             server = 'imap.gmail.com'
             port = 993
@@ -96,6 +123,3 @@ class Mail:
             port = 993
 
         return server, port
-
-
-
