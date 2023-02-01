@@ -63,19 +63,17 @@ class Mail:
         if not os.path.exists(self.project_folder + '//' +folder):
             os.makedirs(self.project_folder + '//emails//' +folder)
         # Fetch every message in specified folder
-        for numer_of_messages in data[0].split():
-            type, data = mailbox.fetch(numer_of_messages, '(RFC822)')
-            for response_part in data:
-                if isinstance(response_part, tuple):
-                    # Decode the message
-                    msg = email.message_from_string(response_part[1].decode('utf-8'))
-                    if msg['Message-Id']:
-                        # Write message as eml file
-                        filename = re.sub('[^a-zA-Z0-9_\-\.()\s]+', '', msg['Message-Id'])
-                        # testing solution for filname problems
-                        with open('%s/%s.eml' % (self.project_folder + '//emails//' +folder + '/', filename.replace('\r\n','')), 'w') as f:
-                            f.write(response_part[1].decode('utf-8'))
-                            f.close()
+
+        messages = data[0].split()
+
+        for email_id in messages:
+            status, email_data = mailbox.fetch(email_id, "(RFC822)")
+            email_data = email_data[0][1].decode("utf-8")
+
+            with open('%s/%s.eml' % (self.project_folder + '//emails//' + folder + '/', email_id.decode("utf-8")), 'w') as f:
+                f.write(email_data)
+                f.close()
+
         return
 
     # TODO: define different servers based on providers
