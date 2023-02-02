@@ -39,8 +39,6 @@ class ScreenRecorder(Base):
     
     id = Column(Integer, primary_key = True)
     enabled = Column(Boolean)
-    resolution_width = Column(Integer)
-    resolution_height = Column(Integer)
     codec_id = Column(Integer)
     fps = Column(Integer)
     filename = Column(String)
@@ -63,8 +61,6 @@ class ScreenRecorder(Base):
     def set_default_values(self):
         
         self.enabled = True
-        self.resolution_width = 1920
-        self.resolution_height = 1080
         self.codec_id = 1
         self.fps = 25
         self.filename = "acquisition.avi"

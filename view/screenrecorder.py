@@ -53,7 +53,7 @@ class ScreenRecorder(QObject):
 
         
         # Specify resolution
-        self.resolution = (int(options['resolution_width']), int(options['resolution_height']))
+        self.resolution = (pyautogui.size())
 
         # Specify video codec       
         codec = next((item for item in self.controller.codec if item["id"] == options['codec_id']))
