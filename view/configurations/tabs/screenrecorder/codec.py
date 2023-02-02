@@ -51,7 +51,7 @@ class Codec(QtWidgets.QGroupBox):
 
     
     def initUI(self):
-        self.setGeometry(QtCore.QRect(510, 90, 160, 70))
+        self.setGeometry(QtCore.QRect(210, 90, 160, 70))
         self.setObjectName("group_box_codec")
         self.codec = QtWidgets.QComboBox(self)
         self.codec.setGeometry(QtCore.QRect(20, 30, 80, 22))
