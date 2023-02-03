@@ -51,6 +51,8 @@ from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
+from controller.report import Report as ReportController
+
 from common.error import ErrorMessage
 
 from common.settings import DEBUG
@@ -380,7 +382,11 @@ class Web(QtWidgets.QMainWindow):
                 algorithm = 'sha256'
                 logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
 
-            logger_acquisition.info(f'NTP end acquisition time: {utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])}')
+            report = ReportController (self.acquisition_directory)
+            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+            report.generate_pdf('web', self.case_info, ntp)
+
+            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
             logger_acquisition.info('Acquisition end')
 
             #### open the acquisition folder ####

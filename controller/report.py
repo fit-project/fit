@@ -25,44 +25,90 @@
 # SOFTWARE.
 # -----
 ######
-from fpdf import FPDF, Template
-class Report:
-    def __init__(self, path, filename):
-        self.path = path
-        self.filename = filename
+import os
 
-    def generate_pdf(self, case_info):
+from fpdf import FPDF, Template
+from common.report import ReportText
+class Report:
+    def __init__(self,acquisition_directory):
+        self.acquisition_directory = acquisition_directory
+
+    def generate_pdf(self,type,case_info,ntp):
         pdf = FPDF()
+        phrases = ReportText()
 
         #FIRST PAGE
         version = "1.0"
         pdf.add_page()
-        pdf.set_font("Arial", size=40)
-        pdf.cell(200, 100, txt="Freezing Internet Tool",ln=1, align='C')
-        pdf.set_font("Arial", size=30)
-        pdf.cell(200, 10, txt="Report Freezing Internet Tool", ln=2, align='C')
-        pdf.set_font("Arial", size=15)
-        pdf.cell(200, 100, txt="Versione: "+version,ln=2, align='C')
+        pdf.set_margins(32, 32, -1)
 
-        # SECOND PAGE
-        pdf.cell(200, 100, txt="Fit", ln=1)
-        pdf.set_font("Arial", size=30)
-        pdf.cell(200, 10, txt="IT – Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti come pagine web, e-mail e social media direttamente da internet.",
-                 ln=2, align='C')
+        pdf.add_font('Palatino', '', r'C:\Users\Routi\fit\asset\fonts\pala.ttf', uni=True)
+        #margin w, margin h
+        pdf.set_font("Palatino", size=32)
+        pdf.cell(200, 10, txt=phrases.TEXT['title'], ln=2)
+        pdf.set_font("Palatino", size=16)
+        pdf.cell(200, 20, txt=phrases.TEXT['report'], ln=2)
+        pdf.set_font("Palatino", size=14)
+        pdf.cell(200, 20, txt='Versione: '+version, ln=2)
+        pdf.multi_cell(190, 10, txt=phrases.TEXT['description'])
 
 
+        pdf.set_font("Palatino", size=16)
+        pdf.cell(200, 20, txt=phrases.TEXT['info'], ln=2)
+        pdf.add_font('Palatino Bold', '', r'C:\Users\Routi\fit\asset\fonts\palab.ttf', uni=True)
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 10, phrases.CASE[0], ln=2)
+        pdf.set_font("Palatino", size=14)
+        if case_info['name'] is None:
+            pdf.cell(200, 10, 'N/A', ln=2)
+        else:
+            pdf.cell(200, 10, case_info['name'], ln=2)
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 20, phrases.CASE[1], ln=2)
+        pdf.set_font("Palatino", size=14)
+        if case_info['lawyer_name'] is None:
+            pdf.cell(200, 10, 'N/A', ln=2)
+        else:
+            pdf.cell(200, 10, case_info['lawyer_name'], ln=2)
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 10, phrases.CASE[2], ln=2)
+        pdf.set_font("Palatino", size=14)
+        if case_info['types_proceedings_id'] is None:
+            pdf.cell(200, 10, 'N/A', ln=2)
+        else:
+            pdf.cell(200, 10, case_info['types_proceedings_id'], ln=2)
+
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 10, phrases.CASE[3], ln=2)
+        pdf.set_font("Palatino", size=14)
+        if case_info['courthouse'] is None:
+            pdf.cell(200, 10, 'N/A', ln=2)
+        else:
+            pdf.cell(200, 10, case_info['courthouse'], ln=2)
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 10, phrases.CASE[4], ln=2)
+        pdf.set_font("Palatino", size=14)
+        if case_info['proceedings_number'] is None:
+            pdf.cell(200, 10, 'N/A', ln=2)
+        else:
+            pdf.cell(200, 10, case_info['proceedings_number'], ln=2)
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 10, phrases.CASE[5], ln=2)
+        pdf.set_font("Palatino", size=14)
+        pdf.cell(200, 10, type, ln=2)
+
+        pdf.set_font("Palatino Bold", size=14)
+        pdf.cell(200, 10, phrases.CASE[6], ln=2)
+        pdf.set_font("Palatino", size=14)
+        pdf.cell(200, 10, str(ntp), ln=2)
 
 
         # save the pdf with name .pdf
-        pdf.output(self.path+self.filename)
-
-
-    # this will define the ELEMENTS that will compose the template.
-
-#just for testing
-if __name__ == '__main__':
-    path = "C:\\Users\\Routi\\Desktop\\"
-
-    filename = "report.pdf"
-    report = Report(path, filename)
-    report.generate_pdf(None)
+        pdf.output(self.acquisition_directory+'_report.pdf')
+        return
