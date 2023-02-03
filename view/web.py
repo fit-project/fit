@@ -33,7 +33,7 @@ import shutil
 
 #I don't know why but pywebcopy "original" (by Raja Tomar) hangs the console and does not exit.
 #If I understood corretly this issue is knowed (https://github.com/rajatomar788/pywebcopy/issues/46)
-#David W Grossman has found a workaround He removed all multithreading and commit this version 
+#David W Grossman has found a workaround He removed all multithreading and commit this version
 # here https://github.com/davidwgrossman/pywebcopy. for this reason I used this "unofficial" version in the local lib path
 #from lib.pywebcopy import WebPage, config as pwc_config, core
 
@@ -382,6 +382,7 @@ class Web(QtWidgets.QMainWindow):
                 algorithm = 'sha256'
                 logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
 
+            ### generate pdf report ###
             report = ReportController (self.acquisition_directory)
             ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
             report.generate_pdf('web', self.case_info, ntp)

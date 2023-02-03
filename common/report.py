@@ -32,8 +32,20 @@ class ReportText:
             'title': "Freezing Internet Tool",
             'report': "Report Freezing Internet Tool",
             'description': "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti "
-                           "come pagine web, e-mail e social media direttamente da internet.\n",
-            'info': 'Informazioni generali'
+                           "come pagine web, e-mail e social media direttamente da internet.",
+            't1': "Informazioni generali",
+            'version': "Versione 1.0",
+            't2' : "Verifica titolarità dei dati",
+            't3': "File prodotti dal sistema",
+            't4': "'File prodotti dall'utente",
+
+            'avi': "Acquisizione video",
+            'hash': "File contenente gli hash dei file",
+            'log': "Informazioni generate dai vari componenti del sistema",
+            'pcap': "Registrazione del traffico di rete",
+            'zip': "Archivio contenente l'acquisizione",
+            'txt': "File whois"
+
         }
         self.CASE = ["Cliente / Caso", "Avvocato","Tipo di procedimento",
                      "Tribunale","Numero di procedimento","Tipo di acquisizione","Data acquisizione"]
