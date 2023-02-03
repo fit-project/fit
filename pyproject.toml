@@ -17,6 +17,7 @@ pyshark = "^0.4.3"
 opencv-python = "^4.5.1.48"
 pyautogui = "^0.9.52"
 pillow = "^9.4.0"
+python-whois = "^0.8.0"
 
 [tool.poetry.dev-dependencies]
 
