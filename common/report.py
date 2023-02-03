@@ -37,14 +37,14 @@ class ReportText:
             'version': "Versione 1.0",
             't2' : "Verifica titolarità dei dati",
             't3': "File prodotti dal sistema",
-            't4': "'File prodotti dall'utente",
+            't4': "File prodotti dall'utente",
 
-            'avi': "Acquisizione video",
-            'hash': "File contenente gli hash dei file",
-            'log': "Informazioni generate dai vari componenti del sistema",
-            'pcap': "Registrazione del traffico di rete",
-            'zip': "Archivio contenente l'acquisizione",
-            'txt': "File whois"
+            'avi': "acquisizione video",
+            'hash': "file contenente gli hash dei file",
+            'log': "informazioni generate dai vari componenti del sistema",
+            'pcap': "registrazione del traffico di rete",
+            'zip': "archivio contenente l'acquisizione",
+            'txt': "file whois"
 
         }
         self.CASE = ["Cliente / Caso", "Avvocato","Tipo di procedimento",

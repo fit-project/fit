@@ -136,7 +136,6 @@ class Report:
         # THIRD PAGE - FILE PRODUCED FROM THE SYS
         pdf.add_page()
         pdf.set_xy(10, 20)
-
         pdf.set_font("Palatino", size=16)
         pdf.cell(200, 20, txt=phrases.TEXT['t3'], ln=2)
 
@@ -148,6 +147,19 @@ class Report:
             extension = filename.partition('.')[2]
             pdf.cell(200, 10, txt=file+": "+phrases.TEXT[extension], ln=2)
 
+        # FOURTH PAGE - FILE PRODUCED FROM THE USER
+        pdf.add_page()
+        pdf.set_xy(10, 20)
+        pdf.set_font("Palatino", size=16)
+        pdf.cell(200, 20, txt=phrases.TEXT['t4'], ln=2)
+
+        pdf.set_font("Palatino", size=12)
+        hash_text = open(self.cases_folder_path + "\\acquisition.hash", "r")
+        text = ''
+        for line in hash_text:
+            text = text + line
+        pdf.set_fill_color(220, 220, 220)
+        pdf.multi_cell(0, 5, txt=str(text), fill=True, border=1)
 
 
 
