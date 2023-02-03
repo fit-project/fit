@@ -59,6 +59,7 @@ import common.utility as utility
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
+logger_whois = logging.getLogger('whois')
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -318,14 +319,19 @@ class Web(QtWidgets.QMainWindow):
             logger_acquisition.info('Acquisition stopped')
             logger_acquisition.info('End URL: ' + self.tabs.currentWidget().url().toString())
             self.statusBar().showMessage('Message in statusbar.')
-            #Step 2: stop threads
+            
+            #Step 2: Get whois info
+            logger_acquisition.info('Get Whois info for URL: ' + self.tabs.currentWidget().url().toString())
+            logger_whois.info(utility.whois(self.tabs.currentWidget().url().toString()))
+
+            #Step 3: stop threads
             if self.is_enabled_packet_capture:
                 self.packetcapture.stop()
 
             if self.is_enabled_screen_recorder:
                 self.screenrecorder.stop()
 
-            #Step 3:  Save screenshot of current page
+            #Step 4:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
             self.progress_bar.setValue(10)
             logger_acquisition.info('Save screenshot of current page')
@@ -341,7 +347,7 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
-            #Step 4:  Save all resource of current page
+            #Step 5:  Save all resource of current page
             zip_folder = self.save_page()
             
             logger_acquisition.info('Save all resource of current page')
@@ -357,7 +363,7 @@ class Web(QtWidgets.QMainWindow):
    
             self.status.showMessage('Calculate acquisition file hash')
             self.progress_bar.setValue(100)
-            #Step 5:  Calculate acquisition hash
+            #Step 6:  Calculate acquisition hash
             logger_acquisition.info('Calculate acquisition file hash')
             files = [ f.name for f in os.scandir(self.acquisition_directory) if f.is_file() ]
 

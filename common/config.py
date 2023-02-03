@@ -52,6 +52,10 @@ class LogConfig:
                 'acquisition': {
                     'class': 'logging.Formatter',
                     'format': '%(asctime)s - %(message)s'
+                },
+                'whois': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
                 }
 
             },
@@ -70,6 +74,12 @@ class LogConfig:
                     'filename': 'acquisition.hash',
                     'mode': 'w',
                     'formatter': 'hashreport',
+                },
+                'fwhois': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'whois.txt',
+                    'mode': 'w',
+                    'formatter': 'whois',
                 }
             },
             'loggers': {
@@ -81,6 +91,10 @@ class LogConfig:
                     'handlers': ['fhashreport'],
                     'level' : 'INFO'
                 },
+                'whois': {
+                    'handlers': ['fwhois'],
+                    'level' : 'INFO'
+                }
             },
             'root': {
                 'handlers': ['null'],
