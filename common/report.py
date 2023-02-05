@@ -25,27 +25,48 @@
 # SOFTWARE.
 # -----
 ######
+import os
+
 
 class ReportText:
     def __init__(self):
         self.TEXT = {
+            'img': '..\\asset\\images\\FIT.png',
             'title': "Freezing Internet Tool",
             'report': "Report Freezing Internet Tool",
+            'version': "Versione 1.0 beta",
             'description': "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti "
-                           "come pagine web, e-mail e social media direttamente da internet.",
+                           "come pagine web, e-mail e social media direttamente da internet. <br><br>"
+                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+                           "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
+                           "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure "
+                           "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
+                           "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit "
+                           "anim id est laborum <br>"
+                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+                           "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
+                           "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure "
+                           "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
+                           "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit "
+                           "anim id est laborum",
             't1': "Informazioni generali",
-            't2' : "Verifica titolarità dei dati",
+            'case': "Informazioni sul caso",
+            'casedata': "Dati sul caso",
+            'typed':"Tipo di acquisizione",
+            'date': "Data acquisizione",
+            't2': "Verifica titolarità dei dati",
             't3': "File prodotti dal sistema",
-            't4': "File prodotti dall'utente",
-
-            'avi': "acquisizione video",
-            'hash': "file contenente gli hash dei file",
-            'log': "informazioni generate dai vari componenti del sistema",
-            'pcap': "registrazione del traffico di rete",
-            'zip': "archivio contenente l'acquisizione",
-            'txt': "file whois",
-            'png': "screenshot della pagina"
+            'name': "Nome del file",
+            'descr': "Descrizione",
+            'avid': "acquisizione video",
+            'hashd': "file contenente gli hash dei file",
+            'logd': "informazioni generate dai vari componenti del sistema",
+            'pcapd': "registrazione del traffico di rete",
+            'zipd': "archivio contenente l'acquisizione",
+            'txtd': "file whois",
+            'pngd': "screenshot della pagina",
+            't4': "File prodotti dall'utente"
 
         }
-        self.CASE = ["Cliente / Caso", "Avvocato","Tipo di procedimento",
-                     "Tribunale","Numero di procedimento","Tipo di acquisizione","Data acquisizione"]
+        self.CASE = ["Cliente / Caso", "Avvocato", "Tipo di procedimento",
+                     "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]

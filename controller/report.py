@@ -27,162 +27,77 @@
 ######
 import os
 
-from fpdf import FPDF
+from xhtml2pdf import pisa
+
 from common.report import ReportText
 
 
 class Report:
-    def __init__(self, cases_folder_path):
+    def __init__(self, cases_folder_path,case_info):
         self.cases_folder_path = cases_folder_path
-        self.pdf = FPDF(orientation = 'P', unit = 'mm', format='A4')
+        self.output_file = self.cases_folder_path + "\\" + "acquisition_report.pdf"
+        self.case_info = case_info
 
-    def generate_pdf(self, type, case_info, ntp):
+    def generate_pdf(self, type, ntp):
+        self.result_file = open(self.output_file, "w+b")
 
+        # PREPARING DATA TO FILL THE PDF
+        new_case_info = self._data_check()  # check if data is not None
         phrases = ReportText()
-        # add fonts (the only way to work with unicode characters)
-        self.pdf.add_font('Palatino', '', os.getcwd() + '\\asset\\fonts\\pala.ttf', uni=True)
-        self.pdf.add_font('Palatino Bold', '', os.getcwd() + '\\asset\\fonts\\palab.ttf', uni=True)
-        self.pdf.add_font('Palatino Italic', '', os.getcwd() + '\\asset\\fonts\\palai.ttf', uni=True)
 
-        # ------------------------ FRONT PAGE ------------------------
-        self.pdf.add_page()
-        self.pdf.set_xy(0, 0)
-        self.pdf.set_left_margin(72 / 2)
-        self.pdf.set_right_margin(72 / 2)
-        self.pdf.image(os.getcwd() + '\\asset\\images\\FIT.png', x=40, y=20, w=0, h=0, type='PNG')
-        # margin w, margin h
+        with open(self.cases_folder_path + "\\whois.txt", "r", encoding='utf-8') as f:
+            whois_text = f.read()
+            f.close()
 
-        self.pdf.set_xy(0, 120)
-        self.pdf.set_font("Palatino", size=32)
-        self.pdf.cell(200, 150, txt=phrases.TEXT['title'], ln=2, align='C')
-        self.pdf.set_font("Palatino", size=16)
-        self.pdf.cell(200, -100, txt=phrases.TEXT['report'], ln=2,align='C')
-        # ------------------------ FIRST PAGE - FIT INFO ------------------------
-        self.new_page()
-        self.pdf.cell(200, 20, txt=phrases.TEXT['title'], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        self.pdf.multi_cell(190, 8, txt=phrases.TEXT['description'])
+        with open(self.cases_folder_path + "\\acquisition.hash", "r", encoding='utf-8') as f:
+            user_files = f.read()
+            f.close()
 
+        extensions = self._extension_check()
 
-        # ------------------------  SECOND PAGE - CASE INFO ------------------------
+        # FILLING TEMPLATE WITH DATA
+        index = open(os.getcwd() + '/asset/templates/template.html').read().format(
+            img=phrases.TEXT['img'],
+            title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version'],
+            description=phrases.TEXT['description'], t1=phrases.TEXT['t1'],
+            case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
+            case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
+            case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
 
-        self.new_page()
+            data0=new_case_info[1], data1=new_case_info[2], data2=new_case_info[3],
+            data3=new_case_info[4], data4=new_case_info[0],
+            typed=phrases.TEXT['typed'], type=type,
+            date=phrases.TEXT['date'], ntp=ntp,
+            t2=phrases.TEXT['t2'], whois=whois_text, t3=phrases.TEXT['t3'],
+            name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
+            avi=extensions['avi'], avid=phrases.TEXT['avid'],
+            hash=extensions['hash'], hashd=phrases.TEXT['hashd'],
+            log=extensions['log'], logd=phrases.TEXT['logd'],
+            pcap=extensions['pcap'], pcapd=phrases.TEXT['pcapd'],
+            zip=extensions['zip'], zipd=phrases.TEXT['zipd'],
+            txt=extensions['txt'], txtd=phrases.TEXT['txtd'],
+            png=extensions['png'], pngd=phrases.TEXT['pngd'],
+            t4=phrases.TEXT['t4'], file=user_files)
 
-        # client/case
-        self.pdf.cell(200, 20, txt=phrases.TEXT['t1'], ln=2)
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[0], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        if case_info['name'] is None:
-            self.pdf.cell(200, 5, 'N/A', ln=2)
-        else:
-            self.pdf.cell(200, 5, case_info['name'], ln=2)
+        pisa.CreatePDF(index, dest=self.result_file)
+        self.result_file.close()
 
-        # lawyer
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[1], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        if case_info['lawyer_name'] is None:
-            self.pdf.cell(200, 5, 'N/A', ln=2)
-        else:
-            self.pdf.cell(200, 5, case_info['lawyer_name'], ln=2)
-
-        # type of proceeding
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[2], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        if case_info['types_proceedings_id'] is None:  # TODO: change in proceeding according to id
-            self.pdf.cell(200, 5, 'N/A', ln=2)
-        else:
-            self.pdf.cell(200, 5, case_info['types_proceedings_id'], ln=2)
-
-        # couthouse
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[3], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        if case_info['courthouse'] is None:
-            self.pdf.cell(200, 5, 'N/A', ln=2)
-        else:
-            self.pdf.cell(200, 5, case_info['courthouse'], ln=2)
-
-        # proceeding number
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[4], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        if case_info['proceedings_number'] is None:
-            self.pdf.cell(200, 5, 'N/A', ln=2)
-        else:
-            self.pdf.cell(200, 5, case_info['proceedings_number'], ln=2)
-
-        # type of acquisition
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[5], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        self.pdf.cell(200, 5, type, ln=2)
-
-        # ntp
-        self.pdf.set_font("Palatino Bold", size=14)
-        self.pdf.cell(200, 20, phrases.CASE[6], ln=2)
-        self.pdf.set_font("Palatino", size=14)
-        self.pdf.cell(200, 5, str(ntp), ln=2)
-
-        # ------------------------ THIRD PAGE - WHOIS INFORMATION ------------------------
-        self.new_page()
-        self.pdf.cell(200, 20, txt=phrases.TEXT['t2'], ln=2)
-
-        self.pdf.set_font("Palatino", size=10)
-        whois_text = open(self.cases_folder_path + "\\whois.txt", "r")
-        text = ''
-        for line in whois_text:
-            text = text + line
-        self.pdf.set_fill_color(220, 220, 220)
-        self.pdf.multi_cell(0, 5, txt=str(text), fill=True, border=1)
-
-        # THIRD PAGE - FILE PRODUCED FROM THE SYS
-        self.new_page()
-        self.pdf.cell(200, 20, txt=phrases.TEXT['t3'], ln=2)
-
-        # get every file from the folder and write info
-        self.pdf.set_font("Palatino", size=12)
+    def _extension_check(self):
+        extensions = {}
         files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
         for file in files:
             filename = os.path.join(self.cases_folder_path, file)
-            extension = filename.partition('.')[2]
-            self.pdf.cell(200, 10, txt=file + ": " + phrases.TEXT[extension], ln=2)
+            extension = str(filename.partition('.')[2])
+            extensions[extension] = str(file)
+        if "png" not in extensions:
+            extensions['png'] = "Screenshot non prodotto"  # todo: check errore cattura
+        return extensions
 
-        # ------------------------ FOURTH PAGE - FILE PRODUCED FROM THE USER ------------------------
-        self.new_page()
-        self.pdf.cell(200, 20, txt=phrases.TEXT['t4'], ln=2)
-
-        self.pdf.set_font("Palatino", size=12)
-        hash_text = open(self.cases_folder_path + "\\acquisition.hash", "r")
-        text = ''
-        for line in hash_text:
-            text = text + line
-        self.pdf.set_fill_color(220, 220, 220)
-        self.pdf.multi_cell(0, 5, txt=str(text), fill=True, border=1)
-
-        # save the pdf
-        self.pdf.output(
-            self.cases_folder_path + "\\" + "acquisition_report.pdf")
-        return
-
-    def header(self):
-        #implement footer
-        return
-
-    def new_page(self):
-        #header
-        self.pdf.add_page()
-
-        self.pdf.set_left_margin(72 / 2)
-        self.pdf.set_right_margin(72 / 2)
-
-        self.pdf.set_font("Palatino", size=10)
-        self.pdf.set_text_color(255,69,0) #orangered #ff4500 (255,69,0)
-        self.pdf.cell(0, 5, 'Freezing Internet Tool', align='R')
-
-        self.pdf.set_text_color(0,0,0) #black
-        self.pdf.set_xy(10, 20)
-        self.pdf.set_font("Palatino", size=16)
-        return
+    def _data_check(self):
+        new_case_info = []
+        for key in self.case_info:
+            if self.case_info[key] is None:
+                new_case_info.append('N/A')
+            else:
+                new_case_info.append(self.case_info[key])
+        return new_case_info

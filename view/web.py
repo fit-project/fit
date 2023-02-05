@@ -382,13 +382,17 @@ class Web(QtWidgets.QMainWindow):
                 algorithm = 'sha256'
                 logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
 
-            ### generate pdf report ###
-            report = ReportController (self.acquisition_directory)
-            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
-            report.generate_pdf('web', self.case_info, ntp)
 
+            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
             logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+
             logger_acquisition.info('Acquisition end')
+
+            logger_acquisition.info('PDF generation start')
+            ### generate pdf report ### i had to put this here because the screenshot is profuced after the pdf
+            report = ReportController(self.acquisition_directory, self.case_info)
+            report.generate_pdf('web', ntp)
+            logger_acquisition.info('PDF generation end')
 
             #### open the acquisition folder ####
             os.startfile(self.acquisition_directory)
@@ -406,7 +410,7 @@ class Web(QtWidgets.QMainWindow):
             #hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
-            
+
     def _acquisition_status(self):
         self.acquisition_status.show()
 

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fit</title>
+    <style type="text/css">
+    @media print {{
+        .pagebreak {{
+            page-break-before: always;
+        }}
+    }}
+
+    h1 {{
+        font-size: 60px;
+        font-family: "Times New Roman", Times, serif;
+    }}
+
+    h2 {{
+        font-size: 40px;
+        font-family: "Times New Roman", Times, serif;
+    }}
+
+     h3 {{
+        font-size: 30px;
+        font-family: "Times New Roman", Times, serif;
+     }}
+    h4 {{
+        font-size: 25px;
+        font-family: "Times New Roman", Times, serif;
+        color: #ff6600;
+    }}
+    p {{
+        font-size: 20px;
+        font-family: "Times New Roman", Times, serif;
+    }}
+
+    @page {{
+
+        size: a4 portrait;
+        margin: 100px;
+
+    }}
+
+    .center {{
+        display: block;
+        text-align: center;
+    }}
+
+    .data_from_file {{
+        font-size: 14px;
+        border-width: 3px;
+        border-style:solid;
+        border-color:#FF0000;
+        padding: 1em;
+    }}
+
+    #case_info, #file_info {{
+      font-family: "Times New Roman", Times, serif;
+      font-size: 20px;
+    }}
+
+    #case_info td, #case_info th, #file_info td, #file_info th{{
+      border: 1px solid #ddd;
+      padding: 8px;
+    }}
+
+    #case_info th, #file_info th {{
+      background-color: orange;
+      color: white;
+      text-align: center;
+    }}
+
+
+
+
+    </style>
+</head>
+
+<body>
+<header>{title:}</header>
+
+<img src={img:} class="center">
+
+<h1 class="center">{title:}</h1>
+<h2 class="center">{report:}</h2>
+<h3 class="center">{version:}</h3>
+
+<div class="pagebreak"></div>
+
+<h4 style="text-align: left;">{title:}</h4>
+<p>{description:}</p>
+
+<div class="pagebreak"></div>
+
+<h4 style="text-align: left;">{t1:}</h4>
+
+<table id="case_info">
+    <tr>
+        <th>{case:}</th>
+        <th>{casedata:}</th>
+    </tr>
+    <tr>
+        <td>{case0:}</td>
+        <td>{data0:}</td>
+    </tr>
+    <tr>
+        <td>{case1:}</td>
+        <td>{data1:}</td>
+    </tr>
+    <tr>
+        <td>{case2:}</td>
+        <td>{data2:}</td>
+    </tr>
+    <tr>
+        <td>{case3:}</td>
+        <td>{data3:}</td>
+    </tr>
+    <tr>
+        <td>{case4:}</td>
+        <td>{data4:}</td>
+    </tr>
+    <tr>
+        <td>{typed}</td>
+        <td>{type:}</td>
+    </tr>
+    <tr>
+        <td>{date:}</td>
+        <td>{ntp:}</td>
+    </tr>
+
+</table>
+
+<div class="pagebreak"></div>
+
+<h4 style="text-align: left;">{t2:}</h4>
+<pre class="data_from_file" >{whois:}</pre>
+
+<div class="pagebreak"></div>
+
+<h4 style="text-align: left;">{t3:}</h4>
+<table id="file_info">
+    <tr>
+        <th>{name:}</th>
+        <th>{descr:}</th>
+    </tr>
+    <tr>
+        <td>{avi:}</td>
+        <td>{avid:}</td>
+    </tr>
+    <tr>
+        <td>{hash:}</td>
+        <td>{hashd:}</td>
+    </tr>
+    <tr>
+        <td>{log:}</td>
+        <td>{logd:}</td>
+    </tr>
+    <tr>
+        <td>{pcap:}</td>
+        <td>{pcapd:}</td>
+    </tr>
+    <tr>
+        <td>{zip:}</td>
+        <td>{zipd:}</td>
+    </tr>
+    <tr>
+        <td>{txt:}</td>
+        <td>{txtd:}</td>
+    </tr>
+    <tr>
+        <td>{png:}</td>
+        <td>{pngd:}</td>
+    </tr>
+
+</table>
+<div class="pagebreak"></div>
+<h4 style="text-align: left;">{t4:}</h4>
+<pre>{file:}</pre>
+</body>
+</html>
