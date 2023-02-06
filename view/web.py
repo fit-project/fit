@@ -285,9 +285,9 @@ class Web(QtWidgets.QMainWindow):
                 options['acquisition_directory'] = self.acquisition_directory
                 self.start_packet_capture(options)
                 self.acquisition_status.add_task('Network Packet Capture')
-                self.acquisition_status.set_status('Network Packet Capture', 'Capture loop has been starded in a new thread!', 'done')
+                self.acquisition_status.set_status('Network Packet Capture', 'Capture loop has been started in a new thread!', 'done')
                 logger_acquisition.info('Network Packet Capture started')
-                self.status.showMessage('Capture loop has been starded in a new thread!')
+                self.status.showMessage('Capture loop has been started in a new thread!')
                 self.progress_bar.setValue(75)
 
             #Step 5: Add new thread for screen video recoder and start it
@@ -299,8 +299,8 @@ class Web(QtWidgets.QMainWindow):
                 options['filename'] = os.path.join(self.acquisition_directory, options['filename'])
                 self.start_screen_recoder(options)
                 self.acquisition_status.add_task('Screen Recoder')
-                self.acquisition_status.set_status('Screen Recoder', 'Recoder loop has been starded in a new thread!', 'done')
-                self.status.showMessage('Recoder loop has been starded in a new thread!')
+                self.acquisition_status.set_status('Screen Recoder', 'Recoder loop has been started in a new thread!', 'done')
+                self.status.showMessage('Recoder loop has been started in a new thread!')
                 self.progress_bar.setValue(100)
                 logger_acquisition.info('Screen recoder started')
                 logger_acquisition.info('Initial URL: ' + self.tabs.currentWidget().url().toString())
@@ -361,10 +361,20 @@ class Web(QtWidgets.QMainWindow):
             QtCore.QTimer.singleShot(2000, loop.quit)
             loop.exec_()
 
-            
+            ### NTP ###
+            # had to put ntp before hashing becaause it's required for the report generation
+            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+
+            ### generate pdf report ###
+            logger_acquisition.info('PDF generation start')
+            report = ReportController(self.acquisition_directory, self.case_info)
+            report.generate_pdf('web', ntp)
+            logger_acquisition.info('PDF generation end')
    
             self.status.showMessage('Calculate acquisition file hash')
             self.progress_bar.setValue(100)
+
             #Step 6:  Calculate acquisition hash
             logger_acquisition.info('Calculate acquisition file hash')
             files = [ f.name for f in os.scandir(self.acquisition_directory) if f.is_file() ]
@@ -383,16 +393,8 @@ class Web(QtWidgets.QMainWindow):
                 logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
 
 
-            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
-            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
-
             logger_acquisition.info('Acquisition end')
 
-            logger_acquisition.info('PDF generation start')
-            ### generate pdf report ### i had to put this here because the screenshot is profuced after the pdf
-            report = ReportController(self.acquisition_directory, self.case_info)
-            report.generate_pdf('web', ntp)
-            logger_acquisition.info('PDF generation end')
 
             #### open the acquisition folder ####
             os.startfile(self.acquisition_directory)
