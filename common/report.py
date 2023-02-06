@@ -32,41 +32,87 @@ class ReportText:
     def __init__(self):
         self.TEXT = {
             'img': '..\\asset\\images\\FIT.png',
-            'title': "Freezing Internet Tool",
+            'title': "FIT",
             'report': "Report Freezing Internet Tool",
             'version': "Versione 1.0 beta",
+            'index': "Indice",
+
             'description': "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti "
                            "come pagine web, e-mail e social media direttamente da internet. <br><br>"
-                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
-                           "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
-                           "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure "
-                           "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
-                           "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit "
-                           "anim id est laborum <br>"
-                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
-                           "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
-                           "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure "
-                           "dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
-                           "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit "
-                           "anim id est laborum",
-            't1': "Informazioni generali",
+                           "Un browser forense è un software utilizzato per analizzare e recuperare dati da dispositivi elettronici, "
+                           "come computer, smartphone o tablet, durante indagini forensi. Questo software consente di accedere a "
+                           "informazioni sull'utilizzo del dispositivo, come cronologia delle attività, file e documenti, "
+                           "messaggi di testo, immagini e molto altro, in modo da fornire prove che possono essere utilizzate "
+                           "in una causa legale.",
+
+            't1': "Freezing Internet Tool",
+            't2': "Informazioni generali",
             'case': "Informazioni sul caso",
             'casedata': "Dati sul caso",
-            'typed':"Tipo di acquisizione",
+            'typed': "Tipo di acquisizione",
             'date': "Data acquisizione",
-            't2': "Verifica titolarità dei dati",
-            't3': "File prodotti dal sistema",
+
+            't3': "Verifica titolarità dei dati",
+            't3descr': "Nel corso dell'acquisizione, l'utente navigava alcuni siti web. FIT "
+                       "procedeva alla verifica di ciascuna connessione mediante routine appositamente implementate. "
+                       "In particolare, ai fini di stabilire la titolarità dei domini coinvolti, venivano indicate le "
+                       "seguenti informazioni:",
+
+            't4': "Digital Forensics",
+            't4descr': "La digital forensics è l'applicazione scientifica e tecnologica dei principi "
+                       "forensi alla raccolta, conservazione, analisi e presentazione dei dati digitali "
+                       "in un contesto legale. Questa disciplina è utilizzata per investigare crimini informatici, "
+                       "come la frode, il furto di dati o la diffusione di malware, e per recuperare e analizzare informazioni "
+                       "da dispositivi elettronici come computer, smartphone e tablet. La digital forensics comprende "
+                       "l'utilizzo di strumenti specializzati per analizzare i dati digitali e garantire la validità delle "
+                       "prove in un contesto legale. Il lavoro dei professionisti della digital forensics è cruciale per "
+                       "aiutare le agenzie investigative e i tribunali a identificare e punire i responsabili di crimini "
+                       "informatici e garantire la giustizia.",
+
+            'titlecc': "La Catena di Custodia",
+
+            'ccdescr': "La catena di custodia è un concetto importante in ambito forense che descrive il "
+                       "controllo e la documentazione degli spostamenti e delle manipolazioni di una prova "
+                       "durante un'indagine o un processo legale. La catena di custodia garantisce che la prova sia autentica, "
+                       "non alterata e non contaminata, e che la sua integrità sia mantenuta dal momento della raccolta fino "
+                       "all'utilizzo in tribunale. Mantenere una catena di custodia affidabile è fondamentale per garantire "
+                       "che la prova sia valida e adatta a supportare le conclusioni nell'ambito giudiziario.",
+
+            'titleh': "Hash",
+            'hdescr': "L'hash delle prove digitali è un valore univoco che rappresenta i dati "
+                      "digitali e che viene utilizzato per verificare l'integrità e l'autenticità "
+                      "delle prove. Un hash viene calcolato utilizzando un algoritmo di crittografia a "
+                      "sensi unici che trasforma i dati in una stringa di caratteri a lunghezza fissa. Se i dati "
+                      "originali vengono modificati, anche l'hash cambia, rendendo facile rilevare eventuali alterazioni. "
+                      "In un contesto legale, l'hash delle prove digitali viene spesso utilizzato per verificare che i dati "
+                      "originali non siano stati alterati durante il processo di raccolta, conservazione e presentazione delle "
+                      "prove. Mantenere un record dell'hash delle prove digitali contribuisce a garantire la loro integrità "
+                      "e ad assicurare che siano adatti a supportare le conclusioni in una causa legale.",
+
+            't5': "File prodotti dal sistema",
+            't5descr': "Durante l'acquisizione, il sistema ha prodotto una serie di file "
+                       "(come screenshot, video dell'intera navigazione, log del traffico di rete, ecc.), identificati "
+                       "nella seguente tabella.",
+
             'name': "Nome del file",
             'descr': "Descrizione",
-            'avid': "acquisizione video",
-            'hashd': "file contenente gli hash dei file",
-            'logd': "informazioni generate dai vari componenti del sistema",
-            'pcapd': "registrazione del traffico di rete",
-            'zipd': "archivio contenente l'acquisizione",
-            'txtd': "file whois",
-            'pngd': "screenshot della pagina",
-            't4': "File prodotti dall'utente"
+            'avid': "Acquisizione video",
+            'hashd': "File contenente gli hash dei file",
+            'logd': "Informazioni generate dai vari componenti del sistema",
+            'pcapd': "Registrazione del traffico di rete",
+            'zipd': "Archivio contenente l'acquisizione",
+            'txtd': "File whois",
+            'pngd': "Screenshot della pagina",
 
+            't6': "Hash dei file prodotti dal sistema",
+            't6descr': "Ogni file prodotto dall'infrastruttura viene validato mediante il calcolo degli hash. "
+                       "Con questa procedura, ogni singolo file prodotto è immodificabile e può essere fornito "
+                       "anche singolarmente mantenendo la validità della Catena di Custodia",
+
+            't7': "File prodotti dall'utente",
+            't7descr': "Tutti i file prodotti dall'utente durante l'acquisizione sono raccolti all'interno "
+                       "della cartella compressa avente estensione .zip. Per ognuno di questi file viene riportata "
+                       "la dimensione espressa in bytes."
         }
         self.CASE = ["Cliente / Caso", "Avvocato", "Tipo di procedimento",
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
