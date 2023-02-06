@@ -361,20 +361,10 @@ class Web(QtWidgets.QMainWindow):
             QtCore.QTimer.singleShot(2000, loop.quit)
             loop.exec_()
 
-            ### NTP ###
-            # had to put ntp before hashing becaause it's required for the report generation
-            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
-            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
 
-            ### generate pdf report ###
-            logger_acquisition.info('PDF generation start')
-            report = ReportController(self.acquisition_directory, self.case_info)
-            report.generate_pdf('web', ntp)
-            logger_acquisition.info('PDF generation end')
    
             self.status.showMessage('Calculate acquisition file hash')
             self.progress_bar.setValue(100)
-
             #Step 6:  Calculate acquisition hash
             logger_acquisition.info('Calculate acquisition file hash')
             files = [ f.name for f in os.scandir(self.acquisition_directory) if f.is_file() ]
@@ -393,8 +383,16 @@ class Web(QtWidgets.QMainWindow):
                 logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
 
 
+            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+
             logger_acquisition.info('Acquisition end')
 
+            logger_acquisition.info('PDF generation start')
+            ### generate pdf report ###
+            report = ReportController(self.acquisition_directory, self.case_info)
+            report.generate_pdf('web', ntp)
+            logger_acquisition.info('PDF generation end')
 
             #### open the acquisition folder ####
             os.startfile(self.acquisition_directory)
