@@ -51,7 +51,6 @@ logger_hashreport = logging.getLogger('hashreport')
 
 class Mail(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
-
     def case(self):
         self.case_view.exec_()
 
@@ -60,6 +59,8 @@ class Mail(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Mail, self).__init__(*args, **kwargs)
+
+        self.mail_controller = None
         self.input_email = None
         self.input_password = None
         self.error_msg = ErrorMessage()
@@ -124,7 +125,7 @@ class Mail(QtWidgets.QMainWindow):
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
         self.scrape_button.setGeometry(QtCore.QRect(370, 150, 75, 25))
-        self.scrape_button.clicked.connect(self.start_dump_email)
+        self.scrape_button.clicked.connect(self.login)
         self.scrape_button.setObjectName("scrape_button")
         self.scrape_button.setToolTipDuration(3000)
         self.scrape_button.setEnabled(False)
@@ -176,7 +177,19 @@ class Mail(QtWidgets.QMainWindow):
         self.label_password.setText(_translate("email_scrape_window", "Inserisci la password"))
         self.scrape_button.setText(_translate("email_scrape_window", "Scrape"))
 
-    def start_dump_email(self):
+    def login(self):
+        email = self.input_email.text()
+        password = self.input_password.text()
+        self.mail_controller = MailController(email, password)
+        try:
+            mailbox = self.mail_controller.check_login()
+            self.start_dump_email(mailbox)
+        except Exception as e:
+            print(e)
+            self.status.showMessage('Wrong login credentials')
+            return
+
+    def start_dump_email(self, mailbox):
 
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
@@ -234,7 +247,7 @@ class Mail(QtWidgets.QMainWindow):
                 self.status.showMessage('Save all resource of current page')
                 self.progress_bar.setValue(20)
                 # Step 4:  Save all resource of current page
-                zip_folder = self.save_messages()
+                zip_folder = self.save_messages(mailbox)
 
                 logger_acquisition.info('Save all resource of current page')
                 self.acquisition_status.add_task('Save Page')
@@ -290,15 +303,10 @@ class Mail(QtWidgets.QMainWindow):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrape_button.setEnabled(all_fields_filled)
 
-    def save_messages(self):
-        email = self.input_email.text()
-        password = self.input_password.text()
+    def save_messages(self,mailbox):
         project_folder = self.acquisition_directory
 
-        # Before any action, check email and password
-
-        mail_controller = MailController(email, password, project_folder)
-        mail_controller.get_mails_from_every_folder()
+        self.mail_controller.get_mails_from_every_folder(mailbox, project_folder)
 
         project_name = "emails"
 

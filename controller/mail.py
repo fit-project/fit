@@ -34,20 +34,24 @@ from email.header import decode_header
 
 
 class Mail:
-    def __init__(self, email_address, password, project_folder):
+    def __init__(self, email_address, password):
         self.email_address = email_address
         # TODO: implement secure password handling
         self.password = password
-        self.project_folder = project_folder
 
-    def get_mails_from_every_folder(self):
-        server, port = self.set_parameters()
 
+
+    def check_login(self):
         # Connect and log to the mailbox using IMAP
+        server, port = self.set_parameters()
         mailbox = imaplib.IMAP4_SSL(server, port)
         mailbox.login(self.email_address, self.password)
         # Clear password after usage
         self.password = ''
+        return mailbox
+
+
+    def get_mails_from_every_folder(self, mailbox, project_folder):
 
         # Retrieve every folder from the mailbox
         folders = []
@@ -56,19 +60,19 @@ class Mail:
             folders.append(name[1])
 
         # Scrape every message from the folders
-        self.download_messages(mailbox, folders)
+        self.download_messages(mailbox, folders, project_folder)
         mailbox.close()
         mailbox.logout()
         return
 
-    def download_messages(self, mailbox, folders):
+    def download_messages(self, mailbox, folders, project_folder):
         for folder in folders:
             try:
                 mailbox.select(folder)
                 type, data = mailbox.search(None, 'ALL')
                 # Create acquisition folder
-                if not os.path.exists(self.project_folder + '//' + folder):
-                    os.makedirs(self.project_folder + '//emails//' + folder)
+                if not os.path.exists(project_folder + '//' + folder):
+                    os.makedirs(project_folder + '//emails//' + folder)
                 # Fetch every message in specified folder
                 messages = data[0].split()
                 for email_id in messages:
@@ -76,7 +80,7 @@ class Mail:
                     email_message = email_data[0][1].decode("utf-8")
 
                     email_part = email.message_from_bytes(email_data[0][1])
-                    acquisition_dir = self.project_folder + '//emails//' + folder + '/'
+                    acquisition_dir = project_folder + '//emails//' + folder + '/'
                     with open(
                             '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
                             'w') as f:
@@ -90,11 +94,11 @@ class Mail:
                             path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
                             os.makedirs(path)
                             if (encoding is None):
-                                with open(self.project_folder + '//emails//'+ folder + '/' +email_id.decode("utf-8") + '/' + filename, 'wb')as f:
+                                with open(project_folder + '//emails//'+ folder + '/' +email_id.decode("utf-8") + '/' + filename, 'wb')as f:
                                     f.write(part.get_payload(decode=True))
                                     f.close()
                             else:
-                                with open(self.project_folder + '//emails//'+ folder + '/' +email_id.decode("utf-8") + '/' + filename.decode(encoding), 'wb') as f:
+                                with open(project_folder + '//emails//'+ folder + '/' +email_id.decode("utf-8") + '/' + filename.decode(encoding), 'wb') as f:
                                     f.write(part.get_payload(decode=True))
                                     f.close()
 
