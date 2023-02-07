@@ -18,6 +18,8 @@ opencv-python = "^4.5.1.48"
 pyautogui = "^0.9.52"
 pillow = "^9.4.0"
 python-whois = "^0.8.0"
+xhtml2pdf = "^0.2.9"
+PyPDF2 = "^3.0.1"
 
 [tool.poetry.dev-dependencies]
 
