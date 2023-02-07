@@ -63,25 +63,12 @@ logger_hashreport = logging.getLogger('hashreport')
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
 
-    def capture(self, url, output_file):
-        self.output_file = output_file
-        self.load(QtCore.QUrl(url))
-        self.loadFinished.connect(self.on_loaded)
-        # Create hidden view without scrollbars
-        self.setAttribute(QtCore.Qt.WA_DontShowOnScreen)
-        self.page().settings().setAttribute(
-            QtWebEngineWidgets.QWebEngineSettings.ShowScrollBars, False)
-        self.show()
-
     def on_loaded(self):
         size = self.page().contentsSize().toSize()
         self.resize(size)
         # Wait for resize
         QtCore.QTimer.singleShot(1000, self.take_screenshot)
 
-    def take_screenshot(self):
-        self.grab().save(self.output_file, b'PNG')
-        self.close()
 
 
 class Web(QtWidgets.QMainWindow):
@@ -106,7 +93,7 @@ class Web(QtWidgets.QMainWindow):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-        self.case_view = CaseView(self.case_info, self)      
+        self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
 
         self.tabs = QtWidgets.QTabWidget()
@@ -125,13 +112,13 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setMaximumWidth(400)
         self.progress_bar.setFixedHeight(25)
         self.status.addPermanentWidget(self.progress_bar)
-        
+
         self.progress_bar.setTextVisible(True)
         self.progress_bar.setAlignment(QtCore.Qt.AlignCenter)
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 
-        
+
 
 
         navtb = QtWidgets.QToolBar("Navigation")
@@ -189,14 +176,14 @@ class Web(QtWidgets.QMainWindow):
         configuration_action.triggered.connect(self.configuration)
         self.menuBar().addAction(configuration_action)
 
-     
+
         #CASE ACTION
         case_action = QtWidgets.QAction("Case", self)
         case_action.setStatusTip("Show case info")
         case_action.triggered.connect(self.case)
         self.menuBar().addAction(case_action)
 
-        
+
 
         #ACQUISITION MENU
         acquisition_menu = self.menuBar().addMenu("&Acquisition")
@@ -234,22 +221,22 @@ class Web(QtWidgets.QMainWindow):
 
 
     def start_acquisition(self):
-        
+
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
         self.progress_bar.setValue(50)
         if action is not None:
             action.setEnabled(False)
-        
-        
+
+
         self.acquisition_status.clear()
         self.acquisition_status.set_title('Acquisition is started!')
-       
+
         # Step 2: Create acquisiton directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
-                                                    'web', 
-                                                    self.configuration_general.configuration['cases_folder_path'], 
-                                                    self.case_info['name'], 
+                                                    'web',
+                                                    self.configuration_general.configuration['cases_folder_path'],
+                                                    self.case_info['name'],
                                                     self.tabs.currentWidget().url().toString()
                                                     )
         if self.acquisition_directory is not None:
@@ -306,13 +293,13 @@ class Web(QtWidgets.QMainWindow):
             #hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
-    
+
     def stop_acquisition(self):
-   
+
         print('qui sono in stop')
         if self.acquisition_is_started:
             self.progress_bar.setHidden(False)
-        
+
             #Step 1: Disable all actions and clear current acquisition information on dialog
             self.setEnabled(False)
             self.acquisition_status.clear()
@@ -332,31 +319,31 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(10)
             logger_acquisition.info('Save screenshot of current page')
             screenshot = Screenshot()
-            screenshot.capture(self.tabs.currentWidget().url().toString(), 
+            screenshot.capture(self.tabs.currentWidget().url().toString(),
                                os.path.join(self.acquisition_directory, 'screenshot.png'))
 
-            
+
             self.acquisition_status.add_task('Screenshot Page')
             self.acquisition_status.set_status('ScreenShot Page', 'Screenshot of current web page is done!', 'done')
 
-           
+
 
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
             #Step 4:  Save all resource of current page
             zip_folder = self.save_page()
-            
+
             logger_acquisition.info('Save all resource of current page')
             self.acquisition_status.add_task('Save Page')
             self.acquisition_status.set_status('Save Page',zip_folder, 'done')
 
-            ### Waiting everything is synchronized  
+            ### Waiting everything is synchronized
             loop = QtCore.QEventLoop()
             QtCore.QTimer.singleShot(2000, loop.quit)
             loop.exec_()
 
-            
-   
+
+
             self.status.showMessage('Calculate acquisition file hash')
             self.progress_bar.setValue(100)
             #Step 5:  Calculate acquisition hash
@@ -385,7 +372,7 @@ class Web(QtWidgets.QMainWindow):
             #### Enable all action ####
             self.setEnabled(True)
             action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
-            
+
             #Enable start_acquisition_action
             if action is not None:
                 action.setEnabled(True)
@@ -395,12 +382,12 @@ class Web(QtWidgets.QMainWindow):
             #hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
-            
+
     def _acquisition_status(self):
         self.acquisition_status.show()
 
     def start_packet_capture(self, options):
-        
+
         self.th_packetcapture = QtCore.QThread()
 
         self.packetcapture = PacketCaptureView()
@@ -425,8 +412,8 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_status.set_status('Network Packet Capture', 'Loop has been stopped and .pcap file has been saved in the case folder', 'done')
         self.th_packetcapture.quit()
         self.th_packetcapture.wait()
-    
-       
+
+
 
     def start_screen_recoder(self, options):
         self.th_screenrecorder = QtCore.QThread()
@@ -435,15 +422,15 @@ class Web(QtWidgets.QMainWindow):
         self.screenrecorder.set_options(options)
 
         self.screenrecorder.moveToThread(self.th_screenrecorder)
- 
+
         self.th_screenrecorder.started.connect(self.screenrecorder.start)
         self.screenrecorder.finished.connect(self.th_screenrecorder.quit)
         self.screenrecorder.finished.connect(self.screenrecorder.deleteLater)
         self.th_screenrecorder.finished.connect(self.th_screenrecorder.deleteLater)
         self.th_screenrecorder.finished.connect(self._thread_screenrecorder_is_finished)
-  
+
         self.th_screenrecorder.start()
-    
+
     def _thread_screenrecorder_is_finished(self):
         self.status.showMessage('Loop has been stopped and .avi file has been saved in the case folder')
         value = self.progress_bar.value() + 30
@@ -455,7 +442,7 @@ class Web(QtWidgets.QMainWindow):
         self.th_screenrecorder.wait()
 
 
-    def save_page(self):   
+    def save_page(self):
 
         url = self.tabs.currentWidget().url().toString()
 
@@ -480,10 +467,10 @@ class Web(QtWidgets.QMainWindow):
                             self.error_msg.MESSAGES['save_web_page'],
                             str(error)
                             )
-                    
+
             error_dlg.buttonClicked.connect(quit)
             error_dlg.exec_()
-        
+
 
         acquisition_page_folder = os.path.join(project_folder, project_name)
         zip_folder = shutil.make_archive(acquisition_page_folder,'zip', acquisition_page_folder)
@@ -495,15 +482,15 @@ class Web(QtWidgets.QMainWindow):
                             self.error_msg.MESSAGES['delete_project_folder'],
                             "Error: %s - %s." % (e.filename, e.strerror)
                             )
-                    
+
             error_dlg.buttonClicked.connect(quit)
             error_dlg.exec_()
 
-        
+
         return zip_folder
 
 
-        
+
 
 
     def case(self):

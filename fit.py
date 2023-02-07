@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 ######
 # -----
@@ -33,7 +33,8 @@ from PyQt5.QtGui import *
 import sys
 from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
-
+from view.instagram import Instagram as Instagram
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -42,19 +43,22 @@ if __name__ == '__main__':
     web = WebView()
     web.hide()
 
-    
+
     def start_task(task, case_info):
         if (task == 'web'):
-            acquisition_window = web
+            mainWindow = QtWidgets.QMainWindow()
+            ui = Instagram()
+            ui.setupUi(mainWindow)
+            mainWindow.show()
+            sys.exit(app.exec_())
         elif (task == 'mail'):
             pass
         elif (task == 'fb'):
             pass
 
-        acquisition_window.init(case_info)
-        acquisition_window.show()
 
-    #Wizard sends a signal when finish button is clicked and case is stored on the DB
+
+    # Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
     wizard.show()
