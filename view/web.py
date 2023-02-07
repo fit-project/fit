@@ -80,7 +80,7 @@ class Screenshot(QtWebEngineWidgets.QWebEngineView):
         size = self.page().contentsSize().toSize()
         self.resize(size)
         # Wait for resize
-        QtCore.QTimer.singleShot(1000, self.take_screenshot)
+        QtCore.QTimer.singleShot(500, self.take_screenshot)
 
     def take_screenshot(self):
         self.grab().save(self.output_file, b'PNG')

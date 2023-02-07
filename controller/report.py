@@ -46,7 +46,6 @@ class Report:
     def generate_pdf(self, type, ntp):
 
         # PREPARING DATA TO FILL THE PDF
-        new_case_info = self._data_check()  # check if data is not None
         phrases = ReportText()
 
         with open(self.cases_folder_path + "\\whois.txt", "r", encoding='utf-8') as f:
@@ -65,7 +64,7 @@ class Report:
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
         )
-
+        print(self.case_info)
         # FILLING TEMPLATE WITH DATA
         content_index = open(os.getcwd() + '/asset/templates/template.html').read().format(
 
@@ -76,8 +75,11 @@ class Report:
             case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
             case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
 
-            data0=new_case_info[1], data1=new_case_info[2], data2=new_case_info[3],
-            data3=new_case_info[4], data4=new_case_info[0],
+            data0=str(self.case_info['name'] or 'N/A'),
+            data1=str(self.case_info['lawyer_name'] or 'N/A'),
+            data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+            data3=str(self.case_info['courthouse'] or 'N/A'),
+            data4=str(self.case_info['proceedings_number'] or 'N/A'),
             typed=phrases.TEXT['typed'], type=type,
             date=phrases.TEXT['date'], ntp=ntp,
             t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
@@ -125,15 +127,6 @@ class Report:
         if "png" not in extensions:
             extensions['png'] = "Screenshot non prodotto"  # todo: check problema cattura
         return extensions
-
-    def _data_check(self):
-        new_case_info = []
-        for key in self.case_info:
-            if self.case_info[key] is None:
-                new_case_info.append('N/A')
-            else:
-                new_case_info.append(self.case_info[key])
-        return new_case_info
 
     def _zip_files_enum(self):
         zip_enum = ''
