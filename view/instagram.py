@@ -61,8 +61,8 @@ class Instagram(QtWidgets.QMainWindow):
         self.scrapeButton.setGeometry(QtCore.QRect(520, 270, 75, 25))
         self.scrapeButton.setObjectName("scrapeButton")
 
-        self.scrapeButton.setEnabled(False)
         #self.scrapeButton.clicked.connect(self.button_clicked)
+        self.scrapeButton.setEnabled(False)
 
         # Verify if username or password are empty
         self.input_fields = [self.input_username, self.input_password]
@@ -186,7 +186,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.menuAcquisition.setTitle(_translate("mainWindow", "Acquisition"))
 
 def button_clicked(self):
-    return
+    button = "clicked"
 
 def checkbox_changed(self, state):
     if state == Qt.Checked:
