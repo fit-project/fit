@@ -28,9 +28,10 @@
 import imaplib
 import email
 import os
-import re
 import email.message
+
 from email.header import decode_header
+from common.provider import Provider
 
 
 class Mail:
@@ -43,8 +44,9 @@ class Mail:
 
     def check_login(self):
         # Connect and log to the mailbox using IMAP
-        server, port = self.set_parameters()
-        mailbox = imaplib.IMAP4_SSL(server, port)
+        provider = Provider()
+        server = provider.get_server_from_provider(self.email_address)
+        mailbox = imaplib.IMAP4_SSL(server, 993) #imap ssl port
         mailbox.login(self.email_address, self.password)
         # Clear password after usage
         self.password = ''
@@ -108,22 +110,3 @@ class Mail:
 
         return
 
-    # TODO: define different servers based on providers
-    def set_parameters(self):
-        provider = (self.email_address.partition('@')[2]).partition('.')[0]
-        # domain = provider.partition('.')[2]
-        if provider.lower() == 'gmail':
-            server = 'imap.gmail.com'
-            port = 993
-        elif provider.lower() == 'outlook':
-            server = 'outlook.office365.com'
-            port = 993
-        elif provider.lower() in ('live', 'hotmail'):  # check the server
-            server = 'imap-mail.outlook.com'
-            port = 993
-        else:
-            # change this into proper configuration based on provider
-            server = 'outlook.office365.com'
-            port = 993
-
-        return server, port

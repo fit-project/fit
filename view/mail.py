@@ -30,7 +30,7 @@ import logging
 import logging.config
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from controller.mail import Mail as MailController
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
@@ -51,6 +51,7 @@ logger_hashreport = logging.getLogger('hashreport')
 
 class Mail(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
+
     def case(self):
         self.case_view.exec_()
 
@@ -59,7 +60,6 @@ class Mail(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Mail, self).__init__(*args, **kwargs)
-
         self.mail_controller = None
         self.input_email = None
         self.input_password = None
@@ -83,6 +83,7 @@ class Mail(QtWidgets.QMainWindow):
 
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
+        self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
 
         # PROGRESS BAR
         self.status = QtWidgets.QStatusBar()
@@ -90,6 +91,7 @@ class Mail(QtWidgets.QMainWindow):
         self.progress_bar.setMaximumWidth(400)
         self.progress_bar.setFixedHeight(25)
         self.status.addPermanentWidget(self.progress_bar)
+
         self.progress_bar.setTextVisible(True)
         self.progress_bar.setAlignment(QtCore.Qt.AlignCenter)
         self.setStatusBar(self.status)
@@ -126,7 +128,7 @@ class Mail(QtWidgets.QMainWindow):
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
         self.scrape_button.setGeometry(QtCore.QRect(370, 150, 75, 25))
         self.scrape_button.clicked.connect(self.login)
-        self.scrape_button.setObjectName("scrape_button")
+        self.scrape_button.setObjectName("StartAcquisitionAction")
         self.scrape_button.setToolTipDuration(3000)
         self.scrape_button.setEnabled(False)
 
@@ -178,14 +180,14 @@ class Mail(QtWidgets.QMainWindow):
         self.scrape_button.setText(_translate("email_scrape_window", "Scrape"))
 
     def login(self):
+
         email = self.input_email.text()
         password = self.input_password.text()
         self.mail_controller = MailController(email, password)
         try:
             mailbox = self.mail_controller.check_login()
             self.start_dump_email(mailbox)
-        except Exception as e:
-            print(e)
+        except:
             self.status.showMessage('Wrong login credentials')
             return
 
@@ -200,7 +202,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status.clear()
         self.acquisition_status.set_title('Acquisition is started!')
 
-        # Step 2: Create acquisiton directory
+        # Step 2: Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'mail',
             self.configuration_general.configuration['cases_folder_path'],
@@ -222,17 +224,18 @@ class Mail(QtWidgets.QMainWindow):
             # Step 3: Create loggin handler and start loggin information
             self.log_confing.change_filehandlers_path(self.acquisition_directory)
             logging.config.dictConfig(self.log_confing.config)
+
             logger_acquisition.info('Acquisition started')
             self.acquisition_status.add_task('Logger')
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
-            self.progress_bar.setValue(100)
+            self.progress_bar.setValue(50)
 
             self.acquisition_status.set_title('Acquisition started success:')
 
             # hidden progress bar
-            self.progress_bar.setHidden(True)
-            self.status.showMessage('')
+            # self.progress_bar.setHidden(True)
+            # self.status.showMessage('')
             if self.acquisition_is_started:
                 self.progress_bar.setHidden(False)
 
@@ -241,17 +244,17 @@ class Mail(QtWidgets.QMainWindow):
                 self.acquisition_status.clear()
                 self.acquisition_status.set_title('Interruption of the acquisition in progress:')
                 logger_acquisition.info('Acquisition stopped')
-                logger_acquisition.info('Email scraping')  # change this
-                self.statusBar().showMessage('Message in statusbar.')
+                logger_acquisition.info('Email scraping complete')
+                # self.statusBar().showMessage('Message in statusbar.')
 
-                self.status.showMessage('Save all resource of current page')
+                # Step 4:  Save all resources
+                self.status.showMessage('Save all resources')
                 self.progress_bar.setValue(20)
-                # Step 4:  Save all resource of current page
                 zip_folder = self.save_messages(mailbox)
 
-                logger_acquisition.info('Save all resource of current page')
-                self.acquisition_status.add_task('Save Page')
-                self.acquisition_status.set_status('Save Page', zip_folder, 'done')
+                logger_acquisition.info('Save all resource')
+                self.acquisition_status.add_task('Save email')
+                self.acquisition_status.set_status('Save email', zip_folder, 'done')
 
                 ### Waiting everything is synchronized
                 loop = QtCore.QEventLoop()
@@ -260,23 +263,18 @@ class Mail(QtWidgets.QMainWindow):
 
                 self.status.showMessage('Calculate acquisition file hash')
                 self.progress_bar.setValue(100)
+
                 # Step 5:  Calculate acquisition hash
                 logger_acquisition.info('Calculate acquisition file hash')
                 files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
 
                 for file in files:
                     filename = os.path.join(self.acquisition_directory, file)
-                    file_stats = os.stat(filename)
-                    logger_hashreport.info(file)
-                    logger_hashreport.info('=========================================================')
-                    logger_hashreport.info(f'Size: {file_stats.st_size}')
-                    algorithm = 'md5'
-                    logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
-                    algorithm = 'sha1'
-                    logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
-                    algorithm = 'sha256'
-                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+                    if file != 'acquisition.hash':
+                        self.write_hash(file, filename)
 
+                filename = os.path.join(self.acquisition_directory, 'acquisition.hash')
+                self.write_hash('acquisition.hash', filename)
                 logger_acquisition.info('Acquisition end')
 
                 #### open the acquisition folder ####
@@ -303,7 +301,7 @@ class Mail(QtWidgets.QMainWindow):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrape_button.setEnabled(all_fields_filled)
 
-    def save_messages(self,mailbox):
+    def save_messages(self, mailbox):
         project_folder = self.acquisition_directory
 
         self.mail_controller.get_mails_from_every_folder(mailbox, project_folder)
@@ -325,3 +323,16 @@ class Mail(QtWidgets.QMainWindow):
             error_dlg.exec_()
 
         return zip_folder
+
+    def write_hash(self, file, filename):
+        file_stats = os.stat(filename)
+        logger_hashreport.info(file)
+        logger_hashreport.info('=========================================================')
+        logger_hashreport.info(f'Size: {file_stats.st_size}')
+        algorithm = 'md5'
+        logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
+        algorithm = 'sha1'
+        logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
+        algorithm = 'sha256'
+        logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+

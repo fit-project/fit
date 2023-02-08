@@ -81,6 +81,10 @@ class LogConfig:
                     'handlers': ['fhashreport'],
                     'level' : 'INFO'
                 },
+                'view.mail': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
+                },
             },
             'root': {
                 'handlers': ['null'],
