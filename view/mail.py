@@ -252,7 +252,6 @@ class Mail(QtWidgets.QMainWindow):
                                   self.error_msg.TITLES['server_error'],
                                   self.error_msg.MESSAGES['server_error'],
                                   "Please retry.")
-            error_dlg.buttonClicked.connect(quit)
             error_dlg.exec_()
             return
 
