@@ -57,7 +57,6 @@ class Instagram:
         for post in posts:
             self.loader.download_post(post, self.profileName)
             print("for")
-
         return
 
     def scrape_stories(self):
@@ -127,7 +126,7 @@ class Instagram:
         os.makedirs(self.profileName + "_taggedPosts")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_taggedPosts")
         for taggedPost in taggedPosts:
-            self.loader.download_post(taggedPost, self.profile)
+            self.loader.download_post(taggedPost, self.profileName)
         return
 
     def scrape_info(self):
