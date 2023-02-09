@@ -32,7 +32,6 @@ from PyQt5.QtCore import Qt
 from controller.instagram import Instagram as InstragramController
 
 class Instagram(QtWidgets.QMainWindow):
-    insta = InstragramController()
 
     def __init__(self, *args, **kwargs):
         super(Instagram, self).__init__(*args, **kwargs)
@@ -61,18 +60,19 @@ class Instagram(QtWidgets.QMainWindow):
         self.scrapeButton.setGeometry(QtCore.QRect(520, 270, 75, 25))
         self.scrapeButton.setObjectName("scrapeButton")
 
-        #self.scrapeButton.clicked.connect(self.button_clicked)
+        self.scrapeButton.clicked.connect(self.button_clicked)
         self.scrapeButton.setEnabled(False)
-
-        # Verify if username or password are empty
-        self.input_fields = [self.input_username, self.input_password]
-        #for input_field in self.input_fields:
-            #input_field.textChanged.connect(self.onTextChanged)
 
         self.input_profile = QtWidgets.QLineEdit(self.centralwidget)
         self.input_profile.setGeometry(QtCore.QRect(240, 90, 240, 20))
         self.input_profile.setText("")
         self.input_profile.setObjectName("input_profile")
+
+        # Verify if input fields are empty
+        self.input_fields = [self.input_username, self.input_password, self.input_profile]
+        for input_field in self.input_fields:
+            input_field.textChanged.connect(self.onTextChanged)
+
         self.label_profile = QtWidgets.QLabel(self.centralwidget)
         self.label_profile.setGeometry(QtCore.QRect(80, 90, 141, 20))
         self.label_profile.setObjectName("label_profile")
@@ -83,42 +83,30 @@ class Instagram(QtWidgets.QMainWindow):
         self.checkBox_post = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_post.setGeometry(QtCore.QRect(360, 170, 70, 17))
         self.checkBox_post.setObjectName("checkBox_post")
-        self.checkBox_post_value = False
 
         self.checkBox_2_followee = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_2_followee.setGeometry(QtCore.QRect(360, 190, 70, 17))
         self.checkBox_2_followee.setObjectName("checkBox_2_followee")
-        self.checkBox_2_followee_value = False
 
         self.checkBox_3_highlight = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_3_highlight.setGeometry(QtCore.QRect(430, 190, 111, 17))
         self.checkBox_3_highlight.setObjectName("checkBox_3_highlight")
-        self.checkBox_3_highlight_value = False
 
         self.checkBox_4_story = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_4_story.setGeometry(QtCore.QRect(360, 230, 70, 17))
         self.checkBox_4_story.setObjectName("checkBox_4_story")
-        self.checkBox_4_story_value = False
 
         self.checkBox_5_taggedPost = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_5_taggedPost.setGeometry(QtCore.QRect(430, 210, 91, 17))
         self.checkBox_5_taggedPost.setObjectName("checkBox_5_taggedPost")
-        self.checkBox_5_taggedPost_value = False
 
         self.checkBox_6_savedPost = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_6_savedPost.setGeometry(QtCore.QRect(430, 170, 91, 17))
         self.checkBox_6_savedPost.setObjectName("checkBox_6_savedPost")
-        self.checkBox_6_savedPost_value = False
 
         self.checkBox_7_follower = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_7_follower.setGeometry(QtCore.QRect(360, 210, 70, 17))
         self.checkBox_7_follower.setObjectName("checkBox_7_follower")
-        self.checkBox_7_follower_value = False
-
-        self.checkBoxes = [self.checkBox_post, self.checkBox_2_followee, self.checkBox_3_highlight, self.checkBox_4_story,
-                           self.checkBox_5_taggedPost, self.checkBox_6_savedPost, self.checkBox_7_follower]
-        #for checkBox in self.checkBoxes:
-            #checkBox.stateChanged.connect(self.checkBox_changed)
 
         self.label_optionalInfo = QtWidgets.QLabel(self.centralwidget)
         self.label_optionalInfo.setGeometry(QtCore.QRect(360, 140, 121, 20))
@@ -185,17 +173,31 @@ class Instagram(QtWidgets.QMainWindow):
         self.menuCase.setTitle(_translate("mainWindow", "Case"))
         self.menuAcquisition.setTitle(_translate("mainWindow", "Acquisition"))
 
-def button_clicked(self):
-    button = "clicked"
+    def button_clicked(self):
+        insta = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), "C:\\Users\\domen\\Desktop\\test")
+        if(self.checkBox_post.isChecked()):
+            try:
+                insta.scrape_post()
+            except Exception as e:
+                print(e)
+        if(self.checkBox_2_followee.isChecked()):
+            insta.scrape_followees()
+        if(self.checkBox_3_highlight.isChecked()):
+            insta.scrape_highlights()
+        if(self.checkBox_4_story.isChecked()):
+            insta.scrape_stories()
+        if(self.checkBox_5_taggedPost.isChecked()):
+            insta.scrape_taggedPosts()
+        if(self.checkBox_6_savedPost.isChecked()):
+            insta.scrape_savedPosts()
+        if(self.checkBox_7_follower.isChecked()):
+            insta.scrape_followers()
+        insta.scrape_info()
+        insta.scrape_profilePicture()
 
-def checkbox_changed(self, state):
-    if state == Qt.Checked:
-        self.checkbox_value = True
-    else:
-        self.checkbox_value = False
 
-def onTextChanged(self):
-    all_field_filled = all(input_field.text() for input_field in self.input_fields)
-    self.scrapeButton.setEnabled(all_field_filled)
+    def onTextChanged(self):
+        all_field_filled = all(input_field.text() for input_field in self.input_fields)
+        self.scrapeButton.setEnabled(all_field_filled)
 
 

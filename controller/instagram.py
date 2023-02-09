@@ -30,7 +30,7 @@ from instaloader import Instaloader, Profile
 import os
 
 class Instagram:
-    def __int__(self, username, password, profileName, path):
+    def __init__(self, username, password, profileName, path):
         self.username = username
         # TODO: implement secure password handling
         self.password = password
@@ -38,26 +38,30 @@ class Instagram:
         self.loader = Instaloader()
         self.profile = Profile.from_username(self.loader.context, profileName)
         self.path = path
+        os.chdir(self.path)
         return
 
     def login(self):
-        if (self.username == None or self.password == None):
-            pass
-        else:
-            self.loader.login(self.username, self.password)
-            return
+        self.loader.login(self.username, self.password)
+        return
 
     def scrape_post(self):
+        os.chdir(self.path)
         if (self.profile.is_private == True):
             self.login()
         posts = self.profile.get_posts()
         os.makedirs(self.profileName + "_posts")
+        print("qui")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_posts")
+        print("prima dell'if")
         for post in posts:
-            self.loader.download_post(post, self.profile)
+            self.loader.download_post(post, self.profileName)
+            print("for")
+
         return
 
     def scrape_stories(self):
+        os.chdir(self.path)
         self.login()
         id = []
         id.append(self.profile.userid)
@@ -67,6 +71,7 @@ class Instagram:
         return
 
     def scrape_followers(self):
+        os.chdir(self.path)
         self.login()
         nFollowers = self.profile.followers
         followers = self.profile.get_followers()
@@ -82,6 +87,7 @@ class Instagram:
         return
 
     def scrape_followees(self):
+        os.chdir(self.path)
         self.login()
         nFollowees = self.profile.followees
         followees = self.profile.get_followees()
@@ -97,6 +103,7 @@ class Instagram:
         return
 
     def scrape_savedPosts(self):
+        os.chdir(self.path)
         self.login()
         savedPosts = self.profile.get_saved_posts()
         os.makedirs(self.profileName + "_savedPosts")
@@ -106,12 +113,14 @@ class Instagram:
         return
 
     def scrape_profilePicture(self):
+        os.chdir(self.path)
         os.makedirs(self.profileName + "_profilePic")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_profilePic")
         self.loader.download_profilepic(self.profile)
         return
 
     def scrape_taggedPosts(self):
+        os.chdir(self.path)
         if (self.profile.is_private == True):
             self.login()
         taggedPosts = self.profile.get_tagged_posts()
@@ -122,6 +131,7 @@ class Instagram:
         return
 
     def scrape_info(self):
+        os.chdir(self.path)
         verified = self.profile.is_verified
         fullName = self.profile.full_name
         businessCategory = self.profile.business_category_name
@@ -142,6 +152,7 @@ class Instagram:
         return
 
     def scrape_highlights(self):
+        os.chdir(self.path)
         self.login()
         os.makedirs(self.profileName + "_highlights")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_highlights")
