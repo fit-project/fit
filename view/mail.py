@@ -31,7 +31,8 @@ import logging.config
 import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QRegExp
+from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator
 
 from controller.mail import Mail as MailController
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
@@ -64,6 +65,8 @@ class Mail(QtWidgets.QMainWindow):
         self.mail_controller = None
         self.input_email = None
         self.input_password = None
+        self.input_server = None
+        self.input_port = None
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
@@ -72,8 +75,8 @@ class Mail(QtWidgets.QMainWindow):
         self.log_confing = LogConfig()
 
     def init(self, case_info):
-        self.width = 500
-        self.height = 260
+        self.width = 520
+        self.height = 330
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
@@ -100,45 +103,88 @@ class Mail(QtWidgets.QMainWindow):
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 
+        # IMAP GROUP
+        self.imap_group_box = QtWidgets.QGroupBox(self.centralwidget)
+        self.imap_group_box.setEnabled(True)
+        self.imap_group_box.setGeometry(QtCore.QRect(50, 20, 430, 240))
+        self.imap_group_box.setObjectName("imap_group_box")
+
         # EMAIL FIELD
         self.input_email = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_email.setGeometry(QtCore.QRect(210, 50, 240, 20))
+        self.input_email.setGeometry(QtCore.QRect(180, 60, 240, 20))
         self.input_email.setFont(QFont('Arial', 10))
+        email_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
+        validator = QRegExpValidator(email_regex)
+        self.input_email.setValidator(validator)
         self.input_email.setObjectName("input_email")
 
         # PASSWORD FIELD
         self.input_password = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_password.setGeometry(QtCore.QRect(210, 100, 240, 20))
+        self.input_password.setGeometry(QtCore.QRect(180, 95, 240, 20))
         self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.input_password.setFont(QFont('Arial', 10))
         self.input_password.show()
         self.input_password.setObjectName("input_password")
 
+        # SERVER FIELD
+        self.input_server = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_server.setGeometry(QtCore.QRect(180, 130, 240, 20))
+        self.input_server.setFont(QFont('Arial', 10))
+        self.input_server.setObjectName("input_server")
+
+        # PORT FIELD
+        self.input_port = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_port.setGeometry(QtCore.QRect(180, 165, 240, 20))
+        self.input_port.setFont(QFont('Arial', 10))
+        validator = QDoubleValidator()
+        self.input_port.setValidator(validator)
+        self.input_port.setObjectName("input_port")
+
         # DISABLE SCRAPE BUTTON IF FIELDS ARE EMPTY
-        self.input_fields = [self.input_email, self.input_password]
+        self.input_fields = [self.input_email, self.input_password, self.input_server, self.input_port]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.onTextChanged)
 
+        # set font
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setFamily('Arial')
+
         # EMAIL LABEL
         self.label_email = QtWidgets.QLabel(self.centralwidget)
-        self.label_email.setGeometry(QtCore.QRect(50, 50, 130, 20))
-        self.label_email.setFont(QFont('Arial', 10))
+        self.label_email.setGeometry(QtCore.QRect(90, 60, 80, 20))
+        self.label_email.setFont(font)
+        self.label_email.setAlignment(QtCore.Qt.AlignRight)
         self.label_email.setObjectName("label_email")
 
         # PASSWORD LABEL
         self.label_password = QtWidgets.QLabel(self.centralwidget)
-        self.label_password.setGeometry(QtCore.QRect(50, 100, 130, 20))
-        self.label_password.setFont(QFont('Arial', 10))
+        self.label_password.setGeometry(QtCore.QRect(90, 95, 80, 20))
+        self.label_password.setFont(font)
+        self.label_password.setAlignment(QtCore.Qt.AlignRight)
         self.label_password.setObjectName("label_password")
+
+        # SERVER LABEL
+        self.label_server = QtWidgets.QLabel(self.centralwidget)
+        self.label_server.setGeometry(QtCore.QRect(90, 130, 80, 20))
+        self.label_server.setFont(font)
+        self.label_server.setAlignment(QtCore.Qt.AlignRight)
+        self.label_server.setObjectName("label_server")
+
+        # PORT LABEL
+        self.label_port = QtWidgets.QLabel(self.centralwidget)
+        self.label_port.setGeometry(QtCore.QRect(90, 165, 80, 20))
+        self.label_port.setFont(font)
+        self.label_port.setAlignment(QtCore.Qt.AlignRight)
+        self.label_port.setObjectName("label_port")
 
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
-        self.scrape_button.setGeometry(QtCore.QRect(370, 150, 75, 25))
+        self.scrape_button.setGeometry(QtCore.QRect(345, 210, 75, 25))
         self.scrape_button.clicked.connect(self.login)
-        self.scrape_button.setFont(QFont('Arial', 10))
+        self.scrape_button.setFont(font)
         self.scrape_button.setObjectName("StartAcquisitionAction")
         self.scrape_button.setEnabled(False)
-
 
         # MENU BAR
         self.setCentralWidget(self.centralwidget)
@@ -183,24 +229,47 @@ class Mail(QtWidgets.QMainWindow):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("email_scrape_window", "Freezing Internet Tool"))
-        self.label_email.setText(_translate("email_scrape_window", "E-mail"))
-        self.label_password.setText(_translate("email_scrape_window", "Password"))
+        self.imap_group_box.setTitle(
+            _translate("email_scrape_window", "Impostazioni server IMAP"))
+        self.label_email.setText(_translate("email_scrape_window", "E-mail*"))
+        self.label_password.setText(_translate("email_scrape_window", "Password*"))
+        self.label_server.setText(_translate("email_scrape_window", "Server IMAP*"))
+        self.label_port.setText(_translate("email_scrape_window", "Port*"))
         self.scrape_button.setText(_translate("email_scrape_window", "Scrape"))
 
     def login(self):
 
         email = self.input_email.text()
         password = self.input_password.text()
-        self.mail_controller = MailController(email, password)
+        server = self.input_server.text()
+        port = self.input_port.text()
+        self.mail_controller = MailController()
+
         try:
-            mailbox = self.mail_controller.check_login()
-            self.start_dump_email(mailbox)
-        except:
-            self.status.showMessage('Wrong login credentials')
+            self.mail_controller.check_server(server, port)
+        except Exception as e:  # WRONG SERVER
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  self.error_msg.TITLES['server_error'],
+                                  self.error_msg.MESSAGES['server_error'],
+                                  "Please retry.")
+            error_dlg.buttonClicked.connect(quit)
+            error_dlg.exec_()
             return
 
-    def start_dump_email(self, mailbox):
+        try:
+            self.mail_controller.check_login(email,password)
+        except Exception as e:  # WRONG CREDENTIALS
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  self.error_msg.TITLES['login_error'],
+                                  self.error_msg.MESSAGES['login_error'],
+                                  "Please retry.")
+            error_dlg.exec_()
+            return
+        finally:
+            self.start_dump_email()
 
+
+    def start_dump_email(self):
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
         self.progress_bar.setValue(50)
@@ -258,7 +327,7 @@ class Mail(QtWidgets.QMainWindow):
                 # Step 4:  Save all resources
                 self.status.showMessage('Save all resources')
                 self.progress_bar.setValue(20)
-                self.save_messages(mailbox)
+                self.save_messages()
 
                 logger_acquisition.info('Save all resource')
                 self.acquisition_status.add_task('Save email')
@@ -307,16 +376,18 @@ class Mail(QtWidgets.QMainWindow):
                 self.progress_bar.setHidden(True)
                 self.status.showMessage('')
 
+
     def _acquisition_status(self):
         self.acquisition_status.show()
+
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrape_button.setEnabled(all_fields_filled)
 
-    def save_messages(self, mailbox):
 
-        self.mail_controller.get_mails_from_every_folder(mailbox, self.acquisition_directory)
+    def save_messages(self):
+        self.mail_controller.get_mails_from_every_folder(self.acquisition_directory)
 
         project_name = "emails"
         # zipping every subfolder in email acquisition folder

@@ -32,56 +32,58 @@ import email.message
 import re
 
 from email.header import decode_header
-from common.provider import Provider
 
 
 class Mail:
-    def __init__(self, email_address, password):
-        self.email_address = email_address
+    def __init__(self):
+        self.email_address = None
         # TODO: implement secure password handling
+        self.password = None
+        self.mailbox = None
+
+    def check_server(self, server, port):
+        # Connect and log to the mailbox using IMAP server
+
+        self.mailbox = imaplib.IMAP4_SSL(server, int(port))  # imap ssl port
+        return
+
+    def check_login(self, email_address, password):
+        self.email_address = email_address
         self.password = password
-
-
-
-    def check_login(self):
-        # Connect and log to the mailbox using IMAP
-        provider = Provider()
-        server = provider.get_server_from_provider(self.email_address)
-        mailbox = imaplib.IMAP4_SSL(server, 993) #imap ssl port
-        mailbox.login(self.email_address, self.password)
-        mailbox.select()
+        self.mailbox.login(self.email_address, self.password)
+        self.mailbox.select()
         # Clear password after usage
         self.password = ''
-        return mailbox
+        return
 
 
-    def get_mails_from_every_folder(self, mailbox, project_folder):
+    def get_mails_from_every_folder(self, project_folder):
 
         # Retrieve every folder from the mailbox
         folders = []
-        for folder in mailbox.list()[1]:
+        for folder in self.mailbox.list()[1]:
             name = folder.decode().split(' "/" ')
             folders.append(name[1])
 
         # Scrape every message from the folders
-        self.download_messages(mailbox, folders, project_folder)
-        mailbox.close()
-        mailbox.logout()
+        self.download_messages(folders, project_folder)
+        self.mailbox.close()
+        self.mailbox.logout()
         return
 
-    def download_messages(self, mailbox, folders, project_folder):
+    def download_messages(self, folders, project_folder):
         for folder in folders:
             folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
             try:
-                mailbox.select(folder)
-                type, data = mailbox.search(None, 'ALL')
+                self.mailbox.select(folder)
+                type, data = self.mailbox.search(None, 'ALL')
                 # Create acquisition folder
                 if not os.path.exists(project_folder + '//' + folder_stripped):
                     os.makedirs(project_folder + '//emails//' + folder_stripped)
                 # Fetch every message in specified folder
                 messages = data[0].split()
                 for email_id in messages:
-                    status, email_data = mailbox.fetch(email_id, "(RFC822)")
+                    status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
                     email_message = email_data[0][1].decode("utf-8")
                     email_part = email.message_from_bytes(email_data[0][1])
                     acquisition_dir = project_folder + '//emails//' + folder_stripped + '/'
@@ -98,17 +100,17 @@ class Mail:
                             path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
                             os.makedirs(path)
                             if (encoding is None):
-                                with open(project_folder + '//emails//'+ folder_stripped + '/' +email_id.decode("utf-8") + '/' + filename, 'wb')as f:
+                                with open(project_folder + '//emails//' + folder_stripped + '/' + email_id.decode(
+                                        "utf-8") + '/' + filename, 'wb') as f:
                                     f.write(part.get_payload(decode=True))
                                     f.close()
                             else:
-                                with open(project_folder + '//emails//'+ folder_stripped + '/' +email_id.decode("utf-8") + '/' + filename.decode(encoding), 'wb') as f:
+                                with open(project_folder + '//emails//' + folder_stripped + '/' + email_id.decode(
+                                        "utf-8") + '/' + filename.decode(encoding), 'wb') as f:
                                     f.write(part.get_payload(decode=True))
                                     f.close()
 
-
-            except Exception as e: #handle exception
+            except Exception as e:  # handle exception
                 pass
 
         return
-

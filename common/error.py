@@ -29,33 +29,37 @@
 class ErrorMessage:
     def __init__(self):
         self.TITLES = {
-            'acquisition' : 'Acquisition is not possible', 
-            'insert_update_case_info' : 'Insert/Update case information is not possible',
-            'update_config_info' : 'Update config information is not possible',
-            'form' : 'Load data error',
-            'software_installation' : 'Software is not installed',
-            'capture_packet' : 'Capture error',
-            'screen_recoder' : 'Screen Recoder error',
-            'save_web_page' : 'Save Web Page',
-            'save_mail' : 'Save Messages',
-            'mrsign_configuration_options' : 'MRSign configuration options error'
+            'acquisition': 'Acquisition is not possible',
+            'insert_update_case_info': 'Insert/Update case information is not possible',
+            'update_config_info': 'Update config information is not possible',
+            'form': 'Load data error',
+            'software_installation': 'Software is not installed',
+            'capture_packet': 'Capture error',
+            'screen_recoder': 'Screen Recoder error',
+            'save_web_page': 'Save Web Page',
+            'save_mail': 'Save Messages',
+            'mrsign_configuration_options': 'MRSign configuration options error',
+            'login_error': 'Login error',
+            'server_error': 'Server error'
         }
 
         self.MESSAGES = {
-            'get_case_info' : 'An error occurred during get case info from DB! \nSee bellow for more detail.',
-            'get_case_id' : 'Case ID not Found \nSee bellow for more detail.',
-            'get_configuration' : 'An error occurred during get configuration info from DB! \nSee bellow for more detail.',
-            'insert_update_case_info' : 'An error occurred during insert/update case information on the DB! \nSee bellow for more detail.',
-            'update_config_info' : 'An error occurred during update config information on the DB! \nSee bellow for more detail.',
-            'software_installation' : 'The required software would appear not to be installed on this PC! \nSee bellow for more detail.',
-            'capture_packet' : 'An error occurred during network packets acquisition! \nSee bellow for more detail.',
-            'screen_recoder' : 'An error occurred during screen recoder acquisition! \nSee bellow for more detail.',
-            'save_web_page' : 'An error occurred during the execution of save_webpage pywebcopy API',
-            'save_mail': 'An error occurred during the execution of save_mailmessaages',
-            'delete_project_folder' : 'An error occurred during the execution of shutil.rmtree method',
-            'mrsign_path' : 'MRSign seem don\'t installed on this path "{}"\nPlease check the configuration.',
-            'mrsign_executable' : 'MRSign seem not be an executable file "{}"\nPlease check the installation.',
-            'mrsign_hostname_or_port' : 'Hostname or port appear not to be configured\nPlease check the configuration.',
-            'mrsign_username_or_password' : 'Username or password appear not to be configured\nPlease check the configuration.'
+            'get_case_info': 'An error occurred during get case info from DB! \nSee bellow for more detail.',
+            'get_case_id': 'Case ID not Found \nSee bellow for more detail.',
+            'get_configuration': 'An error occurred during get configuration info from DB! \nSee bellow for more detail.',
+            'insert_update_case_info': 'An error occurred during insert/update case information on the DB! \nSee bellow for more detail.',
+            'update_config_info': 'An error occurred during update config information on the DB! \nSee bellow for more detail.',
+            'software_installation': 'The required software would appear not to be installed on this PC! \nSee bellow for more detail.',
+            'capture_packet': 'An error occurred during network packets acquisition! \nSee bellow for more detail.',
+            'screen_recoder': 'An error occurred during screen recoder acquisition! \nSee bellow for more detail.',
+            'save_web_page': 'An error occurred during the execution of save_webpage pywebcopy API',
+            'save_mail': 'An error occurred during the execution of save_mailmessages',
+            'delete_project_folder': 'An error occurred during the execution of shutil.rmtree method',
+            'mrsign_path': 'MRSign seem don\'t installed on this path "{}"\nPlease check the configuration.',
+            'mrsign_executable': 'MRSign seem not be an executable file "{}"\nPlease check the installation.',
+            'mrsign_hostname_or_port': 'Hostname or port appear not to be configured\nPlease check the configuration.',
+            'mrsign_username_or_password': 'Username or password appear not to be configured\nPlease check the configuration.',
+            'login_error': 'Wrong login credentials.',
+            'server_error': 'Wrong server or IMAP port.'
+
         }
-    
