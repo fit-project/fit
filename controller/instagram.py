@@ -145,7 +145,10 @@ class Instagram:
         else:
             file.write("Tipo di profilo: non verificato" + "\n")
         file.write("Nome completo: " + fullName + "\n")
-        file.write("Tipo di account: " + businessCategory + "\n")
+        if (businessCategory is None):
+            file.write("Tipo di account: " + "personale" + "\n")
+        else:
+            file.write("Tipo di account: " + str(businessCategory) + "\n")
         file.write("Biografia account: " + biography + "\n")
         file.write("Numero di post: " + str(nMedia))
         file.close()
