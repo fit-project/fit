@@ -31,6 +31,7 @@ import logging.config
 import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QFont
 
 from controller.mail import Mail as MailController
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
@@ -71,6 +72,9 @@ class Mail(QtWidgets.QMainWindow):
         self.log_confing = LogConfig()
 
     def init(self, case_info):
+        self.width = 500
+        self.height = 260
+        self.setFixedSize(self.width, self.height)
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
@@ -79,7 +83,6 @@ class Mail(QtWidgets.QMainWindow):
         self.case_view.hide()
 
         self.setObjectName("email_scrape_window")
-        self.resize(500, 266)
 
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
@@ -100,12 +103,14 @@ class Mail(QtWidgets.QMainWindow):
         # EMAIL FIELD
         self.input_email = QtWidgets.QLineEdit(self.centralwidget)
         self.input_email.setGeometry(QtCore.QRect(210, 50, 240, 20))
+        self.input_email.setFont(QFont('Arial', 10))
         self.input_email.setObjectName("input_email")
 
         # PASSWORD FIELD
         self.input_password = QtWidgets.QLineEdit(self.centralwidget)
         self.input_password.setGeometry(QtCore.QRect(210, 100, 240, 20))
         self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.input_password.setFont(QFont('Arial', 10))
         self.input_password.show()
         self.input_password.setObjectName("input_password")
 
@@ -116,21 +121,24 @@ class Mail(QtWidgets.QMainWindow):
 
         # EMAIL LABEL
         self.label_email = QtWidgets.QLabel(self.centralwidget)
-        self.label_email.setGeometry(QtCore.QRect(50, 50, 100, 20))
+        self.label_email.setGeometry(QtCore.QRect(50, 50, 130, 20))
+        self.label_email.setFont(QFont('Arial', 10))
         self.label_email.setObjectName("label_email")
 
         # PASSWORD LABEL
         self.label_password = QtWidgets.QLabel(self.centralwidget)
-        self.label_password.setGeometry(QtCore.QRect(50, 100, 100, 20))
+        self.label_password.setGeometry(QtCore.QRect(50, 100, 130, 20))
+        self.label_password.setFont(QFont('Arial', 10))
         self.label_password.setObjectName("label_password")
 
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
         self.scrape_button.setGeometry(QtCore.QRect(370, 150, 75, 25))
         self.scrape_button.clicked.connect(self.login)
+        self.scrape_button.setFont(QFont('Arial', 10))
         self.scrape_button.setObjectName("StartAcquisitionAction")
-        self.scrape_button.setToolTipDuration(3000)
         self.scrape_button.setEnabled(False)
+
 
         # MENU BAR
         self.setCentralWidget(self.centralwidget)
@@ -175,8 +183,8 @@ class Mail(QtWidgets.QMainWindow):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("email_scrape_window", "Freezing Internet Tool"))
-        self.label_email.setText(_translate("email_scrape_window", "Inserisci l\'email"))
-        self.label_password.setText(_translate("email_scrape_window", "Inserisci la password"))
+        self.label_email.setText(_translate("email_scrape_window", "E-mail"))
+        self.label_password.setText(_translate("email_scrape_window", "Password"))
         self.scrape_button.setText(_translate("email_scrape_window", "Scrape"))
 
     def login(self):
@@ -204,7 +212,7 @@ class Mail(QtWidgets.QMainWindow):
 
         # Step 2: Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
-            'mail',
+            'email',
             self.configuration_general.configuration['cases_folder_path'],
             self.case_info['name'],
             self.input_email.text()
@@ -250,11 +258,10 @@ class Mail(QtWidgets.QMainWindow):
                 # Step 4:  Save all resources
                 self.status.showMessage('Save all resources')
                 self.progress_bar.setValue(20)
-                zip_folder = self.save_messages(mailbox)
+                self.save_messages(mailbox)
 
                 logger_acquisition.info('Save all resource')
                 self.acquisition_status.add_task('Save email')
-                self.acquisition_status.set_status('Save email', zip_folder, 'done')
 
                 ### Waiting everything is synchronized
                 loop = QtCore.QEventLoop()
@@ -271,10 +278,16 @@ class Mail(QtWidgets.QMainWindow):
                 for file in files:
                     filename = os.path.join(self.acquisition_directory, file)
                     if file != 'acquisition.hash':
-                        self.write_hash(file, filename)
-
-                filename = os.path.join(self.acquisition_directory, 'acquisition.hash')
-                self.write_hash('acquisition.hash', filename)
+                        file_stats = os.stat(filename)
+                        logger_hashreport.info(file)
+                        logger_hashreport.info('=========================================================')
+                        logger_hashreport.info(f'Size: {file_stats.st_size}')
+                        algorithm = 'md5'
+                        logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
+                        algorithm = 'sha1'
+                        logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
+                        algorithm = 'sha256'
+                        logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
                 logger_acquisition.info('Acquisition end')
 
                 #### open the acquisition folder ####
@@ -302,16 +315,22 @@ class Mail(QtWidgets.QMainWindow):
         self.scrape_button.setEnabled(all_fields_filled)
 
     def save_messages(self, mailbox):
-        project_folder = self.acquisition_directory
 
-        self.mail_controller.get_mails_from_every_folder(mailbox, project_folder)
+        self.mail_controller.get_mails_from_every_folder(mailbox, self.acquisition_directory)
 
         project_name = "emails"
-
-        acquisition_page_folder = os.path.join(project_folder, project_name)
-        zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+        # zipping every subfolder in email acquisition folder
+        acquisition_emails_folder = os.path.join(self.acquisition_directory, project_name)
+        folders = [f.name for f in os.scandir(acquisition_emails_folder) if os.path.isdir(f)]
+        for folder in folders:
+            zip_folder = shutil.make_archive(os.path.join(acquisition_emails_folder, folder),
+                                             'zip', os.path.join(acquisition_emails_folder, folder))
+            self.acquisition_status.set_status('Save email', zip_folder, 'done')
+            # moving zip folders to acquisition folder
+            os.replace(zip_folder, os.path.join(self.acquisition_directory, os.path.basename(zip_folder)))
         try:
-            shutil.rmtree(acquisition_page_folder)
+            # removing unused acquisition folder
+            shutil.rmtree(acquisition_emails_folder)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   self.error_msg.TITLES['save_mail'],
@@ -322,17 +341,4 @@ class Mail(QtWidgets.QMainWindow):
             error_dlg.buttonClicked.connect(quit)
             error_dlg.exec_()
 
-        return zip_folder
-
-    def write_hash(self, file, filename):
-        file_stats = os.stat(filename)
-        logger_hashreport.info(file)
-        logger_hashreport.info('=========================================================')
-        logger_hashreport.info(f'Size: {file_stats.st_size}')
-        algorithm = 'md5'
-        logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
-        algorithm = 'sha1'
-        logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
-        algorithm = 'sha256'
-        logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
-
+        return
