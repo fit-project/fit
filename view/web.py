@@ -60,6 +60,7 @@ import common.utility as utility
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
 logger_whois = logging.getLogger('whois')
+logger_headers = logging.getLogger('headers')
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -319,10 +320,17 @@ class Web(QtWidgets.QMainWindow):
             logger_acquisition.info('Acquisition stopped')
             logger_acquisition.info('End URL: ' + self.tabs.currentWidget().url().toString())
             self.statusBar().showMessage('Message in statusbar.')
+            #Step 2: stop threads
             
             #Step 2: Get whois info
-            logger_acquisition.info('Get Whois info for URL: ' + self.tabs.currentWidget().url().toString())
+            logger_acquisition.info('Get WHOIS info for URL: ' + self.tabs.currentWidget().url().toString())
             logger_whois.info(utility.whois(self.tabs.currentWidget().url().toString()))
+
+
+            #Step 3: Get headers info
+            logger_acquisition.info('Get HEADERS info for URL: ' + self.tabs.currentWidget().url().toString())
+            logger_headers.info(utility.get_headers_information(self.tabs.currentWidget().url().toString()))
+            
 
             #Step 3: stop threads
             if self.is_enabled_packet_capture:

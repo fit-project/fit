@@ -56,6 +56,10 @@ class LogConfig:
                 'whois': {
                     'class': 'logging.Formatter',
                     'format': '%(message)s'
+                },
+                'headers': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
                 }
 
             },
@@ -80,6 +84,12 @@ class LogConfig:
                     'filename': 'whois.txt',
                     'mode': 'w',
                     'formatter': 'whois',
+                },
+                'fheaders': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'headers.txt',
+                    'mode': 'w',
+                    'formatter': 'headers',
                 }
             },
             'loggers': {
@@ -93,6 +103,10 @@ class LogConfig:
                 },
                 'whois': {
                     'handlers': ['fwhois'],
+                    'level' : 'INFO'
+                },
+                'headers': {
+                    'handlers': ['fheaders'],
                     'level' : 'INFO'
                 }
             },

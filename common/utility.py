@@ -33,10 +33,12 @@ import hashlib
 import platform
 import subprocess
 import ntplib
+import urllib.request
 from datetime import datetime, timezone
 
 from whois import NICClient, WhoisEntry, extract_domain, IPV4_OR_V6
 import socket
+import requests
 
 def get_platform():
 
@@ -141,6 +143,19 @@ def whois(url, flags=0):
     nic_client = NICClient()
 
     return nic_client.whois_lookup(None, domain.encode('idna'), flags)
+
+def get_headers_information(url):
+    response = requests.get(url)
+    
+    return response.headers
+
+
+def check_internet_connection(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host)
+        return True
+    except:
+        return False
 
 def import_modules(start_path, start_module_name = ""):
     
