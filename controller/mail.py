@@ -79,14 +79,14 @@ class Mail:
                 type, data = self.mailbox.search(None, 'ALL')
                 # Create acquisition folder
                 if not os.path.exists(project_folder + '//' + folder_stripped):
-                    os.makedirs(project_folder + '//emails//' + folder_stripped)
+                    os.makedirs(project_folder + '//acquisition//' + folder_stripped)
                 # Fetch every message in specified folder
                 messages = data[0].split()
                 for email_id in messages:
                     status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
                     email_message = email_data[0][1].decode("utf-8")
                     email_part = email.message_from_bytes(email_data[0][1])
-                    acquisition_dir = project_folder + '//emails//' + folder_stripped + '/'
+                    acquisition_dir = project_folder + '//acquisition//' + folder_stripped + '/'
                     with open(
                             '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
                             'w') as f:
@@ -100,12 +100,12 @@ class Mail:
                             path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
                             os.makedirs(path)
                             if (encoding is None):
-                                with open(project_folder + '//emails//' + folder_stripped + '/' + email_id.decode(
+                                with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id.decode(
                                         "utf-8") + '/' + filename, 'wb') as f:
                                     f.write(part.get_payload(decode=True))
                                     f.close()
                             else:
-                                with open(project_folder + '//emails//' + folder_stripped + '/' + email_id.decode(
+                                with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id.decode(
                                         "utf-8") + '/' + filename.decode(encoding), 'wb') as f:
                                     f.write(part.get_payload(decode=True))
                                     f.close()
