@@ -47,10 +47,10 @@ class Report:
 
         # PREPARING DATA TO FILL THE PDF
         phrases = ReportText()
-
-        with open(self.cases_folder_path + "\\whois.txt", "r", encoding='utf-8') as f:
-            whois_text = f.read()
-            f.close()
+        if type == 'web':
+            with open(self.cases_folder_path + "\\whois.txt", "r") as f:
+                whois_text = f.read()
+                f.close()
         with open(self.cases_folder_path + "\\acquisition.hash", "r", encoding='utf-8') as f:
             user_files = f.read()
             f.close()
@@ -64,45 +64,79 @@ class Report:
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
         )
-        print(self.case_info)
+
         # FILLING TEMPLATE WITH DATA
-        content_index = open(os.getcwd() + '/asset/templates/template.html').read().format(
+        if type == 'web':
+            content_index = open(os.getcwd() + '/asset/templates/template_web.html').read().format(
 
-            title=phrases.TEXT['title'],
-            index=phrases.TEXT['index'],
-            description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
-            case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
-            case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
-            case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
+                title=phrases.TEXT['title'],
+                index=phrases.TEXT['index'],
+                description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
+                case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
+                case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
+                case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
 
-            data0=str(self.case_info['name'] or 'N/A'),
-            data1=str(self.case_info['lawyer_name'] or 'N/A'),
-            data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
-            data3=str(self.case_info['courthouse'] or 'N/A'),
-            data4=str(self.case_info['proceedings_number'] or 'N/A'),
-            typed=phrases.TEXT['typed'], type=type,
-            date=phrases.TEXT['date'], ntp=ntp,
-            t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
-            whois=whois_text,
-            t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
-            name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
-            avi=extensions['avi'], avid=phrases.TEXT['avid'],
-            hash=extensions['hash'], hashd=phrases.TEXT['hashd'],
-            log=extensions['log'], logd=phrases.TEXT['logd'],
-            pcap=extensions['pcap'], pcapd=phrases.TEXT['pcapd'],
-            zip=extensions['zip'], zipd=phrases.TEXT['zipd'],
-            txt=extensions['txt'], txtd=phrases.TEXT['txtd'],
-            png=extensions['png'], pngd=phrases.TEXT['pngd'],
-            t5=phrases.TEXT['t5'],t5descr=phrases.TEXT['t5descr'], file=user_files,
-            t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
-            t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-            titlecc=phrases.TEXT['titlecc'],ccdescr=phrases.TEXT['ccdescr'],
-            titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
-        )
+                data0=str(self.case_info['name'] or 'N/A'),
+                data1=str(self.case_info['lawyer_name'] or 'N/A'),
+                data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+                data3=str(self.case_info['courthouse'] or 'N/A'),
+                data4=str(self.case_info['proceedings_number'] or 'N/A'),
+                typed=phrases.TEXT['typed'], type=type,
+                date=phrases.TEXT['date'], ntp=ntp,
+                t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
+                whois=whois_text,
+                t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
+                name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
+                avi=extensions['avi'], avid=phrases.TEXT['avid'],
+                hash=extensions['hash'], hashd=phrases.TEXT['hashd'],
+                log=extensions['log'], logd=phrases.TEXT['logd'],
+                pcap=extensions['pcap'], pcapd=phrases.TEXT['pcapd'],
+                zip=extensions['zip'], zipd=phrases.TEXT['zipd'],
+                txt=extensions['txt'], txtd=phrases.TEXT['txtd'],
+                png=extensions['png'], pngd=phrases.TEXT['pngd'],
+                t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
+                t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
+                t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
+                titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
+                titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
+            )
+            # create pdf front and content, merge them and remove merged files
+            pisa.CreatePDF(front_index, dest=self.output_front_result)
+            pisa.CreatePDF(content_index, dest=self.output_content_result)
 
-        # create pdf front and content, merge them and remove merged files
-        pisa.CreatePDF(front_index, dest=self.output_front_result)
-        pisa.CreatePDF(content_index, dest=self.output_content_result)
+
+        if type == 'email':
+            content_index = open(os.getcwd() + '/asset/templates/template_email.html').read().format(
+
+                title=phrases.TEXT['title'],
+                index=phrases.TEXT['index'],
+                description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
+                case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
+                case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
+                case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
+
+                data0=str(self.case_info['name'] or 'N/A'),
+                data1=str(self.case_info['lawyer_name'] or 'N/A'),
+                data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+                data3=str(self.case_info['courthouse'] or 'N/A'),
+                data4=str(self.case_info['proceedings_number'] or 'N/A'),
+                typed=phrases.TEXT['typed'], type=type,
+                date=phrases.TEXT['date'], ntp=ntp,
+                t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
+                name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
+                hash=extensions['hash'], hashd=phrases.TEXT['hashd'],
+                log=extensions['log'], logd=phrases.TEXT['logd'],
+                zip=extensions['zip'], zipd=phrases.TEXT['zipd'],
+                t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
+                t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
+                t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
+                titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
+                titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
+
+            )
+            # create pdf front and content, merge them and remove merged files
+            pisa.CreatePDF(front_index, dest=self.output_front_result)
+            pisa.CreatePDF(content_index, dest=self.output_content_result)
 
         merger = PdfMerger()
         merger.append(self.output_front_result)

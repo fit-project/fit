@@ -35,6 +35,8 @@ from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator
 
 from controller.mail import Mail as MailController
+from controller.report import Report as ReportController
+
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 
 from view.case import Case as CaseView
@@ -44,11 +46,12 @@ from view.error import Error as ErrorView
 from common.error import ErrorMessage
 
 from common.settings import DEBUG
-from common.config import LogConfig
+from common.config import LogConfigMail
 import common.utility as utility
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
+
 
 
 class Mail(QtWidgets.QMainWindow):
@@ -72,7 +75,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_is_started = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
-        self.log_confing = LogConfig()
+        self.log_confing = LogConfigMail()
 
     def init(self, case_info):
         self.width = 520
@@ -256,7 +259,7 @@ class Mail(QtWidgets.QMainWindow):
             return
 
         try:
-            self.mail_controller.check_login(email,password)
+            self.mail_controller.check_login(email, password)
         except Exception as e:  # WRONG CREDENTIALS
             error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
                                   self.error_msg.TITLES['login_error'],
@@ -266,7 +269,6 @@ class Mail(QtWidgets.QMainWindow):
             return
         finally:
             self.start_dump_email()
-
 
     def start_dump_email(self):
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
@@ -302,6 +304,9 @@ class Mail(QtWidgets.QMainWindow):
             logging.config.dictConfig(self.log_confing.config)
 
             logger_acquisition.info('Acquisition started')
+            logger_acquisition.info(
+                f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])}')
+
             self.acquisition_status.add_task('Logger')
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
@@ -323,6 +328,7 @@ class Mail(QtWidgets.QMainWindow):
                 logger_acquisition.info('Email scraping complete')
                 # self.statusBar().showMessage('Message in statusbar.')
 
+
                 # Step 4:  Save all resources
                 self.status.showMessage('Save all resources')
                 self.progress_bar.setValue(20)
@@ -336,12 +342,15 @@ class Mail(QtWidgets.QMainWindow):
                 QtCore.QTimer.singleShot(2000, loop.quit)
                 loop.exec_()
 
+
+
                 self.status.showMessage('Calculate acquisition file hash')
                 self.progress_bar.setValue(100)
 
                 # Step 5:  Calculate acquisition hash
                 logger_acquisition.info('Calculate acquisition file hash')
                 files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
+
 
                 for file in files:
                     filename = os.path.join(self.acquisition_directory, file)
@@ -357,6 +366,16 @@ class Mail(QtWidgets.QMainWindow):
                         algorithm = 'sha256'
                         logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
                 logger_acquisition.info('Acquisition end')
+
+                ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+                logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+
+                logger_acquisition.info('PDF generation start')
+                ### generate pdf report ###
+                report = ReportController(self.acquisition_directory, self.case_info)
+                report.generate_pdf('email', ntp)
+                logger_acquisition.info('PDF generation end')
+
 
                 #### open the acquisition folder ####
                 os.startfile(self.acquisition_directory)
@@ -375,29 +394,22 @@ class Mail(QtWidgets.QMainWindow):
                 self.progress_bar.setHidden(True)
                 self.status.showMessage('')
 
-
     def _acquisition_status(self):
         self.acquisition_status.show()
-
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrape_button.setEnabled(all_fields_filled)
 
-
     def save_messages(self):
         self.mail_controller.get_mails_from_every_folder(self.acquisition_directory)
 
-        project_name = "emails"
-        # zipping every subfolder in email acquisition folder
+        project_name = "acquisition"
+        # zipping email acquisition folder
         acquisition_emails_folder = os.path.join(self.acquisition_directory, project_name)
-        folders = [f.name for f in os.scandir(acquisition_emails_folder) if os.path.isdir(f)]
-        for folder in folders:
-            zip_folder = shutil.make_archive(os.path.join(acquisition_emails_folder, folder),
-                                             'zip', os.path.join(acquisition_emails_folder, folder))
-            self.acquisition_status.set_status('Save email', zip_folder, 'done')
-            # moving zip folders to acquisition folder
-            os.replace(zip_folder, os.path.join(self.acquisition_directory, os.path.basename(zip_folder)))
+        zip_folder = shutil.make_archive(acquisition_emails_folder,'zip', acquisition_emails_folder)
+        self.acquisition_status.set_status('Save email', zip_folder, 'done')
+
         try:
             # removing unused acquisition folder
             shutil.rmtree(acquisition_emails_folder)
