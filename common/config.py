@@ -91,6 +91,10 @@ class LogConfig:
                     'handlers': ['fhashreport'],
                     'level' : 'INFO'
                 },
+                'view.mail': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
+                },
                 'whois': {
                     'handlers': ['fwhois'],
                     'level' : 'INFO'
