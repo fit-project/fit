@@ -40,6 +40,9 @@ from whois import NICClient, WhoisEntry, extract_domain, IPV4_OR_V6
 import socket
 import requests
 
+
+from nslookup import Nslookup
+
 def get_platform():
 
     platforms = {
@@ -143,6 +146,13 @@ def whois(url, flags=0):
     nic_client = NICClient()
 
     return nic_client.whois_lookup(None, domain.encode('idna'), flags)
+
+def nslookup(url, dns_server, enable_verbose_mode, enable_tcp):
+
+    dns_query = Nslookup(dns_servers=[dns_server], verbose=enable_verbose_mode, tcp=enable_tcp)
+    ips_record = dns_query.dns_lookup(extract_domain(url))
+
+    return '\n'.join(map(str, ips_record.response_full))
 
 def get_headers_information(url):
     response = requests.get(url)

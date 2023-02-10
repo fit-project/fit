@@ -63,6 +63,7 @@ logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
 logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
+logger_nslookup = logging.getLogger('nslookup')
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -221,6 +222,11 @@ class Web(QtWidgets.QMainWindow):
 
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+
+        #Get network parameters for check (NTP, nslookup)
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox, 'group_box_network_check')
+
+       
         self.add_new_tab(QtCore.QUrl(self.configuration_general.configuration['home_page_url']), 'Homepage')
 
         self.show()
@@ -272,7 +278,7 @@ class Web(QtWidgets.QMainWindow):
             self.log_confing.change_filehandlers_path(self.acquisition_directory)
             logging.config.dictConfig(self.log_confing.config)
             logger_acquisition.info('Acquisition started')
-            logger_acquisition.info(f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])}')
+            logger_acquisition.info(f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
             self.acquisition_status.add_task('Logger')
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
@@ -328,19 +334,28 @@ class Web(QtWidgets.QMainWindow):
             logger_whois.info(utility.whois(self.tabs.currentWidget().url().toString()))
 
 
-            #Step 3: Get headers info
+            #Step 3: Get nslookup info
+            logger_acquisition.info('Get NSLOOKUP info for URL: ' + self.tabs.currentWidget().url().toString())
+            logger_nslookup.info(utility.nslookup(self.tabs.currentWidget().url().toString(),
+                                                  self.configuration_network.configuration["nslookup_dns_server"],
+                                                  self.configuration_network.configuration["nslookup_enable_tcp"],
+                                                  self.configuration_network.configuration["nslookup_enable_verbose_mode"]
+                                                  ))
+
+
+            #Step 4: Get headers info
             logger_acquisition.info('Get HEADERS info for URL: ' + self.tabs.currentWidget().url().toString())
             logger_headers.info(utility.get_headers_information(self.tabs.currentWidget().url().toString()))
             
 
-            #Step 3: stop threads
+            #Step 5: stop threads
             if self.is_enabled_packet_capture:
                 self.packetcapture.stop()
 
             if self.is_enabled_screen_recorder:
                 self.screenrecorder.stop()
 
-            #Step 4:  Save screenshot of current page
+            #Step 6:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
             self.progress_bar.setValue(10)
             logger_acquisition.info('Save screenshot of current page')
@@ -356,7 +371,7 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
-            #Step 5:  Save all resource of current page
+            #Step 7:  Save all resource of current page
             zip_folder = self.save_page()
 
             logger_acquisition.info('Save all resource of current page')
@@ -372,7 +387,7 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Calculate acquisition file hash')
             self.progress_bar.setValue(100)
-            #Step 6:  Calculate acquisition hash
+            #Step 8:  Calculate acquisition hash
             logger_acquisition.info('Calculate acquisition file hash')
             files = [ f.name for f in os.scandir(self.acquisition_directory) if f.is_file() ]
 
@@ -393,7 +408,7 @@ class Web(QtWidgets.QMainWindow):
             logger_acquisition.info('Acquisition end')
 
 
-            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+            ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
             logger_acquisition.info(f'NTP end acquisition time: {ntp}')
 
             logger_acquisition.info('Acquisition end')

@@ -60,6 +60,10 @@ class LogConfig:
                 'headers': {
                     'class': 'logging.Formatter',
                     'format': '%(message)s'
+                },
+                'nslookup': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
                 }
 
             },
@@ -90,6 +94,12 @@ class LogConfig:
                     'filename': 'headers.txt',
                     'mode': 'w',
                     'formatter': 'headers',
+                },
+                'fnslookup': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'nslookup.txt',
+                    'mode': 'w',
+                    'formatter': 'nslookup',
                 }
             },
             'loggers': {
@@ -111,6 +121,10 @@ class LogConfig:
                 },
                 'headers': {
                     'handlers': ['fheaders'],
+                    'level' : 'INFO'
+                },
+                'nslookup': {
+                    'handlers': ['fnslookup'],
                     'level' : 'INFO'
                 }
             },

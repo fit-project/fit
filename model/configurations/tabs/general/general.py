@@ -43,7 +43,6 @@ class General(Base):
     id = Column(Integer, primary_key = True)
     cases_folder_path = Column(String)
     home_page_url = Column(String)
-    ntp_server = Column(String)
 
     
     def __init__(self) -> None:
@@ -67,7 +66,6 @@ class General(Base):
         default_path_by_os = {"lin": "~/Documents/FIT", "osx": "~/Documents/FIT", "win": "~/Documents/FIT"}
         self.cases_folder_path = default_path_by_os[utility.get_platform()]
         self.home_page_url = "https://www.google.it"
-        self.ntp_server = "ntp1.inrim.it"
         
         self.db.session.add(self)
         self.db.session.commit()
