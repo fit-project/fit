@@ -108,7 +108,7 @@ class Instagram:
         os.makedirs(self.profileName + "_savedPosts")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_savedPosts")
         for savedPost in savedPosts:
-            self.loader.download_post(savedPost, self.profile)
+            self.loader.download_post(savedPost, self.profileName)
         return
 
     def scrape_profilePicture(self):
