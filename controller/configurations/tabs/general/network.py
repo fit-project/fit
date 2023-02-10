@@ -26,22 +26,27 @@
 # -----
 ###### 
 
-from model.configurations.tabs.screenrecorder.screenrecorder import ScreenRecorder as ScreenRecorderModel
+from model.configurations.tabs.general.network import Network as NetworkModel
 
-class ScreenRecorder():
-    _options = {}
+import json
 
-    def __init__(self):
-      self.model = ScreenRecorderModel()
-      self._options = self.model.get()
+class Network():
 
-    
+   _configuration = {}
+   
+   def __init__(self):
 
-    @property
-    def options(self):
-      return {key: value for key, value in self._options[0].__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
+      self.model = NetworkModel()
+      self._configuration = self.model.get()
 
 
-    @options.setter
-    def options(self, options):
-      self.model.update(options)
+   @property
+   def configuration(self):
+      return {key: value for key, value in self._configuration[0].__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
+
+   # a setter function
+   @configuration.setter
+   def configuration(self, configuration):
+      self.model.update(configuration)
+
+      

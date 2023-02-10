@@ -40,8 +40,6 @@ class TypesProceedings(QtWidgets.QGroupBox):
 
       self.controller = TypesProceedingsController()
 
-      self.setObjectName("general")
-
       self.initUI()
       self.retranslateUi()
       self.types_proceedings.setPlainText(','.join([str(elem) for elem in self.controller.names]))

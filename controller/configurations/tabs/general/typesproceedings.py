@@ -41,7 +41,7 @@ class TypesProceedings():
 
       if not len(self._proceedings):
         for i in range(len(_proceedings)):
-          self._proceedings.append({key: value for key, value in _proceedings[i].__dict__.items() if not key.startswith("_") and not key.startswith("__")})
+          self._proceedings.append({key: value for key, value in _proceedings[i].__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")})
           self._names.append({key: value for key, value in _proceedings[i].__dict__.items() if key == 'name'})
     
 

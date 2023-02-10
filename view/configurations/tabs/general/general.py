@@ -30,6 +30,7 @@ from PyQt5 import QtCore, QtWidgets
 
 
 from view.configurations.tabs.general.typesproceedings import TypesProceedings as TypesproceedingsView
+from view.configurations.tabs.general.network import Network as NetworkView
 from controller.configurations.tabs.general.general import General as GeneralController
 
 
@@ -78,14 +79,8 @@ class General(QtWidgets.QWidget):
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
 
-
-      #NTP SERVER
-      self.group_box_ntp_server = QtWidgets.QGroupBox(self)
-      self.group_box_ntp_server.setGeometry(QtCore.QRect(10, 270, 251, 51))
-      self.group_box_ntp_server.setObjectName("group_box_ntp_server")
-      self.ntp_server = QtWidgets.QLineEdit(self.group_box_ntp_server)
-      self.ntp_server.setGeometry(QtCore.QRect(20, 20, 211, 22))
-      self.ntp_server.setObjectName("ntp_server")
+      #PROCEEDINGS TYPE LIST
+      self.group_box_network_check = NetworkView(self)
 
 
 
@@ -95,8 +90,6 @@ class General(QtWidgets.QWidget):
       self.group_box_cases_folder.setTitle(_translate("General", "Cases Folder"))
       self.tool_button_cases_folder.setText(_translate("General", "..."))
       self.group_box_home_page_url.setTitle(_translate("General", "Home Page URL"))
-      self.group_box_ntp_server.setTitle(_translate("General", "NTP Server"))
-
 
    def __select_cases_folder(self):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(self,
@@ -108,7 +101,6 @@ class General(QtWidgets.QWidget):
    def __set_current_config_values(self):
       self.cases_folder.setText(self.configuration['cases_folder_path'])
       self.home_page_url.setText(self.configuration['home_page_url'])
-      self.ntp_server.setText(self.configuration['ntp_server'])
    
    def __get_current_values(self):
         
@@ -127,6 +119,7 @@ class General(QtWidgets.QWidget):
 
    def accept(self) -> None:
       self.group_box_types_proceedings.accept()
+      self.group_box_network_check.accept()
       self.__get_current_values()
       self.controller.configuration = self.configuration
       
