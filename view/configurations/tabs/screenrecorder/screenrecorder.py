@@ -55,37 +55,11 @@ class ScreenRecorder(QtWidgets.QWidget):
         self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
         self.enabled_checkbox.stateChanged.connect(self._is_enabled_screen_recorder)
         self.enabled_checkbox.setObjectName("enabled")
-
-        #RESOLUTION
-        self.group_box_resolution = QtWidgets.QGroupBox(self)
-        self.group_box_resolution.setGeometry(QtCore.QRect(10, 90, 270, 70))
-        self.group_box_resolution.setObjectName("group_box_resolution")
-        self.form_layout_resolution = QtWidgets.QWidget(self.group_box_resolution)
-        self.form_layout_resolution.setGeometry(QtCore.QRect(20, 30, 222, 24))
-        self.form_layout_resolution.setObjectName("form_layout_resolution")
-        self.horizontal_layout_resolution = QtWidgets.QHBoxLayout(self.form_layout_resolution)
-        self.horizontal_layout_resolution.setContentsMargins(0, 0, 0, 0)
-        self.horizontal_layout_resolution.setObjectName("horizontal_layout_resolution")
-
-        #WIDTH
-        self.label_resolution_width = QtWidgets.QLabel(self.form_layout_resolution)
-        self.label_resolution_width.setObjectName("label_resolution_width")
-        self.horizontal_layout_resolution.addWidget(self.label_resolution_width)
-        self.resolution_width = QtWidgets.QLineEdit(self.form_layout_resolution)
-        self.resolution_width.setObjectName("resolution_width")
-        self.horizontal_layout_resolution.addWidget(self.resolution_width)
-        #HEIGHT
-        self.label_resolution_height = QtWidgets.QLabel(self.form_layout_resolution)
-        self.label_resolution_height.setObjectName("label_resolution_height")
-        self.horizontal_layout_resolution.addWidget(self.label_resolution_height)
-        self.resolution_height = QtWidgets.QLineEdit(self.form_layout_resolution)
-        self.resolution_height.setObjectName("resolution_height")
-        self.horizontal_layout_resolution.addWidget(self.resolution_height)
         
         
         #FPS
         self.group_box_fps = QtWidgets.QGroupBox(self)
-        self.group_box_fps.setGeometry(QtCore.QRect(310, 90, 160, 70))
+        self.group_box_fps.setGeometry(QtCore.QRect(10, 90, 160, 70))
         self.group_box_fps.setObjectName("group_box_fps")
         self.fps = QtWidgets.QSpinBox(self.group_box_fps)
         self.fps.setGeometry(QtCore.QRect(20, 30, 80, 22))
@@ -110,23 +84,17 @@ class ScreenRecorder(QtWidgets.QWidget):
    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Codec", "Screen Recorder Options"))
-        self.group_box_resolution.setTitle(_translate("ConfigurationView", "Resolution"))
-        self.label_resolution_width.setText(_translate("ConfigurationView", "width:"))
-        self.label_resolution_height.setText(_translate("ConfigurationView", "height:"))
         self.group_box_fps.setTitle(_translate("ConfigurationView", "Frame per Second (fps)"))
         self.group_box_filename.setTitle(_translate("ConfigurationView", "File Name"))
 
 
    def _is_enabled_screen_recorder(self):
-        self.group_box_resolution.setEnabled(self.enabled_checkbox.isChecked())
         self.group_box_fps.setEnabled(self.enabled_checkbox.isChecked())
         self.group_box_codec.setEnabled(self.enabled_checkbox.isChecked())
         self.group_box_filename.setEnabled(self.enabled_checkbox.isChecked())
 
    def __set_current_config_values(self):
         self.enabled_checkbox.setChecked(self.options['enabled'])
-        self.resolution_width.setText(str(self.options['resolution_width']))
-        self.resolution_height.setText(str(self.options['resolution_height']))
         self.fps.setValue(self.options['fps'])
         self.group_box_codec.set_index_from_codec_id(self.options['codec_id'])
         self.filename.setText(self.options['filename'])
