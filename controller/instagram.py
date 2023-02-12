@@ -36,13 +36,14 @@ class Instagram:
         self.password = password
         self.profileName = profileName
         self.loader = Instaloader()
-        self.profile = Profile.from_username(self.loader.context, profileName)
+        self.profile = None
         self.path = path
         os.chdir(self.path)
         return
 
     def login(self):
         self.loader.login(self.username, self.password)
+        self.profile = Profile.from_username(self.loader.context, self.profileName)
         return
 
     def scrape_post(self):
@@ -51,12 +52,9 @@ class Instagram:
             self.login()
         posts = self.profile.get_posts()
         os.makedirs(self.profileName + "_posts")
-        print("qui")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_posts")
-        print("prima dell'if")
         for post in posts:
             self.loader.download_post(post, self.profileName)
-            print("for")
         return
 
     def scrape_stories(self):

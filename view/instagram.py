@@ -28,6 +28,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
+from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
+    ProfileNotExistsException
 
 from controller.instagram import Instagram as InstragramController
 
@@ -128,8 +130,13 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_accountType.setObjectName("label_accountType")
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(517, 340, 131, 23))
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setValue(0)
         self.progressBar.setObjectName("progressBar")
+        self.labelStatus = QtWidgets.QLabel(self.centralwidget)
+        self.labelStatus.setGeometry(QtCore.QRect(80, 280, 120, 24))
+        self.labelStatus.setObjectName("labelStatus")
+        self.labelStatus.resize(300, 80)
+        self.labelStatus.show()
         self.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(self)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 653, 21))
@@ -174,26 +181,56 @@ class Instagram(QtWidgets.QMainWindow):
         self.menuAcquisition.setTitle(_translate("mainWindow", "Acquisition"))
 
     def button_clicked(self):
+        error = False
+        self.labelStatus.setText("")
         insta = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), "C:\\Users\\domen\\Desktop\\test")
-        if(self.checkBox_post.isChecked()):
-            try:
+
+        try:
+            insta.login()
+        except InvalidArgumentException:
+            error = True
+            self.labelStatus.setText("Errore:\nL'username fornito non esiste...")
+            return
+        except BadCredentialsException:
+            error = True
+            self.labelStatus.setText("Errore:\nLa password inserita è errata...")
+            return
+        except ConnectionException:
+            error = True
+            self.labelStatus.setText("Errore:\nL'username o la password inseriti sono errati...")
+            return
+        except ProfileNotExistsException:
+            error = True
+            self.labelStatus.setText("Errore:\nIl nome del profilo inserito non esiste...")
+            return
+
+        if error:
+            pass
+        else:
+            if(self.checkBox_post.isChecked()):
                 insta.scrape_post()
-            except Exception as e:
-                print(e)
-        if(self.checkBox_2_followee.isChecked()):
-            insta.scrape_followees()
-        if(self.checkBox_3_highlight.isChecked()):
-            insta.scrape_highlights()
-        if(self.checkBox_4_story.isChecked()):
-            insta.scrape_stories()
-        if(self.checkBox_5_taggedPost.isChecked()):
-            insta.scrape_taggedPosts()
-        if(self.checkBox_6_savedPost.isChecked()):
-            insta.scrape_savedPosts()
-        if(self.checkBox_7_follower.isChecked()):
-            insta.scrape_followers()
-        insta.scrape_info()
-        insta.scrape_profilePicture()
+            self.progressBar.setValue(10)
+            if(self.checkBox_2_followee.isChecked()):
+                insta.scrape_followees()
+            self.progressBar.setValue(20)
+            if(self.checkBox_3_highlight.isChecked()):
+                insta.scrape_highlights()
+            self.progressBar.setValue(30)
+            if(self.checkBox_4_story.isChecked()):
+                insta.scrape_stories()
+            self.progressBar.setValue(40)
+            if(self.checkBox_5_taggedPost.isChecked()):
+                insta.scrape_taggedPosts()
+            self.progressBar.setValue(50)
+            if(self.checkBox_6_savedPost.isChecked()):
+                insta.scrape_savedPosts()
+            self.progressBar.setValue(60)
+            if(self.checkBox_7_follower.isChecked()):
+                insta.scrape_followers()
+            self.progressBar.setValue(70)
+            insta.scrape_info()
+            insta.scrape_profilePicture()
+            self.progressBar.setValue(100)
 
 
     def onTextChanged(self):
