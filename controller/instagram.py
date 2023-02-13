@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import shutil
 
 from instaloader import Instaloader, Profile
 import os
@@ -148,6 +149,7 @@ class Instagram:
             file.write("Tipo di account: " + str(businessCategory) + "\n")
         file.write("Biografia account: " + biography + "\n")
         file.write("Numero di post: " + str(nMedia))
+        file.flush()
         file.close()
         return
 
@@ -158,3 +160,13 @@ class Instagram:
         os.chdir(os.getcwd() + "\\" + self.profileName + "_highlights")
         self.loader.download_highlights(self.profile.userid)
         return
+
+    def createZip(self, path):
+        for folder in os.listdir(path):
+            folder_path = os.path.join(path, folder)
+            if os.path.isdir(folder_path):
+                zip_file = folder + '.zip'
+                zip_file_path = os.path.join(path, zip_file)
+                shutil.make_archive(zip_file_path, 'zip', folder_path)
+                shutil.rmtree(folder_path)
+

@@ -237,6 +237,7 @@ class Instagram(QtWidgets.QMainWindow):
         )
         error = False
         self.labelStatus.setText("")
+        self.progressBar.setValue(0)
         insta = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
 
         try:
@@ -282,8 +283,10 @@ class Instagram(QtWidgets.QMainWindow):
             if(self.checkBox_7_follower.isChecked()):
                 insta.scrape_followers()
             self.progressBar.setValue(70)
-            insta.scrape_info()
             insta.scrape_profilePicture()
+            insta.scrape_info()
+            instaZip = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
+            instaZip.createZip(self.acquisition_directory)
             self.progressBar.setValue(100)
             os.startfile(self.acquisition_directory)
 
