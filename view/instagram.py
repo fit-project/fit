@@ -25,25 +25,81 @@
 # SOFTWARE.
 # -----
 ######
+import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
-
 from controller.instagram import Instagram as InstragramController
+from view.case import Case as CaseView
+from view.configuration import Configuration as ConfigurationView
+from view.error import Error as ErrorView
+from common.error import ErrorMessage
+from common.settings import DEBUG
+from common.config import LogConfig
+import common.utility as utility
+from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 
 class Instagram(QtWidgets.QMainWindow):
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
+
+    def _acquisition_status(self):
+        self.acquisition_status.show()
 
     def __init__(self, *args, **kwargs):
         super(Instagram, self).__init__(*args, **kwargs)
+        self.error_msg = ErrorMessage()
+        self.acquisition_directory = None
+        self.acquisition_is_started = False
+        self.acquisition_status = AcquisitionStatusView(self)
+        self.acquisition_status.setupUi()
+        self.log_confing = LogConfig()
         #aggiungere attributi per log, screencap ecc
 
     def init(self, case_info):
+        self.case_info = case_info
+        self.configuration_view = ConfigurationView(self)
+        self.configuration_view.hide()
+        self.case_view = CaseView(self.case_info, self)
+        self.case_view.hide()
+
         self.setObjectName("mainWindow")
         self.resize(653, 392)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
+
+        # MENU BAR
+        self.setCentralWidget(self.centralwidget)
+        self.menuBar().setNativeMenuBar(False)
+
+        # CONF BUTTON
+        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+        self.menuConfiguration.setObjectName("menuConfiguration")
+        self.menuConfiguration.triggered.connect(self.configuration)
+        self.menuBar().addAction(self.menuConfiguration)
+
+        # CASE BUTTON
+        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action.setStatusTip("Show case info")
+        self.case_action.triggered.connect(self.case)
+        self.menuBar().addAction(self.case_action)
+
+        # ACQUISITION BUTTON
+        self.acquisition_menu = self.menuBar().addMenu("&Acquisition")
+        self.acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'info.png')),
+                                                           "Status",
+                                                           self)
+        self.acquisition_status_action.triggered.connect(self._acquisition_status)
+        self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
+        self.acquisition_menu.addAction(self.acquisition_status_action)
+
+        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+
         self.input_username = QtWidgets.QLineEdit(self.centralwidget)
         self.input_username.setGeometry(QtCore.QRect(240, 30, 240, 20))
         self.input_username.setObjectName("input_username")
@@ -51,17 +107,19 @@ class Instagram(QtWidgets.QMainWindow):
         self.input_password = QtWidgets.QLineEdit(self.centralwidget)
         self.input_password.setGeometry(QtCore.QRect(240, 60, 240, 20))
         self.input_password.setObjectName("input_password")
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.label_username = QtWidgets.QLabel(self.centralwidget)
         self.label_username.setGeometry(QtCore.QRect(80, 30, 100, 20))
         self.label_username.setObjectName("label_username")
+
         self.label_password = QtWidgets.QLabel(self.centralwidget)
         self.label_password.setGeometry(QtCore.QRect(80, 60, 100, 20))
         self.label_password.setObjectName("label_password")
+
         self.scrapeButton = QtWidgets.QPushButton(self.centralwidget)
         self.scrapeButton.setGeometry(QtCore.QRect(520, 270, 75, 25))
         self.scrapeButton.setObjectName("scrapeButton")
-
         self.scrapeButton.clicked.connect(self.button_clicked)
         self.scrapeButton.setEnabled(False)
 
@@ -113,41 +171,55 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_optionalInfo = QtWidgets.QLabel(self.centralwidget)
         self.label_optionalInfo.setGeometry(QtCore.QRect(360, 140, 121, 20))
         self.label_optionalInfo.setObjectName("label_optionalInfo")
+
         self.label_completeName = QtWidgets.QLabel(self.centralwidget)
         self.label_completeName.setGeometry(QtCore.QRect(80, 170, 111, 20))
         self.label_completeName.setObjectName("label_completeName")
+
         self.label_biography = QtWidgets.QLabel(self.centralwidget)
         self.label_biography.setGeometry(QtCore.QRect(80, 190, 111, 20))
         self.label_biography.setObjectName("label_biography")
+
         self.label_numberOfPost = QtWidgets.QLabel(self.centralwidget)
         self.label_numberOfPost.setGeometry(QtCore.QRect(80, 210, 111, 20))
         self.label_numberOfPost.setObjectName("label_numberOfPost")
+
         self.label_profileImage = QtWidgets.QLabel(self.centralwidget)
         self.label_profileImage.setGeometry(QtCore.QRect(80, 230, 111, 20))
         self.label_profileImage.setObjectName("label_profileImage")
+
         self.label_accountType = QtWidgets.QLabel(self.centralwidget)
         self.label_accountType.setGeometry(QtCore.QRect(80, 250, 221, 20))
         self.label_accountType.setObjectName("label_accountType")
+
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(517, 340, 131, 23))
         self.progressBar.setValue(0)
         self.progressBar.setObjectName("progressBar")
+
         self.labelStatus = QtWidgets.QLabel(self.centralwidget)
         self.labelStatus.setGeometry(QtCore.QRect(80, 280, 120, 24))
         self.labelStatus.setObjectName("labelStatus")
         self.labelStatus.resize(300, 80)
         self.labelStatus.show()
+
         self.setCentralWidget(self.centralwidget)
+
         self.menuBar = QtWidgets.QMenuBar(self)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 653, 21))
         self.menuBar.setObjectName("menuBar")
+
         self.menuConfiguration = QtWidgets.QMenu(self.menuBar)
         self.menuConfiguration.setObjectName("menuConfiguration")
+
         self.menuCase = QtWidgets.QMenu(self.menuBar)
         self.menuCase.setObjectName("menuCase")
+
         self.menuAcquisition = QtWidgets.QMenu(self.menuBar)
         self.menuAcquisition.setObjectName("menuAcquisition")
+
         self.setMenuBar(self.menuBar)
+
         self.menuBar.addAction(self.menuConfiguration.menuAction())
         self.menuBar.addAction(self.menuCase.menuAction())
         self.menuBar.addAction(self.menuAcquisition.menuAction())
@@ -179,6 +251,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.menuConfiguration.setTitle(_translate("mainWindow", "Configuration"))
         self.menuCase.setTitle(_translate("mainWindow", "Case"))
         self.menuAcquisition.setTitle(_translate("mainWindow", "Acquisition"))
+
 
     def button_clicked(self):
         error = False
@@ -231,7 +304,6 @@ class Instagram(QtWidgets.QMainWindow):
             insta.scrape_info()
             insta.scrape_profilePicture()
             self.progressBar.setValue(100)
-
 
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
