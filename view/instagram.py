@@ -203,27 +203,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.labelStatus.resize(300, 80)
         self.labelStatus.show()
 
-        self.setCentralWidget(self.centralwidget)
-
-        self.menuBar = QtWidgets.QMenuBar(self)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 653, 21))
-        self.menuBar.setObjectName("menuBar")
-
-        self.menuConfiguration = QtWidgets.QMenu(self.menuBar)
-        self.menuConfiguration.setObjectName("menuConfiguration")
-
-        self.menuCase = QtWidgets.QMenu(self.menuBar)
-        self.menuCase.setObjectName("menuCase")
-
-        self.menuAcquisition = QtWidgets.QMenu(self.menuBar)
-        self.menuAcquisition.setObjectName("menuAcquisition")
-
-        self.setMenuBar(self.menuBar)
-
-        self.menuBar.addAction(self.menuConfiguration.menuAction())
-        self.menuBar.addAction(self.menuCase.menuAction())
-        self.menuBar.addAction(self.menuAcquisition.menuAction())
-
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -248,15 +227,17 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_numberOfPost.setText(_translate("mainWindow", "- Numero di post"))
         self.label_profileImage.setText(_translate("mainWindow", "- Immagine profilo"))
         self.label_accountType.setText(_translate("mainWindow", "- Account verificato (si/no) e tipo di account"))
-        self.menuConfiguration.setTitle(_translate("mainWindow", "Configuration"))
-        self.menuCase.setTitle(_translate("mainWindow", "Case"))
-        self.menuAcquisition.setTitle(_translate("mainWindow", "Acquisition"))
-
 
     def button_clicked(self):
+        self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
+            'instagram',
+            self.configuration_general.configuration['cases_folder_path'],
+            self.case_info['name'],
+            self.input_profile.text()
+        )
         error = False
         self.labelStatus.setText("")
-        insta = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), "C:\\Users\\domen\\Desktop\\test")
+        insta = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
 
         try:
             insta.login()
@@ -304,6 +285,7 @@ class Instagram(QtWidgets.QMainWindow):
             insta.scrape_info()
             insta.scrape_profilePicture()
             self.progressBar.setValue(100)
+            os.startfile(self.acquisition_directory)
 
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
