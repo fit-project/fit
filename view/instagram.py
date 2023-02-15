@@ -26,7 +26,6 @@
 # -----
 ######
 import os
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
@@ -40,6 +39,8 @@ from common.settings import DEBUG
 from common.config import LogConfig
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
+from view.web import logger_acquisition
+#from controller.report import Report as ReportController
 
 class Instagram(QtWidgets.QMainWindow):
     def case(self):
@@ -288,7 +289,14 @@ class Instagram(QtWidgets.QMainWindow):
             instaZip = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
             instaZip.createZip(self.acquisition_directory)
             self.progressBar.setValue(100)
-            os.startfile(self.acquisition_directory)
+
+            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+            logger_acquisition.info('PDF generation start')
+            #report = ReportController(self.acquisition_directory, self.case_info)
+            #report.generate_pdf('email', ntp)
+            logger_acquisition.info('PDF generation end')
+
+        os.startfile(self.acquisition_directory)
 
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
