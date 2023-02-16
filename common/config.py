@@ -52,6 +52,18 @@ class LogConfig:
                 'acquisition': {
                     'class': 'logging.Formatter',
                     'format': '%(asctime)s - %(message)s'
+                },
+                'whois': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
+                },
+                'headers': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
+                },
+                'nslookup': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
                 }
 
             },
@@ -70,6 +82,24 @@ class LogConfig:
                     'filename': 'acquisition.hash',
                     'mode': 'w',
                     'formatter': 'hashreport',
+                },
+                'fwhois': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'whois.txt',
+                    'mode': 'w',
+                    'formatter': 'whois',
+                },
+                'fheaders': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'headers.txt',
+                    'mode': 'w',
+                    'formatter': 'headers',
+                },
+                'fnslookup': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'nslookup.txt',
+                    'mode': 'w',
+                    'formatter': 'nslookup',
                 }
             },
             'loggers': {
@@ -80,6 +110,93 @@ class LogConfig:
                 'hashreport': {
                     'handlers': ['fhashreport'],
                     'level' : 'INFO'
+                },
+                'view.mail': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
+                },
+                'whois': {
+                    'handlers': ['fwhois'],
+                    'level' : 'INFO'
+                },
+                'headers': {
+                    'handlers': ['fheaders'],
+                    'level' : 'INFO'
+                },
+                'nslookup': {
+                    'handlers': ['fnslookup'],
+                    'level' : 'INFO'
+                }
+            },
+            'root': {
+                'handlers': ['null'],
+                "propagate": False
+            }
+        }
+
+    def change_filehandlers_path(self, path, exclude=None):
+        for key in self.config['handlers']:
+            handler = self.config['handlers'][key]
+            if 'filename' in handler.keys():
+                handler['filename'] = os.path.join(path, handler['filename'])
+
+    def disable_loggers(self, loggers):
+        for logger in loggers:
+            for handler in logger.handlers.copy():
+                logger.removeHandler(handler)
+            logger.addHandler(logging.NullHandler())
+            logger.propagate = False
+
+class LogConfigMail:
+    def __init__(self):
+
+        self.config = {
+            'version': 1,
+            'disable_existing_loggers': True,
+            'formatters': {
+                'detailed': {
+                    'class': 'logging.Formatter',
+                    'format': '%(asctime)s %(name)-15s %(levelname)-8s %(processName)-10s %(message)s'
+                },
+                'hashreport': {
+                    'class': 'logging.Formatter',
+                    'format': '%(message)s'
+                },
+                'acquisition': {
+                    'class': 'logging.Formatter',
+                    'format': '%(asctime)s - %(message)s'
+                },
+
+            },
+            'handlers': {
+                "null": {
+                    "class": "logging.NullHandler"
+                },
+                'facquisition': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'acquisition.log',
+                    'mode': 'w',
+                    'formatter': 'acquisition',
+                },
+                'fhashreport': {
+                    'class': 'logging.FileHandler',
+                    'filename': 'acquisition.hash',
+                    'mode': 'w',
+                    'formatter': 'hashreport',
+                },
+            },
+            'loggers': {
+                'view.web': {
+                    'handlers': ['facquisition'],
+                    'level' : 'INFO'
+                },
+                'hashreport': {
+                    'handlers': ['fhashreport'],
+                    'level' : 'INFO'
+                },
+                'view.mail': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
                 },
             },
             'root': {
@@ -97,6 +214,6 @@ class LogConfig:
     def disable_loggers(self, loggers):
         for logger in loggers:
             for handler in logger.handlers.copy():
-                logger.removeHandler(handler)    
+                logger.removeHandler(handler)
             logger.addHandler(logging.NullHandler())
             logger.propagate = False

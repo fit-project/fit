@@ -32,6 +32,16 @@ import sys
 import hashlib
 import platform
 import subprocess
+import ntplib
+import urllib.request
+from datetime import datetime, timezone
+
+from whois import NICClient, WhoisEntry, extract_domain, IPV4_OR_V6
+import socket
+import requests
+
+
+from nslookup import Nslookup
 
 def get_platform():
 
@@ -107,20 +117,55 @@ def calculate_hash(filename, algorithm):
 
         return file_hash.hexdigest()
 
-def start_mrsign_sever(executable):
-    #START mrsign 
-    #TODO the mrsign server starts in the local environment just for the developing test. 
-    # In the production environment the server will be located in remote position and this part of code will be removed 
-    if get_platform() == 'win':
-        subprocess.run(r'start /MIN "mrsign server" "'+ executable +'" -s -c mrsign/config.json', shell=True, 
-                        stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+def get_ntp_date_and_time(server):
+    try:
+        ntpDate = None
+        client = ntplib.NTPClient()
+        response = client.request(server, version=3)
+    except Exception as exception:
+        return exception
 
-def stop_mrsign_sever():
-    #STOP mrsign 
-    #TODO the mrsign server starts in the local environment just for the developing test. 
-    # In the production environment the server will be located in remote position and this part of code will be removed 
-    if get_platform() == 'win':
-        subprocess.run("taskkill /f /im mrsign.exe", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    return datetime.fromtimestamp(response.tx_time, timezone.utc)
+
+
+def whois(url, flags=0):
+
+    ip_match = IPV4_OR_V6.match(url)
+    if ip_match:
+        domain = url
+        try:
+            result = socket.gethostbyaddr(url)
+        except socket.herror as e:
+            return e.strerror
+        else:
+            domain = extract_domain(result[0])
+    else:
+        domain = extract_domain(url)
+
+    # try builtin client
+    nic_client = NICClient()
+
+    return nic_client.whois_lookup(None, domain.encode('idna'), flags)
+
+def nslookup(url, dns_server, enable_verbose_mode, enable_tcp):
+
+    dns_query = Nslookup(dns_servers=[dns_server], verbose=enable_verbose_mode, tcp=enable_tcp)
+    ips_record = dns_query.dns_lookup(extract_domain(url))
+
+    return '\n'.join(map(str, ips_record.response_full))
+
+def get_headers_information(url):
+    response = requests.get(url)
+    
+    return response.headers
+
+
+def check_internet_connection(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host)
+        return True
+    except:
+        return False
 
 def import_modules(start_path, start_module_name = ""):
     

@@ -26,45 +26,27 @@
 # -----
 ###### 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from model.configurations.tabs.general.network import Network as NetworkModel
 
-from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
+import json
 
-__is_tab__ = False
+class Network():
 
-class Codec(QtWidgets.QGroupBox):
+   _configuration = {}
+   
+   def __init__(self):
 
-    def __init__(self, parent=None):
+      self.model = NetworkModel()
+      self._configuration = self.model.get()
 
-      super(Codec, self).__init__(parent)
 
-      self.controller = CodecController()
+   @property
+   def configuration(self):
+      return {key: value for key, value in self._configuration[0].__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
 
-      self.setObjectName("general")
+   # a setter function
+   @configuration.setter
+   def configuration(self, configuration):
+      self.model.update(configuration)
 
-      self.initUI()
-      self.retranslateUi()
-      self.__set_current_config_values()
-
-    def set_index_from_codec_id(self, codec_id):
-        self.codec.setCurrentIndex(self.codec.findData(codec_id))
-
-    
-    def initUI(self):
-        self.setGeometry(QtCore.QRect(210, 90, 160, 70))
-        self.setObjectName("group_box_codec")
-        self.codec = QtWidgets.QComboBox(self)
-        self.codec.setGeometry(QtCore.QRect(20, 30, 80, 22))
-        self.codec.setObjectName("codec")
-        self.codec.setDisabled(True)
-    
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setTitle(_translate("ConfigurationView", "Codec"))
-
-    def __set_current_config_values(self):
-        for codec in self.controller.codec:
-            self.codec.addItem(codec['name'], codec['id'])
-        
-        
-    
+      
