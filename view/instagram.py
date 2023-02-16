@@ -40,7 +40,7 @@ from common.config import LogConfig
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.web import logger_acquisition
-#from controller.report import Report as ReportController
+from controller.report import Report as ReportController
 
 class Instagram(QtWidgets.QMainWindow):
     def case(self):
@@ -292,9 +292,10 @@ class Instagram(QtWidgets.QMainWindow):
 
             ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
             logger_acquisition.info('PDF generation start')
-            #report = ReportController(self.acquisition_directory, self.case_info)
-            #report.generate_pdf('email', ntp)
+            report = ReportController(self.acquisition_directory, self.case_info)
+            report.generate_pdf('instagram', ntp)
             logger_acquisition.info('PDF generation end')
+
 
         os.startfile(self.acquisition_directory)
 

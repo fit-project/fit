@@ -34,7 +34,7 @@ import sys
 from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
 from view.mail import Mail as MailView
-
+from view.instagram import Instagram as InstagramView
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -44,11 +44,14 @@ if __name__ == '__main__':
     web.hide()
     mail = MailView()
     mail.hide()
+    insta = InstagramView()
+    insta.hide()
 
     
     def start_task(task, case_info):
         if (task == 'web'):
-            acquisition_window = web
+            #acquisition_window = web
+            acquisition_window = insta
         elif (task == 'mail'):
             acquisition_window = mail
             pass
