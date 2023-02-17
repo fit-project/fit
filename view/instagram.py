@@ -230,6 +230,13 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_accountType.setText(_translate("mainWindow", "- Account verificato (si/no) e tipo di account"))
 
     def button_clicked(self):
+        #action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
+        #if action is not None:
+            #action.setEnabled(False)
+
+        #self.acquisition_status.clear()
+        #self.acquisition_status.set_title('Acquisition is started!')
+
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'instagram',
             self.configuration_general.configuration['cases_folder_path'],
@@ -288,15 +295,15 @@ class Instagram(QtWidgets.QMainWindow):
             insta.scrape_info()
             instaZip = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
             instaZip.createZip(self.acquisition_directory)
-            self.progressBar.setValue(100)
-
-            ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
-            logger_acquisition.info('PDF generation start')
-            report = ReportController(self.acquisition_directory, self.case_info)
-            report.generate_pdf('instagram', ntp)
-            logger_acquisition.info('PDF generation end')
 
 
+            #ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+            #logger_acquisition.info('PDF generation start')
+            #report = ReportController(self.acquisition_directory, self.case_info)
+            #report.generate_pdf('instagram', ntp)
+            #logger_acquisition.info('PDF generation end')
+
+        self.progressBar.setValue(100)
         os.startfile(self.acquisition_directory)
 
     def onTextChanged(self):
