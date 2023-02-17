@@ -125,20 +125,16 @@ class Mail:
 
         return
 
-    def set_criteria(self, project_folder, sender=None, subject=None, from_date=None, to_date=None):
-        if sender is None and subject is None and from_date is None and to_date is None:
-            self.get_mails_from_every_folder(project_folder)
+    def set_criteria(self, project_folder, sender, subject, from_date, to_date):
+        criteria = []
+        if sender != '':
+            criteria.append(f'(FROM "{sender}")')
+        if subject != '':
+            criteria.append(f'(SUBJECT "{subject}")')
 
-        else:
-            criteria = []
-            if sender is not None:
-                criteria.append(f'(FROM "{sender}")')
-            if subject is not None:
-                criteria.append(f'(SUBJECT "{subject}")')
-            if (from_date is not None) and (to_date is not None):
-                criteria.append(f'(SINCE {from_date.strftime("%d-%b-%Y")} BEFORE {to_date.strftime("%d-%b-%Y")})')
+        criteria.append(f'(SINCE {from_date.strftime("%d-%b-%Y")} BEFORE {to_date.strftime("%d-%b-%Y")})')
 
-            # combine the search criteria
-            params = ' '.join(criteria)
-            self.get_mails_from_every_folder(project_folder, params)
+        # combine the search criteria
+        params = ' '.join(criteria)
+        self.get_mails_from_every_folder(project_folder, params)
         return

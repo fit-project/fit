@@ -26,24 +26,41 @@
 # -----
 ######
 import os
-import sys
+import logging
+import logging.config
+import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QRegExp
+from PyQt5.QtCore import QRegExp, QDate, QDateTime
 from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator
-from PyQt5.QtWidgets import QApplication
 
 from controller.mail import Mail as MailController
+from controller.report import Report as ReportController
+
+from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 
 from view.case import Case as CaseView
-from view.mail_scraping import MailScraping as MailScrapingView
+from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from common.error import ErrorMessage
 
+from common.settings import DEBUG
+from common.config import LogConfigMail
+import common.utility as utility
+
+logger_acquisition = logging.getLogger(__name__)
+logger_hashreport = logging.getLogger('hashreport')
+
 
 class Mail(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
+
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
 
     def __init__(self, *args, **kwargs):
         super(Mail, self).__init__(*args, **kwargs)
@@ -52,14 +69,27 @@ class Mail(QtWidgets.QMainWindow):
         self.input_password = None
         self.input_server = None
         self.input_port = None
+        self.input_sender = None
+        self.input_subject = None
+        self.input_from_date = None
+        self.input_to_date = None
         self.error_msg = ErrorMessage()
+        self.acquisition_directory = None
+        self.acquisition_is_started = False
+        self.acquisition_status = AcquisitionStatusView(self)
+        self.acquisition_status.setupUi()
+        self.log_confing = LogConfigMail()
 
     def init(self, case_info):
-        self.width = 520
-        self.height = 300
+        self.width = 530
+        self.height = 560
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
+        self.configuration_view = ConfigurationView(self)
+        self.configuration_view.hide()
 
+        self.case_view = CaseView(self.case_info, self)
+        self.case_view.hide()
 
         self.setObjectName("email_scrape_window")
 
@@ -67,12 +97,22 @@ class Mail(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
 
+        # PROGRESS BAR
+        self.status = QtWidgets.QStatusBar()
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.setMaximumWidth(400)
+        self.progress_bar.setFixedHeight(25)
+        self.status.addPermanentWidget(self.progress_bar)
 
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setAlignment(QtCore.Qt.AlignCenter)
+        self.setStatusBar(self.status)
+        self.progress_bar.setHidden(True)
 
         # IMAP GROUP
         self.imap_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.imap_group_box.setEnabled(True)
-        self.imap_group_box.setGeometry(QtCore.QRect(50, 20, 430, 240))
+        self.imap_group_box.setGeometry(QtCore.QRect(50, 20, 430, 200))
         self.imap_group_box.setObjectName("imap_group_box")
 
         # EMAIL FIELD
@@ -106,7 +146,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_port.setValidator(validator)
         self.input_port.setObjectName("input_port")
 
-        # DISABLE LOGIN BUTTON IF FIELDS ARE EMPTY
+        # DISABLE SCRAPE BUTTON IF FIELDS ARE EMPTY
         self.input_fields = [self.input_email, self.input_password, self.input_server, self.input_port]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.onTextChanged)
@@ -144,34 +184,137 @@ class Mail(QtWidgets.QMainWindow):
         self.label_port.setAlignment(QtCore.Qt.AlignRight)
         self.label_port.setObjectName("label_port")
 
-        # LOGIN BUTTON
-        self.login_button = QtWidgets.QPushButton(self.centralwidget)
-        self.login_button.setGeometry(QtCore.QRect(345, 210, 75, 25))
-        self.login_button.clicked.connect(self.login)
-        self.login_button.setFont(font)
-        self.login_button.setObjectName("StartLoginAction")
-        self.login_button.setEnabled(False)
+        # SCAPING CRITERIA
+        self.criteria_group_box = QtWidgets.QGroupBox(self.centralwidget)
+        self.criteria_group_box.setEnabled(True)
+        self.criteria_group_box.setGeometry(QtCore.QRect(50, 260, 430, 200))
+        self.criteria_group_box.setObjectName("criteria_group_box")
+
+        # SENDER FIELD
+        self.input_sender = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_sender.setGeometry(QtCore.QRect(180, 300, 240, 20))
+        self.input_sender.setFont(QFont('Arial', 10))
+        email_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # force email address
+        validator = QRegExpValidator(email_regex)
+        self.input_sender.setValidator(validator)
+        self.input_sender.setObjectName("input_sender")
+
+        # SUBJECT FIELD
+        self.input_subject = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_subject.setGeometry(QtCore.QRect(180, 335, 240, 20))
+        self.input_subject.setFont(QFont('Arial', 10))
+        self.input_subject.setObjectName("input_subject")
+
+        # FROM DATE FIELD
+        self.input_from_date = QtWidgets.QDateEdit(self.centralwidget)
+        self.input_from_date.setGeometry(QtCore.QRect(180, 370, 240, 20))
+        self.input_from_date.setFont(QFont('Arial', 10))
+        self.input_from_date.setDate(QDate(1990, 1, 1))
+        self.input_from_date.setObjectName("input_from_date")
+
+        # TO DATE FIELD
+        self.input_to_date = QtWidgets.QDateEdit(self.centralwidget)
+        self.input_to_date.setGeometry(QtCore.QRect(180, 405, 240, 20))
+        self.input_to_date.setFont(QFont('Arial', 10))
+        self.input_to_date.setDate(QDate.currentDate())
+        self.input_to_date.setObjectName("input_to_date")
+
+
+        # SENDER LABEL
+        self.label_sender = QtWidgets.QLabel(self.centralwidget)
+        self.label_sender.setGeometry(QtCore.QRect(90, 300, 80, 20))
+        self.label_sender.setFont(font)
+        self.label_sender.setAlignment(QtCore.Qt.AlignRight)
+        self.label_sender.setObjectName("label_sender")
+
+        # SUBJECT LABEL
+        self.label_subject = QtWidgets.QLabel(self.centralwidget)
+        self.label_subject.setGeometry(QtCore.QRect(90, 335, 80, 20))
+        self.label_subject.setFont(font)
+        self.label_subject.setAlignment(QtCore.Qt.AlignRight)
+        self.label_subject.setObjectName("label_subject")
+
+        # FROM DATE LABEL
+        self.label_from_date = QtWidgets.QLabel(self.centralwidget)
+        self.label_from_date.setGeometry(QtCore.QRect(90, 370, 80, 20))
+        self.label_from_date.setFont(font)
+        self.label_from_date.setAlignment(QtCore.Qt.AlignRight)
+        self.label_from_date.setObjectName("label_from_date")
+
+        # TO DATE LABEL
+        self.label_to_date = QtWidgets.QLabel(self.centralwidget)
+        self.label_to_date.setGeometry(QtCore.QRect(90, 405, 80, 20))
+        self.label_to_date.setFont(font)
+        self.label_to_date.setAlignment(QtCore.Qt.AlignRight)
+        self.label_to_date.setObjectName("label_to_date")
+
+        # SCRAPE BUTTON
+        self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
+        self.scrape_button.setGeometry(QtCore.QRect(345, 470, 75, 25))
+        self.scrape_button.clicked.connect(self.login)
+        self.scrape_button.setFont(font)
+        self.scrape_button.setObjectName("StartAcquisitionAction")
+        self.scrape_button.setEnabled(False)
 
         # MENU BAR
         self.setCentralWidget(self.centralwidget)
         self.menuBar().setNativeMenuBar(False)
+
+        # CONF BUTTON
+        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+        self.menuConfiguration.setObjectName("menuConfiguration")
+        self.menuConfiguration.triggered.connect(self.configuration)
+        self.menuBar().addAction(self.menuConfiguration)
+
+        # CASE BUTTON
+        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action.setStatusTip("Show case info")
+        self.case_action.triggered.connect(self.case)
+        self.menuBar().addAction(self.case_action)
+
+        # ACQUISITION BUTTON
+        self.acquisition_menu = self.menuBar().addMenu("&Acquisition")
+        self.acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'info.png')),
+                                                           "Status",
+                                                           self)
+        self.acquisition_status_action.triggered.connect(self._acquisition_status)
+        self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
+        self.acquisition_menu.addAction(self.acquisition_status_action)
+
+        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        # Get network parameters for check (NTP, nslookup)
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+                                                                          'group_box_network_check')
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
 
+        # Enable/Disable other modules logger
+        if not DEBUG:
+            loggers = [logging.getLogger()]  # get the root logger
+            loggers = loggers + [logging.getLogger(name) for name in logging.root.manager.loggerDict if
+                                 name not in [__name__, 'hashreport']]
+
+            self.log_confing.disable_loggers(loggers)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("email_scrape_window", "Freezing Internet Tool"))
         self.imap_group_box.setTitle(
             _translate("email_scrape_window", "Impostazioni server IMAP"))
+        self.criteria_group_box.setTitle(
+            _translate("email_scrape_window", "Criteri di ricerca"))
         self.label_email.setText(_translate("email_scrape_window", "E-mail*"))
         self.label_password.setText(_translate("email_scrape_window", "Password*"))
         self.label_server.setText(_translate("email_scrape_window", "Server IMAP*"))
         self.label_port.setText(_translate("email_scrape_window", "Port*"))
-        self.login_button.setText(_translate("email_scrape_window", "Login"))
+        self.label_sender.setText(_translate("email_scrape_window", "Mittente"))
+        self.label_subject.setText(_translate("email_scrape_window", "Oggetto"))
+        self.label_from_date.setText(_translate("email_scrape_window", "Data di inizio"))
+        self.label_to_date.setText(_translate("email_scrape_window", "Data di fine"))
+        self.scrape_button.setText(_translate("email_scrape_window", "Download"))
 
     def login(self):
 
@@ -201,12 +344,162 @@ class Mail(QtWidgets.QMainWindow):
             error_dlg.exec_()
             return
         finally:
+            self.start_dump_email()
 
-            mail_scraping = MailScrapingView()
-            mail_scraping.hide()
-            mail_scraping.init(self.case_info, self.mail_controller)
-            mail_scraping.show()
+    def start_dump_email(self):
+        # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
+        action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
+        self.progress_bar.setValue(50)
+        if action is not None:
+            action.setEnabled(False)
+
+        self.acquisition_status.clear()
+        self.acquisition_status.set_title('Acquisition is started!')
+
+        # Step 2: Create acquisition directory
+        self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
+            'email',
+            self.configuration_general.configuration['cases_folder_path'],
+            self.case_info['name'],
+            self.input_email.text()
+        )
+        if self.acquisition_directory is not None:
+
+            # show progress bar
+            self.progress_bar.setHidden(False)
+
+            self.acquisition_is_started = True
+            self.acquisition_status.set_title('Acquisition in progress:')
+            self.acquisition_status.add_task('Case Folder')
+            self.acquisition_status.set_status('Case Folder', self.acquisition_directory, 'done')
+            self.status.showMessage(self.acquisition_directory)
+            self.progress_bar.setValue(25)
+
+            # Step 3: Create loggin handler and start loggin information
+            self.log_confing.change_filehandlers_path(self.acquisition_directory)
+            logging.config.dictConfig(self.log_confing.config)
+
+            logger_acquisition.info('Acquisition started')
+            logger_acquisition.info(
+                f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
+
+            self.acquisition_status.add_task('Logger')
+            self.acquisition_status.set_status('Logger', 'Started', 'done')
+            self.status.showMessage('Logging handler and login information have been started')
+            self.progress_bar.setValue(50)
+
+            self.acquisition_status.set_title('Acquisition started success:')
+
+            # hidden progress bar
+            # self.progress_bar.setHidden(True)
+            # self.status.showMessage('')
+            if self.acquisition_is_started:
+                self.progress_bar.setHidden(False)
+
+                # Step 1: Disable all actions and clear current acquisition information on dialog
+                self.setEnabled(False)
+                self.acquisition_status.clear()
+                self.acquisition_status.set_title('Interruption of the acquisition in progress:')
+                logger_acquisition.info('Acquisition stopped')
+                logger_acquisition.info('Email scraping complete')
+                # self.statusBar().showMessage('Message in statusbar.')
+
+                # Step 4:  Save all resources
+                self.status.showMessage('Save all resources')
+                self.progress_bar.setValue(20)
+                self.save_messages()
+
+                logger_acquisition.info('Save all resource')
+                self.acquisition_status.add_task('Save email')
+
+                ### Waiting everything is synchronized
+                loop = QtCore.QEventLoop()
+                QtCore.QTimer.singleShot(2000, loop.quit)
+                loop.exec_()
+
+                self.status.showMessage('Calculate acquisition file hash')
+                self.progress_bar.setValue(100)
+
+                # Step 5:  Calculate acquisition hash
+                logger_acquisition.info('Calculate acquisition file hash')
+                files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
+
+                for file in files:
+                    filename = os.path.join(self.acquisition_directory, file)
+                    if file != 'acquisition.hash':
+                        file_stats = os.stat(filename)
+                        logger_hashreport.info(file)
+                        logger_hashreport.info('=========================================================')
+                        logger_hashreport.info(f'Size: {file_stats.st_size}')
+                        algorithm = 'md5'
+                        logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
+                        algorithm = 'sha1'
+                        logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
+                        algorithm = 'sha256'
+                        logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+                logger_acquisition.info('Acquisition end')
+
+                ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+                logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+
+                logger_acquisition.info('PDF generation start')
+                ### generate pdf report ###
+                report = ReportController(self.acquisition_directory, self.case_info)
+                report.generate_pdf('email', ntp)
+                logger_acquisition.info('PDF generation end')
+
+                #### open the acquisition folder ####
+                os.startfile(self.acquisition_directory)
+
+                #### Enable all action ####
+                self.setEnabled(True)
+                action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
+
+                # Enable start_acquisition_action
+                if action is not None:
+                    action.setEnabled(True)
+
+                self.acquisition_is_started = False
+
+                # hidden progress bar
+                self.progress_bar.setHidden(True)
+                self.status.showMessage('')
+
+    def _acquisition_status(self):
+        self.acquisition_status.show()
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
-        self.login_button.setEnabled(all_fields_filled)
+        self.scrape_button.setEnabled(all_fields_filled)
+
+    def save_messages(self):
+        # converting date fields
+        _from_date = self.input_from_date.date() #qDate obj
+        _to_date = self.input_to_date.date() #qDate obj
+        selected_from_date = _from_date.toPyDate()
+        selected_to_date = _to_date.toPyDate()
+
+        self.mail_controller.set_criteria(self.acquisition_directory, sender=self.input_sender.text(),
+                                          subject=self.input_subject.text(), from_date=selected_from_date,
+                                          to_date=selected_to_date)
+
+        project_name = "acquisition"
+        # zipping email acquisition folder
+        acquisition_emails_folder = os.path.join(self.acquisition_directory, project_name)
+        zip_folder = shutil.make_archive(acquisition_emails_folder, 'zip', acquisition_emails_folder)
+        self.acquisition_status.set_status('Save email', zip_folder, 'done')
+
+        try:
+            # removing unused acquisition folder
+            shutil.rmtree(acquisition_emails_folder)
+        except OSError as e:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['save_mail'],
+                                  self.error_msg.MESSAGES['save_mail'],
+                                  "Error: %s - %s." % (e.filename, e.strerror)
+                                  )
+
+            error_dlg.buttonClicked.connect(quit)
+            error_dlg.exec_()
+
+        return
