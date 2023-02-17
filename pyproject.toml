@@ -20,6 +20,7 @@ pillow = "^9.4.0"
 python-whois = "^0.8.0"
 xhtml2pdf = "^0.2.9"
 PyPDF2 = "^3.0.1"
+nslookup= "^1.7.0"
 
 [tool.poetry.dev-dependencies]
 
