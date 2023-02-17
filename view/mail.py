@@ -216,6 +216,9 @@ class Mail(QtWidgets.QMainWindow):
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
+         #Get network parameters for check (NTP, nslookup)
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox, 'group_box_network_check')
+
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -305,7 +308,7 @@ class Mail(QtWidgets.QMainWindow):
 
             logger_acquisition.info('Acquisition started')
             logger_acquisition.info(
-                f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])}')
+                f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
 
             self.acquisition_status.add_task('Logger')
             self.acquisition_status.set_status('Logger', 'Started', 'done')
@@ -367,7 +370,7 @@ class Mail(QtWidgets.QMainWindow):
                         logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
                 logger_acquisition.info('Acquisition end')
 
-                ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
+                ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
                 logger_acquisition.info(f'NTP end acquisition time: {ntp}')
 
                 logger_acquisition.info('PDF generation start')
