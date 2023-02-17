@@ -70,6 +70,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_server = None
         self.input_port = None
         self.input_sender = None
+        self.input_recipient = None
         self.input_subject = None
         self.input_from_date = None
         self.input_to_date = None
@@ -82,7 +83,7 @@ class Mail(QtWidgets.QMainWindow):
 
     def init(self, case_info):
         self.width = 530
-        self.height = 560
+        self.height = 590
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
@@ -187,7 +188,7 @@ class Mail(QtWidgets.QMainWindow):
         # SCAPING CRITERIA
         self.criteria_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.criteria_group_box.setEnabled(True)
-        self.criteria_group_box.setGeometry(QtCore.QRect(50, 260, 430, 200))
+        self.criteria_group_box.setGeometry(QtCore.QRect(50, 260, 430, 235))
         self.criteria_group_box.setObjectName("criteria_group_box")
 
         # SENDER FIELD
@@ -199,26 +200,34 @@ class Mail(QtWidgets.QMainWindow):
         self.input_sender.setValidator(validator)
         self.input_sender.setObjectName("input_sender")
 
+        # RECIPIENT FIELD
+        self.input_recipient = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_recipient.setGeometry(QtCore.QRect(180, 335, 240, 20))
+        self.input_recipient.setFont(QFont('Arial', 10))
+        email_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # force email address
+        validator = QRegExpValidator(email_regex)
+        self.input_recipient.setValidator(validator)
+        self.input_recipient.setObjectName("input_recipient")
+
         # SUBJECT FIELD
         self.input_subject = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_subject.setGeometry(QtCore.QRect(180, 335, 240, 20))
+        self.input_subject.setGeometry(QtCore.QRect(180, 370, 240, 20))
         self.input_subject.setFont(QFont('Arial', 10))
         self.input_subject.setObjectName("input_subject")
 
         # FROM DATE FIELD
         self.input_from_date = QtWidgets.QDateEdit(self.centralwidget)
-        self.input_from_date.setGeometry(QtCore.QRect(180, 370, 240, 20))
+        self.input_from_date.setGeometry(QtCore.QRect(180, 405, 240, 20))
         self.input_from_date.setFont(QFont('Arial', 10))
         self.input_from_date.setDate(QDate(1990, 1, 1))
         self.input_from_date.setObjectName("input_from_date")
 
         # TO DATE FIELD
         self.input_to_date = QtWidgets.QDateEdit(self.centralwidget)
-        self.input_to_date.setGeometry(QtCore.QRect(180, 405, 240, 20))
+        self.input_to_date.setGeometry(QtCore.QRect(180, 440, 240, 20))
         self.input_to_date.setFont(QFont('Arial', 10))
         self.input_to_date.setDate(QDate.currentDate())
         self.input_to_date.setObjectName("input_to_date")
-
 
         # SENDER LABEL
         self.label_sender = QtWidgets.QLabel(self.centralwidget)
@@ -227,30 +236,37 @@ class Mail(QtWidgets.QMainWindow):
         self.label_sender.setAlignment(QtCore.Qt.AlignRight)
         self.label_sender.setObjectName("label_sender")
 
+        # RECIPIENT LABEL
+        self.label_recipient = QtWidgets.QLabel(self.centralwidget)
+        self.label_recipient.setGeometry(QtCore.QRect(90, 335, 80, 20))
+        self.label_recipient.setFont(font)
+        self.label_recipient.setAlignment(QtCore.Qt.AlignRight)
+        self.label_recipient.setObjectName("label_recipient")
+
         # SUBJECT LABEL
         self.label_subject = QtWidgets.QLabel(self.centralwidget)
-        self.label_subject.setGeometry(QtCore.QRect(90, 335, 80, 20))
+        self.label_subject.setGeometry(QtCore.QRect(90, 370, 80, 20))
         self.label_subject.setFont(font)
         self.label_subject.setAlignment(QtCore.Qt.AlignRight)
         self.label_subject.setObjectName("label_subject")
 
         # FROM DATE LABEL
         self.label_from_date = QtWidgets.QLabel(self.centralwidget)
-        self.label_from_date.setGeometry(QtCore.QRect(90, 370, 80, 20))
+        self.label_from_date.setGeometry(QtCore.QRect(90, 405, 80, 20))
         self.label_from_date.setFont(font)
         self.label_from_date.setAlignment(QtCore.Qt.AlignRight)
         self.label_from_date.setObjectName("label_from_date")
 
         # TO DATE LABEL
         self.label_to_date = QtWidgets.QLabel(self.centralwidget)
-        self.label_to_date.setGeometry(QtCore.QRect(90, 405, 80, 20))
+        self.label_to_date.setGeometry(QtCore.QRect(90, 440, 80, 20))
         self.label_to_date.setFont(font)
         self.label_to_date.setAlignment(QtCore.Qt.AlignRight)
         self.label_to_date.setObjectName("label_to_date")
 
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
-        self.scrape_button.setGeometry(QtCore.QRect(345, 470, 75, 25))
+        self.scrape_button.setGeometry(QtCore.QRect(345, 505, 75, 25))
         self.scrape_button.clicked.connect(self.login)
         self.scrape_button.setFont(font)
         self.scrape_button.setObjectName("StartAcquisitionAction")
@@ -311,6 +327,7 @@ class Mail(QtWidgets.QMainWindow):
         self.label_server.setText(_translate("email_scrape_window", "Server IMAP*"))
         self.label_port.setText(_translate("email_scrape_window", "Port*"))
         self.label_sender.setText(_translate("email_scrape_window", "Mittente"))
+        self.label_recipient.setText(_translate("email_scrape_window", "Destinatario"))
         self.label_subject.setText(_translate("email_scrape_window", "Oggetto"))
         self.label_from_date.setText(_translate("email_scrape_window", "Data di inizio"))
         self.label_to_date.setText(_translate("email_scrape_window", "Data di fine"))
@@ -474,13 +491,16 @@ class Mail(QtWidgets.QMainWindow):
 
     def save_messages(self):
         # converting date fields
-        _from_date = self.input_from_date.date() #qDate obj
-        _to_date = self.input_to_date.date() #qDate obj
+        _from_date = self.input_from_date.date()  # qDate obj
+        _to_date = self.input_to_date.date()  # qDate obj
         selected_from_date = _from_date.toPyDate()
         selected_to_date = _to_date.toPyDate()
 
-        self.mail_controller.set_criteria(self.acquisition_directory, sender=self.input_sender.text(),
-                                          subject=self.input_subject.text(), from_date=selected_from_date,
+        self.mail_controller.set_criteria(self.acquisition_directory,
+                                          sender=self.input_sender.text(),
+                                          recipient=self.input_recipient.text(),
+                                          subject=self.input_subject.text(),
+                                          from_date=selected_from_date,
                                           to_date=selected_to_date)
 
         project_name = "acquisition"

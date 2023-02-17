@@ -125,10 +125,12 @@ class Mail:
 
         return
 
-    def set_criteria(self, project_folder, sender, subject, from_date, to_date):
+    def set_criteria(self, project_folder, sender, recipient, subject, from_date, to_date):
         criteria = []
         if sender != '':
             criteria.append(f'(FROM "{sender}")')
+        if recipient != '':
+            criteria.append(f'(TO "{recipient}")')
         if subject != '':
             criteria.append(f'(SUBJECT "{subject}")')
 
