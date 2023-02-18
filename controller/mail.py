@@ -30,7 +30,6 @@ import email
 import os
 import email.message
 import re
-from datetime import datetime
 
 from email.header import decode_header
 
@@ -124,9 +123,9 @@ class Mail:
 
                 # Create acquisition folder
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
-                if not os.path.exists(project_folder + '//' + folder_stripped):
-                    os.makedirs(project_folder + '//acquisition//' + folder_stripped)
-                acquisition_dir = project_folder + '//acquisition//' + folder_stripped + '/'
+                acquisition_dir = os.path.join(project_folder,'acquisition',folder_stripped)
+                if not os.path.exists(acquisition_dir):
+                    os.makedirs(acquisition_dir)
 
                 status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
                 email_message = email_data[0][1].decode("utf-8")
@@ -152,7 +151,6 @@ class Mail:
                             with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id+ '/' + filename.decode(encoding), 'wb') as f:
                                 f.write(part.get_payload(decode=True))
                                 f.close()
-
         return
 
     def download_everything(self, project_folder):
@@ -174,15 +172,15 @@ class Mail:
                 self.mailbox.select(folder)
                 type, data = self.mailbox.search(None, 'ALL')
                 # Create acquisition folder
-                if not os.path.exists(project_folder + '//' + folder_stripped):
-                    os.makedirs(project_folder + '//acquisition//' + folder_stripped)
+                acquisition_dir = os.path.join(project_folder, 'acquisition', folder_stripped)
+                if not os.path.exists(acquisition_dir):
+                    os.makedirs(acquisition_dir)
                 # Fetch every message in specified folder
                 messages = data[0].split()
                 for email_id in messages:
                     status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
                     email_message = email_data[0][1].decode("utf-8")
                     email_part = email.message_from_bytes(email_data[0][1])
-                    acquisition_dir = project_folder + '//acquisition//' + folder_stripped + '/'
                     with open(
                             '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
                             'w') as f:
