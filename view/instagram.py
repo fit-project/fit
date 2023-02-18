@@ -26,6 +26,9 @@
 # -----
 ######
 import os
+import shutil
+import zipfile
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
@@ -247,6 +250,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_accountType.setText(_translate("mainWindow", "- Account verificato (si/no) e tipo di account"))
 
     def button_clicked(self):
+        originalPath = os.getcwd()
         #Disable start_acquisition_action and clear current threads and acquisition information on dialog
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
         if action is not None:
@@ -266,6 +270,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_status.add_task('Case Folder: ')
         self.acquisition_status.set_status('Case Folder', self.acquisition_directory, 'done')
         #self.status.showMessage(self.acquisition_directory)
+
+        self.log_confing.change_filehandlers_path(self.acquisition_directory)
+        logging.config.dictConfig(self.log_confing.config)
 
         logger_acquisition.info('Acquisition started')
         logger_acquisition.info(f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
@@ -369,15 +376,32 @@ class Instagram(QtWidgets.QMainWindow):
             self.acquisition_status.add_task('Zip files: ')
             self.acquisition_status.set_status('Zip files: ', 'Creation completed', 'done')
 
+            logger_acquisition.info('Creating main zip file')
 
-            logger_acquisition.info('Calculate hash files')
+            final_zip_name = ""+self.input_profile.text()+".zip"
+            folder_path = self.acquisition_directory
+            temp_zip_path = os.path.join(folder_path, "temp_zip.zip")
+            with zipfile.ZipFile(final_zip_name, mode="w") as final_zip:
+                for filename in os.listdir(folder_path):
+                    folderToDelete = os.path.join(folder_path, filename)
+                    if filename.endswith(".zip"):
+                        if filename == final_zip_name:
+                            pass
+                        else:
+                            shutil.copy(os.path.join(folder_path, filename), temp_zip_path)
+                            final_zip.write(temp_zip_path, arcname=filename)
+                            os.remove(temp_zip_path)
+                            os.remove(folderToDelete)
+
+            self.acquisition_status.add_task('Main zip file: ')
+            self.acquisition_status.set_status('Main zip file: ', 'Creation completed', 'done')
+
+            logger_acquisition.info('Calculate hash file')
             files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
 
             for file in files:
                 filename = os.path.join(self.acquisition_directory, file)
-                print(filename)
                 if file != 'acquisition.hash':
-                    print("NELL'IF")
                     file_stats = os.stat(filename)
                     logger_hashreport.info(file)
                     logger_hashreport.info('=========================================================')
@@ -388,8 +412,9 @@ class Instagram(QtWidgets.QMainWindow):
                     logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
                     algorithm = 'sha256'
                     logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
-            self.acquisition_status.add_task('Hash files: ')
-            self.acquisition_status.set_status('Hash files: ', 'Hash files calculated', 'done')
+            self.acquisition_status.add_task('Hash file: ')
+            self.acquisition_status.set_status('Hash file: ', 'Hash file calculated', 'done')
+            os.chdir(originalPath)
             logger_acquisition.info('PDF generation start')
             report = ReportController(self.acquisition_directory, self.case_info)
             report.generate_pdf('email', ntp)

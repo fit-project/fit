@@ -26,6 +26,7 @@
 # -----
 ######
 import shutil
+import zipfile
 
 from instaloader import Instaloader, Profile
 import os
@@ -169,4 +170,3 @@ class Instagram:
                 zip_file_path = os.path.join(path, zip_file)
                 shutil.make_archive(zip_file_path, 'zip', folder_path)
                 shutil.rmtree(folder_path)
-
