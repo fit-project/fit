@@ -39,7 +39,6 @@ from common.settings import DEBUG
 from common.config import LogConfigMail
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
-from view.web import logger_acquisition
 from controller.report import Report as ReportController
 import logging
 import logging.config
