@@ -190,6 +190,10 @@ class LogConfigMail:
                     'handlers': ['facquisition'],
                     'level' : 'INFO'
                 },
+                'view.instagram': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
+                },
                 'hashreport': {
                     'handlers': ['fhashreport'],
                     'level' : 'INFO'

@@ -376,7 +376,9 @@ class Instagram(QtWidgets.QMainWindow):
 
             for file in files:
                 filename = os.path.join(self.acquisition_directory, file)
+                print(filename)
                 if file != 'acquisition.hash':
+                    print("NELL'IF")
                     file_stats = os.stat(filename)
                     logger_hashreport.info(file)
                     logger_hashreport.info('=========================================================')

@@ -20,6 +20,7 @@ pillow = "^9.4.0"
 python-whois = "^0.8.0"
 xhtml2pdf = "^0.2.9"
 PyPDF2 = "^3.0.1"
+instaloader = "^4.9.6"
 
 [tool.poetry.dev-dependencies]
 
