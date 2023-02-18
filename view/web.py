@@ -59,11 +59,15 @@ from common.settings import DEBUG
 from common.config import LogConfig
 import common.utility as utility
 
+import sslkeylog
+
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
 logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
+#logger_traceroute = logging.getLogger('traceroute')
+
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -320,47 +324,82 @@ class Web(QtWidgets.QMainWindow):
     def stop_acquisition(self):
         if self.acquisition_is_started:
             self.progress_bar.setHidden(False)
+            url = self.tabs.currentWidget().url().toString()
 
             #Step 1: Disable all actions and clear current acquisition information on dialog
             self.setEnabled(False)
             self.acquisition_status.clear()
             self.acquisition_status.set_title('Interruption of the acquisition in progress:')
             logger_acquisition.info('Acquisition stopped')
-            logger_acquisition.info('End URL: ' + self.tabs.currentWidget().url().toString())
+            logger_acquisition.info('End URL: ' + url)
             self.statusBar().showMessage('Message in statusbar.')
 
+
+            ### START NETWORK CHECK ###
             #Step 2: Get whois info
-            logger_acquisition.info('Get WHOIS info for URL: ' + self.tabs.currentWidget().url().toString())
-            logger_whois.info(utility.whois(self.tabs.currentWidget().url().toString()))
+            logger_acquisition.info('Get WHOIS info for URL: ' + url)
+            logger_whois.info(utility.whois(url))
+            self.status.showMessage('Get WHOIS info')
+            self.progress_bar.setValue(1)
 
 
             #Step 3: Get nslookup info
-            logger_acquisition.info('Get NSLOOKUP info for URL: ' + self.tabs.currentWidget().url().toString())
-            logger_nslookup.info(utility.nslookup(self.tabs.currentWidget().url().toString(),
+            logger_acquisition.info('Get NSLOOKUP info for URL: ' + url)
+            logger_nslookup.info(utility.nslookup(url,
                                                   self.configuration_network.configuration["nslookup_dns_server"],
                                                   self.configuration_network.configuration["nslookup_enable_tcp"],
                                                   self.configuration_network.configuration["nslookup_enable_verbose_mode"]
                                                   ))
+            
+            self.status.showMessage('Get WHOIS info')
+            self.progress_bar.setValue(2)
 
 
             #Step 4: Get headers info
-            logger_acquisition.info('Get HEADERS info for URL: ' + self.tabs.currentWidget().url().toString())
-            logger_headers.info(utility.get_headers_information(self.tabs.currentWidget().url().toString()))
-            
+            logger_acquisition.info('Get HEADERS info for URL: ' + url)
+            logger_headers.info(utility.get_headers_information(url))
 
-            #Step 5: stop threads
+            self.status.showMessage('Get HEADERS info')
+            self.progress_bar.setValue(3)
+
+            #Step 5: Get traceroute info
+            logger_acquisition.info('Get TRACEROUTE info for URL: ' + url)
+            utility.traceroute(url, os.path.join(self.acquisition_directory , 'traceroute.txt'))
+            self.status.showMessage('Get TRACEROUTE info')
+            self.progress_bar.setValue(8)
+            ### END NETWORK CHECK ###
+
+            ### START GET SSLKEYLOG AND SSL CERTIFICATE ###
+            #Step 6: Get sslkey.log
+            logger_acquisition.info('Get SSLKEYLOG')
+            sslkeylog.set_keylog(os.path.join(self.acquisition_directory , 'sslkey.log'))
+            self.status.showMessage('Get SSLKEYLOG')
+            self.progress_bar.setValue(9)
+
+            #Step 7: Get peer SSL certificate
+            if utility.check_if_peer_certificate_exist(url):
+                logger_acquisition.info('Get SSL certificate for URL:'  + url)
+                certificate = utility.get_peer_PEM_cert(url)
+                utility.save_PEM_cert_to_CER_cert(os.path.join(self.acquisition_directory , 'server.cer'), certificate)
+                self.status.showMessage('Get SSL CERTIFICATE')
+                self.progress_bar.setValue(10)
+            ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
+
+
+
+            #Step 6: stop threads
             if self.is_enabled_packet_capture:
                 self.packetcapture.stop()
 
             if self.is_enabled_screen_recorder:
                 self.screenrecorder.stop()
 
-            #Step 6:  Save screenshot of current page
+            #Step 7:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
             self.progress_bar.setValue(10)
             logger_acquisition.info('Save screenshot of current page')
             screenshot = Screenshot()
-            screenshot.capture(self.tabs.currentWidget().url().toString(),
+            screenshot.capture(url,
                                os.path.join(self.acquisition_directory, 'screenshot.png'))
 
 
@@ -371,7 +410,7 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
-            #Step 7:  Save all resource of current page
+            #Step 8:  Save all resource of current page
             zip_folder = self.save_page()
 
             logger_acquisition.info('Save all resource of current page')
@@ -387,7 +426,7 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Calculate acquisition file hash')
             self.progress_bar.setValue(100)
-            #Step 8:  Calculate acquisition hash
+            #Step 9:  Calculate acquisition hash
             logger_acquisition.info('Calculate acquisition file hash')
             files = [ f.name for f in os.scandir(self.acquisition_directory) if f.is_file() ]
 

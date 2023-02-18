@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fit"
-version = "1.1.0-beta"
+version = "1.2.0-beta"
 description = "FIT is a Python3 application for forensic acquisition of contents like web pages, emails, social media, etc. directly from the internet."
 authors = ["Fit Project <info@fit-project.org>"]
 license = "MIT"
@@ -20,7 +20,9 @@ pillow = "^9.4.0"
 python-whois = "^0.8.0"
 xhtml2pdf = "^0.2.9"
 PyPDF2 = "^3.0.1"
-nslookup= "^1.7.0"
+sslkeylog = "^0.4.0"
+nslookup = "^1.7.0"
+scapy = "^2.5.0"
 
 [tool.poetry.dev-dependencies]
 
