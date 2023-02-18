@@ -388,7 +388,6 @@ class Instagram(QtWidgets.QMainWindow):
                     logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
                     algorithm = 'sha256'
                     logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
-
             self.acquisition_status.add_task('Hash files: ')
             self.acquisition_status.set_status('Hash files: ', 'Hash files calculated', 'done')
             logger_acquisition.info('PDF generation start')
@@ -397,6 +396,7 @@ class Instagram(QtWidgets.QMainWindow):
             logger_acquisition.info('PDF generation end')
             self.acquisition_status.add_task('PDF generation: ')
             self.acquisition_status.set_status('PDF generation: ', 'PDF enerated', 'done')
+
 
         self.progressBar.setValue(100)
         os.startfile(self.acquisition_directory)
