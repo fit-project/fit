@@ -50,13 +50,13 @@ if __name__ == '__main__':
     
     def start_task(task, case_info):
         if (task == 'web'):
-            #acquisition_window = web
-            acquisition_window = insta
+            acquisition_window = web
         elif (task == 'mail'):
             acquisition_window = mail
-            pass
         elif (task == 'fb'):
             pass
+        elif (task == 'insta'):
+            acquisition_window = insta
 
         acquisition_window.init(case_info)
         acquisition_window.show()

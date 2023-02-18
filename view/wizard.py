@@ -168,6 +168,26 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.fb_radio_button_wrapper)
         self.radio_button_group.addButton(self.fb, 2)
 
+        # RADIO BUTTON INSTAGRAM
+        self.insta_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.insta_radio_button_wrapper.setStyleSheet("QWidget#insta_radio_button_wrapper {\n""border: 1px solid #c3c3c3;\n""}")
+        self.insta_radio_button_wrapper.setObjectName("insta_radio_button_wrapper")
+        self.insta_vlayout = QtWidgets.QVBoxLayout(self.insta_radio_button_wrapper)
+        self.insta_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.insta_vlayout.setObjectName("insta_vlayout")
+        self.insta_img = QtWidgets.QLabel(self.insta_radio_button_wrapper)
+        self.insta_img.setEnabled(True)
+        self.insta_img.setStyleSheet("image: url(asset/images/wizard/instagram.png);")
+        self.insta_img.setText("")
+        self.insta_img.setObjectName("insta_img")
+        self.insta_vlayout.addWidget(self.insta_img)
+        self.insta = QtWidgets.QRadioButton(self.insta_radio_button_wrapper)
+        self.insta.setEnabled(True)
+        self.insta.setObjectName("insta")
+        self.insta_vlayout.addWidget(self.insta)
+        self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
+        self.radio_button_group.addButton(self.insta, 3)
+
 
         #AREA RECAP INFO
         self.acquisition_group_box = QtWidgets.QGroupBox(self)
