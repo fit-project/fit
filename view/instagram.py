@@ -36,11 +36,16 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 from common.error import ErrorMessage
 from common.settings import DEBUG
-from common.config import LogConfig
+from common.config import LogConfigMail
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.web import logger_acquisition
 from controller.report import Report as ReportController
+import logging
+import logging.config
+
+logger_acquisition = logging.getLogger(__name__)
+logger_hashreport = logging.getLogger('hashreport')
 
 class Instagram(QtWidgets.QMainWindow):
     def case(self):
@@ -59,7 +64,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_is_started = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
-        self.log_confing = LogConfig()
+        self.log_confing = LogConfigMail()
         #aggiungere attributi per log, screencap ecc
 
     def init(self, case_info):
@@ -204,8 +209,21 @@ class Instagram(QtWidgets.QMainWindow):
         self.labelStatus.resize(300, 80)
         self.labelStatus.show()
 
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+                                                                          'group_box_network_check')
+
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
+
+        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+
+        # Enable/Disable other modules logger
+        if not DEBUG:
+            loggers = [logging.getLogger()]  # get the root logger
+            loggers = loggers + [logging.getLogger(name) for name in logging.root.manager.loggerDict if
+                                 name not in [__name__, 'hashreport']]
+
+            self.log_confing.disable_loggers(loggers)
 
     def retranslateUi(self, mainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -230,12 +248,13 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_accountType.setText(_translate("mainWindow", "- Account verificato (si/no) e tipo di account"))
 
     def button_clicked(self):
-        #action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
-        #if action is not None:
-            #action.setEnabled(False)
+        #Disable start_acquisition_action and clear current threads and acquisition information on dialog
+        action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
+        if action is not None:
+            action.setEnabled(False)
 
-        #self.acquisition_status.clear()
-        #self.acquisition_status.set_title('Acquisition is started!')
+        self.acquisition_status.clear()
+        self.acquisition_status.set_title('Acquisition is started!')
 
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'instagram',
@@ -243,6 +262,21 @@ class Instagram(QtWidgets.QMainWindow):
             self.case_info['name'],
             self.input_profile.text()
         )
+
+        self.acquisition_status.set_title('Acquisition in progress:')
+        self.acquisition_status.add_task('Case Folder')
+        self.acquisition_status.set_status('Case Folder', self.acquisition_directory, 'done')
+        #self.status.showMessage(self.acquisition_directory)
+
+        logger_acquisition.info('Acquisition started')
+        logger_acquisition.info(f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
+
+        self.acquisition_status.add_task('Logger')
+        self.acquisition_status.set_status('Logger', 'Started', 'done')
+        #self.status.showMessage('Logging handler and login information have been started')
+
+        self.acquisition_status.set_title('Acquisition started success:')
+
         error = False
         self.labelStatus.setText("")
         self.progressBar.setValue(0)
@@ -250,21 +284,38 @@ class Instagram(QtWidgets.QMainWindow):
 
         try:
             insta.login()
+            logger_acquisition.info('Login into Instagram account')
         except InvalidArgumentException:
             error = True
             self.labelStatus.setText("Errore:\nL'username fornito non esiste...")
+            logger_acquisition.info('Errore: l''username fornito non esiste')
+            logger_acquisition.info('Acquisition stopped')
+            self.acquisition_status.clear()
+            self.acquisition_status.set_title('Interruption of the acquisition in progress')
             return
         except BadCredentialsException:
             error = True
             self.labelStatus.setText("Errore:\nLa password inserita è errata...")
+            logger_acquisition.info('Errore: la password inserita è errata')
+            logger_acquisition.info('Acquisition stopped')
+            self.acquisition_status.clear()
+            self.acquisition_status.set_title('Interruption of the acquisition in progress')
             return
         except ConnectionException:
             error = True
             self.labelStatus.setText("Errore:\nL'username o la password inseriti sono errati...")
+            logger_acquisition.info('Errore: l''username o la password inseriti sono errati')
+            logger_acquisition.info('Acquisition stopped')
+            self.acquisition_status.clear()
+            self.acquisition_status.set_title('Interruption of the acquisition in progress')
             return
         except ProfileNotExistsException:
             error = True
             self.labelStatus.setText("Errore:\nIl nome del profilo inserito non esiste...")
+            logger_acquisition.info('Errore: il nome del profilo inserito non esiste')
+            logger_acquisition.info('Acquisition stopped')
+            self.acquisition_status.clear()
+            self.acquisition_status.set_title('Interruption of the acquisition in progress')
             return
 
         if error:
@@ -272,36 +323,64 @@ class Instagram(QtWidgets.QMainWindow):
         else:
             if(self.checkBox_post.isChecked()):
                 insta.scrape_post()
+                logger_acquisition.info('Scraping user''s posts')
             self.progressBar.setValue(10)
             if(self.checkBox_2_followee.isChecked()):
                 insta.scrape_followees()
+                logger_acquisition.info('Scraping user''s followees')
             self.progressBar.setValue(20)
             if(self.checkBox_3_highlight.isChecked()):
                 insta.scrape_highlights()
+                logger_acquisition.info('Scraping user''s highlights')
             self.progressBar.setValue(30)
             if(self.checkBox_4_story.isChecked()):
                 insta.scrape_stories()
+                logger_acquisition.info('Scraping user''s stories')
             self.progressBar.setValue(40)
             if(self.checkBox_5_taggedPost.isChecked()):
                 insta.scrape_taggedPosts()
+                logger_acquisition.info('Scraping user''s tagged posts')
             self.progressBar.setValue(50)
             if(self.checkBox_6_savedPost.isChecked()):
                 insta.scrape_savedPosts()
+                logger_acquisition.info('Scraping user''s saved posts')
             self.progressBar.setValue(60)
             if(self.checkBox_7_follower.isChecked()):
                 insta.scrape_followers()
+                logger_acquisition.info('Scraping user''s followers')
             self.progressBar.setValue(70)
             insta.scrape_profilePicture()
+            logger_acquisition.info('Scraping user''s profile picture')
             insta.scrape_info()
+            logger_acquisition.info('Scraping user''s info')
             instaZip = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
             instaZip.createZip(self.acquisition_directory)
+            logger_acquisition.info('Creating zip files')
+            logger_acquisition.info('Acquisition end')
+            ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
 
+            logger_acquisition.info('Calculate acquisition file hash')
+            files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
 
-            #ntp = utility.get_ntp_date_and_time(self.configuration_general.configuration["ntp_server"])
-            #logger_acquisition.info('PDF generation start')
-            #report = ReportController(self.acquisition_directory, self.case_info)
-            #report.generate_pdf('instagram', ntp)
-            #logger_acquisition.info('PDF generation end')
+            for file in files:
+                filename = os.path.join(self.acquisition_directory, file)
+                if file != 'acquisition.hash':
+                    file_stats = os.stat(filename)
+                    logger_hashreport.info(file)
+                    logger_hashreport.info('=========================================================')
+                    logger_hashreport.info(f'Size: {file_stats.st_size}')
+                    algorithm = 'md5'
+                    logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
+                    algorithm = 'sha1'
+                    logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
+                    algorithm = 'sha256'
+                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+
+            logger_acquisition.info('PDF generation start')
+            report = ReportController(self.acquisition_directory, self.case_info)
+            report.generate_pdf('email', ntp)
+            logger_acquisition.info('PDF generation end')
 
         self.progressBar.setValue(100)
         os.startfile(self.acquisition_directory)
