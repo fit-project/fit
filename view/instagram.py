@@ -411,13 +411,13 @@ class Instagram(QtWidgets.QMainWindow):
                     algorithm = 'sha1'
                     logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
                     algorithm = 'sha256'
-                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}\n')
             self.acquisition_status.add_task('Hash file')
             self.acquisition_status.set_status('Hash file', 'Hash file calculated', 'done')
             os.chdir(originalPath)
             logger_acquisition.info('PDF generation start')
             report = ReportController(self.acquisition_directory, self.case_info)
-            report.generate_pdf('email', ntp)
+            report.generate_pdf('instagram', ntp)
             logger_acquisition.info('PDF generation end')
             self.acquisition_status.add_task('PDF generation')
             self.acquisition_status.set_status('PDF generation', 'PDF enerated', 'done')

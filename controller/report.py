@@ -105,7 +105,7 @@ class Report:
             pisa.CreatePDF(content_index, dest=self.output_content_result)
 
 
-        if type == 'email':
+        if type == 'email' or type == 'instagram':
             content_index = open(os.getcwd() + '/asset/templates/template_email.html').read().format(
 
                 title=phrases.TEXT['title'],
