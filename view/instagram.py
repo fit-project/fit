@@ -257,7 +257,7 @@ class Instagram(QtWidgets.QMainWindow):
             action.setEnabled(False)
 
         self.acquisition_status.clear()
-        self.acquisition_status.set_title('Acquisition is started!')
+        self.acquisition_status.set_title('Acquisition is started')
 
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'instagram',
@@ -266,8 +266,8 @@ class Instagram(QtWidgets.QMainWindow):
             self.input_profile.text()
         )
 
-        self.acquisition_status.set_title('Acquisition in progress:')
-        self.acquisition_status.add_task('Case Folder: ')
+        self.acquisition_status.set_title('Acquisition in progress')
+        self.acquisition_status.add_task('Case Folder')
         self.acquisition_status.set_status('Case Folder', self.acquisition_directory, 'done')
         #self.status.showMessage(self.acquisition_directory)
 
@@ -281,7 +281,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_status.set_status('Logger', 'Started', 'done')
         #self.status.showMessage('Logging handler and login information have been started')
 
-        self.acquisition_status.set_title('Acquisition started success:')
+        self.acquisition_status.set_title('Acquisition started success')
 
         error = False
         self.labelStatus.setText("")
@@ -296,43 +296,43 @@ class Instagram(QtWidgets.QMainWindow):
             self.labelStatus.setText("Errore:\nL'username fornito non esiste...")
             logger_acquisition.info('Errore: l''username fornito non esiste')
             logger_acquisition.info('Acquisition stopped')
-            self.acquisition_status.set_title('Acquisition stopped:')
-            self.acquisition_status.add_task('Error: ')
-            self.acquisition_status.set_status('Error: ', 'l''username fornito non esiste', 'done')
+            self.acquisition_status.set_title('Acquisition stopped')
+            self.acquisition_status.add_task('Error')
+            self.acquisition_status.set_status('Error', 'l''username fornito non esiste', 'done')
             return
         except BadCredentialsException:
             error = True
             self.labelStatus.setText("Errore:\nLa password inserita è errata...")
             logger_acquisition.info('Errore: la password inserita è errata')
             logger_acquisition.info('Acquisition stopped')
-            self.acquisition_status.set_title('Acquisition stopped:')
-            self.acquisition_status.add_task('Error: ')
-            self.acquisition_status.set_status('Error: ', 'la password inserita è errata', 'done')
+            self.acquisition_status.set_title('Acquisition stopped')
+            self.acquisition_status.add_task('Error')
+            self.acquisition_status.set_status('Error', 'la password inserita è errata', 'done')
             return
         except ConnectionException:
             error = True
             self.labelStatus.setText("Errore:\nL'username o la password inseriti sono errati...")
             logger_acquisition.info('Errore: l''username o la password inseriti sono errati')
             logger_acquisition.info('Acquisition stopped')
-            self.acquisition_status.set_title('Acquisition stopped:')
-            self.acquisition_status.add_task('Error: ')
-            self.acquisition_status.set_status('Error: ', 'l''username o la password inseriti sono errati', 'done')
+            self.acquisition_status.set_title('Acquisition stopped')
+            self.acquisition_status.add_task('Error')
+            self.acquisition_status.set_status('Error', 'l''username o la password inseriti sono errati', 'done')
             return
         except ProfileNotExistsException:
             error = True
             self.labelStatus.setText("Errore:\nIl nome del profilo inserito non esiste...")
             logger_acquisition.info('Errore: il nome del profilo inserito non esiste')
             logger_acquisition.info('Acquisition stopped')
-            self.acquisition_status.set_title('Acquisition stopped:')
-            self.acquisition_status.add_task('Error: ')
-            self.acquisition_status.set_status('Error: ', 'il nome del profilo inserito non esiste', 'done')
+            self.acquisition_status.set_title('Acquisition stopped')
+            self.acquisition_status.add_task('Error')
+            self.acquisition_status.set_status('Error', 'il nome del profilo inserito non esiste', 'done')
             return
 
         if error:
             pass
         else:
-            self.acquisition_status.add_task('Scraping: ')
-            self.acquisition_status.set_status('Scraping: ', 'Started', 'done')
+            self.acquisition_status.add_task('Scraping')
+            self.acquisition_status.set_status('Scraping', 'Started', 'done')
             if(self.checkBox_post.isChecked()):
                 logger_acquisition.info('Scraping user''s posts')
                 insta.scrape_post()
@@ -368,13 +368,13 @@ class Instagram(QtWidgets.QMainWindow):
             logger_acquisition.info('Acquisition end')
             ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
             logger_acquisition.info(f'NTP end acquisition time: {ntp}')
-            self.acquisition_status.set_title('Acquisition completed:')
+            self.acquisition_status.set_title('Acquisition completed')
             instaZip = InstragramController(self.input_username.text(), self.input_password.text(),
                                             self.input_profile.text(), self.acquisition_directory)
             logger_acquisition.info('Creating zip files')
             instaZip.createZip(self.acquisition_directory)
-            self.acquisition_status.add_task('Zip files: ')
-            self.acquisition_status.set_status('Zip files: ', 'Creation completed', 'done')
+            self.acquisition_status.add_task('Zip files')
+            self.acquisition_status.set_status('Zip files', 'Creation completed', 'done')
 
             logger_acquisition.info('Creating main zip file')
 
@@ -393,8 +393,8 @@ class Instagram(QtWidgets.QMainWindow):
                             os.remove(temp_zip_path)
                             os.remove(folderToDelete)
 
-            self.acquisition_status.add_task('Main zip file: ')
-            self.acquisition_status.set_status('Main zip file: ', 'Creation completed', 'done')
+            self.acquisition_status.add_task('Main zip file')
+            self.acquisition_status.set_status('Main zip file', 'Creation completed', 'done')
 
             logger_acquisition.info('Calculate hash file')
             files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
@@ -412,15 +412,15 @@ class Instagram(QtWidgets.QMainWindow):
                     logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
                     algorithm = 'sha256'
                     logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
-            self.acquisition_status.add_task('Hash file: ')
-            self.acquisition_status.set_status('Hash file: ', 'Hash file calculated', 'done')
+            self.acquisition_status.add_task('Hash file')
+            self.acquisition_status.set_status('Hash file', 'Hash file calculated', 'done')
             os.chdir(originalPath)
             logger_acquisition.info('PDF generation start')
             report = ReportController(self.acquisition_directory, self.case_info)
             report.generate_pdf('email', ntp)
             logger_acquisition.info('PDF generation end')
-            self.acquisition_status.add_task('PDF generation: ')
-            self.acquisition_status.set_status('PDF generation: ', 'PDF enerated', 'done')
+            self.acquisition_status.add_task('PDF generation')
+            self.acquisition_status.set_status('PDF generation', 'PDF enerated', 'done')
 
 
         self.progressBar.setValue(100)
