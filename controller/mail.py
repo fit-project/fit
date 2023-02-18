@@ -30,6 +30,7 @@ import email
 import os
 import email.message
 import re
+from datetime import datetime
 
 from email.header import decode_header
 
@@ -43,6 +44,7 @@ class Mail:
 
     def check_server(self, server, port):
         # Connect and log to the mailbox using IMAP server
+
         self.mailbox = imaplib.IMAP4_SSL(server, int(port))  # imap ssl port
         return
 
@@ -55,7 +57,7 @@ class Mail:
         self.password = ''
         return
 
-    def get_mails_from_every_folder(self, project_folder, params=None):
+    def get_mails_from_every_folder(self, params):
 
         # Retrieve every folder from the mailbox
         folders = []
@@ -64,68 +66,42 @@ class Mail:
             folders.append(name[1])
 
         # Scrape every message from the folders
+        scraped_emails = self.fetch_messages(folders, params)
+        return scraped_emails
+
+    def fetch_messages(self, folders, params=None):
+        scraped_emails = {}
         for folder in folders:
-            folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
             try:
                 self.mailbox.select(folder)
-                self.download_messages(project_folder, folder_stripped, params)
-            except Exception as e:
-                pass  # handle exception
+                type, data = self.mailbox.search(None, params)
 
-        self.mailbox.close()
-        self.mailbox.logout()
-        return
+                # Fetch every message in specified folder
+                messages = data[0].split()
+                for email_id in messages:
+                    status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
+                    email_part = email.message_from_bytes(email_data[0][1])
 
-    def download_messages(self, project_folder, folder_stripped, params=None):
-        # Create acquisition folder
-        acquisition_folder = os.path.join(project_folder, 'acquisition')
-        if not os.path.exists(acquisition_folder):
-            os.makedirs(acquisition_folder)
+                    # prepare data for the dict
+                    uid = str(email_id.decode("utf-8"))
+                    subject = email_part['subject']
+                    date_str = str(email_part['date'])
+                    sender = email_part['from']
+                    recipient = email_part['to']
+                    dict_value ='Mittente: '  +sender+ '\nDestinatario: '+recipient + '\nData: '\
+                                 + date_str + '\nOggetto: ' + subject + '\nUID: ' + uid
+                    # add message to dict
+                    if folder in scraped_emails:
+                        scraped_emails[folder].append(dict_value)
+                    else:
+                        scraped_emails[folder] = [dict_value]
 
-        mailbox_folder = os.path.join(acquisition_folder, folder_stripped)
+            except Exception as e:  # handle exception
+                pass
 
-        # search for every email
-        if params is None:
-            result, data = self.mailbox.search(None, 'ALL')
-        else:
-            result, data = self.mailbox.search(None, params)
+        return scraped_emails
 
-        if len(data[0]) > 0:
-            if not os.path.exists(mailbox_folder):
-                os.makedirs(mailbox_folder)
-            # Fetch every message in specified folder
-            messages = data[0].split()
-            for email_id in messages:
-                status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
-                email_message = email_data[0][1].decode("utf-8")
-                email_part = email.message_from_bytes(email_data[0][1])
-                acquisition_dir = mailbox_folder + '/'
-                with open(
-                        '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
-                        'w') as f:
-                    f.write(email_message)
-                    f.close()
-
-                # attachments acquisition
-                for part in email_part.walk():
-                    if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
-                        filename, encoding = decode_header(part.get_filename())[0]
-                        path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
-                        os.makedirs(path)
-                        if encoding is None:
-                            with open(mailbox_folder + '/' + email_id.decode(
-                                    "utf-8") + '/' + str(filename), 'wb') as f:
-                                f.write(part.get_payload(decode=True))
-                                f.close()
-                        else:
-                            with open(mailbox_folder + '/' + email_id.decode(
-                                    "utf-8") + '/' + filename.decode(encoding), 'wb') as f:
-                                f.write(part.get_payload(decode=True))
-                                f.close()
-
-        return
-
-    def set_criteria(self, project_folder, sender, recipient, subject, from_date, to_date):
+    def set_criteria(self, sender, recipient, subject, from_date, to_date):
         criteria = []
         if sender != '':
             criteria.append(f'(FROM "{sender}")')
@@ -138,5 +114,98 @@ class Mail:
 
         # combine the search criteria
         params = ' '.join(criteria)
-        self.get_mails_from_every_folder(project_folder, params)
+        return params
+
+    def download_single_messages(self, project_folder, emails_dict):
+        for folder, emails_list in emails_dict.items():
+
+            for emails in emails_list:
+                email_id = emails.partition('UID: ')[2]
+
+                # Create acquisition folder
+                folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
+                if not os.path.exists(project_folder + '//' + folder_stripped):
+                    os.makedirs(project_folder + '//acquisition//' + folder_stripped)
+                acquisition_dir = project_folder + '//acquisition//' + folder_stripped + '/'
+
+                status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
+                email_message = email_data[0][1].decode("utf-8")
+                email_part = email.message_from_bytes(email_data[0][1])
+
+                with open(
+                        '%s/%s.eml' % (acquisition_dir, email_id),
+                        'w') as f:
+                    f.write(email_message)
+                    f.close()
+
+                # attachments acquisition
+                for part in email_part.walk():
+                    if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
+                        filename, encoding = decode_header(part.get_filename())[0]
+                        path = os.path.join(acquisition_dir, email_id)
+                        os.makedirs(path)
+                        if encoding is None:
+                            with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id + '/' + filename, 'wb') as f:
+                                f.write(part.get_payload(decode=True))
+                                f.close()
+                        else:
+                            with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id+ '/' + filename.decode(encoding), 'wb') as f:
+                                f.write(part.get_payload(decode=True))
+                                f.close()
+
         return
+
+    def download_everything(self, project_folder):
+
+        # Retrieve every folder from the mailbox
+        folders = []
+        for folder in self.mailbox.list()[1]:
+            name = folder.decode().split(' "/" ')
+            folders.append(name[1])
+
+        # Scrape every message from the folders
+        self.download_messages(folders, project_folder)
+        return
+
+    def download_messages(self, folders, project_folder):
+        for folder in folders:
+            folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
+            try:
+                self.mailbox.select(folder)
+                type, data = self.mailbox.search(None, 'ALL')
+                # Create acquisition folder
+                if not os.path.exists(project_folder + '//' + folder_stripped):
+                    os.makedirs(project_folder + '//acquisition//' + folder_stripped)
+                # Fetch every message in specified folder
+                messages = data[0].split()
+                for email_id in messages:
+                    status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
+                    email_message = email_data[0][1].decode("utf-8")
+                    email_part = email.message_from_bytes(email_data[0][1])
+                    acquisition_dir = project_folder + '//acquisition//' + folder_stripped + '/'
+                    with open(
+                            '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
+                            'w') as f:
+                        f.write(email_message)
+                        f.close()
+
+                    # attachments acquisition
+                    for part in email_part.walk():
+                        if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
+                            filename, encoding = decode_header(part.get_filename())[0]
+                            path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
+                            os.makedirs(path)
+                            if (encoding is None):
+                                with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id.decode(
+                                        "utf-8") + '/' + filename, 'wb') as f:
+                                    f.write(part.get_payload(decode=True))
+                                    f.close()
+                            else:
+                                with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id.decode(
+                                        "utf-8") + '/' + filename.decode(encoding), 'wb') as f:
+                                    f.write(part.get_payload(decode=True))
+                                    f.close()
+
+            except Exception as e:  # handle exception
+                pass
+
