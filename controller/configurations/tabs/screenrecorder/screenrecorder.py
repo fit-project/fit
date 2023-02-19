@@ -39,7 +39,7 @@ class ScreenRecorder():
 
     @property
     def options(self):
-      return {key: value for key, value in self._options[0].__dict__.items() if not key.startswith("_") and not key.startswith("__")}
+      return {key: value for key, value in self._options[0].__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
 
 
     @options.setter

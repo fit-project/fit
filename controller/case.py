@@ -60,7 +60,7 @@ class Case:
   def add(self, case_info):
     case_info = self.model.add(case_info)
     
-    return {key: value for key, value in case_info.__dict__.items() if not key.startswith("_") and not key.startswith("__")}
+    return {key: value for key, value in case_info.__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
   
   @property
   def names(self):
