@@ -445,31 +445,31 @@ class Mail(QtWidgets.QMainWindow):
             action.setEnabled(False)
         self.acquisition_status.clear()
         self.acquisition_status.set_title('Acquisition is started!')
-                self.status.showMessage('Calculate acquisition file hash')
-                self.progress_bar.setValue(100)
+        self.status.showMessage('Calculate acquisition file hash')
+        self.progress_bar.setValue(100)
 
-                # Step 5:  Calculate acquisition hash
-                logger_acquisition.info('Calculate acquisition file hash')
-                files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
+        # Step 5:  Calculate acquisition hash
+        logger_acquisition.info('Calculate acquisition file hash')
+        files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
 
 
-                for file in files:
-                    filename = os.path.join(self.acquisition_directory, file)
-                    if file != 'acquisition.hash':
-                        file_stats = os.stat(filename)
-                        logger_hashreport.info(file)
-                        logger_hashreport.info('=========================================================')
-                        logger_hashreport.info(f'Size: {file_stats.st_size}')
-                        algorithm = 'md5'
-                        logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
-                        algorithm = 'sha1'
-                        logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
-                        algorithm = 'sha256'
-                        logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
-                logger_acquisition.info('Acquisition end')
+        for file in files:
+            filename = os.path.join(self.acquisition_directory, file)
+            if file != 'acquisition.hash':
+                file_stats = os.stat(filename)
+                logger_hashreport.info(file)
+                logger_hashreport.info('=========================================================')
+                logger_hashreport.info(f'Size: {file_stats.st_size}')
+                algorithm = 'md5'
+                logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
+                algorithm = 'sha1'
+                logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
+                algorithm = 'sha256'
+                logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+        logger_acquisition.info('Acquisition end')
 
-                ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
-                logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+        logger_acquisition.info(f'NTP end acquisition time: {ntp}')
                 
         if self.acquisition_is_started:
             self.setEnabled(False)
