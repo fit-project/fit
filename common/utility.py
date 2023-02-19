@@ -39,6 +39,10 @@ from datetime import datetime, timezone
 from whois import NICClient, WhoisEntry, extract_domain, IPV4_OR_V6
 import socket
 import requests
+requests.urllib3.disable_warnings()
+import ssl
+import scapy.all as scapy
+from contextlib import redirect_stdout
 
 
 from nslookup import Nslookup
@@ -154,6 +158,14 @@ def nslookup(url, dns_server, enable_verbose_mode, enable_tcp):
 
     return '\n'.join(map(str, ips_record.response_full))
 
+def traceroute(url, filename):
+    domain = extract_domain(url)
+    with open(filename, 'w') as f:
+        with redirect_stdout(f):
+            ans, unans = scapy.sr(scapy.IP(dst=domain, ttl=(1,22),id=scapy.RandShort())/scapy.TCP(flags=0x2), timeout=10)
+            for snd,rcv in ans:
+                print(snd.ttl, rcv.src, isinstance(rcv.payload, scapy.TCP))
+
 def get_headers_information(url):
     response = requests.get(url)
     
@@ -166,6 +178,40 @@ def check_internet_connection(host='http://google.com'):
         return True
     except:
         return False
+
+def check_if_peer_certificate_exist(url):
+    with requests.get(url, stream=True, timeout=10, verify=False) as response:
+        try:
+            response.raw.connection.sock.getpeercert()
+            return True
+        except Exception as e:
+            return False
+
+def get_peer_PEM_cert(url, port=443, timeout=10):
+    domain = extract_domain(url)
+    context = ssl.create_default_context()
+    conn = socket.create_connection((domain, port))
+    sock = context.wrap_socket(conn, server_hostname=domain)
+    sock.settimeout(timeout)
+
+    try:
+        der_cert = sock.getpeercert(True)
+    finally:
+        sock.close()
+
+    return ssl.DER_cert_to_PEM_cert(der_cert)
+
+def save_PEM_cert_to_CER_cert(filename, certificate):
+    try:
+        with open(filename, 'w+') as cer_file:
+            if(sys.version_info[0] >= 3):
+                cer_file.write(certificate)
+            else:
+                cer_file.write(certificate)
+    except IOError:
+        print('Exception:  {0}'.format(IOError.strerror))
+
+
 
 def import_modules(start_path, start_module_name = ""):
     
