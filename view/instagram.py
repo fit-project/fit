@@ -420,7 +420,7 @@ class Instagram(QtWidgets.QMainWindow):
             report.generate_pdf('instagram', ntp)
             logger_acquisition.info('PDF generation end')
             self.acquisition_status.add_task('PDF generation')
-            self.acquisition_status.set_status('PDF generation', 'PDF enerated', 'done')
+            self.acquisition_status.set_status('PDF generation', 'PDF generated', 'done')
 
 
         self.progressBar.setValue(100)
