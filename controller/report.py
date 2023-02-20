@@ -105,7 +105,7 @@ class Report:
             pisa.CreatePDF(content_index, dest=self.output_content_result)
 
 
-        if type == 'email':
+        if type == 'email' or type == 'instagram':
             content_index = open(os.getcwd() + '/asset/templates/template_email.html').read().format(
 
                 title=phrases.TEXT['title'],
@@ -174,8 +174,12 @@ class Report:
         for zip_file in zip_folder.filelist:
             size = zip_file.file_size
             filename = zip_file.filename
+            if filename.count(".") > 1:
+                filenameNoExt = filename.rsplit(".", 1)[0]
+            else:
+                pass
             if size > 0:
-                zip_enum += '<p>' + filename + "</p>"
+                zip_enum += '<p>' + filenameNoExt + "</p>"
                 zip_enum += '<p>Dimensione: ' + str(size) + " bytes</p>"
                 zip_enum += '<hr>'
         return zip_enum
