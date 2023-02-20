@@ -1,0 +1,1 @@
+pyinstaller --onefile --collect-all reportlab.graphics.barcode fit.py --hidden-import=numpy --hidden-import=numpy.core._dtype_ctypes --hidden-import=numpy.core._methods --hidden-import=numpy.core._multiarray_umath --hidden-import=numpy.core._ufuncs
