@@ -151,3 +151,34 @@ class Timestamp:
             print("timestamp valido")
         else:
             print("timestamp non valido")
+
+    def test(self):
+        import email
+        import glob
+        import hashlib
+        import imaplib
+        import os
+        import smtplib
+        import zipfile
+        from email import encoders
+        from email.mime.base import MIMEBase
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+
+        import requests
+        import rfc3161ng
+
+        if __name__ == '__main__':
+            filename = "C:\\Users\\domen\\Desktop\\tirocinio.txt"
+            url = "https://api.timestampapi.com/api/v1/timestamp"
+
+            with open(filename, "rb") as f:
+                file_data = f.read()
+            payload = {"data": file_data.hex()}
+            response = requests.post(url, json=payload)
+
+            if response.ok:
+                timestamp = response.json()["timestamp"]
+                print("Il file", filename, "ha un timestamp certificato del", timestamp)
+            else:
+                print("Impossibile ottenere un timestamp certificato per il file.", filename)
