@@ -188,7 +188,11 @@ class LogConfigMail:
             'loggers': {
                 'view.web': {
                     'handlers': ['facquisition'],
-                    'level' : 'INFO'
+                    'level': 'INFO'
+                },
+                'view.instagram': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
                 },
                 'hashreport': {
                     'handlers': ['fhashreport'],
