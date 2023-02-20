@@ -277,7 +277,8 @@ class Wizard(QtWidgets.QWizard):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("FITWizard", "FIT 1.0"))
+        #TODO get the version info from external file (eg. pyproject.toml)
+        self.setWindowTitle(_translate("FITWizard", "FIT 1.3.0-beta"))
         self.select_task_page.acquisition_group_box.setTitle(_translate("FITWizard", "Riepilogo anagrafica caso"))
         self.select_task_page.web.setText(_translate("FITWizard", "WEB"))
         self.select_task_page.mail.setText(_translate("FITWizard", "MAIL"))

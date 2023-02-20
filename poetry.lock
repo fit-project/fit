@@ -468,6 +468,20 @@ files = [
 ]
 
 [[package]]
+name = "instaloader"
+version = "4.9.6"
+description = "Download pictures (or videos) along with their captions and other metadata from Instagram."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "instaloader-4.9.6.tar.gz", hash = "sha256:16040c170fb5230c1981a47e1990261e3c0ecffe0417be95fa265632244e7c01"},
+]
+
+[package.dependencies]
+requests = ">=2.4"
+
+[[package]]
 name = "lxml"
 version = "4.9.2"
 description = "Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API."
@@ -4502,4 +4516,4 @@ svglib = ">=1.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "655fb5895c27a62c3838472bf18d9afe66fa5347c76c95ca9a878becddca3ca5"
+content-hash = "8ca72a46a510620b98bdd87909179ccb77a51350635b5462eb801bbfabde1d15"
