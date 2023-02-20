@@ -46,6 +46,7 @@ from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 
+from controller.timestamp import Timestamp as TimestampController
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -457,6 +458,10 @@ class Web(QtWidgets.QMainWindow):
             report = ReportController(self.acquisition_directory, self.case_info)
             report.generate_pdf('web', ntp)
             logger_acquisition.info('PDF generation end')
+
+            ### generate timestamp for the report ###
+            timestamp_controller = TimestampController()
+            timestamp_controller.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
 
             #### open the acquisition folder ####
             os.startfile(self.acquisition_directory)

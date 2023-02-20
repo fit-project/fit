@@ -34,6 +34,8 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import requests
 import rfc3161ng
 import smtplib
 from email.message import EmailMessage
@@ -41,15 +43,33 @@ from email.message import EmailMessage
 
 class Timestamp:
 
-    def addTimestamp(self, file):
-        #TODO: rimuovere il percorso del certificato hard coded e aggiungere anche il percorso del salvataggio del timestamp
-        certificate = open('D:/Magistrale/Tesi/FIT/fit/asset/cert/tsa.crt', 'rb').read()
+    def apply_timestamp(self, acquisition_folder, pdf_filename):
+
+        pdf_path = os.path.join(acquisition_folder, pdf_filename)
+        ts_path = os.path.join(acquisition_folder, 'timestamp.tsr')
+        cert_path = os.path.join(acquisition_folder, 'tsa.crt')
+
+        # getting the chain from the authority (configurable?)
+        response = requests.get('https://www.freetsa.org/files/tsa.crt')
+        with open(cert_path, 'wb') as f:
+            f.write(response.content)
+
+        certificate = open(cert_path, 'rb').read()
+
+        # create the object
         rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
-        fileToTimestamp = open(file, "rb")
-        hexdigest = hashlib.sha256(fileToTimestamp.read()).hexdigest()
-        timestamp = rt.timestamp(data=hexdigest)
-        with open("timestamp.tsr", "wb") as f:
+        # file to be certificated
+        with open(pdf_path, 'rb') as f:
+            hexdigest_pdf = hashlib.sha256(f.read()).hexdigest()
+
+        # actual timestamp creation
+        timestamp = rt.timestamp(data=hexdigest_pdf)
+
+        # saving the timestamp
+        timestamp_path = os.path.join(ts_path)
+        with open(timestamp_path, "wb") as f:
             f.write(timestamp)
+        return
 
     def sendMessage(self, email, password, server, port, file, caseNumber):
         SERVER = server

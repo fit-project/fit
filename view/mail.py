@@ -38,6 +38,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem
 
 from controller.mail import Mail as MailController
 from controller.report import Report as ReportController
+from controller.timestamp import Timestamp as TimestampController
 
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 
@@ -634,6 +635,11 @@ class Mail(QtWidgets.QMainWindow):
         report = ReportController(self.acquisition_directory, self.case_info)
         report.generate_pdf('email', ntp)
         logger_acquisition.info('PDF generation end')
+
+        ### generate timestamp for the report ###
+        timestamp_controller = TimestampController()
+        timestamp_controller.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
+
         self.progress_bar.setValue(100)
 
         #### open the acquisition folder ####

@@ -34,6 +34,7 @@ from PyQt5.QtCore import Qt
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 from controller.instagram import Instagram as InstragramController
+from controller.timestamp import Timestamp as TimestampController
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
@@ -421,6 +422,10 @@ class Instagram(QtWidgets.QMainWindow):
             logger_acquisition.info('PDF generation end')
             self.acquisition_status.add_task('PDF generation')
             self.acquisition_status.set_status('PDF generation', 'PDF generated', 'done')
+
+            ### generate timestamp for the report ###
+            timestamp_controller = TimestampController()
+            timestamp_controller.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
 
 
         self.progressBar.setValue(100)
