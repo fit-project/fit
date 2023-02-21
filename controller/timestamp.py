@@ -43,34 +43,6 @@ from email.message import EmailMessage
 
 class Timestamp:
 
-    def apply_timestamp(self, acquisition_folder, pdf_filename):
-
-        pdf_path = os.path.join(acquisition_folder, pdf_filename)
-        ts_path = os.path.join(acquisition_folder, 'timestamp.tsr')
-        cert_path = os.path.join(acquisition_folder, 'tsa.crt')
-
-        # getting the chain from the authority (configurable?)
-        response = requests.get('https://www.freetsa.org/files/tsa.crt')
-        with open(cert_path, 'wb') as f:
-            f.write(response.content)
-
-        certificate = open(cert_path, 'rb').read()
-
-        # create the object
-        rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
-        # file to be certificated
-        with open(pdf_path, 'rb') as f:
-            hexdigest_pdf = hashlib.sha256(f.read()).hexdigest()
-
-        # actual timestamp creation
-        timestamp = rt.timestamp(data=hexdigest_pdf)
-
-        # saving the timestamp
-        timestamp_path = os.path.join(ts_path)
-        with open(timestamp_path, "wb") as f:
-            f.write(timestamp)
-        return
-
     def sendMessage(self, email, password, server, port, file, caseNumber):
         SERVER = server
         PORT = port
