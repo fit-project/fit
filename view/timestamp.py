@@ -32,11 +32,11 @@ import requests
 import rfc3161ng
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
+from pyasn1.codec.der import encoder,decoder
 
 from view.error import Error as ErrorView
 
 from common.error import ErrorMessage
-import common.utility as utility
 
 
 class Timestamp(QObject):
@@ -73,10 +73,12 @@ class Timestamp(QObject):
             hexdigest_pdf = hashlib.sha256(f.read()).hexdigest()
 
         # actual timestamp creation
-        timestamp = rt.timestamp(data=hexdigest_pdf)
+        timestamp = rt.__call__(data=hexdigest_pdf,return_tsr=True)
 
         # saving the timestamp
         timestamp_path = os.path.join(ts_path)
         with open(timestamp_path, "wb") as f:
-            f.write(timestamp)
+            f.write(encoder.encode(timestamp))
         return
+
+
