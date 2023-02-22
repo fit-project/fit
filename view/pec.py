@@ -33,6 +33,7 @@ from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from common.config import LogConfigMail
 from view.configuration import Configuration as ConfigurationView
 from view.case import Case as CaseView
+from controller.pec import Pec as PecController
 
 class Pec(QtWidgets.QMainWindow):
     def case(self):
@@ -54,8 +55,9 @@ class Pec(QtWidgets.QMainWindow):
         self.log_confing = LogConfigMail()
         #aggiungere attributi per log, screencap ecc
 
-    def init(self, case_info):
+    def init(self, case_info, acquisition):
         self.case_info = case_info
+        self.acquisition = acquisition
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
         self.case_view = CaseView(self.case_info, self)
@@ -126,4 +128,10 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton.setEnabled(all_field_filled)
 
     def button_clicked(self):
-        print()
+        self.progressBar.setValue(10)
+        pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition, self.case_info,
+                            self.acquisition_directory)
+        self.progressBar.setValue(30)
+        pec.sendPec()
+        self.progressBar.setValue(100)
+        os.startfile(self.acquisition_directory)

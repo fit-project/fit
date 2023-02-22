@@ -433,8 +433,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_window.init(self.case_info)
         self.acquisition_window.show()
 
-        #os.startfile(self.acquisition_directory)
-
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrapeButton.setEnabled(all_field_filled)
