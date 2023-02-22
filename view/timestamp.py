@@ -66,12 +66,13 @@ class Timestamp(QObject):
 
         # create the object
         rt = rfc3161ng.RemoteTimestamper(self.server_name, certificate=certificate)
+
         # file to be certificated
         with open(pdf_path, 'rb') as f:
-            timestamp = rt.__call__(data=f.read(),return_tsr=True)
+            timestamp = rt.timestamp(data=f.read())
 
         # saving the timestamp
         timestamp_path = os.path.join(ts_path)
-        with open(timestamp_path, "wb") as f:
-            f.write(encoder.encode(timestamp))
+        with open(timestamp_path, 'wb') as f:
+            f.write(timestamp)
         return
