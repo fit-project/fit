@@ -34,9 +34,9 @@ class Codec():
     def __init__(self):
       self.model = CodecModel()
       _codec = self.model.get()
-
-      for i in range(len(_codec)):
-        self._codec.append({key: value for key, value in _codec[i].__dict__.items() if not key.startswith("_") and not key.startswith("__")})
+      if not len(self._codec):
+        for i in range(len(_codec)):
+          self._codec.append({key: value for key, value in _codec[i].__dict__.items() if not key.startswith("_") and not key.startswith("__")})
     
 
     @property

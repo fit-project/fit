@@ -30,6 +30,7 @@ from PyQt5 import QtCore, QtWidgets
 
 
 from view.configurations.tabs.general.typesproceedings import TypesProceedings as TypesproceedingsView
+from view.configurations.tabs.general.network import Network as NetworkView
 from controller.configurations.tabs.general.general import General as GeneralController
 
 
@@ -55,13 +56,13 @@ class General(QtWidgets.QWidget):
    def initUI(self):
       #CASES FOLDER
       self.group_box_cases_folder = QtWidgets.QGroupBox(self)
-      self.group_box_cases_folder.setGeometry(QtCore.QRect(10, 30, 691, 91))
+      self.group_box_cases_folder.setGeometry(QtCore.QRect(10, 30, 691, 51))
       self.group_box_cases_folder.setObjectName("group_box_cases_folder")
       self.cases_folder = QtWidgets.QLineEdit(self.group_box_cases_folder)
-      self.cases_folder.setGeometry(QtCore.QRect(20, 40, 601, 22))
+      self.cases_folder.setGeometry(QtCore.QRect(20, 20, 601, 22))
       self.cases_folder.setObjectName("cases_folder_path")
       self.tool_button_cases_folder = QtWidgets.QToolButton(self.group_box_cases_folder)
-      self.tool_button_cases_folder.setGeometry(QtCore.QRect(640, 40, 27, 22))
+      self.tool_button_cases_folder.setGeometry(QtCore.QRect(640, 20, 27, 22))
       self.tool_button_cases_folder.setObjectName("tool_button_cases_folder")
       self.tool_button_cases_folder.clicked.connect(self.__select_cases_folder)
 
@@ -69,14 +70,17 @@ class General(QtWidgets.QWidget):
 
       #HOME PAGE
       self.group_box_home_page_url = QtWidgets.QGroupBox(self)
-      self.group_box_home_page_url.setGeometry(QtCore.QRect(10, 140, 691, 91))
+      self.group_box_home_page_url.setGeometry(QtCore.QRect(10, 90, 691, 51))
       self.group_box_home_page_url.setObjectName("group_box_home_page_url")
       self.home_page_url = QtWidgets.QLineEdit(self.group_box_home_page_url)
-      self.home_page_url.setGeometry(QtCore.QRect(20, 40, 601, 22))
+      self.home_page_url.setGeometry(QtCore.QRect(20, 20, 601, 22))
       self.home_page_url.setObjectName("home_page_url")
         
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
+
+      #PROCEEDINGS TYPE LIST
+      self.group_box_network_check = NetworkView(self)
 
 
 
@@ -86,7 +90,6 @@ class General(QtWidgets.QWidget):
       self.group_box_cases_folder.setTitle(_translate("General", "Cases Folder"))
       self.tool_button_cases_folder.setText(_translate("General", "..."))
       self.group_box_home_page_url.setTitle(_translate("General", "Home Page URL"))
-
 
    def __select_cases_folder(self):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(self,
@@ -116,6 +119,7 @@ class General(QtWidgets.QWidget):
 
    def accept(self) -> None:
       self.group_box_types_proceedings.accept()
+      self.group_box_network_check.accept()
       self.__get_current_values()
       self.controller.configuration = self.configuration
       

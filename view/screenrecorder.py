@@ -33,6 +33,7 @@ import sys
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
 
+from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 
 from view.error import Error as ErrorView
 from common.error import ErrorMessage
@@ -46,13 +47,17 @@ class ScreenRecorder(QObject):
         self.error_msg = ErrorMessage()
         self.run = True
         self.destroyed.connect(self.stop)
+        self.controller = CodecController()
         
     def set_options(self, options):
-        # Specify resolution
-        #self.resolution = tuple(int(el) for el in options['resolution'])
 
-        # Specify video codec
-        #self.codec = cv2.VideoWriter_fourcc(*options['codec'])
+        
+        # Specify resolution
+        self.resolution = (pyautogui.size())
+
+        # Specify video codec       
+        codec = next((item for item in self.controller.codec if item["id"] == options['codec_id']))
+        self.codec = cv2.VideoWriter_fourcc(*codec["name"])
 
         # Specify frames rate. We can choose any
         # value and experiment with it
@@ -62,27 +67,22 @@ class ScreenRecorder(QObject):
         self.filename = options['filename']
         
     def start(self):
-        # workaround, get codec from db
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        # workaround, resolution input should match output
-        RESOLUTION = tuple(pyautogui.size())
-
-        # Creating a VideoWriter object
-        self.out = cv2.VideoWriter(self.filename, fourcc, self.fps, RESOLUTION)
+        #Creating a VideoWriter object
+        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, self.resolution)
         try:
             while self.run:
-                # Take screenshot using PyAutoGUI
+                #Take screenshot using PyAutoGUI
                 img = pyautogui.screenshot()
 
-                # Convert the screenshot to a numpy array
+                #Convert the screenshot to a numpy array
                 frame = np.array(img)
 
-                # Convert it from BGR(Blue, Green, Red) to
-                # RGB(Red, Green, Blue)
+                #Convert it from BGR(Blue, Green, Red) to RGB(Red, Green, Blue)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                # Write it to the output file
+                #Write it to the output file
                 self.out.write(frame)
+
         except:
                 error_dlg = ErrorView(QMessageBox.Critical,
                             self.error_msg.TITLES['screen_recoder'],
@@ -93,11 +93,11 @@ class ScreenRecorder(QObject):
                 error_dlg.buttonClicked.connect(quit)
                 error_dlg.exec_()
 
-        # Release the Video writer
+        #Release the Video writer
         self.out.release()
 
         self.finished.emit()  # emit the finished signal when the loop is done
-        # Destroy all windows
+        #Destroy all windows
         cv2.destroyAllWindows()
 
     def stop(self):

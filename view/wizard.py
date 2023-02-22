@@ -69,17 +69,27 @@ class CaseInfoPage(QtWidgets.QWizardPage):
     
     def set_case_information(self, name):
         self.case_info = next((item for item in self.form.cases if item["name"] == name), None)
-        self.form.lawyer_name.setText(self.case_info['lawyer_name'])
-        self.form.set_index_from_type_proceedings_id(self.case_info['types_proceedings_id'])
-        self.form.courthouse.setText(self.case_info['courthouse'])
-        self.form.proceedings_number.setText(str(self.case_info['proceedings_number']))
+        if self.case_info is not None:
+            for keyword, value in self.case_info.items():
+                item = self.findChild(QtCore.QObject, keyword)
+                if item is not None:
+                    if isinstance(item, QtWidgets.QLineEdit) is not False:
+                        if value is not None:
+                            item.setText(value)
+                    if isinstance(item, QtWidgets.QComboBox):
+                        if keyword in 'types_proceedings_id': 
+                            if value is not None:
+                                item.setCurrentIndex(value)
+                        else:
+                            if value is not None:
+                                item.setCurrentText(value)
     
     def clear_case_information(self):
         self.case_info = {}
-        self.form.lawyer_name.setText(None)
+        self.form.lawyer_name.setText("")
         self.form.types_proceedings.setCurrentIndex(-1)
-        self.form.courthouse.setText(None)
-        self.form.proceedings_number.setText(None)
+        self.form.courthouse.setText("")
+        self.form.proceedings_number.setText("")
     
 
 
@@ -120,25 +130,26 @@ class SelectTaskPage(QtWidgets.QWizardPage):
 
         #RADIO BUTTON MAIL
         self.mail_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
-        self.mail_radio_button_wrapper.setStyleSheet("QWidget#mail_radio_button_wrapper {\n""border: 1px solid #c3c3c3;\n""}")
+        self.mail_radio_button_wrapper.setStyleSheet("QWidget#mail_radio_button_wrapper {\n""border: 1px solid black;\n""}")
         self.mail_radio_button_wrapper.setObjectName("mail_radio_button_wrapper")
         self.mail_vlayout = QtWidgets.QVBoxLayout(self.mail_radio_button_wrapper)
         self.mail_vlayout.setContentsMargins(5, 5, 5, 5)
         self.mail_vlayout.setObjectName("mail_vlayout")
         self.mail_img = QtWidgets.QLabel(self.mail_radio_button_wrapper)
-        self.mail_img.setEnabled(False)
-        self.mail_img.setStyleSheet("image: url(asset/images/wizard/mail-disabled.png);\n")
+        self.mail_img.setEnabled(True)
+        self.mail_img.setStyleSheet("image: url(asset/images/wizard/mail.png);\n")
         self.mail_img.setText("")
         self.mail_img.setObjectName("mail_img")
         self.mail_vlayout.addWidget(self.mail_img)
         self.mail = QtWidgets.QRadioButton(self.mail_radio_button_wrapper)
-        self.mail.setEnabled(False)
+        self.mail.setEnabled(True)
         self.mail.setObjectName("mail")
         self.mail_vlayout.addWidget(self.mail)
         self.radio_buttons_hlayout.addWidget(self.mail_radio_button_wrapper)
         self.radio_button_group.addButton(self.mail, 1)
         
         #RADIO BUTTON FACEBOOK
+        """
         self.fb_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
         self.fb_radio_button_wrapper.setStyleSheet("QWidget#fb_radio_button_wrapper {\n""border: 1px solid #c3c3c3;\n""}")
         self.fb_radio_button_wrapper.setObjectName("fb_radio_button_wrapper")
@@ -157,6 +168,27 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.fb_vlayout.addWidget(self.fb)
         self.radio_buttons_hlayout.addWidget(self.fb_radio_button_wrapper)
         self.radio_button_group.addButton(self.fb, 2)
+        """
+
+        # RADIO BUTTON INSTAGRAM
+        self.insta_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.insta_radio_button_wrapper.setStyleSheet("QWidget#insta_radio_button_wrapper {\n""border: 1px solid black;\n""}")
+        self.insta_radio_button_wrapper.setObjectName("insta_radio_button_wrapper")
+        self.insta_vlayout = QtWidgets.QVBoxLayout(self.insta_radio_button_wrapper)
+        self.insta_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.insta_vlayout.setObjectName("insta_vlayout")
+        self.insta_img = QtWidgets.QLabel(self.insta_radio_button_wrapper)
+        self.insta_img.setEnabled(True)
+        self.insta_img.setStyleSheet("image: url(asset/images/wizard/instagram.png);")
+        self.insta_img.setText("")
+        self.insta_img.setObjectName("insta_img")
+        self.insta_vlayout.addWidget(self.insta_img)
+        self.insta = QtWidgets.QRadioButton(self.insta_radio_button_wrapper)
+        self.insta.setEnabled(True)
+        self.insta.setObjectName("insta")
+        self.insta_vlayout.addWidget(self.insta)
+        self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
+        self.radio_button_group.addButton(self.insta, 3)
 
 
         #AREA RECAP INFO
@@ -245,11 +277,13 @@ class Wizard(QtWidgets.QWizard):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("FITWizard", "FIT 1.0"))
+        #TODO get the version info from external file (eg. pyproject.toml)
+        self.setWindowTitle(_translate("FITWizard", "FIT 1.3.0-beta"))
         self.select_task_page.acquisition_group_box.setTitle(_translate("FITWizard", "Riepilogo anagrafica caso"))
         self.select_task_page.web.setText(_translate("FITWizard", "WEB"))
         self.select_task_page.mail.setText(_translate("FITWizard", "MAIL"))
-        self.select_task_page.fb.setText(_translate("FITWizard", "FACEBOOK"))
+        #self.select_task_page.fb.setText(_translate("FITWizard", "FACEBOOK"))
+        self.select_task_page.insta.setText(_translate("FITWizard", "INSTAGRAM"))
 
 
     def _get_recap_case_info_HTML(self):

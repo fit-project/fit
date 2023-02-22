@@ -2,7 +2,7 @@
 `FIT` is a Python3 application for forensic acquisition of contents like web pages, emails, social media, etc. directly from the internet. 
 It's based on Fabio Zito (**@zitelog**) [final exam](https://github.com/zitelog/fit) for a Master named in Cybersecurity, Digital Forensics and Data Protection where the relator was Prof. Giovanni Bassetti (**@nannib**).
 
-For the implementation:
+For the implementation: 
 * MVC Pattern
 * Python Language
 * Qt as graphical user interface
@@ -35,26 +35,18 @@ Once you've downloaded FIT and installed all the prerequisites:
 ```
 cd fit
 ```
-* create a virtual environment with following command (below its showed windows OS and git-bash):
+* If you don't have [poetry](https://python-poetry.org/), install it (below its showed windows Powershell):
 ```
-python -m venv env
-```
-* activate the virtual environment (below its showed windows OS and git-bash):
-```
-source ./env/Scripts/activate
-```
-* update pip in the virtual environment by running the following command:
-```
-python -m pip install --upgrade pip
+Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 ```
 * install the dependencies:
 ```
-pip install -r requirements.txt
+poetry install
 ```
 ## Running FIT
 
 Run your application:
 
 ```
-python fit.py
+poetry run python fit.py
 ```
