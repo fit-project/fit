@@ -25,8 +25,17 @@
 # SOFTWARE.
 # -----
 ######
+import base64
 import os
 import subprocess
+
+import requests
+import rfc3161ng
+from OpenSSL import crypto
+from cryptography.hazmat.primitives.serialization import load_der_public_key
+from cryptography.x509 import load_der_x509_certificate
+
+from pyasn1.codec.der import decoder, encoder
 
 from view.error import Error as ErrorView
 from common.error import ErrorMessage
@@ -172,15 +181,15 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.input_pem_button.setText(_translate("verify_timestamp_window", "Browse..."))
 
     def verify(self):
-
         CAfile = self.input_pem.text()
         tsr_in = self.input_tsr.text()
         untrusted = self.input_crt.text()
         data = self.input_pdf.text()
+        print(os.environ["OPENSSL_PATH"])
 
-        cmd1 = f'C:/Programmi/OpenSSL-Win64/bin/openssl.exe ts -verify -data {data} -in {tsr_in} -CAfile {CAfile} -untrusted {untrusted}'
+        cmd = f'openssl ts -verify -data {data} -in {tsr_in} -CAfile {CAfile} -untrusted {untrusted}'
 
-        output = subprocess.call(cmd1, stdout=subprocess.PIPE, stdin=subprocess.PIPE,  # 0 = verified, 1 = unverified
+        output = subprocess.call(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE,  # 0 = verified, 1 = unverified
                                  stderr=subprocess.PIPE,
                                  shell=True)
         if output == 1:
@@ -189,6 +198,7 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
                                   self.error_msg.MESSAGES['verification_failed'],
                                   "PDF may have been tampered with.")
             error_dlg.exec_()
+
         if output == 0:  # it's called errorview but it's an informative message :(
             error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
                                   self.error_msg.TITLES['verification_ok'],
@@ -224,3 +234,25 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
                                                       "", "PEM Files (*.pem)")
             if check:
                 self.input_pem.setText(file)
+
+    if __name__ == '__main__':
+
+
+        # Example usage
+        data_file = "C:\\Users\\Routi\\Desktop\\acquisition_report.pdf"
+        tsr_file = "C:\\Users\\Routi\\Desktop\\timestamp.tsr"
+        timestamp_path = "C:\\Users\\Routi\\Desktop\\timestamp1.tsr"
+        tsa_cert_file = "C:\\Users\\Routi\\Desktop\\tsa.crt"
+        ca_cert_file = "C:\\Users\\Routi\\Desktop\\cacert.pem"
+
+        certificate = open(tsa_cert_file, 'rb').read()
+        tst1 = open(tsr_file, 'rb').read()
+        rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
+        tst = rt.timestamp(data=open(data_file, 'rb').read())
+
+        with open(timestamp_path, "wb") as f:
+            f.write(tst)
+        t = open(timestamp_path, 'rb').read()
+        print(rt.check(t, data=open(data_file, 'rb').read()))
+
+
