@@ -68,9 +68,6 @@ class Timestamp(QObject):
         rt = rfc3161ng.RemoteTimestamper(self.server_name, certificate=certificate)
         # file to be certificated
         with open(pdf_path, 'rb') as f:
-            #hexdigest_pdf = hashlib.sha256(f.read()).hexdigest()
-
-        # actual timestamp creation
             timestamp = rt.__call__(data=f.read(),return_tsr=True)
 
         # saving the timestamp
@@ -78,22 +75,3 @@ class Timestamp(QObject):
         with open(timestamp_path, "wb") as f:
             f.write(encoder.encode(timestamp))
         return
-
-    if __name__ == '__main__':
-        url = 'https://freetsa.org/tsr'
-
-        headers = {
-            'Content-Type': 'application/timestamp-query'
-        }
-        tsq = rfc3161ng.make_timestamp_request(data="C:\\Users\\Routi\\Desktop\\acquisition_report.pdf")
-        print(tsq)
-        with open('C:\\Users\\Routi\\Desktop\\acquisition_report_pdf.tsq', 'wb') as f:
-            f.write(encoder.encode(tsq))
-
-        with open("C:\\Users\\Routi\\Desktop\\acquisition_report_pdf.tsq", 'rb') as f:
-            payload = f.read()
-
-        response = requests.post(url, headers=headers, data=payload, verify=False)
-
-        with open('C:\\Users\\Routi\\Desktop\\acquisition_report_pdf.tsr', 'wb') as f:
-            f.write(response.content)
