@@ -25,8 +25,17 @@
 # SOFTWARE.
 # -----
 ######
+import base64
 import os
+import subprocess
+
+import requests
 import rfc3161ng
+from OpenSSL import crypto
+from cryptography.hazmat.primitives.serialization import load_der_public_key
+from cryptography.x509 import load_der_x509_certificate
+
+from pyasn1.codec.der import decoder, encoder
 
 from view.error import Error as ErrorView
 from common.error import ErrorMessage
@@ -36,20 +45,21 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QFileDialog
 
 
-class VerifyTimestamp(QtWidgets.QMainWindow):
+class VerifyTimestampWithOpenssl(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
-        super(VerifyTimestamp, self).__init__(*args, **kwargs)
+        super(VerifyTimestampWithOpenssl, self).__init__(*args, **kwargs)
 
         self.data = None  # acquisition_report.pdf
         self.tsr_in = None  # timestamp.tsr
+        self.CAfile = None  # cacert.pem
         self.untrusted = None  # tsa.crt
         self.error_msg = ErrorMessage()
 
     def init(self, case_info):
         self.width = 690
-        self.height = 250
+        self.height = 300
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
 
@@ -69,7 +79,7 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         # TIMESTAMP GROUP
         self.timestamp_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.timestamp_group_box.setEnabled(True)
-        self.timestamp_group_box.setGeometry(QtCore.QRect(50, 20, 590, 200))
+        self.timestamp_group_box.setGeometry(QtCore.QRect(50, 20, 590, 250))
         self.timestamp_group_box.setObjectName("timestamp_group_box")
 
         # PDF FIELD
@@ -105,6 +115,17 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.input_crt_button.setFont(font)
         self.input_crt_button.clicked.connect(lambda extension: self.dialog('crt'))
 
+        # PEM FIELD
+        self.input_pem = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_pem.setGeometry(QtCore.QRect(215, 165, 300, 20))
+        self.input_pem.setFont(QFont('Arial', 10))
+        self.input_pem.setObjectName("input_pem")
+        self.input_pem.setEnabled(False)
+        self.input_pem_button = QtWidgets.QPushButton(self.centralwidget)
+        self.input_pem_button.setGeometry(QtCore.QRect(515, 165, 75, 20))
+        self.input_pem_button.setFont(font)
+        self.input_pem_button.clicked.connect(lambda extension: self.dialog('pem'))
+
         # PDF LABEL
         self.label_pdf = QtWidgets.QLabel(self.centralwidget)
         self.label_pdf.setGeometry(QtCore.QRect(90, 60, 120, 20))
@@ -126,9 +147,16 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.label_crt.setAlignment(QtCore.Qt.AlignRight)
         self.label_crt.setObjectName("label_crt")
 
+        # PEM LABEL
+        self.label_pem = QtWidgets.QLabel(self.centralwidget)
+        self.label_pem.setGeometry(QtCore.QRect(90, 165, 120, 20))
+        self.label_pem.setFont(font)
+        self.label_pem.setAlignment(QtCore.Qt.AlignRight)
+        self.label_pem.setObjectName("label_pem")
+
         # VERIFICATION BUTTON
         self.verification_button = QtWidgets.QPushButton(self.centralwidget)
-        self.verification_button.setGeometry(QtCore.QRect(500, 170, 75, 30))
+        self.verification_button.setGeometry(QtCore.QRect(500, 210, 75, 30))
         self.verification_button.clicked.connect(self.verify)
         self.verification_button.setFont(font)
         self.verification_button.setObjectName("StartAction")
@@ -138,7 +166,7 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(self)
 
         # DISABLE SCRAPE BUTTON IF FIELDS ARE EMPTY
-        self.input_fields = [self.input_pdf, self.input_tsr, self.input_crt]
+        self.input_fields = [self.input_pdf, self.input_tsr, self.input_crt, self.input_pem]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.onTextChanged)
 
@@ -149,37 +177,38 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.label_pdf.setText(_translate("verify_timestamp_window", "Report (.pdf)"))
         self.label_tsr.setText(_translate("verify_timestamp_window", "Timestamp (.tsr)"))
         self.label_crt.setText(_translate("verify_timestamp_window", "TSA Certificate (.crt)"))
+        self.label_pem.setText(_translate("verify_timestamp_window", "CA Certificate (.pem)"))
         self.verification_button.setText(_translate("verify_timestamp_window", "Verify"))
         self.input_pdf_button.setText(_translate("verify_timestamp_window", "Browse..."))
         self.input_tsr_button.setText(_translate("verify_timestamp_window", "Browse..."))
         self.input_crt_button.setText(_translate("verify_timestamp_window", "Browse..."))
+        self.input_pem_button.setText(_translate("verify_timestamp_window", "Browse..."))
 
     def verify(self):
+        CAfile = self.input_pem.text()
         tsr_in = self.input_tsr.text()
         untrusted = self.input_crt.text()
         data = self.input_pdf.text()
-        certificate = open(untrusted, 'rb').read()
+        print(os.environ["OPENSSL_PATH"])
 
-        rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
+        cmd = f'openssl ts -verify -data {data} -in {tsr_in} -CAfile {CAfile} -untrusted {untrusted}'
 
-        t = open(tsr_in, 'rb').read()
-        try:
-            verified = rt.check(t, data=open(data, 'rb').read())
-            if verified:  # it's called errorview but it's an informative message :(
-                error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                      self.error_msg.TITLES['verification_ok'],
-                                      self.error_msg.MESSAGES['verification_ok'],
-                                      "PDF has a valid timestamp.")
-                error_dlg.exec_()
-        except Exception:
-
+        output = subprocess.call(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE,  # 0 = verified, 1 = unverified
+                                 stderr=subprocess.PIPE,
+                                 shell=True)
+        if output == 1:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   self.error_msg.TITLES['verification_failed'],
                                   self.error_msg.MESSAGES['verification_failed'],
                                   "PDF may have been tampered with.")
             error_dlg.exec_()
 
-
+        if output == 0:  # it's called errorview but it's an informative message :(
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  self.error_msg.TITLES['verification_ok'],
+                                  self.error_msg.MESSAGES['verification_ok'],
+                                  "PDF has a valid timestamp.")
+            error_dlg.exec_()
         return
 
     def onTextChanged(self):
@@ -204,3 +233,9 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
                                                       "", "CERT Files (*.crt)")
             if check:
                 self.input_crt.setText(file)
+        elif extension == 'pem':
+            file, check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
+                                                      "", "PEM Files (*.pem)")
+            if check:
+                self.input_pem.setText(file)
+
