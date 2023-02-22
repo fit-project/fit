@@ -25,17 +25,9 @@
 # SOFTWARE.
 # -----
 ######
-import base64
 import os
 import subprocess
 
-import requests
-import rfc3161ng
-from OpenSSL import crypto
-from cryptography.hazmat.primitives.serialization import load_der_public_key
-from cryptography.x509 import load_der_x509_certificate
-
-from pyasn1.codec.der import decoder, encoder
 
 from view.error import Error as ErrorView
 from common.error import ErrorMessage

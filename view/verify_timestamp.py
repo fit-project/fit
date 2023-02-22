@@ -29,6 +29,8 @@ import os
 import rfc3161ng
 
 from view.error import Error as ErrorView
+from view.configuration import Configuration as ConfigurationView
+
 from common.error import ErrorMessage
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -160,17 +162,28 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         data = self.input_pdf.text()
         certificate = open(untrusted, 'rb').read()
 
-        rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
 
-        t = open(tsr_in, 'rb').read()
+        #TODO: as soon as feature/timestamp gets merged, change http://freetsa.org/tsr with server_name
+        '''
+        configuration_view = ConfigurationView(self)
+        configuration_view.hide()
+        configuration_timestamp = configuration_view.get_tab_from_name("configuration_timestamp")
+        options = configuration_timestamp.options
+        server_name = options['server_name']
+        '''
+
+        # verify timestamp
+        rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
+        timestamp = open(tsr_in, 'rb').read()
         try:
-            verified = rt.check(t, data=open(data, 'rb').read())
-            if verified:  # it's called errorview but it's an informative message :(
+            verified = rt.check(timestamp, data=open(data, 'rb').read())
+            if verified:  # it's called ErrorView but it's an informative message :(
                 error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
                                       self.error_msg.TITLES['verification_ok'],
                                       self.error_msg.MESSAGES['verification_ok'],
                                       "PDF has a valid timestamp.")
                 error_dlg.exec_()
+
         except Exception:
 
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
