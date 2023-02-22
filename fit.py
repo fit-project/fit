@@ -35,6 +35,7 @@ from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
+from view.pec import Pec as PecView
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -47,7 +48,6 @@ if __name__ == '__main__':
     insta = InstagramView()
     insta.hide()
 
-    
     def start_task(task, case_info):
         if (task == 'web'):
             acquisition_window = web
@@ -61,9 +61,13 @@ if __name__ == '__main__':
         acquisition_window.init(case_info)
         acquisition_window.show()
 
+
+
     #Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
     wizard.show()
+
+
 
     sys.exit(app.exec_())

@@ -27,10 +27,11 @@
 ######
 import os
 import shutil
+import sys
 import zipfile
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 from controller.instagram import Instagram as InstragramController
@@ -45,6 +46,7 @@ from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from controller.report import Report as ReportController
 import logging
 import logging.config
+from view.pec import Pec as PecView
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
@@ -424,7 +426,14 @@ class Instagram(QtWidgets.QMainWindow):
 
 
         self.progressBar.setValue(100)
-        os.startfile(self.acquisition_directory)
+
+        self.pec = PecView()
+        self.pec.hide()
+        self.acquisition_window = self.pec
+        self.acquisition_window.init(self.case_info)
+        self.acquisition_window.show()
+
+        #os.startfile(self.acquisition_directory)
 
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
