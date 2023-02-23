@@ -147,9 +147,10 @@ class Pec(QtWidgets.QMainWindow):
 
     def button_clicked(self):
         self.progressBar.setValue(10)
-        pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition, self.case_info['name'],
-                            self.directory)
+        pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition,
+                            self.case_info['name'], self.directory, self.input_username_2.text(),
+                            self.input_password_2.text())
         self.progressBar.setValue(30)
         pec.sendPec()
         self.progressBar.setValue(100)
-        os.startfile(str(self.acquisition_directory))
+        os.startfile(str(self.directory))
