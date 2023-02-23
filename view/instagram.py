@@ -430,7 +430,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.pec = PecView()
         self.pec.hide()
         self.acquisition_window = self.pec
-        self.acquisition_window.init(self.case_info)
+        self.acquisition_window.init(self.case_info, "Instagram")
         self.acquisition_window.show()
 
     def onTextChanged(self):

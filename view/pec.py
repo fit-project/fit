@@ -88,7 +88,7 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton = QtWidgets.QPushButton(self.centralwidget)
         self.scrapeButton.setGeometry(QtCore.QRect(340, 120, 75, 25))
         self.scrapeButton.setObjectName("scrapeButton")
-        self.scrapeButton.clicked.connect(self.button_clicked)
+        #self.scrapeButton.clicked.connect(self.button_clicked)
         self.scrapeButton.setEnabled(False)
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(310, 180, 131, 23))
@@ -126,7 +126,7 @@ class Pec(QtWidgets.QMainWindow):
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrapeButton.setEnabled(all_field_filled)
-
+"""
     def button_clicked(self):
         self.progressBar.setValue(10)
         pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition, self.case_info,
@@ -134,4 +134,4 @@ class Pec(QtWidgets.QMainWindow):
         self.progressBar.setValue(30)
         pec.sendPec()
         self.progressBar.setValue(100)
-        os.startfile(self.acquisition_directory)
+        os.startfile(self.acquisition_directory)"""
