@@ -26,39 +26,60 @@
 # -----
 ######
 import os
-
-import pecs
+import smtplib
+from email.mime.application import MIMEApplication
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 class Pec:
-    def __init__(self, username, password, acquisition, case, path):
+    def __init__(self, username, password, acquisition, case, path, server, port):
         self.username = username
         # TODO: implement secure password handling
         self.password = password
         self.path = path
-        os.chdir(self.path)
+        self.server = server
+        self.port = port
+        os.chdir(str(self.path))
         self.acquisition = acquisition
         self.case = case
         return
 
     def sendPec(self):
-        #Informazioni sul messaggio
-        subject = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case)
-        message = 'In allegato report e relativo timestamp dell''acquisizione ' + str(self.acquisition) +\
+
+        email_utente = self.username
+        password_utente = self.password
+        smtp_server = self.server
+        smtp_port = self.port
+
+        # Destinatario, oggetto e contenuto del messaggio
+        destinatario = self.username
+        oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case)
+        contenuto = 'In allegato report e relativo timestamp dell''acquisizione ' + str(self.acquisition) +\
                   ' relativa al caso: ' + str(self.case)
 
-        # Creazione del messaggio PEC
-        pec_message = pecs.new_message(self.username, subject, message, self.username, self.password)
+        # Costruzione del messaggio email
+        msg = MIMEMultipart()
+        msg['From'] = email_utente
+        msg['To'] = destinatario
+        msg['Subject'] = oggetto
+        msg.attach(MIMEText(contenuto, 'plain'))
 
-        pdf = self.path + 'acquisition_report.pdf'
-        timestamp = self.path + 'timestamp.tsr'
+        pdf = str(self.path)+'/acquisition_report.pdf'
+        timestamp = str(self.path)+'/timestamp.tsr'
 
-        # Aggiunta dei file allegati
-        with open(pdf, 'rb') as f1, open(timestamp, 'rb') as f2:
-            pec_message.add_attachment(f1.read(), 'application/pdf', 'report.pdf')
-            pec_message.add_attachment(f2.read(), 'application/octet-stream', 'timestamp.tsr')
+        # Aggiunta di un file PDF come allegato
+        with open(pdf, "rb") as f:
+            allegato_pdf = MIMEApplication(f.read(), _subtype="pdf")
+            allegato_pdf.add_header('content-disposition', 'attachment', filename="report.pdf")
+            msg.attach(allegato_pdf)
 
-        # Invio del messaggio PEC
-        pec_client = pecs.new_client()
-        pec_client.send_message(pec_message)
+        # Aggiunta di un file TSR come allegato
+        with open(timestamp, "rb") as f:
+            allegato_tsr = MIMEApplication(f.read(), _subtype="tsr")
+            allegato_tsr.add_header('content-disposition', 'attachment', filename="timestamp.tsr")
+            msg.attach(allegato_tsr)
 
-        print('PEC inviata con successo')
+        # Connessione e invio del messaggio
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+            server.login(email_utente, password_utente)
+            server.sendmail(email_utente, destinatario, msg.as_string())
