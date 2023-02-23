@@ -42,6 +42,7 @@ from common.settings import DEBUG
 from common.config import LogConfigMail
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
+from view.timestamp import Timestamp as TimestampView
 from controller.report import Report as ReportController
 import logging
 import logging.config
@@ -64,6 +65,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
+        self.is_enabled_timestamp = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
         self.log_confing = LogConfigMail()
@@ -107,6 +109,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_menu.addAction(self.acquisition_status_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+
+        # Get timestamp parameters
+        self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
 
         self.input_username = QtWidgets.QLineEdit(self.centralwidget)
         self.input_username.setGeometry(QtCore.QRect(240, 30, 240, 20))
@@ -421,6 +426,14 @@ class Instagram(QtWidgets.QMainWindow):
             logger_acquisition.info('PDF generation end')
             self.acquisition_status.add_task('PDF generation')
             self.acquisition_status.set_status('PDF generation', 'PDF generated', 'done')
+
+            ### generate timestamp for the report ###
+            options = self.configuration_timestamp.options
+            self.is_enabled_timestamp = options['enabled']
+            if self.is_enabled_timestamp:
+                self.timestamp = TimestampView()
+                self.timestamp.set_options(options)
+                self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
 
 
         self.progressBar.setValue(100)
