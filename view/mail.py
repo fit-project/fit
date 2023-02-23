@@ -479,7 +479,7 @@ class Mail(QtWidgets.QMainWindow):
             self.acquisition_status.add_task('Login')
             self.acquisition_status.set_status('Login', 'Completed', 'done')
             logger_acquisition.info('Login completed')
-            self.status.showMessage('Login compleded')
+            self.status.showMessage('Login completed')
             self.progress_bar.setHidden(True)
             self.get_messages()
             self.setEnabled(True)
@@ -510,7 +510,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status.add_task('Params')
         self.acquisition_status.set_status('Params', 'acquisition completed', 'done')
         logger_acquisition.info('Params acquisition completed')
-        self.status.showMessage('Params acquisition compleded')
+        self.status.showMessage('Params acquisition completed')
         emails = self.mail_controller.get_mails_from_every_folder(self.params)
         for key in emails:
             self.email_folder = QTreeWidgetItem([key])
@@ -575,7 +575,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status.add_task('Save emails')
         self.acquisition_status.set_status('Save emails', 'completed', 'done')
         logger_acquisition.info('Save emails completed')
-        self.status.showMessage('Save emails compleded')
+        self.status.showMessage('Save emails completed')
 
         project_name = "acquisition"
         acquisition_folder = os.path.join(self.acquisition_directory,project_name)
