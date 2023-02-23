@@ -48,6 +48,8 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.tsr_in = None  # timestamp.tsr
         self.untrusted = None  # tsa.crt
         self.error_msg = ErrorMessage()
+        self.configuration_view = ConfigurationView(self)
+        self.configuration_view.hide()
 
     def init(self, case_info):
         self.width = 690
@@ -130,7 +132,7 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
 
         # VERIFICATION BUTTON
         self.verification_button = QtWidgets.QPushButton(self.centralwidget)
-        self.verification_button.setGeometry(QtCore.QRect(500, 170, 75, 30))
+        self.verification_button.setGeometry(QtCore.QRect(300, 170, 75, 30))
         self.verification_button.clicked.connect(self.verify)
         self.verification_button.setFont(font)
         self.verification_button.setObjectName("StartAction")
@@ -157,23 +159,17 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.input_crt_button.setText(_translate("verify_timestamp_window", "Browse..."))
 
     def verify(self):
+
         tsr_in = self.input_tsr.text()
         untrusted = self.input_crt.text()
         data = self.input_pdf.text()
         certificate = open(untrusted, 'rb').read()
-
-
-        #TODO: as soon as feature/timestamp gets merged, change http://freetsa.org/tsr with server_name
-        '''
-        configuration_view = ConfigurationView(self)
-        configuration_view.hide()
-        configuration_timestamp = configuration_view.get_tab_from_name("configuration_timestamp")
+        configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
         options = configuration_timestamp.options
         server_name = options['server_name']
-        '''
 
         # verify timestamp
-        rt = rfc3161ng.RemoteTimestamper('http://freetsa.org/tsr', certificate=certificate)
+        rt = rfc3161ng.RemoteTimestamper(server_name, certificate=certificate)
         timestamp = open(tsr_in, 'rb').read()
         try:
             verified = rt.check(timestamp, data=open(data, 'rb').read())
@@ -185,14 +181,12 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
                 error_dlg.exec_()
 
         except Exception:
-
+            # timestamp not validated
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   self.error_msg.TITLES['verification_failed'],
                                   self.error_msg.MESSAGES['verification_failed'],
                                   "PDF may have been tampered with.")
             error_dlg.exec_()
-
-
         return
 
     def onTextChanged(self):
@@ -201,19 +195,23 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
 
     def dialog(self, extension):
         # open the correct file picker based on extension
+        configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        open_folder = os.path.expanduser(
+            os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+
         if extension == 'pdf':
-            file, check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
-                                                      "", "PDF Files (*.pdf)")
+            file, check = QFileDialog.getOpenFileName(None, "Open PDF",
+                                                      open_folder, "PDF Files (*.pdf)")
             if check:
                 self.input_pdf.setText(file)
         elif extension == 'tsr':
-            file, check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
-                                                      "", "TSR Files (*.tsr)")
+            file, check = QFileDialog.getOpenFileName(None, "Open timestamp",
+                                                      open_folder, "TSR Files (*.tsr)")
             if check:
                 self.input_tsr.setText(file)
 
         elif extension == 'crt':
-            file, check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
-                                                      "", "CERT Files (*.crt)")
+            file, check = QFileDialog.getOpenFileName(None, "Open certificate",
+                                                      open_folder, "CERT Files (*.crt)")
             if check:
                 self.input_crt.setText(file)
