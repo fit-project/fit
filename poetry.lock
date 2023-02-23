@@ -719,19 +719,19 @@ files = [
 
 [[package]]
 name = "opencv-python"
-version = "4.7.0.68"
+version = "4.7.0.72"
 description = "Wrapper package for OpenCV python bindings."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "opencv-python-4.7.0.68.tar.gz", hash = "sha256:9829e6efedde1d1b8419c5bd4d62d289ecbf44ae35b843c6da9e3cbcba1a9a8a"},
-    {file = "opencv_python-4.7.0.68-cp37-abi3-macosx_10_13_x86_64.whl", hash = "sha256:abc6adfa8694f71a4caffa922b279bd9d96954a37eee40b147f613c64310b411"},
-    {file = "opencv_python-4.7.0.68-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:86f4b60b9536948f16d2170ba3a9b22d3955a957dc61a9bc56e53692c6db2c7e"},
-    {file = "opencv_python-4.7.0.68-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6d1c993811f92ddd7919314ada7b9be1f23db1c73f1384915c834dee8549c0b9"},
-    {file = "opencv_python-4.7.0.68-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3a00e12546e5578f6bb7ed408c37fcfea533d74e9691cfaf40926f6b43295577"},
-    {file = "opencv_python-4.7.0.68-cp37-abi3-win32.whl", hash = "sha256:e770e9f653a0e5e72b973adb8213fae2df4642730ba1faf31e73a54287a4d5d4"},
-    {file = "opencv_python-4.7.0.68-cp37-abi3-win_amd64.whl", hash = "sha256:7a08f9d1f9dd52de63a7bb448ab7d6d4a1a85b767c2358501d968d1e4d95098d"},
+    {file = "opencv-python-4.7.0.72.tar.gz", hash = "sha256:3424794a711f33284581f3c1e4b071cfc827d02b99d6fd9a35391f517c453306"},
+    {file = "opencv_python-4.7.0.72-cp37-abi3-macosx_10_16_x86_64.whl", hash = "sha256:d4f8880440c433a0025d78804dda6901d1e8e541a561dda66892d90290aef881"},
+    {file = "opencv_python-4.7.0.72-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:7a297e7651e22eb17c265ddbbc80e2ba2a8ff4f4a1696a67c45e5f5798245842"},
+    {file = "opencv_python-4.7.0.72-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cd08343654c6b88c5a8c25bf425f8025aed2e3189b4d7306b5861d32affaf737"},
+    {file = "opencv_python-4.7.0.72-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ebfc0a3a2f57716e709028b992e4de7fd8752105d7a768531c4f434043c6f9ff"},
+    {file = "opencv_python-4.7.0.72-cp37-abi3-win32.whl", hash = "sha256:eda115797b114fc16ca6f182b91c5d984f0015c19bec3145e55d33d708e9bae1"},
+    {file = "opencv_python-4.7.0.72-cp37-abi3-win_amd64.whl", hash = "sha256:812af57553ec1c6709060c63f6b7e9ad07ddc0f592f3ccc6d00c71e0fe0e6376"},
 ]
 
 [package.dependencies]
@@ -739,6 +739,7 @@ numpy = [
     {version = ">=1.21.0", markers = "python_version <= \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\""},
     {version = ">=1.21.2", markers = "python_version >= \"3.10\""},
     {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\""},
+    {version = ">=1.22.0", markers = "python_version >= \"3.11\""},
     {version = ">=1.19.3", markers = "python_version >= \"3.6\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version >= \"3.9\""},
     {version = ">=1.17.0", markers = "python_version >= \"3.7\""},
     {version = ">=1.17.3", markers = "python_version >= \"3.8\""},
@@ -875,6 +876,33 @@ files = [
 ]
 
 [[package]]
+name = "pyasn1"
+version = "0.4.8"
+description = "ASN.1 types and codecs"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyasn1-0.4.8-py2.py3-none-any.whl", hash = "sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d"},
+    {file = "pyasn1-0.4.8.tar.gz", hash = "sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba"},
+]
+
+[[package]]
+name = "pyasn1-modules"
+version = "0.2.8"
+description = "A collection of ASN.1-based protocols modules."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyasn1-modules-0.2.8.tar.gz", hash = "sha256:905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e"},
+    {file = "pyasn1_modules-0.2.8-py2.py3-none-any.whl", hash = "sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74"},
+]
+
+[package.dependencies]
+pyasn1 = ">=0.4.6,<0.5.0"
+
+[[package]]
 name = "pyautogui"
 version = "0.9.53"
 description = "PyAutoGUI lets Python control the mouse and keyboard, and other GUI automation tasks. For Windows, macOS, and Linux, on Python 3 and 2."
@@ -954,14 +982,14 @@ xmp = ["defusedxml (>=0.7.1,<0.8.0)"]
 
 [[package]]
 name = "pyhanko-certvalidator"
-version = "0.20.0"
+version = "0.20.1"
 description = "Validates X.509 certificates and paths; forked from wbond/certvalidator"
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pyhanko-certvalidator-0.20.0.tar.gz", hash = "sha256:096faf8eeca1eb77dc74a6cb95a17c6e8594a4e9f341fa9fe97a4538a17150e3"},
-    {file = "pyhanko_certvalidator-0.20.0-py3-none-any.whl", hash = "sha256:aba4d5d5828e6f04a473f56b11ca14b96c1e7a8b34d43b52122f4c1581e8bf51"},
+    {file = "pyhanko-certvalidator-0.20.1.tar.gz", hash = "sha256:58651ef0486a081b9b6a4117fb6f4d725e71cdf72cfa10f5f7e7426ccbea036e"},
+    {file = "pyhanko_certvalidator-0.20.1-py3-none-any.whl", hash = "sha256:2fa5085adb22a10ae348fd3d12e3577e34375e389e16619ec030fc9767b59883"},
 ]
 
 [package.dependencies]
@@ -3975,6 +4003,21 @@ files = [
 six = "*"
 
 [[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+]
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
 name = "python-whois"
 version = "0.8.0"
 description = "Whois querying and parsing of domain registration information."
@@ -4218,6 +4261,25 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "rfc3161ng"
+version = "2.1.3"
+description = "Python implementation of the RFC3161 specification, using pyasn1"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "rfc3161ng-2.1.3-py2.py3-none-any.whl", hash = "sha256:81fe7e4488f523c758b1206bf5e72ba2066b78f2812107b1b7bb16a7596e524b"},
+    {file = "rfc3161ng-2.1.3.tar.gz", hash = "sha256:1e88614da61b22abd591577f9dd39d3a030335f9e8a12d8bc001149c17d0a01e"},
+]
+
+[package.dependencies]
+cryptography = "*"
+pyasn1 = "*"
+pyasn1-modules = "*"
+python-dateutil = "*"
+requests = "*"
+
+[[package]]
 name = "rubicon-objc"
 version = "0.4.5"
 description = "A bridge between an Objective C runtime environment and Python."
@@ -4251,14 +4313,14 @@ docs = ["sphinx (>=3.0.0)", "sphinx_rtd_theme (>=0.4.3)", "tox (>=3.0.0)"]
 
 [[package]]
 name = "setuptools"
-version = "67.3.2"
+version = "67.4.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.3.2-py3-none-any.whl", hash = "sha256:bb6d8e508de562768f2027902929f8523932fcd1fb784e6d573d2cafac995a48"},
-    {file = "setuptools-67.3.2.tar.gz", hash = "sha256:95f00380ef2ffa41d9bba85d95b27689d923c93dfbafed4aecd7cf988a25e012"},
+    {file = "setuptools-67.4.0-py3-none-any.whl", hash = "sha256:f106dee1b506dee5102cc3f3e9e68137bbad6d47b616be7991714b0c62204251"},
+    {file = "setuptools-67.4.0.tar.gz", hash = "sha256:e5fd0a713141a4a105412233c63dc4e17ba0090c8e8334594ac790ec97792330"},
 ]
 
 [package.extras]
@@ -4516,4 +4578,4 @@ svglib = ">=1.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8ca72a46a510620b98bdd87909179ccb77a51350635b5462eb801bbfabde1d15"
+content-hash = "b91d86aa567203f453d50b531e0820c42454933c31bae424b485f40bf3e26114"

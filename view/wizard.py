@@ -147,28 +147,6 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.mail_vlayout.addWidget(self.mail)
         self.radio_buttons_hlayout.addWidget(self.mail_radio_button_wrapper)
         self.radio_button_group.addButton(self.mail, 1)
-        
-        #RADIO BUTTON FACEBOOK
-        """
-        self.fb_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
-        self.fb_radio_button_wrapper.setStyleSheet("QWidget#fb_radio_button_wrapper {\n""border: 1px solid #c3c3c3;\n""}")
-        self.fb_radio_button_wrapper.setObjectName("fb_radio_button_wrapper")
-        self.fb_vlayout = QtWidgets.QVBoxLayout(self.fb_radio_button_wrapper)
-        self.fb_vlayout.setContentsMargins(5, 5, 5, 5)
-        self.fb_vlayout.setObjectName("fb_vlayout")
-        self.fb_img = QtWidgets.QLabel(self.fb_radio_button_wrapper)
-        self.fb_img.setEnabled(False)
-        self.fb_img.setStyleSheet("image: url(asset/images/wizard/fb-disabled.png);")
-        self.fb_img.setText("")
-        self.fb_img.setObjectName("fb_img")
-        self.fb_vlayout.addWidget(self.fb_img)
-        self.fb = QtWidgets.QRadioButton(self.fb_radio_button_wrapper)
-        self.fb.setEnabled(False)
-        self.fb.setObjectName("fb")
-        self.fb_vlayout.addWidget(self.fb)
-        self.radio_buttons_hlayout.addWidget(self.fb_radio_button_wrapper)
-        self.radio_button_group.addButton(self.fb, 2)
-        """
 
         # RADIO BUTTON INSTAGRAM
         self.insta_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -189,6 +167,27 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.insta_vlayout.addWidget(self.insta)
         self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
         self.radio_button_group.addButton(self.insta, 3)
+
+        # RADIO BUTTON VERIFY TIMESTAMP
+        self.timestamp_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.timestamp_radio_button_wrapper.setStyleSheet("QWidget#timestamp_radio_button_wrapper {\n""border: 1px solid black;\n""}")
+        self.timestamp_radio_button_wrapper.setObjectName("timestamp_radio_button_wrapper")
+        self.timestamp_vlayout = QtWidgets.QVBoxLayout(self.timestamp_radio_button_wrapper)
+        self.timestamp_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.timestamp_vlayout.setObjectName("timestamp_vlayout")
+        self.timestamp_img = QtWidgets.QLabel(self.timestamp_radio_button_wrapper)
+        self.timestamp_img.setEnabled(False)
+        self.timestamp_img.setStyleSheet("image: url(asset/images/wizard/timestamp.png);")
+        self.timestamp_img.setText("")
+        self.timestamp_img.setObjectName("timestamp_img")
+        self.timestamp_vlayout.addWidget(self.timestamp_img)
+        self.timestamp = QtWidgets.QRadioButton(self.timestamp_radio_button_wrapper)
+        self.timestamp.setEnabled(True)
+        self.timestamp.setObjectName("timestamp")
+        self.timestamp_vlayout.addWidget(self.timestamp)
+        self.radio_buttons_hlayout.addWidget(self.timestamp_radio_button_wrapper)
+        self.radio_button_group.addButton(self.timestamp, 4)
+
 
 
         #AREA RECAP INFO
@@ -278,12 +277,12 @@ class Wizard(QtWidgets.QWizard):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         #TODO get the version info from external file (eg. pyproject.toml)
-        self.setWindowTitle(_translate("FITWizard", "FIT 1.3.0-beta"))
+        self.setWindowTitle(_translate("FITWizard", "FIT 1.4.0-beta"))
         self.select_task_page.acquisition_group_box.setTitle(_translate("FITWizard", "Riepilogo anagrafica caso"))
         self.select_task_page.web.setText(_translate("FITWizard", "WEB"))
         self.select_task_page.mail.setText(_translate("FITWizard", "MAIL"))
-        #self.select_task_page.fb.setText(_translate("FITWizard", "FACEBOOK"))
         self.select_task_page.insta.setText(_translate("FITWizard", "INSTAGRAM"))
+        self.select_task_page.timestamp.setText(_translate("FITWizard", "VERIFY TIMESTAMP"))
 
 
     def _get_recap_case_info_HTML(self):

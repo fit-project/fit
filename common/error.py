@@ -40,7 +40,10 @@ class ErrorMessage:
             'save_mail': 'Save Messages',
             'mrsign_configuration_options': 'MRSign configuration options error',
             'login_error': 'Login error',
-            'server_error': 'Server error'
+            'server_error': 'Server error',
+            'verification_failed': 'Verification failed',
+            'verification_ok': 'Verification success'
+
         }
 
         self.MESSAGES = {
@@ -60,6 +63,8 @@ class ErrorMessage:
             'mrsign_hostname_or_port': 'Hostname or port appear not to be configured\nPlease check the configuration.',
             'mrsign_username_or_password': 'Username or password appear not to be configured\nPlease check the configuration.',
             'login_error': 'Wrong login credentials.',
-            'server_error': 'Wrong server or IMAP port.'
+            'server_error': 'Wrong server or IMAP port.',
+            'verification_failed': 'Timestamp verification failed.',
+            'verification_ok': 'Timestamp has been verified successfully.'
 
         }
