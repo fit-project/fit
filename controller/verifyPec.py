@@ -39,16 +39,24 @@ class verifyPec:
         eml_file_path = path
 
         # Estrai la firma digitale dal file EML
-        subprocess.run(['openssl', 'smime', '-verify', '-in', eml_file_path, '-noverify', '-out', 'signature.txt'])
+        result = subprocess.call(
+            ['openssl', 'smime', '-verify', '-in', eml_file_path, '-noverify', '-out', 'signature.txt'],
+            stdout=subprocess.PIPE)
 
-        # Verifica la firma digitale
-        result = subprocess.run(
-            ['openssl', 'cms', '-verify', '-in', eml_file_path, '-inform', 'DER', '-noverify', '-content',
-             'signature.txt'],
-            capture_output=True)
+        if result == 0:
+            # Stampa l'output del comando
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['pec_verified'],
+                                  self.error_msg.MESSAGES['pec_verified'],
+                                  'PEC has a valid signature')
+            error_dlg.exec_()
+        else:
+            # Stampa l'output del comando
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['pec_not_verified'],
+                                  self.error_msg.MESSAGES['pec_not_verified'],
+                                  'PEC has an invalid signature')
+            error_dlg.exec_()
 
-        # Stampa l'output del comando
-        error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                              self.error_msg.TITLES['result'],
-                              self.error_msg.MESSAGES[result.stdout.decode()])
-        error_dlg.exec_()
+
+

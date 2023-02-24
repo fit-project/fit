@@ -42,7 +42,9 @@ class ErrorMessage:
             'login_error': 'Login error',
             'server_error': 'Server error',
             'verification_failed': 'Verification failed',
-            'verification_ok': 'Verification success'
+            'verification_ok': 'Verification success',
+            'pec_verified': 'Verification success',
+            'pec_not_verified': 'Verification failed'
 
         }
 
@@ -65,6 +67,9 @@ class ErrorMessage:
             'login_error': 'Wrong login credentials.',
             'server_error': 'Wrong server or IMAP port.',
             'verification_failed': 'Timestamp verification failed.',
-            'verification_ok': 'Timestamp has been verified successfully.'
+            'verification_ok': 'Timestamp has been verified successfully.',
+            'pec_verified': 'Verification success',
+            'pec_not_verified': 'Verification failed'
+
 
         }
