@@ -40,6 +40,7 @@ from controller.mail import Mail as MailController
 from controller.report import Report as ReportController
 
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
+from view.timestamp import Timestamp as TimestampView
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -80,6 +81,7 @@ class Mail(QtWidgets.QMainWindow):
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
+        self.is_enabled_timestamp = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
         self.log_confing = LogConfigMail()
@@ -322,10 +324,13 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_menu.addAction(self.acquisition_status_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+
+        # Get timestamp parameters
+        self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
+
         # Get network parameters for check (NTP, nslookup)
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
-
          #Get network parameters for check (NTP, nslookup)
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox, 'group_box_network_check')
 
@@ -479,7 +484,7 @@ class Mail(QtWidgets.QMainWindow):
             self.acquisition_status.add_task('Login')
             self.acquisition_status.set_status('Login', 'Completed', 'done')
             logger_acquisition.info('Login completed')
-            self.status.showMessage('Login compleded')
+            self.status.showMessage('Login completed')
             self.progress_bar.setHidden(True)
             self.get_messages()
             self.setEnabled(True)
@@ -510,7 +515,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status.add_task('Params')
         self.acquisition_status.set_status('Params', 'acquisition completed', 'done')
         logger_acquisition.info('Params acquisition completed')
-        self.status.showMessage('Params acquisition compleded')
+        self.status.showMessage('Params acquisition completed')
         emails = self.mail_controller.get_mails_from_every_folder(self.params)
         for key in emails:
             self.email_folder = QTreeWidgetItem([key])
@@ -575,7 +580,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status.add_task('Save emails')
         self.acquisition_status.set_status('Save emails', 'completed', 'done')
         logger_acquisition.info('Save emails completed')
-        self.status.showMessage('Save emails compleded')
+        self.status.showMessage('Save emails completed')
 
         project_name = "acquisition"
         acquisition_folder = os.path.join(self.acquisition_directory,project_name)
@@ -634,6 +639,15 @@ class Mail(QtWidgets.QMainWindow):
         report = ReportController(self.acquisition_directory, self.case_info)
         report.generate_pdf('email', ntp)
         logger_acquisition.info('PDF generation end')
+
+        ### generate timestamp for the report ###
+        options = self.configuration_timestamp.options
+        self.is_enabled_timestamp = options['enabled']
+        if self.is_enabled_timestamp:
+            self.timestamp = TimestampView()
+            self.timestamp.set_options(options)
+            self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
+
         self.progress_bar.setValue(100)
 
         #### open the acquisition folder ####
