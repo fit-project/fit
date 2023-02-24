@@ -24,6 +24,7 @@ sslkeylog = "^0.4.0"
 nslookup = "^1.7.0"
 scapy = "^2.5.0"
 instaloader = "^4.9.6"
+mitmproxy ="^9.0.1"
 
 [tool.poetry.dev-dependencies]
 
