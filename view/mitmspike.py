@@ -78,7 +78,8 @@ if __name__ == "__main__":
     # Create a custom SSL configuration that includes the mitmproxy certificate
     config = QSslConfiguration.defaultConfiguration()
     config.setCaCertificates([cert])
-    config.setProtocol(QSsl.TlsV1_2)  # Set the SSL protocol to use (optional)'''
+    config.setProtocol(QSsl.TlsV1_2)  # Set the SSL protocol to use (optional)
+    '''
 
     view = MainWindow()
     view.show()
