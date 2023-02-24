@@ -27,6 +27,7 @@
 ######
 import os
 import smtplib
+import subprocess
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -83,3 +84,4 @@ class Pec:
         with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
             server.login(email_utente, password_utente)
             server.sendmail(email_utente, destinatario, msg.as_string())
+

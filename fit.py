@@ -35,7 +35,8 @@ from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
-from view.pec import Pec as PecView
+from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
+from view.verify_pec import VerifyPec as VerifyPecView
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -47,6 +48,11 @@ if __name__ == '__main__':
     mail.hide()
     insta = InstagramView()
     insta.hide()
+    timestamp = VerifyTimestampView()
+    timestamp.hide()
+    verifyPec = VerifyPecView()
+    verifyPec.hide()
+
 
     def start_task(task, case_info):
         if (task == 'web'):
@@ -57,6 +63,10 @@ if __name__ == '__main__':
             pass
         elif (task == 'insta'):
             acquisition_window = insta
+        elif (task == 'timestamp'):
+            acquisition_window = timestamp
+        elif (task == 'pec'):
+            acquisition_window = verifyPec
 
         acquisition_window.init(case_info)
         acquisition_window.show()
