@@ -3,7 +3,7 @@ import asyncio
 import mitmproxy
 import os
 import tempfile
-from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread, QFile
+from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread, QFile, QByteArray
 import logging
 
 from PyQt5.QtNetwork import QNetworkProxy, QSslCertificate, QSslConfiguration, QSsl
@@ -62,24 +62,20 @@ class MainWindow(QWebEngineView):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # è richiesto il certificato di mitmproxy, va aggiunto al client, ma non riesco a farlo
-    # QSslCertificate.fromData(cert_data.readAll()) restituisce un array vuoto
-    '''
-    temp_dir = tempfile.gettempdir()
-    cert_file = os.path.join(temp_dir, "mitmproxy-ca-cert.pem")
-    if not os.path.exists(cert_file):
-        os.system(
-            f"openssl req -new -x509 -keyout {cert_file} -out {cert_file} -days 365 -nodes -subj '\CN=mitmproxy\'")
-    os.environ["MITMPROXY_SSL_CERTIFICATE"] = cert_file
-    cert_data = QFile(cert_file)
-    cert_data.open(QFile.ReadOnly)
-    cert = QSslCertificate.fromData(cert_data.readAll())
+    # directly getting the the pem with openssl solved the problem
+    # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
+
+    with open('C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem', 'rb') as f:
+        pem_data = f.read()
+
+    cert = QSslCertificate.fromData(pem_data)
+    print(cert[0])
 
     # Create a custom SSL configuration that includes the mitmproxy certificate
     config = QSslConfiguration.defaultConfiguration()
-    config.setCaCertificates([cert])
+    config.setCaCertificates(cert)
     config.setProtocol(QSsl.TlsV1_2)  # Set the SSL protocol to use (optional)
-'''
+
 
     view = MainWindow()
     view.show()
