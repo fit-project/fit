@@ -50,7 +50,7 @@ class ProxyServer(QObject):
 # creating a custom addon to save flow as warc
 def FlowToWarc(flow: http.HTTPFlow):
     warc_file = 'test_warc.warc'
-    with open(warc_file, 'wb') as output:
+    with open(warc_file, 'ab') as output:
 
         # create new warcio writer
         writer = WARCWriter(output, gzip=False)
@@ -70,6 +70,7 @@ def FlowToWarc(flow: http.HTTPFlow):
         warc_headers = {
             'WARC-Type': 'response',
             'WARC-Target-URI': flow.request.url,
+            'WARC-Source-URI': flow.request.url,
             'WARC-Date': iso_date_str,
             'Content-Type': content_type,
             'Content-Length': str(len(payload))
