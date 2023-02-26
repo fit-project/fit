@@ -298,7 +298,7 @@ class SearchPec(QtWidgets.QMainWindow):
 
     def login(self):
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
-                                        self.input_port.text())
+                                        self.input_port.text(), self.case_info)
         messages = searchPec.fetchPec()
 
         for message in messages:
@@ -320,8 +320,15 @@ class SearchPec(QtWidgets.QMainWindow):
         self.acquisition_status.show()
 
     def verify_eml(self):
+        self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
+            'Eml files',
+            self.configuration_general.configuration['cases_folder_path'],
+            self.case_info['name'],
+            self.input_profile.text()
+        )
+
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
-                                        self.input_port.text())
+                                        self.input_port.text(), self.case_info)
         pecSelected = self.pec_tree.currentItem()
         uid = pecSelected.text(0)
         indiceUid = uid.find("UID:")
@@ -329,7 +336,7 @@ class SearchPec(QtWidgets.QMainWindow):
 
         pecs = searchPec.fetchPec()
 
-        searchPec.verifyEml(uidSlice, pecs)
+        searchPec.verifyEml(uidSlice, pecs, self.acquisition_directory)
 
 
 

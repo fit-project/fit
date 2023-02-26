@@ -29,17 +29,18 @@ import imaplib
 import os
 from controller.verifyPec import verifyPec as verifyPecController
 import pyzmail
-
+from view.case import Case as CaseView
 from common.error import ErrorMessage
 
 
 class SearchPec:
-    def __init__(self, pec, password, server, port):
+    def __init__(self, pec, password, server, port, case_info):
         self.pec = pec
         self.password = password
         self.server = server
         self.port = port
         self.error_msg = ErrorMessage()
+        self.case_info = case_info
         return
 
     def fetchPec(self):
@@ -67,8 +68,10 @@ class SearchPec:
 
         return pecs
 
-    def verifyEml(self, uid, pecs):
+    def verifyEml(self, uid, pecs, acquisition_directory):
         message = None
+        directory = str(acquisition_directory)
+        uidModified = uid[1:-3]
         for pec in pecs:
             text = pec.text_part.get_payload().decode(pec.text_part.charset)
             for linea in text.split('\n'):
@@ -76,10 +79,17 @@ class SearchPec:
                     for linea2 in text.split('\n'):
                         if linea2.startswith('Identificativo del messaggio:'):
                             uidFound = linea2.split(':')[-1].strip()
-                            uidModified = "<"+uidFound+">"
-                            if uidModified == uid:
+                            #uidModified = "<"+uidFound+">"
+                            print(uidFound)
+                            print(uidModified)
+                            if uidFound == uidModified:
+                                print("AAAAAAAAAAAAAAAAAAAA")
                                 message = pec
 
+        if not os.path.isdir(os.path.join(directory, "Eml Files")):
+            # la cartella non esiste, quindi la creiamo
+            os.makedirs(os.path.join(directory, "Eml Files"))
+        os.chdir(directory+"/Eml Files")
         rawMessage = message.as_bytes()
         # salva il messaggio di posta elettronica in formato EML
         filename = f"{message.get('message-id')[1:-8]}.eml"  # utilizza l'ID del messaggio come nome del file EML
@@ -88,8 +98,9 @@ class SearchPec:
         print(f"Messaggio salvato come {filename}.")
 
         verifyPec = verifyPecController()
-
-
+        path = directory+"/Eml Files"+"/"+filename
+        verifyPec.verifyPec(path)
+        os.startfile(directory+"/Eml Files")
 
 
 
