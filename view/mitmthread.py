@@ -1,17 +1,22 @@
 import ssl
 import sys
 import asyncio
+from datetime import datetime
 
 import certifi
 import mitmproxy.http
+import warcio
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread
 import logging
 
 from PyQt5.QtNetwork import QNetworkProxy, QSslCertificate, QSslConfiguration
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QApplication
+from mitmproxy import utils, http
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
+from warcio import StatusAndHeaders
+from warcio.warcwriter import WARCWriter
 
 
 class ProxyServer(QObject):
@@ -31,25 +36,66 @@ class ProxyServer(QObject):
 
         # addons in mitmproxy are used to provide additional features and customize proxy's behavior
         # this way, we can create custom addons to intercept everything and create the warc/wacz files
-        flow_reader = FlowReaderAddon()
-        master.addons.add(flow_reader)
+
+        master.addons.add(FlowReaderAddon())
 
         try:
             await master.run()
         except KeyboardInterrupt:
             master.shutdown()
 
-# creating a custom addon to intercept requests and reponses, printing url, status cosd, headers and content
+# creating a custom addon to save flow as warc
+def FlowToWarc(flow: http.HTTPFlow):
+    warc_file = 'test_warc.warc'
+    with open(warc_file, 'ab') as output:
+
+        # create new warcio writer
+        writer = WARCWriter(output, gzip=False)
+        content_type = flow.response.headers.get('content-type', '').split(';')[0]
+        payload = flow.response.content
+
+        headers = flow.response.headers.items()
+
+        date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
+        # Convert the datetime object to an ISO formatted string
+        iso_date_str = date_obj.isoformat()
+        '''
+        headers= []
+        for name, value in flow.response.headers.items():
+        headers.append((name.lower(), value))'''
+        http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
+                                        protocol=flow.response.http_version)
+
+        warc_headers = {
+            'WARC-Type': 'response',
+            'WARC-Target-URI': flow.request.url,
+            'WARC-Date': iso_date_str,
+            'Content-Type': content_type,
+            'Content-Length': str(len(payload)),
+        }
+        record = writer.create_warc_record(flow.request.url, 'response',
+                                           payload=payload,
+                                           http_headers=http_headers,
+                                           warc_headers_dict=warc_headers)
+        print(record)
+        writer.write_record(record)
+
+
+# creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
     def request(self, flow: mitmproxy.http.HTTPFlow):
-        print("Request URL: " + flow.request.url)
+
+        pass
+        '''print("Request URL: " + flow.request.url)
         print("Request Headers: " + str(flow.request.headers))
-        print("Request Content: " + str(flow.request.content))
+        print("Request Content: " + str(flow.request.content))'''
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-        print("Response Status Code: " + str(flow.response.status_code))
+        FlowToWarc(flow)
+        pass
+        '''print("Response Status Code: " + str(flow.response.status_code))
         print("Response Headers: " + str(flow.response.headers))
-        print("Response Content: " + str(flow.response.content))
+        print("Response Content: " + str(flow.response.content))'''
 
 # the proxy needs to be started on a different thread
 class MitmThread(QThread):
