@@ -27,7 +27,7 @@
 ######
 import imaplib
 import os
-
+from controller.verifyPec import verifyPec as verifyPecController
 import pyzmail
 
 from common.error import ErrorMessage
@@ -67,13 +67,29 @@ class SearchPec:
 
         return pecs
 
-    def verifyEml(self, message):
+    def verifyEml(self, uid, pecs):
+        message = None
+        for pec in pecs:
+            text = pec.text_part.get_payload().decode(pec.text_part.charset)
+            for linea in text.split('\n'):
+                if linea.startswith("Messaggio di posta certificata"):
+                    for linea2 in text.split('\n'):
+                        if linea2.startswith('Identificativo del messaggio:'):
+                            uidFound = linea2.split(':')[-1].strip()
+                            uidModified = "<"+uidFound+">"
+                            if uidModified == uid:
+                                message = pec
+
         rawMessage = message.as_bytes()
         # salva il messaggio di posta elettronica in formato EML
         filename = f"{message.get('message-id')[1:-8]}.eml"  # utilizza l'ID del messaggio come nome del file EML
         with open(filename, "wb") as f:
             f.write(rawMessage)
         print(f"Messaggio salvato come {filename}.")
+
+        verifyPec = verifyPecController()
+
+
 
 
 

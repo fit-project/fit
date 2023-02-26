@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from view.verify_pec import VerifyPec as VerifyPecView
@@ -52,6 +53,8 @@ class PecChoose(QtWidgets.QMainWindow):
         self.scrapeButton_2.setObjectName("scrapeButton_2")
         self.scrapeButton_2.clicked.connect(self.pecChoose)
         self.setCentralWidget(self.centralwidget)
+
+        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)

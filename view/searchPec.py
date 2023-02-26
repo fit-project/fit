@@ -30,7 +30,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 from PyQt5.QtCore import QRegExp, QDate
 from PyQt5.QtGui import QRegExpValidator, QDoubleValidator
-from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem, QAbstractItemView
 
 from common.error import ErrorMessage
 from view.configuration import Configuration as ConfigurationView
@@ -88,9 +88,9 @@ class SearchPec(QtWidgets.QMainWindow):
         layout = QVBoxLayout()
         self.pec_tree = QTreeWidget(self.centralwidget)
         self.pec_tree.setGeometry(QtCore.QRect(510, 25, 590, 470))
-        self.pec_tree.setSelectionMode(QTreeWidget.MultiSelection)
         self.pec_tree.itemSelectionChanged.connect(self.on_item_selection_changed)
         self.pec_tree.setObjectName("emails_tree")
+        self.pec_tree.setSelectionMode(QAbstractItemView.SingleSelection)
 
         self.pec_tree.setHeaderLabel("Pec trovate")
         self.root = QTreeWidgetItem(["Inbox"])
@@ -292,9 +292,10 @@ class SearchPec(QtWidgets.QMainWindow):
             if message.get_subject().startswith("POSTA CERTIFICATA:"):
                 subject = message.get_subject()
                 date_str = str(message.get_decoded_header('Date'))
-                sender =    message.get_decoded_header('From')
+                sender = message.get_decoded_header('From')
+                uid = message.get('Message-ID')
                 dict_value = 'Mittente: ' + sender + '\nData: ' \
-                             + date_str + '\nOggetto: ' + subject + '\n' + '\n'
+                             + date_str + '\nOggetto: ' + subject + '\nUID: ' + uid + '\n' + '\n'
                 self.email_folder = QTreeWidgetItem([dict_value])
                 self.root.addChild(self.email_folder)
             else:
@@ -305,11 +306,19 @@ class SearchPec(QtWidgets.QMainWindow):
     def _acquisition_status(self):
         self.acquisition_status.show()
 
-    def verify_eml(self, message):
+    def verify_eml(self):
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
                                         self.input_port.text())
-        searchPec.verifyEml(self.pec_tree.selectedItems())
-        #TODO: riagganciare al tipo pyzmessage per fare il rawmessage
+        pecSelected = self.pec_tree.currentItem()
+        uid = pecSelected.text(0)
+        indiceUid = uid.find("UID:")
+        uidSlice = uid[indiceUid + len("UID:") + 1:]
+
+        pecs = searchPec.fetchPec()
+
+        searchPec.verifyEml(uidSlice, pecs)
+
+
 
 
 
