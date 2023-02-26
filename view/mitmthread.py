@@ -7,7 +7,6 @@ from types import SimpleNamespace
 
 import certifi
 import mitmproxy.http
-import warcio
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread
 import logging
 
@@ -87,13 +86,15 @@ def FlowToWarc(flow: http.HTTPFlow):
         writer.write_record(record)
         return warc_file
 
-class OptionalNamespace(SimpleNamespace):
-    def __getattribute__(self, name):
-        try:
-            return super().__getattribute__(name)
-        except:
-            return None
+
 def WarcToWacz(warc_path):
+    class OptionalNamespace(SimpleNamespace):
+        def __getattribute__(self, name):
+            try:
+                return super().__getattribute__(name)
+            except:
+                return None
+
     res = OptionalNamespace(
         output='example.wacz',
         inputs=[warc_path],
