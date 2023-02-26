@@ -1,9 +1,9 @@
-
 import ssl
 import sys
 import asyncio
 
 import certifi
+import mitmproxy.http
 from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread
 import logging
 
@@ -15,6 +15,7 @@ from mitmproxy.tools.dump import DumpMaster
 
 
 class ProxyServer(QObject):
+
     logging.basicConfig(filename='mitmproxy.log', level=logging.INFO)
     proxy_started = pyqtSignal(int)
 
@@ -27,12 +28,30 @@ class ProxyServer(QObject):
         options = main.options.Options(listen_host='127.0.0.1', listen_port=self.port,
                                        ssl_insecure=True)
         master = DumpMaster(options=options)
+
+        # addons in mitmproxy are used to provide additional features and customize proxy's behavior
+        # this way, we can create custom addons to intercept everything and create the warc/wacz files
+        flow_reader = FlowReaderAddon()
+        master.addons.add(flow_reader)
+
         try:
             await master.run()
         except KeyboardInterrupt:
             master.shutdown()
 
+# creating a custom addon to intercept requests and reponses, printing url, status cosd, headers and content
+class FlowReaderAddon:
+    def request(self, flow: mitmproxy.http.HTTPFlow):
+        print("Request URL: " + flow.request.url)
+        print("Request Headers: " + str(flow.request.headers))
+        print("Request Content: " + str(flow.request.content))
 
+    def response(self, flow: mitmproxy.http.HTTPFlow):
+        print("Response Status Code: " + str(flow.response.status_code))
+        print("Response Headers: " + str(flow.response.headers))
+        print("Response Content: " + str(flow.response.content))
+
+# the proxy needs to be started on a different thread
 class MitmThread(QThread):
     def __init__(self, port):
         super().__init__()
@@ -76,7 +95,7 @@ def set_ssl_config():
     with open(cert_file_path, 'ab') as cert_file:
         cert_file.write(pem_data)
 
-    # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem)
+    # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
     cert = QSslCertificate(pem_data)
     config = QSslConfiguration.defaultConfiguration()
     config.setCaCertificates([cert])
@@ -84,7 +103,6 @@ def set_ssl_config():
     # get the DER-encoded certificate data
     der_data = cert.toDer()
     return der_data
-
 
 
 if __name__ == "__main__":
