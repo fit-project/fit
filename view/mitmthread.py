@@ -2,6 +2,7 @@ import ssl
 import sys
 import asyncio
 from datetime import datetime
+from io import BytesIO
 
 import certifi
 import mitmproxy.http
@@ -56,16 +57,13 @@ def FlowToWarc(flow: http.HTTPFlow):
 
         headers = flow.response.headers.items()
 
+        # date from flow is returning as float, needs to be converted
         date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
-        # Convert the datetime object to an ISO formatted string
+        # convert the datetime object to an ISO formatted string
         iso_date_str = date_obj.isoformat()
-        '''
-        headers= []
-        for name, value in flow.response.headers.items():
-        headers.append((name.lower(), value))'''
+
         http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
                                         protocol=flow.response.http_version)
-
         warc_headers = {
             'WARC-Type': 'response',
             'WARC-Target-URI': flow.request.url,
@@ -73,29 +71,31 @@ def FlowToWarc(flow: http.HTTPFlow):
             'Content-Type': content_type,
             'Content-Length': str(len(payload)),
         }
+        # check if payload is in bytes format
+        if type(payload) is bytes:
+            payload = BytesIO(payload)
+
+        # create the actual warc record
         record = writer.create_warc_record(flow.request.url, 'response',
                                            payload=payload,
                                            http_headers=http_headers,
                                            warc_headers_dict=warc_headers)
-        print(record)
         writer.write_record(record)
 
 
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
     def request(self, flow: mitmproxy.http.HTTPFlow):
+        # print just for fun
 
+        #print("Request URL: " + flow.request.url)
+        #print("Request Headers: " + str(flow.request.headers))
+        #print("Request Content: " + str(flow.request.content))
         pass
-        '''print("Request URL: " + flow.request.url)
-        print("Request Headers: " + str(flow.request.headers))
-        print("Request Content: " + str(flow.request.content))'''
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
+        # create the warc file from the flow
         FlowToWarc(flow)
-        pass
-        '''print("Response Status Code: " + str(flow.response.status_code))
-        print("Response Headers: " + str(flow.response.headers))
-        print("Response Content: " + str(flow.response.content))'''
 
 # the proxy needs to be started on a different thread
 class MitmThread(QThread):
@@ -111,7 +111,7 @@ class MitmThread(QThread):
         proxy_server = ProxyServer(self.port)
         asyncio.get_event_loop().run_until_complete(proxy_server.start())
 
-
+# create the qwebengineview, set the proxy certificate and start the thread
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -128,7 +128,7 @@ class MainWindow(QWebEngineView):
         url = QUrl("https://www.google.com/")
         super().load(url)
 
-
+# ssl configurations (not working for me, I had to install the certificate on my machine)
 def set_ssl_config():
     # get the pem with openssl from the mitmproxy .p12
     # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
