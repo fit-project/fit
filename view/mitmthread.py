@@ -1,3 +1,5 @@
+import os
+import re
 import ssl
 import sys
 import asyncio
@@ -22,8 +24,7 @@ from wacz.main import create_wacz
 
 
 class ProxyServer(QObject):
-
-    logging.basicConfig(filename='mitmproxy.log', level=logging.INFO)
+    # logging.basicConfig(filename='mitmproxy.log', level=logging.INFO)
     proxy_started = pyqtSignal(int)
 
     def __init__(self, port):
@@ -46,11 +47,11 @@ class ProxyServer(QObject):
         except KeyboardInterrupt:
             master.shutdown()
 
+
 # creating a custom addon to save flow as warc
 def FlowToWarc(flow: http.HTTPFlow):
-    warc_file = 'test_warc.warc'
-    with open(warc_file, 'ab') as output:
-
+    warc_file = 'resources/test_warc.warc'
+    with open(warc_file, 'wb') as output:
         # create new warcio writer
         writer = WARCWriter(output, gzip=False)
         content_type = flow.response.headers.get('content-type', '').split(';')[0]
@@ -96,26 +97,57 @@ def WarcToWacz(warc_path):
                 return None
 
     res = OptionalNamespace(
-        output='example.wacz',
+        output='resources/test_wacz.wacz',
         inputs=[warc_path],
         detect_pages=True
     )
     return create_wacz(res)
 
+
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
+    def __init__(self):
+        self.resources = []
+
     def request(self, flow: mitmproxy.http.HTTPFlow):
         # print just for fun
 
-        #print("Request URL: " + flow.request.url)
-        #print("Request Headers: " + str(flow.request.headers))
-        #print("Request Content: " + str(flow.request.content))
+        # print("Request URL: " + flow.request.url)
+        # print("Request Headers: " + str(flow.request.headers))
+        # print("Request Content: " + str(flow.request.content))
         pass
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
+
+        #save html first (since it has no extension in the flow)
+        if flow.response.headers.get('content-type', '').startswith('text/html'):
+            # get html to disk
+            html_text = flow.response.content
+            with open(f"resources/{len(self.resources)}.html", "wb") as f:
+                f.write(html_text)
+
+        # get extension for other resources
+        content_type = flow.response.headers.get('content-type', '').lower()
+        extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
+        if extension:
+            extension = '.' + extension.group(2)
+        else:
+            extension = None
+
+        if extension is not None:
+            if flow.response.headers.get('content-type', '').startswith('image/'):
+                # save image to disk
+                with open(f"resources/{len(self.resources)}{extension}", "wb") as f:
+                    f.write(flow.response.content)
+                self.resources.append(flow.request.url)
+            else:
+                # save other resources to disk
+                with open(f"resources/{len(self.resources)}{extension}", "wb") as f:
+                    f.write(flow.response.content)
+                self.resources.append(flow.request.url)
         # create the warc file from the flow
-        warc_file = FlowToWarc(flow)
-        WarcToWacz(warc_file)
+        FlowToWarc(flow)
+
 
 # the proxy needs to be started on a different thread
 class MitmThread(QThread):
@@ -130,6 +162,7 @@ class MitmThread(QThread):
         # mitmproxy's creation
         proxy_server = ProxyServer(self.port)
         asyncio.get_event_loop().run_until_complete(proxy_server.start())
+
 
 # create the qwebengineview, set the proxy certificate and start the thread
 class MainWindow(QWebEngineView):
@@ -148,6 +181,12 @@ class MainWindow(QWebEngineView):
         url = QUrl("https://www.google.com/")
         super().load(url)
 
+    def closeEvent(self, event):
+        #create wacz when window is closed
+        warc_file = 'resources/test_warc.warc'
+        WarcToWacz(warc_file)
+
+
 # ssl configurations (not working for me, I had to install the certificate on my machine)
 def set_ssl_config():
     # get the pem with openssl from the mitmproxy .p12
@@ -155,7 +194,7 @@ def set_ssl_config():
 
     # add pem to the trusted root certificates (won't solve the problem)
     cert_file_path = certifi.where()
-    pem_path= 'C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem'
+    pem_path = 'C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem'
     with open(pem_path, 'rb') as pem_file:
         pem_data = pem_file.read()
     with open(cert_file_path, 'ab') as cert_file:
@@ -174,10 +213,15 @@ def set_ssl_config():
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
+    if not os.path.isdir("resources"):
+        os.makedirs("resources")
+
     webview = MainWindow()
     # create the proxy
     proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
     QNetworkProxy.setApplicationProxy(proxy)
 
     webview.show()
+
     sys.exit(app.exec_())
+
