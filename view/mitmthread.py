@@ -51,7 +51,7 @@ class ProxyServer(QObject):
 # creating a custom addon to save flow as warc
 def FlowToWarc(flow: http.HTTPFlow):
     warc_file = 'resources/test_warc.warc'
-    with open(warc_file, 'wb') as output:
+    with open(warc_file, 'ab') as output:
         # create new warcio writer
         writer = WARCWriter(output, gzip=False)
         content_type = flow.response.headers.get('content-type', '').split(';')[0]
@@ -118,12 +118,12 @@ class FlowReaderAddon:
         pass
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-
+        #TODO: search a better way to get the resource's name
         #save html first (since it has no extension in the flow)
         if flow.response.headers.get('content-type', '').startswith('text/html'):
             # get html to disk
             html_text = flow.response.content
-            with open(f"resources/{len(self.resources)}.html", "wb") as f:
+            with open(f"resources/{flow.request.pretty_host}.html", "wb") as f:
                 f.write(html_text)
 
         # get extension for other resources
@@ -137,12 +137,12 @@ class FlowReaderAddon:
         if extension is not None:
             if flow.response.headers.get('content-type', '').startswith('image/'):
                 # save image to disk
-                with open(f"resources/{len(self.resources)}{extension}", "wb") as f:
+                with open(f"resources/{flow.request.pretty_host}{extension}", "wb") as f:
                     f.write(flow.response.content)
                 self.resources.append(flow.request.url)
             else:
                 # save other resources to disk
-                with open(f"resources/{len(self.resources)}{extension}", "wb") as f:
+                with open(f"resources/{flow.request.pretty_host}{extension}", "wb") as f:
                     f.write(flow.response.content)
                 self.resources.append(flow.request.url)
         # create the warc file from the flow
