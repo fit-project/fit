@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import ssl
@@ -85,7 +86,6 @@ def FlowToWarc(flow: http.HTTPFlow):
                                            http_headers=http_headers,
                                            warc_headers_dict=warc_headers)
         writer.write_record(record)
-        return warc_file
 
 
 def WarcToWacz(warc_path):
@@ -118,34 +118,37 @@ class FlowReaderAddon:
         pass
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-        #TODO: search a better way to get the resource's name
-        #save html first (since it has no extension in the flow)
-        if flow.response.headers.get('content-type', '').startswith('text/html'):
-            # get html to disk
-            html_text = flow.response.content
-            with open(f"resources/{flow.request.pretty_host}.html", "wb") as f:
-                f.write(html_text)
+        #TODO: search a better way to get the resource's name (for same-host resources)
+        print(flow.response.headers.get('content-type', ''))
+        if len(flow.response.content) > 0:
+            url = flow.request.url
+            # save html first (since it has no extension in the flow)
+            if flow.response.headers.get('content-type', '').startswith('text/html'):
+                # get html to disk
+                html_text = flow.response.content
+                with open(f"resources/{flow.request.pretty_host}.html", "wb") as f:
+                    f.write(html_text)
 
-        # get extension for other resources
-        content_type = flow.response.headers.get('content-type', '').lower()
-        extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
-        if extension:
-            extension = '.' + extension.group(2)
-        else:
-            extension = None
-
-        if extension is not None:
-            if flow.response.headers.get('content-type', '').startswith('image/'):
-                # save image to disk
-                with open(f"resources/{flow.request.pretty_host}{extension}", "wb") as f:
-                    f.write(flow.response.content)
-                self.resources.append(flow.request.url)
+            # get extension for other resources
+            content_type = flow.response.headers.get('content-type', '').lower()
+            extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
+            if extension:
+                extension = '.' + extension.group(2)
             else:
-                # save other resources to disk
-                with open(f"resources/{flow.request.pretty_host}{extension}", "wb") as f:
-                    f.write(flow.response.content)
-                self.resources.append(flow.request.url)
-        # create the warc file from the flow
+                extension = None
+
+            if extension is not None:
+                if flow.response.headers.get('content-type', '').startswith('image/'):
+                    # save image to disk
+                    with open(f"resources/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
+                        f.write(flow.response.content)
+                    self.resources.append(flow.request.url)
+                else:
+                    # save other resources to disk
+                    with open(f"resources/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
+                        f.write(flow.response.content)
+                    self.resources.append(flow.request.url)
+            # create the warc file from the flow
         FlowToWarc(flow)
 
 
