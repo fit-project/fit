@@ -3,6 +3,7 @@ import sys
 import asyncio
 from datetime import datetime
 from io import BytesIO
+from types import SimpleNamespace
 
 import certifi
 import mitmproxy.http
@@ -18,6 +19,7 @@ from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 from warcio import StatusAndHeaders
 from warcio.warcwriter import WARCWriter
+from wacz.main import create_wacz
 
 
 class ProxyServer(QObject):
@@ -48,7 +50,7 @@ class ProxyServer(QObject):
 # creating a custom addon to save flow as warc
 def FlowToWarc(flow: http.HTTPFlow):
     warc_file = 'test_warc.warc'
-    with open(warc_file, 'ab') as output:
+    with open(warc_file, 'wb') as output:
 
         # create new warcio writer
         writer = WARCWriter(output, gzip=False)
@@ -62,6 +64,7 @@ def FlowToWarc(flow: http.HTTPFlow):
         # convert the datetime object to an ISO formatted string
         iso_date_str = date_obj.isoformat()
 
+        # create http headers from the information inside the flow
         http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
                                         protocol=flow.response.http_version)
         warc_headers = {
@@ -69,7 +72,7 @@ def FlowToWarc(flow: http.HTTPFlow):
             'WARC-Target-URI': flow.request.url,
             'WARC-Date': iso_date_str,
             'Content-Type': content_type,
-            'Content-Length': str(len(payload)),
+            'Content-Length': str(len(payload))
         }
         # check if payload is in bytes format
         if type(payload) is bytes:
@@ -81,7 +84,21 @@ def FlowToWarc(flow: http.HTTPFlow):
                                            http_headers=http_headers,
                                            warc_headers_dict=warc_headers)
         writer.write_record(record)
+        return warc_file
 
+class OptionalNamespace(SimpleNamespace):
+    def __getattribute__(self, name):
+        try:
+            return super().__getattribute__(name)
+        except:
+            return None
+def WarcToWacz(warc_path):
+    res = OptionalNamespace(
+        output='example.wacz',
+        inputs=[warc_path],
+        detect_pages=True
+    )
+    return create_wacz(res)
 
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
@@ -95,7 +112,8 @@ class FlowReaderAddon:
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         # create the warc file from the flow
-        FlowToWarc(flow)
+        warc_file = FlowToWarc(flow)
+        WarcToWacz(warc_file)
 
 # the proxy needs to be started on a different thread
 class MitmThread(QThread):
