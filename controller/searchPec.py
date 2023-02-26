@@ -79,28 +79,24 @@ class SearchPec:
                     for linea2 in text.split('\n'):
                         if linea2.startswith('Identificativo del messaggio:'):
                             uidFound = linea2.split(':')[-1].strip()
-                            #uidModified = "<"+uidFound+">"
-                            print(uidFound)
-                            print(uidModified)
                             if uidFound == uidModified:
-                                print("AAAAAAAAAAAAAAAAAAAA")
                                 message = pec
 
-        if not os.path.isdir(os.path.join(directory, "Eml Files")):
+        if not os.path.isdir(directory):
             # la cartella non esiste, quindi la creiamo
-            os.makedirs(os.path.join(directory, "Eml Files"))
-        os.chdir(directory+"/Eml Files")
+            os.makedirs(directory)
+        os.chdir(directory)
         rawMessage = message.as_bytes()
         # salva il messaggio di posta elettronica in formato EML
         filename = f"{message.get('message-id')[1:-8]}.eml"  # utilizza l'ID del messaggio come nome del file EML
         with open(filename, "wb") as f:
             f.write(rawMessage)
-        print(f"Messaggio salvato come {filename}.")
 
         verifyPec = verifyPecController()
-        path = directory+"/Eml Files"+"/"+filename
+        path = directory+"/"+filename
         verifyPec.verifyPec(path)
-        os.startfile(directory+"/Eml Files")
+        os.remove(directory+"/signature.txt")
+        os.startfile(directory)
 
 
 

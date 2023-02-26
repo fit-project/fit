@@ -58,7 +58,6 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_from_date = None
         self.input_to_date = None
         self.error_msg = ErrorMessage()
-        self.acquisition_directory = None
 
     def init(self, case_info):
         self.width = 1140
@@ -67,12 +66,9 @@ class SearchPec(QtWidgets.QMainWindow):
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
-
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
-
         self.setObjectName("search_pec_window")
-
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
@@ -320,12 +316,6 @@ class SearchPec(QtWidgets.QMainWindow):
         self.acquisition_status.show()
 
     def verify_eml(self):
-        self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
-            'Eml files',
-            self.configuration_general.configuration['cases_folder_path'],
-            self.case_info['name'],
-            self.input_profile.text()
-        )
 
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
                                         self.input_port.text(), self.case_info)
@@ -335,8 +325,9 @@ class SearchPec(QtWidgets.QMainWindow):
         uidSlice = uid[indiceUid + len("UID:") + 1:]
 
         pecs = searchPec.fetchPec()
-
-        searchPec.verifyEml(uidSlice, pecs, self.acquisition_directory)
+        directory = os.path.join(os.path.expanduser(self.configuration_general.configuration['cases_folder_path']),
+                                 self.case_info['name'], 'Eml files')
+        searchPec.verifyEml(uidSlice, pecs, directory)
 
 
 
