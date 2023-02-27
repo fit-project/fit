@@ -14,7 +14,7 @@ from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread
 import logging
 
 from PyQt5.QtNetwork import QNetworkProxy, QSslCertificate, QSslConfiguration
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
 from PyQt5.QtWidgets import QApplication
 from mitmproxy import utils, http
 from mitmproxy.tools import main
@@ -55,37 +55,38 @@ def FlowToWarc(flow: http.HTTPFlow):
     with open(warc_file, 'ab') as output:
         # create new warcio writer
         writer = WARCWriter(output, gzip=False)
-        content_type = flow.response.headers.get('content-type', '').split(';')[0]
-        payload = flow.response.content
+        if len(flow.response.content) > 0:
+            content_type = flow.response.headers.get('content-type', '').split(';')[0]
+            payload = flow.response.content
 
-        headers = flow.response.headers.items()
+            headers = flow.response.headers.items()
 
-        # date from flow is returning as float, needs to be converted
-        date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
-        # convert the datetime object to an ISO formatted string
-        iso_date_str = date_obj.isoformat()
+            # date from flow is returning as float, needs to be converted
+            date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
+            # convert the datetime object to an ISO formatted string
+            iso_date_str = date_obj.isoformat()
 
-        # create http headers from the information inside the flow
-        http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
-                                        protocol=flow.response.http_version)
-        warc_headers = {
-            'WARC-Type': 'response',
-            'WARC-Target-URI': flow.request.url,
-            'WARC-Source-URI': flow.request.url,
-            'WARC-Date': iso_date_str,
-            'Content-Type': content_type,
-            'Content-Length': str(len(payload))
-        }
-        # check if payload is in bytes format
-        if type(payload) is bytes:
-            payload = BytesIO(payload)
+            # create http headers from the information inside the flow
+            http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
+                                            protocol=flow.response.http_version)
+            warc_headers = {
+                'WARC-Type': 'resource',
+                'WARC-Target-URI': flow.request.url,
+                'WARC-Source-URI': flow.request.url,
+                'WARC-Date': iso_date_str,
+                'Content-Type': content_type,
+                'Content-Length': str(len(payload))
+            }
+            # check if payload is in bytes format
+            if type(payload) is bytes:
+                payload = BytesIO(payload)
 
-        # create the actual warc record
-        record = writer.create_warc_record(flow.request.url, 'response',
-                                           payload=payload,
-                                           http_headers=http_headers,
-                                           warc_headers_dict=warc_headers)
-        writer.write_record(record)
+            # create the actual warc record
+            record = writer.create_warc_record(flow.request.url, 'resource',
+                                               payload=payload,
+                                               http_headers=http_headers,
+                                               warc_headers_dict=warc_headers)
+            writer.write_record(record)
 
 
 def WarcToWacz(warc_path):
@@ -119,7 +120,6 @@ class FlowReaderAddon:
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         #TODO: search a better way to get the resource's name (for same-host resources)
-        print(flow.response.headers.get('content-type', ''))
         if len(flow.response.content) > 0:
             url = flow.request.url
             # save html first (since it has no extension in the flow)
@@ -138,7 +138,8 @@ class FlowReaderAddon:
                 extension = None
 
             if extension is not None:
-                if flow.response.headers.get('content-type', '').startswith('image/'):
+
+                if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
                     # save image to disk
                     with open(f"resources/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
                         f.write(flow.response.content)
@@ -174,6 +175,7 @@ class MainWindow(QWebEngineView):
 
         der_data = set_ssl_config()
         pem_data = ssl.DER_cert_to_PEM_cert(der_data)
+        self.page().profile().clearHttpCache()
         self.page().profile().setHttpUserAgent(pem_data)
 
         # set port and start the thread (while creating the mainwindow)
@@ -223,6 +225,7 @@ if __name__ == "__main__":
     # create the proxy
     proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
     QNetworkProxy.setApplicationProxy(proxy)
+
 
     webview.show()
 
