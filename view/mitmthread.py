@@ -173,9 +173,11 @@ class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+
+
         der_data = set_ssl_config()
         pem_data = ssl.DER_cert_to_PEM_cert(der_data)
-        self.page().profile().clearHttpCache()
+
         self.page().profile().setHttpUserAgent(pem_data)
 
         # set port and start the thread (while creating the mainwindow)
@@ -187,6 +189,8 @@ class MainWindow(QWebEngineView):
         super().load(url)
 
     def closeEvent(self, event):
+        # clear cache when closing the browser
+        self.page().profile().clearHttpCache()
         #create wacz when window is closed
         warc_file = 'resources/test_warc.warc'
         WarcToWacz(warc_file)
@@ -222,6 +226,7 @@ if __name__ == "__main__":
         os.makedirs("resources")
 
     webview = MainWindow()
+
     # create the proxy
     proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
     QNetworkProxy.setApplicationProxy(proxy)
