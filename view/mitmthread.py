@@ -61,7 +61,7 @@ def FlowToWarc(flow: http.HTTPFlow):
         if len(flow.response.content) > 0:
             content_type = flow.response.headers.get('content-type', '').split(';')[0]
             payload = flow.response.content
-            headers = flow.response.headers.items()
+            headers = flow.response.headers
 
             # date from flow is returning as float, needs to be converted
             date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
@@ -104,10 +104,10 @@ def create_pages(warc_file):
         # read from warc file
         with open(warc_file, 'rb') as stream:
             for record in ArchiveIterator(stream):
-                if record.rec_type == 'resource':
+                if record.rec_type == 'response':
                     url = record.rec_headers.get_header('WARC-Target-URI')
-                    contet_tyepe = record.rec_headers.get_header('Content-Type')
-                    if 'text/html' in contet_tyepe:
+                    content_type = record.rec_headers.get_header('Content-Type')
+                    if 'text/html' in content_type:
                         id = record.rec_headers.get_header('WARC-Record-ID')
                         ts = record.rec_headers.get_header('WARC-Date')
                         title = record.rec_headers.get_header('WARC-Target-URI')
