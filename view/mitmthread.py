@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import re
 import ssl
@@ -19,7 +20,7 @@ from PyQt5.QtWidgets import QApplication
 from mitmproxy import utils, http
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
-from warcio import StatusAndHeaders
+from warcio import StatusAndHeaders, ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from wacz.main import create_wacz
 
@@ -51,14 +52,15 @@ class ProxyServer(QObject):
 
 # creating a custom addon to save flow as warc
 def FlowToWarc(flow: http.HTTPFlow):
+
     warc_file = 'resources/test_warc.warc'
     with open(warc_file, 'ab') as output:
+
         # create new warcio writer
         writer = WARCWriter(output, gzip=False)
         if len(flow.response.content) > 0:
             content_type = flow.response.headers.get('content-type', '').split(';')[0]
             payload = flow.response.content
-
             headers = flow.response.headers.items()
 
             # date from flow is returning as float, needs to be converted
@@ -82,14 +84,43 @@ def FlowToWarc(flow: http.HTTPFlow):
                 payload = BytesIO(payload)
 
             # create the actual warc record
-            record = writer.create_warc_record(flow.request.url, 'resource',
+            record = writer.create_warc_record(flow.request.url, 'response',
                                                payload=payload,
                                                http_headers=http_headers,
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
 
+def create_pages(warc_file):
+    # set the header
+    header = {
+        "format": "json-pages-1.0", "id": "pages", "title": "All Pages",
 
-def WarcToWacz(warc_path):
+    }
+
+    pages_path = os.path.join('resources', 'pages.jsonl')
+    with open(os.path.join(pages_path), 'w') as outfile:
+        json.dump(header, outfile)
+
+        # read from warc file
+        with open(warc_file, 'rb') as stream:
+            for record in ArchiveIterator(stream):
+                if record.rec_type == 'resource':
+                    url = record.rec_headers.get_header('WARC-Target-URI')
+                    contet_tyepe = record.rec_headers.get_header('Content-Type')
+                    if 'text/html' in contet_tyepe:
+                        id = record.rec_headers.get_header('WARC-Record-ID')
+                        ts = record.rec_headers.get_header('WARC-Date')
+                        title = record.rec_headers.get_header('WARC-Target-URI')
+
+                        page = {
+                            "id": id, "url": url,
+                            "ts": ts, "title": title
+                        }
+                        outfile.write('\n')
+                        json.dump(page, outfile)
+    return pages_path
+
+def WarcToWacz(warc_path,pages_path):
     class OptionalNamespace(SimpleNamespace):
         def __getattribute__(self, name):
             try:
@@ -100,7 +131,8 @@ def WarcToWacz(warc_path):
     res = OptionalNamespace(
         output='resources/test_wacz.wacz',
         inputs=[warc_path],
-        detect_pages=True
+        pages=pages_path,
+        detect_pages=False
     )
     return create_wacz(res)
 
@@ -173,8 +205,6 @@ class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-
-
         der_data = set_ssl_config()
         pem_data = ssl.DER_cert_to_PEM_cert(der_data)
 
@@ -191,9 +221,10 @@ class MainWindow(QWebEngineView):
     def closeEvent(self, event):
         # clear cache when closing the browser
         self.page().profile().clearHttpCache()
-        #create wacz when window is closed
+        # create wacz when window is closed
         warc_file = 'resources/test_warc.warc'
-        WarcToWacz(warc_file)
+        pages_file = create_pages(warc_file)
+        WarcToWacz(warc_file,pages_file)
 
 
 # ssl configurations (not working for me, I had to install the certificate on my machine)
@@ -231,8 +262,6 @@ if __name__ == "__main__":
     proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
     QNetworkProxy.setApplicationProxy(proxy)
 
-
     webview.show()
-
     sys.exit(app.exec_())
 
