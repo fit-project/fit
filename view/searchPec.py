@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import datetime
 import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
@@ -58,6 +59,7 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_from_date = None
         self.input_to_date = None
         self.error_msg = ErrorMessage()
+        self.firstFetch = False
 
     def init(self, case_info):
         self.width = 1140
@@ -169,10 +171,10 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_recipient.setGeometry(QtCore.QRect(180, 335, 240, 20))
         self.input_recipient.setObjectName("input_recipient")
 
-        # SUBJECT FIELD
-        self.input_subject = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_subject.setGeometry(QtCore.QRect(180, 370, 240, 20))
-        self.input_subject.setObjectName("input_subject")
+        # CASE FIELD
+        self.input_case = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_case.setGeometry(QtCore.QRect(180, 370, 240, 20))
+        self.input_case.setObjectName("input_case")
 
         # FROM DATE FIELD
         self.input_from_date = QtWidgets.QDateEdit(self.centralwidget)
@@ -199,11 +201,11 @@ class SearchPec(QtWidgets.QMainWindow):
         self.label_recipient.setAlignment(QtCore.Qt.AlignRight)
         self.label_recipient.setObjectName("label_recipient")
 
-        # SUBJECT LABEL
-        self.label_subject = QtWidgets.QLabel(self.centralwidget)
-        self.label_subject.setGeometry(QtCore.QRect(90, 370, 80, 20))
-        self.label_subject.setAlignment(QtCore.Qt.AlignRight)
-        self.label_subject.setObjectName("label_subject")
+        # CASE LABEL
+        self.label_case = QtWidgets.QLabel(self.centralwidget)
+        self.label_case.setGeometry(QtCore.QRect(90, 370, 80, 20))
+        self.label_case.setAlignment(QtCore.Qt.AlignRight)
+        self.label_case.setObjectName("label_case")
 
         # FROM DATE LABEL
         self.label_from_date = QtWidgets.QLabel(self.centralwidget)
@@ -286,31 +288,115 @@ class SearchPec(QtWidgets.QMainWindow):
         self.label_port.setText(_translate("eml_verify_window", "Port*"))
         self.label_sender.setText(_translate("email_scrape_window", "Mittente"))
         self.label_recipient.setText(_translate("email_scrape_window", "Destinatario"))
-        self.label_subject.setText(_translate("eml_verify_window", "Caso"))
+        self.label_case.setText(_translate("eml_verify_window", "Caso"))
         self.label_from_date.setText(_translate("eml_verify_window", "Data di inizio"))
         self.label_to_date.setText(_translate("eml_verify_window", "Data di fine"))
         self.login_button.setText(_translate("eml_verify_window", "Fetch"))
         self.verify_button.setText(_translate("eml_verify_window", "Verify"))
 
     def login(self):
+        if self.firstFetch == False:
+            pass
+        else:
+            #TODO: provare invece del while a fare un for per gli elementi e cancellarli singolarmente
+            while self.pec_tree.topLevelItemCount() > 0:
+                item = self.pec_tree.takeTopLevelItem(0)
+                del item
+
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
                                         self.input_port.text(), self.case_info)
         messages = searchPec.fetchPec()
 
-        for message in messages:
-            if message.get_subject().startswith("POSTA CERTIFICATA:"):
+        sender = self.input_sender.text()
+        recipient = self.input_recipient.text()
+        case = self.input_case.text()
+        fromDate = datetime.datetime(self.input_from_date.date().year(), self.input_from_date.date().month(),
+                                     self.input_from_date.date().day())
+        fromDate = fromDate.date()
+        toDate = datetime.datetime(self.input_to_date.date().year(), self.input_to_date.date().month(),
+                                   self.input_to_date.date().day())
+        toDate = toDate.date()
+
+        #CONTROLLO MITTENTE
+        filteredPecs = []
+        if len(sender) == 0:
+            pass
+        else:
+            for message in messages:
+                if message.get_address('from')[1] == sender:
+                    filteredPecs.append(message)
+            messages = filteredPecs
+
+        #CONTROLLO DESTINATARIO
+        filteredPecs = []
+        if len(recipient) == 0:
+            pass
+        else:
+            for message in messages:
+                if message.get_address('to')[1] == sender:
+                    filteredPecs.append(message)
+            messages = filteredPecs
+
+        # CONTROLLO CASO
+        filteredPecs = []
+        if len(case) == 0:
+            pass
+        else:
+            for message in messages:
                 subject = message.get_subject()
-                date_str = str(message.get_decoded_header('Date'))
-                sender = message.get_decoded_header('From')
-                uid = message.get('Message-ID')
-                dict_value = 'Mittente: ' + sender + '\nData: ' \
-                             + date_str + '\nOggetto: ' + subject + '\nUID: ' + uid + '\n' + '\n'
-                self.email_folder = QTreeWidgetItem([dict_value])
-                self.root.addChild(self.email_folder)
-            else:
-                pass
-            self.pec_tree.expandItem(self.root)
-            self.verify_button.setEnabled(True)
+                list = subject.split()
+                caseIndex = list.index("caso:")
+                casePec = " ".join(list[caseIndex + 1:])
+                if casePec == case:
+                    filteredPecs.append(message)
+            messages = filteredPecs
+
+        # CONTROLLO DATA FROM
+        filteredPecs = []
+        data = "1990-01-01"
+        defaultData = datetime.datetime.strptime(data, '%Y-%m-%d')
+        defaultData = defaultData.date()
+
+        if fromDate == defaultData:
+            pass
+        else:
+            for message in messages:
+                datePec = message.get_decoded_header('Date')
+                datePec = datetime.datetime.strptime(datePec, '%a, %d %b %Y %H:%M:%S %z')
+                datePec = datePec.date()
+                if datePec > fromDate or datePec == fromDate:
+                    filteredPecs.append(message)
+            messages = filteredPecs
+
+        # CONTROLLO DATA TO
+        filteredPecs = []
+        dataToday = datetime.datetime.today()
+        dataToday = dataToday.date()
+
+        if toDate == dataToday:
+            pass
+        else:
+            for message in messages:
+                datePec = message.get_decoded_header('Date')
+                datePec = datetime.datetime.strptime(datePec, '%a, %d %b %Y %H:%M:%S %z')
+                datePec = datePec.date()
+                if datePec < toDate or datePec == toDate:
+                    filteredPecs.append(message)
+            messages = filteredPecs
+
+        for message in messages:
+            subject = message.get_subject()
+            date_str = str(message.get_decoded_header('Date'))
+            sender = message.get_decoded_header('From')
+            uid = message.get('Message-ID')
+            dict_value = 'Mittente: ' + sender + '\nData: ' \
+                         + date_str + '\nOggetto: ' + subject + '\nUID: ' + uid + '\n' + '\n'
+            self.email_folder = QTreeWidgetItem([dict_value])
+            self.root.addChild(self.email_folder)
+
+        self.pec_tree.expandItem(self.root)
+        self.verify_button.setEnabled(True)
+        self.firstFetch = True
 
     def _acquisition_status(self):
         self.acquisition_status.show()

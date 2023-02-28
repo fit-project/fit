@@ -65,8 +65,12 @@ class SearchPec:
                 raw_email = raw_email[0][1]
                 message = pyzmail.PyzMessage.factory(raw_email)
                 pecs.append(message)
+        pecsToShow = []
+        for pec in pecs:
+            if pec.get_subject().startswith("POSTA CERTIFICATA:"):
+                pecsToShow.append(pec)
 
-        return pecs
+        return pecsToShow
 
     def verifyEml(self, uid, pecs, acquisition_directory):
         message = None
