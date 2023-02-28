@@ -33,7 +33,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class pecConfigurations(Base):
+class pec(Base):
     __tablename__ = 'configuration_pec'
 
     pec = Column(String, primary_key=True)
@@ -47,13 +47,13 @@ class pecConfigurations(Base):
         self.metadata.create_all(self.db.engine)
 
     def get(self):
-        if self.db.session.query(pecConfigurations).first() is None:
+        if self.db.session.query(pec).first() is None:
             self.set_default_values()
 
-        return self.db.session.query(pecConfigurations).all()
+        return self.db.session.query(pec).all()
 
     def update(self, options):
-        self.db.session.query(pecConfigurations).filter(pecConfigurations.pec == options.get('pec')).update(options)
+        self.db.session.query(pec).filter(pec.pec == options.get('pec')).update(options)
         self.db.session.commit()
 
     def set_default_values(self):
