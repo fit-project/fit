@@ -81,14 +81,36 @@ logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
+# the proxy needs to be started on a different thread
+class MitmThread(QThread):
+    def __init__(self, port, acquisition_directory):
+        super().__init__()
+        self.port = port
+        self.acquisition_directory = acquisition_directory
+
+    def run(self):
+        # create new event loop
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        # mitmproxy's creation
+        self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
+        asyncio.get_event_loop().run_until_complete(self.proxy_server.start())
+    def stop_proxy(self):
+        print("MitmThread.stop_proxy: Stopping the proxy")
+        try:
+            ctx.master.shutdown()
+            ctx.master = None
+        except: pass
+
 
 class ProxyServer(QObject):
-    proxy_started = pyqtSignal(int)
+    proxy_started = pyqtSignal()
 
     def __init__(self, port, acquisition_directory):
         super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
+        self.shutdown_event = threading.Event()
 
     async def start(self):
         # set proxy opts
@@ -96,23 +118,25 @@ class ProxyServer(QObject):
                                        ssl_insecure=True)
         self.master = DumpMaster(options=options)
 
-        # addons in mitmproxy are used to provide additional features and customize proxy's behavior
-        # this way, we can create custom addons to intercept everything and create the warc/wacz files
-        # self.master.addons.add(FlowReaderAddon(self.acquisition_directory))
-        # self.master.addons.add(CaptureAddon(self.acquisition_directory))
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             PcapWriter(self.acquisition_directory),
         ]
 
         self.master.addons.add(*addons)
-        await self.run_master()
 
-    def run_master(self):
-        return self.master.run()
+        try:
+            await ctx.master.run()
+        except:
+            pass
+        print("ProxyServer.start: Shutdown the proxy")
 
-    def shutdown_master(self):
-        self.master.shutdown()
+
+    def shutdown(self):
+        print("ProxyServer.shutdown: Setting shutdown event")
+        self.shutdown_event.set()
+        print('value ',self.shutdown_event.is_set())
+
 
 
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
@@ -188,26 +212,6 @@ class PcapWriter:
                 print('non si può salvare ', e)
 
 
-# the proxy needs to be started on a different thread
-class MitmThread(QThread):
-    def __init__(self, port, acquisition_directory):
-        super().__init__()
-        self.port = port
-        self.acquisition_directory = acquisition_directory
-        self.running = True
-
-    def run(self):
-        # create new event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        # mitmproxy's creation
-        self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
-        asyncio.get_event_loop().run_until_complete(self.proxy_server.start())
-
-    def stop(self):
-        self.running = False
-        self.proxy_server.shutdown_master()
-
 
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
@@ -270,6 +274,7 @@ class Screenshot(QtWebEngineWidgets.QWebEngineView):
 
 class Web(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
+    stop_proxy_signal = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         if not os.path.isdir("resources"):
@@ -463,6 +468,9 @@ class Web(QtWidgets.QMainWindow):
             # set port and start the thread
             port = 8081
             self.mitm_thread = MitmThread(port, self.acquisition_directory)
+            self.stop_proxy_signal.connect(self.mitm_thread.stop_proxy)
+
+            # start mitm_thread
             self.mitm_thread.start()
 
             # create the proxy
@@ -594,7 +602,8 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(20)
 
             # Step 8:  Save all resource of current page
-            self.mitm_thread.quit()
+            self.stop_proxy_signal.emit()
+            self.mitm_thread.stop_proxy()
             # self.mitm_thread.wait()
 
             # create wacz when acquisition is finished
@@ -735,9 +744,6 @@ class Web(QtWidgets.QMainWindow):
         self.th_screenrecorder.wait()
 
     def save_page(self):
-
-        url = self.tabs.currentWidget().url().toString()
-
         project_folder = self.acquisition_directory
 
         project_name = "acquisition_page"
