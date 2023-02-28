@@ -320,7 +320,11 @@ class SearchPec(QtWidgets.QMainWindow):
             pass
         else:
             for message in messages:
-                if message.get_address('from')[1] == sender:
+                senderPec = message.get_address('from')[0]
+                list = senderPec.split()
+                pecIndex = list.index("di:")
+                senderPec = " ".join(list[pecIndex + 1:])
+                if senderPec == sender:
                     filteredPecs.append(message)
             messages = filteredPecs
 
@@ -330,7 +334,7 @@ class SearchPec(QtWidgets.QMainWindow):
             pass
         else:
             for message in messages:
-                if message.get_address('to')[1] == sender:
+                if message.get_address('to')[1] == recipient:
                     filteredPecs.append(message)
             messages = filteredPecs
 
@@ -410,10 +414,6 @@ class SearchPec(QtWidgets.QMainWindow):
         directory = os.path.join(os.path.expanduser(self.configuration_general.configuration['cases_folder_path']),
                                  self.case_info['name'], 'Eml files')
         searchPec.verifyEml(uidSlice, pecs, directory)
-
-
-
-
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
