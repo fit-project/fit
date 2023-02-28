@@ -59,7 +59,7 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_from_date = None
         self.input_to_date = None
         self.error_msg = ErrorMessage()
-        self.firstFetch = False
+
 
     def init(self, case_info):
         self.width = 1140
@@ -295,13 +295,10 @@ class SearchPec(QtWidgets.QMainWindow):
         self.verify_button.setText(_translate("eml_verify_window", "Verify"))
 
     def login(self):
-        if self.firstFetch == False:
-            pass
-        else:
-            #TODO: provare invece del while a fare un for per gli elementi e cancellarli singolarmente
-            while self.pec_tree.topLevelItemCount() > 0:
-                item = self.pec_tree.takeTopLevelItem(0)
-                del item
+        self.pec_tree.clear()
+        self.root = QTreeWidgetItem(["Inbox"])
+        self.pec_tree.addTopLevelItem(self.root)
+
 
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
                                         self.input_port.text(), self.case_info)
@@ -396,7 +393,6 @@ class SearchPec(QtWidgets.QMainWindow):
 
         self.pec_tree.expandItem(self.root)
         self.verify_button.setEnabled(True)
-        self.firstFetch = True
 
     def _acquisition_status(self):
         self.acquisition_status.show()
