@@ -88,8 +88,7 @@ class WarcCreator:
 
         }
 
-        pages_path = os.path.join('resources', 'pages.jsonl')
-        with open(os.path.join(pages_path), 'w') as outfile:
+        with open(os.path.join(self.pages_path), 'w') as outfile:
             json.dump(header, outfile)
 
             # read from warc file
@@ -109,7 +108,6 @@ class WarcCreator:
                             }
                             outfile.write('\n')
                             json.dump(page, outfile)
-        return pages_path
 
     def warc_to_wacz(self):
         class OptionalNamespace(SimpleNamespace):

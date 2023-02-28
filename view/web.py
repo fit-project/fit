@@ -30,16 +30,15 @@ import os
 import logging
 import logging.config
 import shutil
+from typing import BinaryIO
 
-# I don't know why but pywebcopy "original" (by Raja Tomar) hangs the console and does not exit.
-# If I understood corretly this issue is knowed (https://github.com/rajatomar788/pywebcopy/issues/46)
-# David W Grossman has found a workaround He removed all multithreading and commit this version
-# here https://github.com/davidwgrossman/pywebcopy. for this reason I used this "unofficial" version in the local lib path
-# from lib.pywebcopy import WebPage, config as pwc_config, core
-
-from pywebcopy import save_webpage
+from mitmproxy import io, http
+from mitmproxy import ctx, flowfilter, http
+from mitmproxy.utils import strutils
+from scapy.all import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from scapy.layers.inet import IP, TCP
 
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
@@ -60,35 +59,27 @@ import common.utility as utility
 
 import sslkeylog
 
-logger_acquisition = logging.getLogger(__name__)
-logger_hashreport = logging.getLogger('hashreport')
-logger_whois = logging.getLogger('whois')
-logger_headers = logging.getLogger('headers')
-logger_nslookup = logging.getLogger('nslookup')
-
-
-# logger_traceroute = logging.getLogger('traceroute')
 import hashlib
-import json
-import os
 import re
 import ssl
-import sys
 import asyncio
 from datetime import datetime
-from io import BytesIO
-from types import SimpleNamespace
 
 import certifi
 import mitmproxy.http
-from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread
-import logging
+from PyQt5.QtCore import QObject, pyqtSignal, QThread
 
 from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 from controller.warc_creator import WarcCreator as WarcCreatorController
+
+logger_acquisition = logging.getLogger(__name__)
+logger_hashreport = logging.getLogger('hashreport')
+logger_whois = logging.getLogger('whois')
+logger_headers = logging.getLogger('headers')
+logger_nslookup = logging.getLogger('nslookup')
 
 
 class ProxyServer(QObject):
@@ -107,33 +98,41 @@ class ProxyServer(QObject):
 
         # addons in mitmproxy are used to provide additional features and customize proxy's behavior
         # this way, we can create custom addons to intercept everything and create the warc/wacz files
+        # self.master.addons.add(FlowReaderAddon(self.acquisition_directory))
+        # self.master.addons.add(CaptureAddon(self.acquisition_directory))
+        addons = [
+            FlowReaderAddon(self.acquisition_directory),
+            PcapWriter(self.acquisition_directory),
+        ]
 
-        self.master.addons.add(FlowReaderAddon(self.acquisition_directory))
+        self.master.addons.add(*addons)
         await self.run_master()
 
     def run_master(self):
         return self.master.run()
+
     def shutdown_master(self):
         self.master.shutdown()
 
 
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
-    def __init__(self,acquisition_directory):
+    def __init__(self, acquisition_directory):
         self.acquisition_directory = acquisition_directory
+        self.acq_dir = os.path.join(self.acquisition_directory, 'acquisition_page')
+        if not os.path.isdir(self.acq_dir):
+            os.makedirs(self.acq_dir)
         return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-        if not os.path.isdir(self.acquisition_directory):
-            os.makedirs(self.acquisition_directory)
-        #TODO: search a better way to get the resource's name (for same-hocst resources)
+        # TODO: search a better way to get the resource's name (for same-hocst resources)
         if len(flow.response.content) > 0:
             url = flow.request.url
             # save html first (since it has no extension in the flow)
             if flow.response.headers.get('content-type', '').startswith('text/html'):
                 # get html to disk
                 html_text = flow.response.content
-                with open(f"{self.acquisition_directory}/{flow.request.pretty_host}.html", "wb") as f:
+                with open(f"{self.acq_dir}/{flow.request.pretty_host}.html", "wb") as f:
                     f.write(html_text)
 
             # get extension for other resources
@@ -148,11 +147,15 @@ class FlowReaderAddon:
 
                 if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
                     # save image to disk
-                    with open(f"{self.acquisition_directory}/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
+                    with open(
+                            f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
+                            "wb") as f:
                         f.write(flow.response.content)
                 else:
                     # save other resources to disk
-                    with open(f"{self.acquisition_directory}/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
+                    with open(
+                            f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
+                            "wb") as f:
                         f.write(flow.response.content)
         warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
         wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
@@ -160,12 +163,39 @@ class FlowReaderAddon:
         warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
         warc_creator.flow_to_warc(flow)
 
+
+# creating a custom addon for pcap
+class PcapWriter:
+
+    def __init__(self, acquisition_directory):
+        self.pkts = []
+        self.acquisition_directory = acquisition_directory
+
+    def response(self, flow: http.HTTPFlow):
+        pcap_filename = f'{self.acquisition_directory}/mitmproxy_capture.pcap'
+        print(pcap_filename)
+        if flow.response:
+
+            pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1], sport=flow.server_conn.peername[1] / Raw(load=flow.response.content))
+
+            pkt.time = flow.response.timestamp_start
+            #self.pkts.append(pkt)
+            try:
+                print([pkt])
+                wrpcap(pcap_filename, [pkt], append=True)
+            except Exception as e:
+                print('non si può salvare ', e)
+
+
+
+
 # the proxy needs to be started on a different thread
 class MitmThread(QThread):
-    def __init__(self, port,acquisition_directory):
+    def __init__(self, port, acquisition_directory):
         super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
+        self.running = True
 
     def run(self):
         # create new event loop
@@ -175,9 +205,9 @@ class MitmThread(QThread):
         self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
         asyncio.get_event_loop().run_until_complete(self.proxy_server.start())
 
-    def quit(self) -> None:
+    def stop(self):
+        self.running = False
         self.proxy_server.shutdown_master()
-
 
 
 class MainWindow(QWebEngineView):
@@ -189,8 +219,6 @@ class MainWindow(QWebEngineView):
         self.page().profile().setHttpUserAgent(pem_data)
 
         profile = QWebEngineProfile.defaultProfile()
-
-
 
     # ssl configurations (not working for me, I had to install the certificate on my machine)
     def set_ssl_config(self):
@@ -213,9 +241,9 @@ class MainWindow(QWebEngineView):
         # get the DER-encoded certificate data
         der_data = cert.toDer()
         return der_data
+
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
-
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -257,9 +285,6 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_screen_recorder = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
-
-
-
 
     def init(self, case_info):
 
@@ -306,7 +331,7 @@ class Web(QtWidgets.QMainWindow):
         navtb.addAction(next_btn)
 
         self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-circle-315.png')), "Reload",
-                                       self)
+                                            self)
         self.reload_btn.setStatusTip("Reload page")
         self.reload_btn.triggered.connect(lambda: self.reload())
         navtb.addAction(self.reload_btn)
@@ -436,23 +461,18 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Logging handler and login information have been started')
             self.progress_bar.setValue(50)
 
-
             # set port and start the thread
-
             port = 8081
-            self.mitm_thread = MitmThread(port, f'{self.acquisition_directory}/acquisition_page')
+            self.mitm_thread = MitmThread(port, self.acquisition_directory)
             self.mitm_thread.start()
 
             # create the proxy
             proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
             QNetworkProxy.setApplicationProxy(proxy)
+
             # refreshing the page so we can get back the resources already loaded
-
-            # trick way to refresh the url
+            # tricky way to refresh the url
             self.reload_btn.trigger()
-            
-
-
 
             # Step 4: Add new thread for network packet capture and start it
             self.configuration_packetcapture = self.configuration_view.get_tab_from_name("configuration_packetcapture")
@@ -573,23 +593,25 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
+
             # Step 8:  Save all resource of current page
+            self.mitm_thread.quit()
+            # self.mitm_thread.wait()
+
             # create wacz when acquisition is finished
             warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
             wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
             pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
-            if os.path.isdir(f'{self.acquisition_directory}/acquisition_warc.warc'):
-                warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
-                warc_creator.create_pages()
-                warc_creator.warc_to_wacz()
-            self.mitm_thread.quit()
-            zip_folder = self.save_page()
+            warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
+            warc_creator.create_pages()
+            warc_creator.warc_to_wacz()
 
+            zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')
             self.acquisition_status.add_task('Save Page')
             self.acquisition_status.set_status('Save Page', zip_folder, 'done')
 
-            ### Waiting everything is synchronized  
+            ### Waiting everything is synchronized
             loop = QtCore.QEventLoop()
             QtCore.QTimer.singleShot(2000, loop.quit)
             loop.exec_()
