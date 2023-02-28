@@ -20,9 +20,7 @@ from PyQt5.QtWidgets import QApplication
 from mitmproxy import utils, http
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
-from warcio import StatusAndHeaders, ArchiveIterator
-from warcio.warcwriter import WARCWriter
-from wacz.main import create_wacz
+from controller.warc_creator import WarcCreator as WarcCreatorController
 
 
 class ProxyServer(QObject):
@@ -50,105 +48,10 @@ class ProxyServer(QObject):
             master.shutdown()
 
 
-# creating a custom addon to save flow as warc
-def FlowToWarc(flow: http.HTTPFlow):
-
-    warc_file = 'resources/test_warc.warc'
-    with open(warc_file, 'ab') as output:
-
-        # create new warcio writer
-        writer = WARCWriter(output, gzip=False)
-        if len(flow.response.content) > 0:
-            content_type = flow.response.headers.get('content-type', '').split(';')[0]
-            payload = flow.response.content
-            headers = flow.response.headers
-
-            # date from flow is returning as float, needs to be converted
-            date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
-            # convert the datetime object to an ISO formatted string
-            iso_date_str = date_obj.isoformat()
-
-            # create http headers from the information inside the flow
-            http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
-                                            protocol=flow.response.http_version)
-            warc_headers = {
-                'WARC-Type': 'resource',
-                'WARC-Target-URI': flow.request.url,
-                'WARC-Source-URI': flow.request.url,
-                'WARC-Date': iso_date_str,
-                'Content-Type': content_type,
-                'Content-Length': str(len(payload))
-            }
-            # check if payload is in bytes format
-            if type(payload) is bytes:
-                payload = BytesIO(payload)
-
-            # create the actual warc record
-            record = writer.create_warc_record(flow.request.url, 'response',
-                                               payload=payload,
-                                               http_headers=http_headers,
-                                               warc_headers_dict=warc_headers)
-            writer.write_record(record)
-
-def create_pages(warc_file):
-    # set the header
-    header = {
-        "format": "json-pages-1.0", "id": "pages", "title": "All Pages",
-
-    }
-
-    pages_path = os.path.join('resources', 'pages.jsonl')
-    with open(os.path.join(pages_path), 'w') as outfile:
-        json.dump(header, outfile)
-
-        # read from warc file
-        with open(warc_file, 'rb') as stream:
-            for record in ArchiveIterator(stream):
-                if record.rec_type == 'response':
-                    url = record.rec_headers.get_header('WARC-Target-URI')
-                    content_type = record.rec_headers.get_header('Content-Type')
-                    if 'text/html' in content_type:
-                        id = record.rec_headers.get_header('WARC-Record-ID')
-                        ts = record.rec_headers.get_header('WARC-Date')
-                        title = record.rec_headers.get_header('WARC-Target-URI')
-
-                        page = {
-                            "id": id, "url": url,
-                            "ts": ts, "title": title
-                        }
-                        outfile.write('\n')
-                        json.dump(page, outfile)
-    return pages_path
-
-def WarcToWacz(warc_path,pages_path):
-    class OptionalNamespace(SimpleNamespace):
-        def __getattribute__(self, name):
-            try:
-                return super().__getattribute__(name)
-            except:
-                return None
-
-    res = OptionalNamespace(
-        output='resources/test_wacz.wacz',
-        inputs=[warc_path],
-        pages=pages_path,
-        detect_pages=False
-    )
-    return create_wacz(res)
-
-
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
     def __init__(self):
-        self.resources = []
-
-    def request(self, flow: mitmproxy.http.HTTPFlow):
-        # print just for fun
-
-        # print("Request URL: " + flow.request.url)
-        # print("Request Headers: " + str(flow.request.headers))
-        # print("Request Content: " + str(flow.request.content))
-        pass
+        return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         #TODO: search a better way to get the resource's name (for same-host resources)
@@ -175,14 +78,15 @@ class FlowReaderAddon:
                     # save image to disk
                     with open(f"resources/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
                         f.write(flow.response.content)
-                    self.resources.append(flow.request.url)
                 else:
                     # save other resources to disk
                     with open(f"resources/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
                         f.write(flow.response.content)
-                    self.resources.append(flow.request.url)
             # create the warc file from the flow
-        FlowToWarc(flow)
+        warc_path = 'resources/test_warc.warc'
+        wacz_path = 'resources/test_wacz.wacz'
+        pages_path = 'resources/pages.jsonl'
+        WarcCreatorController(warc_path,wacz_path,pages_path).flow_to_warc(flow)
 
 
 # the proxy needs to be started on a different thread
@@ -205,7 +109,7 @@ class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        der_data = set_ssl_config()
+        der_data = self.set_ssl_config()
         pem_data = ssl.DER_cert_to_PEM_cert(der_data)
 
         self.page().profile().setHttpUserAgent(pem_data)
@@ -216,38 +120,40 @@ class MainWindow(QWebEngineView):
         self.mitm_thread.start()
 
         url = QUrl("https://www.google.com/")
-        super().load(url)
+        #super().load(url)
 
     def closeEvent(self, event):
         # clear cache when closing the browser
         self.page().profile().clearHttpCache()
         # create wacz when window is closed
-        warc_file = 'resources/test_warc.warc'
-        pages_file = create_pages(warc_file)
-        WarcToWacz(warc_file,pages_file)
+        warc_path = 'resources/test_warc.warc'
+        wacz_path = 'resources/test_wacz.wacz'
+        pages_path = 'resources/pages.jsonl'
+        WarcCreatorController(warc_path,wacz_path,pages_path).create_pages()
+        WarcCreatorController(warc_path,wacz_path,pages_path).warc_to_wacz()
 
 
-# ssl configurations (not working for me, I had to install the certificate on my machine)
-def set_ssl_config():
-    # get the pem with openssl from the mitmproxy .p12
-    # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
+    # ssl configurations (not working for me, I had to install the certificate on my machine)
+    def set_ssl_config(self):
+        # get the pem with openssl from the mitmproxy .p12
+        # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
 
-    # add pem to the trusted root certificates (won't solve the problem)
-    cert_file_path = certifi.where()
-    pem_path = 'C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem'
-    with open(pem_path, 'rb') as pem_file:
-        pem_data = pem_file.read()
-    with open(cert_file_path, 'ab') as cert_file:
-        cert_file.write(pem_data)
+        # add pem to the trusted root certificates (won't solve the problem)
+        cert_file_path = certifi.where()
+        pem_path = 'C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem'
+        with open(pem_path, 'rb') as pem_file:
+            pem_data = pem_file.read()
+        with open(cert_file_path, 'ab') as cert_file:
+            cert_file.write(pem_data)
 
-    # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
-    cert = QSslCertificate(pem_data)
-    config = QSslConfiguration.defaultConfiguration()
-    config.setCaCertificates([cert])
+        # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
+        cert = QSslCertificate(pem_data)
+        config = QSslConfiguration.defaultConfiguration()
+        config.setCaCertificates([cert])
 
-    # get the DER-encoded certificate data
-    der_data = cert.toDer()
-    return der_data
+        # get the DER-encoded certificate data
+        der_data = cert.toDer()
+        return der_data
 
 
 if __name__ == "__main__":

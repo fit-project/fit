@@ -68,6 +68,154 @@ logger_nslookup = logging.getLogger('nslookup')
 
 
 # logger_traceroute = logging.getLogger('traceroute')
+import hashlib
+import json
+import os
+import re
+import ssl
+import sys
+import asyncio
+from datetime import datetime
+from io import BytesIO
+from types import SimpleNamespace
+
+import certifi
+import mitmproxy.http
+from PyQt5.QtCore import QUrl, QObject, pyqtSignal, QThread
+import logging
+
+from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
+from mitmproxy.tools import main
+from mitmproxy.tools.dump import DumpMaster
+from controller.warc_creator import WarcCreator as WarcCreatorController
+
+
+class ProxyServer(QObject):
+    proxy_started = pyqtSignal(int)
+
+    def __init__(self, port, acquisition_directory):
+        super().__init__()
+        self.port = port
+        self.acquisition_directory = acquisition_directory
+
+    async def start(self):
+        # set proxy opts
+        options = main.options.Options(listen_host='127.0.0.1', listen_port=self.port,
+                                       ssl_insecure=True)
+        self.master = DumpMaster(options=options)
+
+        # addons in mitmproxy are used to provide additional features and customize proxy's behavior
+        # this way, we can create custom addons to intercept everything and create the warc/wacz files
+
+        self.master.addons.add(FlowReaderAddon(self.acquisition_directory))
+        await self.run_master()
+
+    def run_master(self):
+        return self.master.run()
+    def shutdown_master(self):
+        self.master.shutdown()
+
+
+# creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
+class FlowReaderAddon:
+    def __init__(self,acquisition_directory):
+        self.acquisition_directory = acquisition_directory
+        return
+
+    def response(self, flow: mitmproxy.http.HTTPFlow):
+        if not os.path.isdir(self.acquisition_directory):
+            os.makedirs(self.acquisition_directory)
+        #TODO: search a better way to get the resource's name (for same-hocst resources)
+        if len(flow.response.content) > 0:
+            url = flow.request.url
+            # save html first (since it has no extension in the flow)
+            if flow.response.headers.get('content-type', '').startswith('text/html'):
+                # get html to disk
+                html_text = flow.response.content
+                with open(f"{self.acquisition_directory}/{flow.request.pretty_host}.html", "wb") as f:
+                    f.write(html_text)
+
+            # get extension for other resources
+            content_type = flow.response.headers.get('content-type', '').lower()
+            extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
+            if extension:
+                extension = '.' + extension.group(2)
+            else:
+                extension = None
+
+            if extension is not None:
+
+                if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
+                    # save image to disk
+                    with open(f"{self.acquisition_directory}/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
+                        f.write(flow.response.content)
+                else:
+                    # save other resources to disk
+                    with open(f"{self.acquisition_directory}/{hashlib.md5(url.encode()).hexdigest()}{extension}", "wb") as f:
+                        f.write(flow.response.content)
+        warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
+        wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
+        pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
+        warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
+        warc_creator.flow_to_warc(flow)
+
+# the proxy needs to be started on a different thread
+class MitmThread(QThread):
+    def __init__(self, port,acquisition_directory):
+        super().__init__()
+        self.port = port
+        self.acquisition_directory = acquisition_directory
+
+    def run(self):
+        # create new event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        # mitmproxy's creation
+        self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
+        asyncio.get_event_loop().run_until_complete(self.proxy_server.start())
+
+    def quit(self) -> None:
+        self.proxy_server.shutdown_master()
+
+
+
+class MainWindow(QWebEngineView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        der_data = self.set_ssl_config()
+        pem_data = ssl.DER_cert_to_PEM_cert(der_data)
+
+        self.page().profile().setHttpUserAgent(pem_data)
+
+        profile = QWebEngineProfile.defaultProfile()
+
+
+
+    # ssl configurations (not working for me, I had to install the certificate on my machine)
+    def set_ssl_config(self):
+        # get the pem with openssl from the mitmproxy .p12
+        # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
+
+        # add pem to the trusted root certificates (won't solve the problem)
+        cert_file_path = certifi.where()
+        pem_path = 'C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem'
+        with open(pem_path, 'rb') as pem_file:
+            pem_data = pem_file.read()
+        with open(cert_file_path, 'ab') as cert_file:
+            cert_file.write(pem_data)
+
+        # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
+        cert = QSslCertificate(pem_data)
+        config = QSslConfiguration.defaultConfiguration()
+        config.setCaCertificates([cert])
+
+        # get the DER-encoded certificate data
+        der_data = cert.toDer()
+        return der_data
+    def closeEvent(self, event):
+        self.page().profile().clearHttpCache()
+
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -97,6 +245,8 @@ class Web(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
 
     def __init__(self, *args, **kwargs):
+        if not os.path.isdir("resources"):
+            os.makedirs("resources")
         super(Web, self).__init__(*args, **kwargs)
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
@@ -107,6 +257,9 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_screen_recorder = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
+
+
+
 
     def init(self, case_info):
 
@@ -152,11 +305,11 @@ class Web(QtWidgets.QMainWindow):
         next_btn.triggered.connect(lambda: self.forward())
         navtb.addAction(next_btn)
 
-        reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-circle-315.png')), "Reload",
+        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-circle-315.png')), "Reload",
                                        self)
-        reload_btn.setStatusTip("Reload page")
-        reload_btn.triggered.connect(lambda: self.reload())
-        navtb.addAction(reload_btn)
+        self.reload_btn.setStatusTip("Reload page")
+        self.reload_btn.triggered.connect(lambda: self.reload())
+        navtb.addAction(self.reload_btn)
 
         home_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'home.png')), "Home", self)
         home_btn.setStatusTip("Go home")
@@ -283,6 +436,24 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Logging handler and login information have been started')
             self.progress_bar.setValue(50)
 
+
+            # set port and start the thread
+
+            port = 8081
+            self.mitm_thread = MitmThread(port, f'{self.acquisition_directory}/acquisition_page')
+            self.mitm_thread.start()
+
+            # create the proxy
+            proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
+            QNetworkProxy.setApplicationProxy(proxy)
+            # refreshing the page so we can get back the resources already loaded
+
+            # trick way to refresh the url
+            self.reload_btn.trigger()
+            
+
+
+
             # Step 4: Add new thread for network packet capture and start it
             self.configuration_packetcapture = self.configuration_view.get_tab_from_name("configuration_packetcapture")
             options = self.configuration_packetcapture.options
@@ -320,6 +491,7 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('')
 
     def stop_acquisition(self):
+
         if self.acquisition_is_started:
             self.progress_bar.setHidden(False)
             url = self.tabs.currentWidget().url().toString()
@@ -402,6 +574,15 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
             # Step 8:  Save all resource of current page
+            # create wacz when acquisition is finished
+            warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
+            wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
+            pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
+            if os.path.isdir(f'{self.acquisition_directory}/acquisition_warc.warc'):
+                warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
+                warc_creator.create_pages()
+                warc_creator.warc_to_wacz()
+            self.mitm_thread.quit()
             zip_folder = self.save_page()
 
             logger_acquisition.info('Save all resource of current page')
@@ -539,27 +720,6 @@ class Web(QtWidgets.QMainWindow):
 
         project_name = "acquisition_page"
 
-        try:
-            save_webpage(
-                url=url,
-                project_folder=project_folder,
-                project_name=project_name,
-                bypass_robots=True,
-                debug=DEBUG,
-                open_in_browser=False,
-                delay=None,
-                threaded=None
-            )
-        except Exception as error:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['save_web_page'],
-                                  self.error_msg.MESSAGES['save_web_page'],
-                                  str(error)
-                                  )
-
-            error_dlg.buttonClicked.connect(quit)
-            error_dlg.exec_()
-
         acquisition_page_folder = os.path.join(project_folder, project_name)
         zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
         try:
@@ -604,7 +764,7 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
 
-        browser = QtWebEngineWidgets.QWebEngineView()
+        browser = MainWindow()
         browser.setUrl(qurl)
         i = self.tabs.addTab(browser, label)
 
