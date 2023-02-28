@@ -157,11 +157,10 @@ class FlowReaderAddon:
                             f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
                             "wb") as f:
                         f.write(flow.response.content)
+
         warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
-        wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
-        pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
-        warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
-        warc_creator.flow_to_warc(flow)
+        warc_creator = WarcCreatorController()
+        warc_creator.flow_to_warc(flow, warc_path)
 
 
 # creating a custom addon for pcap
@@ -176,17 +175,17 @@ class PcapWriter:
         print(pcap_filename)
         if flow.response:
 
-            pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1], sport=flow.server_conn.peername[1] / Raw(load=flow.response.content))
+            pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1],
+                                                             sport=flow.server_conn.peername[1] / Raw(
+                                                                 load=flow.response.content))
 
             pkt.time = flow.response.timestamp_start
-            #self.pkts.append(pkt)
+            # self.pkts.append(pkt)
             try:
                 print([pkt])
                 wrpcap(pcap_filename, [pkt], append=True)
             except Exception as e:
                 print('non si può salvare ', e)
-
-
 
 
 # the proxy needs to be started on a different thread
@@ -602,9 +601,10 @@ class Web(QtWidgets.QMainWindow):
             warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
             wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
             pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
-            warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
-            warc_creator.create_pages()
-            warc_creator.warc_to_wacz()
+
+            warc_creator = WarcCreatorController()
+            warc_creator.create_pages(pages_path, warc_path)
+            warc_creator.warc_to_wacz(pages_path, warc_path, wacz_path)
 
             zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')

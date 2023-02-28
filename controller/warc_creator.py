@@ -36,16 +36,14 @@ from warcio import StatusAndHeaders, ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from wacz.main import create_wacz
 
+
 class WarcCreator:
-    def __init__(self, warc_path, wacz_path, pages_path):
-        self.warc_path = warc_path
-        self.wacz_path = wacz_path
-        self.pages_path = pages_path
+    def __init__(self):
         return
 
-    def flow_to_warc(self, flow: http.HTTPFlow):
+    def flow_to_warc(self, flow: http.HTTPFlow, warc_path):
 
-        with open(self.warc_path, 'ab') as output:
+        with open(warc_path, 'ab') as output:
 
             # create new warcio writer
             writer = WARCWriter(output, gzip=False)
@@ -81,18 +79,18 @@ class WarcCreator:
                                                    warc_headers_dict=warc_headers)
                 writer.write_record(record)
 
-    def create_pages(self):
+    def create_pages(self, pages_path, warc_path):
         # set the header
         header = {
             "format": "json-pages-1.0", "id": "pages", "title": "All Pages",
 
         }
 
-        with open(os.path.join(self.pages_path), 'w') as outfile:
+        with open(os.path.join(pages_path), 'w') as outfile:
             json.dump(header, outfile)
 
             # read from warc file
-            with open(self.warc_path, 'rb') as stream:
+            with open(warc_path, 'rb') as stream:
                 for record in ArchiveIterator(stream):
                     if record.rec_type == 'response':
                         url = record.rec_headers.get_header('WARC-Target-URI')
@@ -109,7 +107,7 @@ class WarcCreator:
                             outfile.write('\n')
                             json.dump(page, outfile)
 
-    def warc_to_wacz(self):
+    def warc_to_wacz(self, pages_path, warc_path, wacz_path):
         class OptionalNamespace(SimpleNamespace):
             def __getattribute__(self, name):
                 try:
@@ -118,9 +116,9 @@ class WarcCreator:
                     return None
 
         res = OptionalNamespace(
-            output=self.wacz_path,
-            inputs=[self.warc_path],
-            pages=self.pages_path,
+            output=wacz_path,
+            inputs=[warc_path],
+            pages=pages_path,
             detect_pages=False
         )
         return create_wacz(res)
