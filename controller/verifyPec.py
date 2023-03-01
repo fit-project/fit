@@ -45,7 +45,7 @@ class verifyPec:
 
         if result == 0:
             # Stampa l'output del comando
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
                                   self.error_msg.TITLES['pec_verified'],
                                   self.error_msg.MESSAGES['pec_verified'],
                                   'PEC has a valid signature')
