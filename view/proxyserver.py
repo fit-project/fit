@@ -26,46 +26,32 @@
 # -----
 ######
 
-import shlex
-from time import time
-from math import modf
-from struct import pack
-from subprocess import Popen, PIPE
 from mitmproxy import io, http
+from mitmproxy import ctx, flowfilter, http
 from scapy.all import *
 
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from scapy.layers.inet import IP, TCP
 
-
-from common.error import ErrorMessage
 
 import hashlib
 import re
+import ssl
+import asyncio
+from datetime import datetime
 
 import certifi
 import mitmproxy.http
 from PyQt5.QtCore import QObject, pyqtSignal, QThread
+
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 from controller.warc_creator import WarcCreator as WarcCreatorController
-
-logger_acquisition = logging.getLogger(__name__)
-logger_hashreport = logging.getLogger('hashreport')
-logger_whois = logging.getLogger('whois')
-logger_headers = logging.getLogger('headers')
-logger_nslookup = logging.getLogger('nslookup')
-
-
 class ProxyServer(QObject):
-    finished = pyqtSignal()
+    proxy_started = pyqtSignal()
 
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent=parent)
-        self.error_msg = ErrorMessage()
-        self.run = True
-        self.options = None
-        self.destroyed.connect(self.stop)
-
-    def set_options(self, port, acquisition_directory):
+    def __init__(self, port, acquisition_directory):
+        super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
 
@@ -75,24 +61,20 @@ class ProxyServer(QObject):
                                        ssl_insecure=True)
         self.master = DumpMaster(options=options)
 
-        # addons in mitmproxy are used to provide additional features and customize proxy's behavior
-        # this way, we can create custom addons to intercept everything and create the warc/wacz files
         addons = [
             FlowReaderAddon(self.acquisition_directory),
-            Addon(lambda: File(f'{self.acquisition_directory}/output.pcap'))
+            PcapWriter(self.acquisition_directory),
         ]
 
         self.master.addons.add(*addons)
+
         try:
-            await self.master.run()
-        except KeyboardInterrupt:
-            self.master.shutdown()
-        self.finished.emit()
-
-    def stop(self):
-        self.run = False
+            await ctx.master.run()
+        except:
+            pass
 
 
+# creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
 class FlowReaderAddon:
     def __init__(self, acquisition_directory):
         self.acquisition_directory = acquisition_directory
@@ -134,153 +116,31 @@ class FlowReaderAddon:
                             f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
                             "wb") as f:
                         f.write(flow.response.content)
+
         warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
-        wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
-        pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
-        warc_creator = WarcCreatorController(warc_path, wacz_path, pages_path)
-        warc_creator.flow_to_warc(flow)
+        warc_creator = WarcCreatorController()
+        warc_creator.flow_to_warc(flow, warc_path)
 
 
 # creating a custom addon for pcap
+class PcapWriter:
 
-class Exporter:
+    def __init__(self, acquisition_directory):
+        self.pkts = []
+        self.acquisition_directory = acquisition_directory
 
-    def __init__(self):
-        self.sessions = {}
+    def response(self, flow: http.HTTPFlow):
+        pcap_filename = f'{self.acquisition_directory}/mitmproxy_capture.pcap'
+        if flow.response:
 
-    def write(self, data):
-        raise NotImplementedError()
+            pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1],
+                                                             sport=flow.server_conn.peername[1] / Raw(
+                                                                 load=flow.response.content))
 
-    def flush(self):
-        raise NotImplementedError()
-
-    def close(self):
-        raise NotImplementedError()
-
-    def header(self):
-        data = pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 0x040000, 1)
-        self.write(data)
-
-    def packet(self, src_host, src_port, dst_host, dst_port, payload):
-        key = '%s:%d-%s:%d' % (src_host, src_port, dst_host, dst_port)
-        session = self.sessions.get(key)
-        if session is None:
-            session = {'seq': 1}
-            self.sessions[key] = session
-        seq = session['seq']
-        total = len(payload) + 20 + 20
-
-        tcp_args = [src_port, dst_port, seq, 0, 0x50, 0x18, 0x0200, 0, 0]
-        tcp = pack('>HHIIBBHHH', *tcp_args)
-        ipv4_args = [0x45, 0, total, 0, 0, 0x40, 6, 0]
-        ipv4_args.extend(map(int, src_host.split('.')))
-        ipv4_args.extend(map(int, dst_host.split('.')))
-        ipv4 = pack('>BBHHHBBHBBBBBBBB', *ipv4_args)
-        link = b'\x00' * 12 + b'\x08\x00'
-
-        usec, sec = modf(time())
-        usec = int(usec * 1000 * 1000)
-        sec = int(sec)
-        size = len(link) + len(ipv4) + len(tcp) + len(payload)
-        head = pack('<IIII', sec, usec, size, size)
-
-        self.write(head)
-        self.write(link)
-        self.write(ipv4)
-        self.write(tcp)
-        self.write(payload)
-        session['seq'] = seq + len(payload)
-
-    def packets(self, src_host, src_port, dst_host, dst_port, payload):
-        limit = 40960
-        for i in range(0, len(payload), limit):
-            self.packet(src_host, src_port,
-                        dst_host, dst_port,
-                        payload[i:i + limit])
-
-
-class File(Exporter):
-
-    def __init__(self, path):
-        super().__init__()
-        self.path = path
-        if os.path.exists(path):
-            self.file = open(path, 'ab')
-        else:
-            self.file = open(path, 'wb')
-            self.header()
-
-    def write(self, data):
-        self.file.write(data)
-
-    def flush(self):
-        self.file.flush()
-
-    def close(self):
-        self.file.close()
-
-
-class Pipe(Exporter):
-
-    def __init__(self, cmd):
-        super().__init__()
-        self.proc = Popen(shlex.split(cmd), stdin=PIPE)
-        self.header()
-
-    def write(self, data):
-        self.proc.stdin.write(data)
-
-    def flush(self):
-        self.proc.stdin.flush()
-
-    def close(self):
-        self.proc.terminate()
-        self.proc.poll()
-
-
-class Addon:
-
-    def __init__(self, createf):
-        self.createf = createf
-        self.exporter = None
-
-    def load(self, entry):  # pylint: disable = unused-argument
-        self.exporter = self.createf()
-
-    def done(self):
-        self.exporter.close()
-        self.exporter = None
-
-    def response(self, flow):
-        client_addr = list(flow.client_conn.ip_address[:2])
-        server_addr = list(flow.server_conn.ip_address[:2])
-        client_addr[0] = client_addr[0].replace('::ffff:', '')
-        server_addr[0] = server_addr[0].replace('::ffff:', '')
-        self.export_request(client_addr, server_addr, flow.request)
-        self.export_response(client_addr, server_addr, flow.response)
-        self.exporter.flush()
-
-    def export_request(self, client_addr, server_addr, r):
-        proto = '%s %s %s\r\n' % (r.method, r.path, r.http_version)
-        payload = bytearray()
-        payload.extend(proto.encode('ascii'))
-        payload.extend(bytes(r.headers))
-        payload.extend(b'\r\n')
-        payload.extend(r.raw_content)
-        self.exporter.packets(*client_addr, *server_addr, payload)
-
-    def export_response(self, client_addr, server_addr, r):
-        headers = r.headers.copy()
-        if r.http_version.startswith('HTTP/2'):
-            headers.setdefault('content-length', str(len(r.raw_content)))
-            proto = '%s %s\r\n' % (r.http_version, r.status_code)
-        else:
-            headers.setdefault('Content-Length', str(len(r.raw_content)))
-            proto = '%s %s %s\r\n' % (r.http_version, r.status_code, r.reason)
-
-        payload = bytearray()
-        payload.extend(proto.encode('ascii'))
-        payload.extend(bytes(headers))
-        payload.extend(b'\r\n')
-        payload.extend(r.raw_content)
-        self.exporter.packets(*server_addr, *client_addr, payload)
+            pkt.time = flow.response.timestamp_start
+            # self.pkts.append(pkt)
+            try:
+                print([pkt])
+                wrpcap(pcap_filename, [pkt], append=True)
+            except Exception as e:
+                print('non si può salvare ', e)

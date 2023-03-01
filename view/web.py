@@ -44,7 +44,7 @@ from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.timestamp import Timestamp as TimestampView
-
+from view.proxyserver import ProxyServer as ProxyServerView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
@@ -96,7 +96,7 @@ class MitmThread(QThread):
 
         # mitmproxy's creation
         try:
-            self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
+            self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
 
             asyncio.run(self.proxy_server.start())
         except:
@@ -109,105 +109,6 @@ class MitmThread(QThread):
             ctx.master = None
         except:
             pass
-
-
-class ProxyServer(QObject):
-    proxy_started = pyqtSignal()
-
-    def __init__(self, port, acquisition_directory):
-        super().__init__()
-        self.port = port
-        self.acquisition_directory = acquisition_directory
-
-    async def start(self):
-        # set proxy opts
-        options = main.options.Options(listen_host='127.0.0.1', listen_port=self.port,
-                                       ssl_insecure=True)
-        self.master = DumpMaster(options=options)
-
-        addons = [
-            FlowReaderAddon(self.acquisition_directory),
-            PcapWriter(self.acquisition_directory),
-        ]
-
-        self.master.addons.add(*addons)
-
-        try:
-            await ctx.master.run()
-        except:
-            pass
-
-
-# creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
-class FlowReaderAddon:
-    def __init__(self, acquisition_directory):
-        self.acquisition_directory = acquisition_directory
-        self.acq_dir = os.path.join(self.acquisition_directory, 'acquisition_page')
-        if not os.path.isdir(self.acq_dir):
-            os.makedirs(self.acq_dir)
-        return
-
-    def response(self, flow: mitmproxy.http.HTTPFlow):
-        # TODO: search a better way to get the resource's name (for same-hocst resources)
-        if len(flow.response.content) > 0:
-            url = flow.request.url
-            # save html first (since it has no extension in the flow)
-            if flow.response.headers.get('content-type', '').startswith('text/html'):
-                # get html to disk
-                html_text = flow.response.content
-                with open(f"{self.acq_dir}/{flow.request.pretty_host}.html", "wb") as f:
-                    f.write(html_text)
-
-            # get extension for other resources
-            content_type = flow.response.headers.get('content-type', '').lower()
-            extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
-            if extension:
-                extension = '.' + extension.group(2)
-            else:
-                extension = None
-
-            if extension is not None:
-
-                if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
-                    # save image to disk
-                    with open(
-                            f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
-                            "wb") as f:
-                        f.write(flow.response.content)
-                else:
-                    # save other resources to disk
-                    with open(
-                            f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
-                            "wb") as f:
-                        f.write(flow.response.content)
-
-        warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
-        warc_creator = WarcCreatorController()
-        warc_creator.flow_to_warc(flow, warc_path)
-
-
-# creating a custom addon for pcap
-class PcapWriter:
-
-    def __init__(self, acquisition_directory):
-        self.pkts = []
-        self.acquisition_directory = acquisition_directory
-
-    def response(self, flow: http.HTTPFlow):
-        pcap_filename = f'{self.acquisition_directory}/mitmproxy_capture.pcap'
-        if flow.response:
-
-            pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1],
-                                                             sport=flow.server_conn.peername[1] / Raw(
-                                                                 load=flow.response.content))
-
-            pkt.time = flow.response.timestamp_start
-            # self.pkts.append(pkt)
-            try:
-                print([pkt])
-                wrpcap(pcap_filename, [pkt], append=True)
-            except Exception as e:
-                print('non si può salvare ', e)
 
 
 class MainWindow(QWebEngineView):
