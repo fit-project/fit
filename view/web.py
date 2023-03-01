@@ -35,7 +35,7 @@ import asyncio
 import certifi
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, QUrl
 from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
 
@@ -354,8 +354,11 @@ class Web(QtWidgets.QMainWindow):
             self.tabs.currentWidget().page().profile().clearHttpCache()
             cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
             # Delete all cookies from the store
+            url = self.tabs.currentWidget().url().toString()
             cookie_store.deleteAllCookies()
             self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
+
+            self.tabs.currentWidget().setUrl(QUrl(url))
             self.reload_btn.trigger()
 
             # Step 4: Add new thread for network packet capture and start it
