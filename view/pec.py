@@ -34,6 +34,7 @@ from common.config import LogConfigMail
 from view.configuration import Configuration as ConfigurationView
 from view.case import Case as CaseView
 from controller.pec import Pec as PecController
+from controller.configurations.tabs.pec.pec import Pec as PecConfigController
 
 class Pec(QtWidgets.QMainWindow):
     def case(self):
@@ -53,6 +54,8 @@ class Pec(QtWidgets.QMainWindow):
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
         self.log_confing = LogConfigMail()
+        self.controller = PecConfigController()
+        self.options = self.controller.options
         #aggiungere attributi per log, screencap ecc
 
     def init(self, case_info, acquisition, directory):
@@ -73,6 +76,7 @@ class Pec(QtWidgets.QMainWindow):
         self.input_password = QtWidgets.QLineEdit(self.centralwidget)
         self.input_password.setGeometry(QtCore.QRect(170, 60, 240, 20))
         self.input_password.setObjectName("input_password")
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.label_username = QtWidgets.QLabel(self.centralwidget)
         self.label_username.setGeometry(QtCore.QRect(30, 30, 100, 20))
         self.label_username.setObjectName("label_username")
@@ -125,6 +129,15 @@ class Pec(QtWidgets.QMainWindow):
         self.menuBar.addAction(self.menuCase.menuAction())
         self.menuBar.addAction(self.menuAcquisition.menuAction())
         self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+
+        self.pecConfiguration = self.controller.get()
+        if len(self.pecConfiguration) > 0:
+            for pecConfig in self.pecConfiguration:
+                self.input_username.setText(pecConfig.pec)
+                self.input_password.setText(pecConfig.password)
+                self.input_username_2.setText(pecConfig.server)
+                self.input_password_2.setText(pecConfig.port)
+
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -151,6 +164,17 @@ class Pec(QtWidgets.QMainWindow):
                             self.case_info['name'], self.directory, self.input_username_2.text(),
                             self.input_password_2.text())
         self.progressBar.setValue(30)
+        if self.checkBox.isChecked():
+            self.pecConfiguration = self.controller.get()
+            if len(self.pecConfiguration) > 0:
+                for pecConfig in self.pecConfiguration:
+                    pecConfigPec = pecConfig.pec
+                    self.controller.delete(pecConfigPec)
+            else:
+                pass
+            self.controller.add(self.input_username.text(), self.input_password.text(), self.input_username_2.text(),
+                                self.input_password_2.text())
         pec.sendPec()
         self.progressBar.setValue(100)
         os.startfile(str(self.directory))
+        self.close()

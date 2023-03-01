@@ -71,6 +71,7 @@ class PecChoose(QtWidgets.QMainWindow):
         self.acquisition_window = self.pec
         self.acquisition_window.init(self.case_info)
         self.acquisition_window.show()
+        self.close()
 
     def pecChoose(self):
         self.searchPec = SearchPecView()
@@ -78,3 +79,4 @@ class PecChoose(QtWidgets.QMainWindow):
         self.acquisition_window = self.searchPec
         self.acquisition_window.init(self.case_info)
         self.acquisition_window.show()
+        self.close()

@@ -33,7 +33,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class pec(Base):
+class Pec(Base):
     __tablename__ = 'configuration_pec'
 
     pec = Column(String, primary_key=True)
@@ -46,21 +46,25 @@ class pec(Base):
         self.db = Db()
         self.metadata.create_all(self.db.engine)
 
+    def delete(self, pecData):
+        return self.db.session.query(Pec).filter(Pec.pec == pecData).delete()
+
     def get(self):
-        if self.db.session.query(pec).first() is None:
-            self.set_default_values()
+        return self.db.session.query(Pec).all()
 
-        return self.db.session.query(pec).all()
-
-    def update(self, options):
-        self.db.session.query(pec).filter(pec.pec == options.get('pec')).update(options)
+    def update(self, pecData, passwordData, serverData, portData):
+        self.db.session.query(Pec).filter(Pec.pec == pecData).update(pecData, passwordData, serverData, portData)
         self.db.session.commit()
 
-    def set_default_values(self):
-        self.pec = ""
-        self.password = ""
-        self.server = ""
-        self.port = ""
+    def add(self, pecData, passwordData, serverData, portData):
+        self.pec = pecData
+        self.password = passwordData
+        self.server = serverData
+        self.port = portData
 
         self.db.session.add(self)
         self.db.session.commit()
+
+        return self.db.session.query(Pec)
+
+

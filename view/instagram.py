@@ -445,6 +445,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_window = self.pec
         self.acquisition_window.init(self.case_info, "Instagram", self.acquisition_directory)
         self.acquisition_window.show()
+        self.close()
 
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
