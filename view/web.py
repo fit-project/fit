@@ -28,16 +28,20 @@
 
 import logging.config
 import shutil
+
+import OpenSSL
 from mitmproxy import ctx
 from scapy.all import *
 import ssl
 import asyncio
 import certifi
+import cryptography.hazmat.backends as crypto_backends
+import cryptography.hazmat.primitives.serialization as crypto_serialization
 
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QThread, QUrl
-from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets, QtNetwork
+from PyQt5.QtCore import QThread, QUrl, QByteArray
+from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy, QSslKey, QSsl
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEnginePage
 
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
@@ -58,7 +62,6 @@ from common.config import LogConfig
 import common.utility as utility
 
 import sslkeylog
-
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
@@ -86,40 +89,88 @@ class MitmThread(QThread):
         try:
             ctx.master.shutdown()
             ctx.master = None
-        except: pass
+        except:
+            pass
+
+
+def set_ssl_protocol():
+    default_config = QtNetwork.QSslConfiguration.defaultConfiguration()
+    default_config.setProtocol(QtNetwork.QSsl.SslProtocol.TlsV1_2)
+
+    QtNetwork.QSslConfiguration.setDefaultConfiguration(default_config)
+
 
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
-        der_data = self.set_ssl_config()
-        pem_data = ssl.DER_cert_to_PEM_cert(der_data)
+        # Load the mitmproxy CA certificate
+        pem_path = os.path.join(os.path.expanduser("~"), ".mitmproxy")  # current pem path #todo:check
 
-        self.page().profile().setHttpUserAgent(pem_data)
-
-    # ssl configurations (not working for me, I had to install the certificate on my machine)
-    def set_ssl_config(self):
-        # get the pem with openssl from the mitmproxy .p12
-        # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
-
-        # add pem to the trusted root certificates (won't solve the problem)
-        cert_file_path = certifi.where()
-        pem_path = 'asset/cert/mitmproxy-ca-cert.pem'
+        pem_path = f'{pem_path}/mitmproxy-ca.p12'
         with open(pem_path, 'rb') as pem_file:
             pem_data = pem_file.read()
-        with open(cert_file_path, 'ab') as cert_file:
-            cert_file.write(pem_data)
+        pkcs12 = OpenSSL.crypto.load_pkcs12(pem_data)
+        key = pkcs12.get_privatekey()
+        cert = pkcs12.get_certificate()
+       # key, cert, *rest = crypto_serialization.load_pem_private_key(pem_data, password=None, backend=crypto_backends.default_backend())
+        print('key ', key)
+        print('cert ', cert)
 
-        # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
+        # Get the bytes of the private key
+        #key_bytes = key.private_bytes(crypto_serialization.Encoding.PEM, crypto_serialization.PrivateFormat.PKCS8,crypto_serialization.NoEncryption())
+
+        # Convert the PEM-encoded certificate to a QSslCertificate object
         cert = QSslCertificate(pem_data)
+
+
+        # Convert the PEM-encoded private key to a QSslKey object
+        '''key = QSslKey(key_bytes, QSsl.Key.Rsa, QSsl.EncodingFormat.Pem, QSsl.PrivateKeyFormat.Pkcs8)
+        cert_der = cert.toDer()
+        cert_qba = QByteArray(cert_der)
+        key_qba = QByteArray(key.toPem())'''
+
+        # Add the certificate and private key to the client certificate store
+        #self.page().profile().clientCertificateStore().add(cert_qba, key_qba)
+
+        '''
+        #Convert the QSslCertificate object to a QByteArray
+        der_data = cert.toDer()
+        qbytearray = QByteArray(der_data)
+        self.page().profile().clientCertificateStore().add(qbytearray, privateKey=None)
+
+        cert = QtNetwork.QSslCertificate(pem_data)
+        chain = QtNetwork.QSslCertificate(cert)
         config = QSslConfiguration.defaultConfiguration()
         config.setCaCertificates([cert])
+        self.page().profile().clientCertificateStore().add(cert)
+        '''
 
-        # get the DER-encoded certificate data
-        der_data = cert.toDer()
-        return der_data
 
-    def closeEvent(self, event):
-        self.page().profile().clearHttpCache()
+# ssl configurations (not working for me, I had to install the certificate on my machine)
+def set_ssl_config(self):
+    # get the pem with openssl from the mitmproxy .p12
+    # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
+
+    # add pem to the trusted root certificates (won't solve the problem)
+    cert_file_path = certifi.where()
+    pem_path = 'asset/cert/mitmproxy-ca-cert.pem'
+    with open(pem_path, 'rb') as pem_file:
+        pem_data = pem_file.read()
+    with open(cert_file_path, 'ab') as cert_file:
+        cert_file.write(pem_data)
+
+    # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
+    cert = QSslCertificate(pem_data)
+    config = QSslConfiguration.defaultConfiguration()
+    config.setCaCertificates([cert])
+
+    # get the DER-encoded certificate data
+    der_data = cert.toDer()
+    return der_data
+
+
+def closeEvent(self, event):
+    self.page().profile().clearHttpCache()
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
