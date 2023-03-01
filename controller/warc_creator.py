@@ -85,27 +85,27 @@ class WarcCreator:
             "format": "json-pages-1.0", "id": "pages", "title": "All Pages",
 
         }
+        if os.path.exists(warc_path):
+            with open(os.path.join(pages_path), 'w') as outfile:
+                json.dump(header, outfile)
 
-        with open(os.path.join(pages_path), 'w') as outfile:
-            json.dump(header, outfile)
+                # read from warc file
+                with open(warc_path, 'rb') as stream:
+                    for record in ArchiveIterator(stream):
+                        if record.rec_type == 'response':
+                            url = record.rec_headers.get_header('WARC-Target-URI')
+                            content_type = record.rec_headers.get_header('Content-Type')
+                            if 'text/html' in content_type:
+                                id = record.rec_headers.get_header('WARC-Record-ID')
+                                ts = record.rec_headers.get_header('WARC-Date')
+                                title = record.rec_headers.get_header('WARC-Target-URI')
 
-            # read from warc file
-            with open(warc_path, 'rb') as stream:
-                for record in ArchiveIterator(stream):
-                    if record.rec_type == 'response':
-                        url = record.rec_headers.get_header('WARC-Target-URI')
-                        content_type = record.rec_headers.get_header('Content-Type')
-                        if 'text/html' in content_type:
-                            id = record.rec_headers.get_header('WARC-Record-ID')
-                            ts = record.rec_headers.get_header('WARC-Date')
-                            title = record.rec_headers.get_header('WARC-Target-URI')
-
-                            page = {
-                                "id": id, "url": url,
-                                "ts": ts, "title": title
-                            }
-                            outfile.write('\n')
-                            json.dump(page, outfile)
+                                page = {
+                                    "id": id, "url": url,
+                                    "ts": ts, "title": title
+                                }
+                                outfile.write('\n')
+                                json.dump(page, outfile)
 
     def warc_to_wacz(self, pages_path, warc_path, wacz_path):
         class OptionalNamespace(SimpleNamespace):
@@ -121,4 +121,5 @@ class WarcCreator:
             pages=pages_path,
             detect_pages=False
         )
-        return create_wacz(res)
+        create_wacz(res)
+        os.remove(pages_path)

@@ -67,7 +67,6 @@ logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
 
-# the proxy needs to be started on a different thread
 class MitmThread(QThread):
     def __init__(self, port, acquisition_directory):
         super().__init__()
@@ -80,21 +79,14 @@ class MitmThread(QThread):
         asyncio.set_event_loop(self.loop)
 
         # mitmproxy's creation
-        try:
-            self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
-
-            asyncio.run(self.proxy_server.start())
-        except:
-            print('proxy not correclty shut down')
-            pass
+        self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
+        asyncio.run(self.proxy_server.start())
 
     def stop_proxy(self):
         try:
             ctx.master.shutdown()
             ctx.master = None
-        except:
-            pass
-
+        except: pass
 
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
@@ -104,8 +96,6 @@ class MainWindow(QWebEngineView):
 
         self.page().profile().setHttpUserAgent(pem_data)
 
-        profile = QWebEngineProfile.defaultProfile()
-
     # ssl configurations (not working for me, I had to install the certificate on my machine)
     def set_ssl_config(self):
         # get the pem with openssl from the mitmproxy .p12
@@ -113,7 +103,7 @@ class MainWindow(QWebEngineView):
 
         # add pem to the trusted root certificates (won't solve the problem)
         cert_file_path = certifi.where()
-        pem_path = 'C:\\Users\\Routi\\Downloads\\mitmproxy-ca-cert.pem'
+        pem_path = 'asset/cert/mitmproxy-ca-cert.pem'
         with open(pem_path, 'rb') as pem_file:
             pem_data = pem_file.read()
         with open(cert_file_path, 'ab') as cert_file:
@@ -360,6 +350,12 @@ class Web(QtWidgets.QMainWindow):
 
             # refreshing the page so we can get back the resources already loaded
             # tricky way to refresh the url
+
+            self.tabs.currentWidget().page().profile().clearHttpCache()
+            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+            # Delete all cookies from the store
+            cookie_store.deleteAllCookies()
+            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
             self.reload_btn.trigger()
 
             # Step 4: Add new thread for network packet capture and start it
@@ -501,8 +497,9 @@ class Web(QtWidgets.QMainWindow):
             pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
 
             warc_creator = WarcCreatorController()
-            warc_creator.create_pages(pages_path, warc_path)
-            warc_creator.warc_to_wacz(pages_path, warc_path, wacz_path)
+            if os.path.exists(warc_path):
+                warc_creator.create_pages(pages_path, warc_path)
+                warc_creator.warc_to_wacz(pages_path, warc_path, wacz_path)
 
             zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')
