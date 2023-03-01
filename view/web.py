@@ -3,19 +3,19 @@
 ######
 # -----
 # MIT License
-# 
+#
 # Copyright (c) 2022 FIT-Project and others
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
+######
 
 import os
 import logging
@@ -69,7 +69,7 @@ import certifi
 import mitmproxy.http
 from PyQt5.QtCore import QObject, pyqtSignal, QThread
 
-from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy
+from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy, QNetworkAccessManager
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
@@ -80,6 +80,7 @@ logger_hashreport = logging.getLogger('hashreport')
 logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
+
 
 # the proxy needs to be started on a different thread
 class MitmThread(QThread):
@@ -92,15 +93,22 @@ class MitmThread(QThread):
         # create new event loop
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
+
         # mitmproxy's creation
-        self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
-        asyncio.get_event_loop().run_until_complete(self.proxy_server.start())
+        try:
+            self.proxy_server = ProxyServer(self.port, self.acquisition_directory)
+
+            asyncio.run(self.proxy_server.start())
+        except:
+            print('proxy not correclty shut down')
+            pass
+
     def stop_proxy(self):
-        print("MitmThread.stop_proxy: Stopping the proxy")
         try:
             ctx.master.shutdown()
             ctx.master = None
-        except: pass
+        except:
+            pass
 
 
 class ProxyServer(QObject):
@@ -110,7 +118,6 @@ class ProxyServer(QObject):
         super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
-        self.shutdown_event = threading.Event()
 
     async def start(self):
         # set proxy opts
@@ -129,14 +136,6 @@ class ProxyServer(QObject):
             await ctx.master.run()
         except:
             pass
-        print("ProxyServer.start: Shutdown the proxy")
-
-
-    def shutdown(self):
-        print("ProxyServer.shutdown: Setting shutdown event")
-        self.shutdown_event.set()
-        print('value ',self.shutdown_event.is_set())
-
 
 
 # creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
@@ -196,7 +195,6 @@ class PcapWriter:
 
     def response(self, flow: http.HTTPFlow):
         pcap_filename = f'{self.acquisition_directory}/mitmproxy_capture.pcap'
-        print(pcap_filename)
         if flow.response:
 
             pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1],
@@ -210,7 +208,6 @@ class PcapWriter:
                 wrpcap(pcap_filename, [pkt], append=True)
             except Exception as e:
                 print('non si può salvare ', e)
-
 
 
 class MainWindow(QWebEngineView):
@@ -274,7 +271,6 @@ class Screenshot(QtWebEngineWidgets.QWebEngineView):
 
 class Web(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
-    stop_proxy_signal = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         if not os.path.isdir("resources"):
@@ -442,6 +438,17 @@ class Web(QtWidgets.QMainWindow):
             self.case_info['name'],
             self.tabs.currentWidget().url().toString()
         )
+
+        # set port and start the thread
+        port = 8081
+        self.mitm_thread = MitmThread(port, self.acquisition_directory)
+
+        # create the proxy
+        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
+        QNetworkProxy.setApplicationProxy(self.proxy)
+
+        # start mitm_thread
+        self.mitm_thread.start()
         if self.acquisition_directory is not None:
 
             # show progress bar
@@ -464,18 +471,6 @@ class Web(QtWidgets.QMainWindow):
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
             self.progress_bar.setValue(50)
-
-            # set port and start the thread
-            port = 8081
-            self.mitm_thread = MitmThread(port, self.acquisition_directory)
-            self.stop_proxy_signal.connect(self.mitm_thread.stop_proxy)
-
-            # start mitm_thread
-            self.mitm_thread.start()
-
-            # create the proxy
-            proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
-            QNetworkProxy.setApplicationProxy(proxy)
 
             # refreshing the page so we can get back the resources already loaded
             # tricky way to refresh the url
@@ -602,9 +597,17 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(20)
 
             # Step 8:  Save all resource of current page
-            self.stop_proxy_signal.emit()
+
             self.mitm_thread.stop_proxy()
-            # self.mitm_thread.wait()
+
+            self.proxy.setType(QNetworkProxy.DefaultProxy)
+            QNetworkProxy.setApplicationProxy(self.proxy)
+            # set the proxy for the manager to the NoProxy object
+            self.tabs.currentWidget().page().profile().clearHttpCache()
+            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+            # Delete all cookies from the store
+            cookie_store.deleteAllCookies()
+            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
 
             # create wacz when acquisition is finished
             warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
