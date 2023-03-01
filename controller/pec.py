@@ -90,7 +90,7 @@ class Pec:
             try:
                 server.login(email_utente, password_utente)
                 server.sendmail(email_utente, destinatario, msg.as_string())
-            except smtplib.SMTPAuthenticationError:
+            except smtplib.SMTPException:
                 error = True
                 error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                       self.error_msg.TITLES['pec_error'],
