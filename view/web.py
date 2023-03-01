@@ -26,19 +26,18 @@
 # -----
 ######
 
-import os
-import logging
 import logging.config
 import shutil
-from typing import BinaryIO
-
-from mitmproxy import io, http
-from mitmproxy import ctx, flowfilter, http
-from mitmproxy.utils import strutils
+from mitmproxy import ctx
 from scapy.all import *
+import ssl
+import asyncio
+import certifi
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from scapy.layers.inet import IP, TCP
+from PyQt5.QtCore import QThread
+from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
 
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
@@ -50,6 +49,7 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
+from controller.warc_creator import WarcCreator as WarcCreatorController
 
 from common.error import ErrorMessage
 
@@ -59,21 +59,6 @@ import common.utility as utility
 
 import sslkeylog
 
-import hashlib
-import re
-import ssl
-import asyncio
-from datetime import datetime
-
-import certifi
-import mitmproxy.http
-from PyQt5.QtCore import QObject, pyqtSignal, QThread
-
-from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy, QNetworkAccessManager
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
-from mitmproxy.tools import main
-from mitmproxy.tools.dump import DumpMaster
-from controller.warc_creator import WarcCreator as WarcCreatorController
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')

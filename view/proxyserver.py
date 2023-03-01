@@ -25,28 +25,21 @@
 # SOFTWARE.
 # -----
 ######
-
-from mitmproxy import io, http
-from mitmproxy import ctx, flowfilter, http
+from mitmproxy import http
+from mitmproxy import ctx
 from scapy.all import *
-
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from scapy.layers.inet import IP, TCP
-
 
 import hashlib
 import re
-import ssl
-import asyncio
-from datetime import datetime
 
-import certifi
 import mitmproxy.http
-from PyQt5.QtCore import QObject, pyqtSignal, QThread
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 from controller.warc_creator import WarcCreator as WarcCreatorController
+
+
 class ProxyServer(QObject):
     proxy_started = pyqtSignal()
 
@@ -63,18 +56,17 @@ class ProxyServer(QObject):
 
         addons = [
             FlowReaderAddon(self.acquisition_directory),
-            PcapWriter(self.acquisition_directory),
+            #PcapWriter(self.acquisition_directory)
         ]
 
         self.master.addons.add(*addons)
-
         try:
             await ctx.master.run()
         except:
             pass
 
 
-# creating a custom addon to intercept requests and reponses, printing url, status code, headers and content
+# creating a custom addon to intercept requests and reponses
 class FlowReaderAddon:
     def __init__(self, acquisition_directory):
         self.acquisition_directory = acquisition_directory
@@ -120,27 +112,3 @@ class FlowReaderAddon:
         warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
         warc_creator = WarcCreatorController()
         warc_creator.flow_to_warc(flow, warc_path)
-
-
-# creating a custom addon for pcap
-class PcapWriter:
-
-    def __init__(self, acquisition_directory):
-        self.pkts = []
-        self.acquisition_directory = acquisition_directory
-
-    def response(self, flow: http.HTTPFlow):
-        pcap_filename = f'{self.acquisition_directory}/mitmproxy_capture.pcap'
-        if flow.response:
-
-            pkt = IP(dst=flow.client_conn.peername[0]) / TCP(dport=flow.client_conn.peername[1],
-                                                             sport=flow.server_conn.peername[1] / Raw(
-                                                                 load=flow.response.content))
-
-            pkt.time = flow.response.timestamp_start
-            # self.pkts.append(pkt)
-            try:
-                print([pkt])
-                wrpcap(pcap_filename, [pkt], append=True)
-            except Exception as e:
-                print('non si può salvare ', e)
