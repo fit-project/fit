@@ -30,6 +30,7 @@ import logging
 import logging.config
 import shutil
 from datetime import timedelta
+from view.pec import Pec as PecView
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QRegExp, QDate, Qt
@@ -453,26 +454,6 @@ class Mail(QtWidgets.QMainWindow):
         self.status.showMessage('Calculate acquisition file hash')
         self.progress_bar.setValue(100)
 
-        # Step 5:  Calculate acquisition hash
-        logger_acquisition.info('Calculate acquisition file hash')
-        files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
-
-
-        for file in files:
-            filename = os.path.join(self.acquisition_directory, file)
-            if file != 'acquisition.hash':
-                file_stats = os.stat(filename)
-                logger_hashreport.info(file)
-                logger_hashreport.info('=========================================================')
-                logger_hashreport.info(f'Size: {file_stats.st_size}')
-                algorithm = 'md5'
-                logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
-                algorithm = 'sha1'
-                logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
-                algorithm = 'sha256'
-                logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
-        logger_acquisition.info('Acquisition end')
-
         ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
         logger_acquisition.info(f'NTP end acquisition time: {ntp}')
                 
@@ -628,7 +609,7 @@ class Mail(QtWidgets.QMainWindow):
                 algorithm = 'sha1'
                 logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
                 algorithm = 'sha256'
-                logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+                logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}\n')
         logger_acquisition.info('Acquisition end')
 
         ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
@@ -650,8 +631,13 @@ class Mail(QtWidgets.QMainWindow):
 
         self.progress_bar.setValue(100)
 
-        #### open the acquisition folder ####
-        os.startfile(self.acquisition_directory)
+        self.pec = PecView()
+        self.pec.hide()
+        self.acquisition_window = self.pec
+        self.acquisition_window.init(self.case_info, "Mail", self.acquisition_directory)
+        self.acquisition_window.show()
+        self.close()
+
 
         #### Enable all action ####
         self.setEnabled(True)

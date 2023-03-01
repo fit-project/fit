@@ -41,6 +41,7 @@ from pywebcopy import save_webpage
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 
+from view.pec import Pec as PecView
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
@@ -431,7 +432,7 @@ class Web(QtWidgets.QMainWindow):
                     algorithm = 'sha1'
                     logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
                     algorithm = 'sha256'
-                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}')
+                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}\n')
 
             logger_acquisition.info('Acquisition end')
 
@@ -454,8 +455,12 @@ class Web(QtWidgets.QMainWindow):
                 self.timestamp.set_options(options)
                 self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
 
-            #### open the acquisition folder ####
-            os.startfile(self.acquisition_directory)
+            self.pec = PecView()
+            self.pec.hide()
+            self.acquisition_window = self.pec
+            self.acquisition_window.init(self.case_info, "Web", self.acquisition_directory)
+            self.acquisition_window.show()
+            self.close()
 
             #### Enable all action ####
             self.setEnabled(True)

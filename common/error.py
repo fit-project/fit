@@ -44,7 +44,8 @@ class ErrorMessage:
             'verification_failed': 'Verification failed',
             'verification_ok': 'Verification success',
             'pec_verified': 'Verification success',
-            'pec_not_verified': 'Verification failed'
+            'pec_not_verified': 'Verification failed',
+            'pec_error': 'Login failed'
 
         }
 
@@ -69,7 +70,8 @@ class ErrorMessage:
             'verification_failed': 'Timestamp verification failed.',
             'verification_ok': 'Timestamp has been verified successfully.',
             'pec_verified': 'Verification success',
-            'pec_not_verified': 'Verification failed'
+            'pec_not_verified': 'Verification failed',
+            'pec_error': 'Login failed'
 
 
         }

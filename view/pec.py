@@ -164,17 +164,27 @@ class Pec(QtWidgets.QMainWindow):
                             self.case_info['name'], self.directory, self.input_username_2.text(),
                             self.input_password_2.text())
         self.progressBar.setValue(30)
-        if self.checkBox.isChecked():
-            self.pecConfiguration = self.controller.get()
-            if len(self.pecConfiguration) > 0:
-                for pecConfig in self.pecConfiguration:
-                    pecConfigPec = pecConfig.pec
-                    self.controller.delete(pecConfigPec)
-            else:
-                pass
-            self.controller.add(self.input_username.text(), self.input_password.text(), self.input_username_2.text(),
-                                self.input_password_2.text())
-        pec.sendPec()
+
+        sendedPec = pec.sendPec()
+
+        if sendedPec:
+            pass
+        else:
+            if self.checkBox.isChecked():
+                self.pecConfiguration = self.controller.get()
+                if len(self.pecConfiguration) > 0:
+                    for pecConfig in self.pecConfiguration:
+                        pecConfigPec = pecConfig.pec
+                        self.controller.delete(pecConfigPec)
+                else:
+                    pass
+                self.controller.add(self.input_username.text(), self.input_password.text(), self.input_username_2.text(),
+                                    self.input_password_2.text())
+
+
         self.progressBar.setValue(100)
         os.startfile(str(self.directory))
-        self.close()
+        if sendedPec:
+            pass
+        else:
+            self.close()

@@ -31,6 +31,8 @@ from controller.verifyPec import verifyPec as verifyPecController
 import pyzmail
 from view.case import Case as CaseView
 from common.error import ErrorMessage
+from PyQt5 import QtWidgets
+from view.error import Error as ErrorView
 
 
 class SearchPec:
@@ -44,6 +46,8 @@ class SearchPec:
         return
 
     def fetchPec(self):
+        error = False
+        pecsToShow = []
         # Impostazioni di connessione
         imap_host = self.server
         imap_port = self.port
@@ -51,24 +55,33 @@ class SearchPec:
         password = self.password
 
         with imaplib.IMAP4_SSL(imap_host, imap_port) as server:
-            #os.chdir()
-            server.login(username, password)
-            server.select('inbox')
+            try:
+                server.login(username, password)
+                server.select('inbox')
+            except imaplib.IMAP4.error:
+                error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                      self.error_msg.TITLES['pec_error'],
+                                      self.error_msg.MESSAGES['pec_error'],
+                                      'Wrong parameters or credentials')
+                error = True
+                error_dlg.exec_()
 
-            # cerca i messaggi di posta elettronica nella cartella PEC
-            status, messages = server.search(None, "ALL")
-            messages = messages[0].split(b" ")
-            pecs = []
-            for msg_id in messages:
-                # scarica il messaggio di posta elettronica in formato raw
-                status, raw_email = server.fetch(msg_id, "(RFC822)")
-                raw_email = raw_email[0][1]
-                message = pyzmail.PyzMessage.factory(raw_email)
-                pecs.append(message)
-        pecsToShow = []
-        for pec in pecs:
-            if pec.get_subject().startswith("POSTA CERTIFICATA:"):
-                pecsToShow.append(pec)
+            if error == True:
+                pass
+            else:
+                # cerca i messaggi di posta elettronica nella cartella PEC
+                status, messages = server.search(None, "ALL")
+                messages = messages[0].split(b" ")
+                pecs = []
+                for msg_id in messages:
+                    # scarica il messaggio di posta elettronica in formato raw
+                    status, raw_email = server.fetch(msg_id, "(RFC822)")
+                    raw_email = raw_email[0][1]
+                    message = pyzmail.PyzMessage.factory(raw_email)
+                    pecs.append(message)
+                for pec in pecs:
+                    if pec.get_subject().startswith("POSTA CERTIFICATA:"):
+                        pecsToShow.append(pec)
 
         return pecsToShow
 

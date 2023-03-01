@@ -53,7 +53,6 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_password = None
         self.input_server = None
         self.input_port = None
-        self.input_sender = None
         self.input_recipient = None
         self.input_case = None
         self.input_from_date = None
@@ -161,11 +160,6 @@ class SearchPec(QtWidgets.QMainWindow):
         self.criteria_group_box.setGeometry(QtCore.QRect(50, 260, 430, 235))
         self.criteria_group_box.setObjectName("criteria_group_box")
 
-        # SENDER FIELD
-        self.input_sender = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_sender.setGeometry(QtCore.QRect(180, 300, 240, 20))
-        self.input_sender.setObjectName("input_sender")
-
         # RECIPIENT FIELD
         self.input_recipient = QtWidgets.QLineEdit(self.centralwidget)
         self.input_recipient.setGeometry(QtCore.QRect(180, 335, 240, 20))
@@ -187,13 +181,6 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_to_date.setGeometry(QtCore.QRect(180, 440, 240, 20))
         self.input_to_date.setDate(QDate.currentDate())
         self.input_to_date.setObjectName("input_to_date")
-
-        # SENDER LABEL
-        self.label_sender = QtWidgets.QLabel(self.centralwidget)
-        self.label_sender.setGeometry(QtCore.QRect(90, 300, 80, 20))
-        self.label_sender.setAlignment(QtCore.Qt.AlignRight)
-        self.label_sender.setObjectName("label_sender")
-
 
         # RECIPIENT LABEL
         self.label_recipient = QtWidgets.QLabel(self.centralwidget)
@@ -286,7 +273,6 @@ class SearchPec(QtWidgets.QMainWindow):
         self.label_password.setText(_translate("eml_verify_window", "Password*"))
         self.label_server.setText(_translate("eml_verify_window", "Server PEC*"))
         self.label_port.setText(_translate("eml_verify_window", "Port*"))
-        self.label_sender.setText(_translate("email_scrape_window", "Mittente"))
         self.label_recipient.setText(_translate("email_scrape_window", "Destinatario"))
         self.label_case.setText(_translate("eml_verify_window", "Caso"))
         self.label_from_date.setText(_translate("eml_verify_window", "Data di inizio"))
@@ -304,7 +290,6 @@ class SearchPec(QtWidgets.QMainWindow):
                                         self.input_port.text(), self.case_info)
         messages = searchPec.fetchPec()
 
-        sender = self.input_sender.text()
         recipient = self.input_recipient.text()
         case = self.input_case.text()
         fromDate = datetime.datetime(self.input_from_date.date().year(), self.input_from_date.date().month(),
@@ -313,20 +298,6 @@ class SearchPec(QtWidgets.QMainWindow):
         toDate = datetime.datetime(self.input_to_date.date().year(), self.input_to_date.date().month(),
                                    self.input_to_date.date().day())
         toDate = toDate.date()
-
-        #CONTROLLO MITTENTE
-        filteredPecs = []
-        if len(sender) == 0:
-            pass
-        else:
-            for message in messages:
-                senderPec = message.get_address('from')[0]
-                list = senderPec.split()
-                pecIndex = list.index("di:")
-                senderPec = " ".join(list[pecIndex + 1:])
-                if senderPec == sender:
-                    filteredPecs.append(message)
-            messages = filteredPecs
 
         #CONTROLLO DESTINATARIO
         filteredPecs = []

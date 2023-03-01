@@ -30,7 +30,10 @@ import smtplib
 import subprocess
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
+from view.error import Error as ErrorView
+from PyQt5 import QtWidgets
 from email.mime.multipart import MIMEMultipart
+from common.error import ErrorMessage
 
 class Pec:
     def __init__(self, username, password, acquisition, case, path, server, port):
@@ -43,10 +46,11 @@ class Pec:
         os.chdir(str(self.path))
         self.acquisition = acquisition
         self.case = case
+        self.error_msg = ErrorMessage()
         return
 
     def sendPec(self):
-
+        error = False
         email_utente = self.username
         password_utente = self.password
         smtp_server = self.server
@@ -55,7 +59,7 @@ class Pec:
         # Destinatario, oggetto e contenuto del messaggio
         destinatario = self.username
         oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case)
-        contenuto = 'In allegato report e relativo timestamp dell''acquisizione ' + str(self.acquisition) +\
+        contenuto = 'In allegato report e relativo timestamp dell\' acquisizione ' + str(self.acquisition) +\
                   ' relativa al caso: ' + str(self.case)
 
         # Costruzione del messaggio email
@@ -82,6 +86,16 @@ class Pec:
 
         # Connessione e invio del messaggio
         with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-            server.login(email_utente, password_utente)
-            server.sendmail(email_utente, destinatario, msg.as_string())
+
+            try:
+                server.login(email_utente, password_utente)
+                server.sendmail(email_utente, destinatario, msg.as_string())
+            except smtplib.SMTPAuthenticationError:
+                error = True
+                error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                      self.error_msg.TITLES['pec_error'],
+                                      self.error_msg.MESSAGES['pec_error'],
+                                      'Wrong parameters or credentials')
+                error_dlg.exec_()
+        return error
 
