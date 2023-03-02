@@ -30,13 +30,14 @@ import logging.config
 import shutil
 
 import OpenSSL
+import cryptography
+from OpenSSL import crypto
+from cryptography.hazmat.primitives import serialization
 from mitmproxy import ctx
 from scapy.all import *
 import ssl
 import asyncio
 import certifi
-import cryptography.hazmat.backends as crypto_backends
-import cryptography.hazmat.primitives.serialization as crypto_serialization
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets, QtNetwork
 from PyQt5.QtCore import QThread, QUrl, QByteArray
@@ -93,84 +94,39 @@ class MitmThread(QThread):
             pass
 
 
-def set_ssl_protocol():
-    default_config = QtNetwork.QSslConfiguration.defaultConfiguration()
-    default_config.setProtocol(QtNetwork.QSsl.SslProtocol.TlsV1_2)
-
-    QtNetwork.QSslConfiguration.setDefaultConfiguration(default_config)
-
-
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
         # Load the mitmproxy CA certificate
+        self.set_ssl_config()
+
+    def set_ssl_config(self):
         pem_path = os.path.join(os.path.expanduser("~"), ".mitmproxy")  # current pem path #todo:check
-
         pem_path = f'{pem_path}/mitmproxy-ca.p12'
-        with open(pem_path, 'rb') as pem_file:
-            pem_data = pem_file.read()
-        pkcs12 = OpenSSL.crypto.load_pkcs12(pem_data)
-        key = pkcs12.get_privatekey()
-        cert = pkcs12.get_certificate()
-       # key, cert, *rest = crypto_serialization.load_pem_private_key(pem_data, password=None, backend=crypto_backends.default_backend())
-        print('key ', key)
-        print('cert ', cert)
+        with open(pem_path, 'rb') as f:
+            pfx_data = f.read()
 
-        # Get the bytes of the private key
-        #key_bytes = key.private_bytes(crypto_serialization.Encoding.PEM, crypto_serialization.PrivateFormat.PKCS8,crypto_serialization.NoEncryption())
+        pfx = crypto.load_pkcs12(pfx_data)
+        key = pfx.get_privatekey()
+        cert = pfx.get_certificate()
 
-        # Convert the PEM-encoded certificate to a QSslCertificate object
-        cert = QSslCertificate(pem_data)
+        cert_crypt = cert.to_cryptography()
+        cert_der = cert_crypt.public_bytes(serialization.Encoding.DER)
+        certi = QSslCertificate.fromData(cert_der, QSsl.EncodingFormat.Der)[0]
 
+        pem_key = key.to_cryptography_key().private_bytes(
+            encoding=cryptography.hazmat.primitives.serialization.Encoding.PEM,
+            format=cryptography.hazmat.primitives.serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=cryptography.hazmat.primitives.serialization.NoEncryption(),
+        )
+        key_qba = QByteArray.fromRawData(pem_key)
 
         # Convert the PEM-encoded private key to a QSslKey object
-        '''key = QSslKey(key_bytes, QSsl.Key.Rsa, QSsl.EncodingFormat.Pem, QSsl.PrivateKeyFormat.Pkcs8)
-        cert_der = cert.toDer()
-        cert_qba = QByteArray(cert_der)
-        key_qba = QByteArray(key.toPem())'''
+        key = QSslKey(key_qba, QSsl.Rsa, QSsl.EncodingFormat.Pem, QSsl.PrivateKey)
 
-        # Add the certificate and private key to the client certificate store
-        #self.page().profile().clientCertificateStore().add(cert_qba, key_qba)
-
-        '''
-        #Convert the QSslCertificate object to a QByteArray
-        der_data = cert.toDer()
-        qbytearray = QByteArray(der_data)
-        self.page().profile().clientCertificateStore().add(qbytearray, privateKey=None)
-
-        cert = QtNetwork.QSslCertificate(pem_data)
-        chain = QtNetwork.QSslCertificate(cert)
-        config = QSslConfiguration.defaultConfiguration()
-        config.setCaCertificates([cert])
-        self.page().profile().clientCertificateStore().add(cert)
-        '''
-
-
-# ssl configurations (not working for me, I had to install the certificate on my machine)
-def set_ssl_config(self):
-    # get the pem with openssl from the mitmproxy .p12
-    # openssl pkcs12 -in {mitmproxy-ca-cert.p12} -out {cert_pem} -nodes
-
-    # add pem to the trusted root certificates (won't solve the problem)
-    cert_file_path = certifi.where()
-    pem_path = 'asset/cert/mitmproxy-ca-cert.pem'
-    with open(pem_path, 'rb') as pem_file:
-        pem_data = pem_file.read()
-    with open(cert_file_path, 'ab') as cert_file:
-        cert_file.write(pem_data)
-
-    # create a QSslConfiguration object with the certificate as the CA certificate (won't solve the problem neither)
-    cert = QSslCertificate(pem_data)
-    config = QSslConfiguration.defaultConfiguration()
-    config.setCaCertificates([cert])
-
-    # get the DER-encoded certificate data
-    der_data = cert.toDer()
-    return der_data
-
-
-def closeEvent(self, event):
-    self.page().profile().clearHttpCache()
+        self.page().profile().clientCertificateStore().add(certi, key)
+    def closeEvent(self, event):
+        self.page().profile().clearHttpCache()
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -373,6 +329,7 @@ class Web(QtWidgets.QMainWindow):
         # create the proxy
         self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
         QNetworkProxy.setApplicationProxy(self.proxy)
+
 
         # start mitm_thread
         self.mitm_thread.start()
