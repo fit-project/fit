@@ -42,6 +42,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QFileDialog
 
+
 class VerifyPDFTimestamp(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
 
@@ -55,11 +56,12 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-    def init(self, case_info):
+    def init(self, case_info, acquisition_directory=None):
         self.width = 690
         self.height = 250
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
+        self.acquisition_directory = acquisition_directory
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
         self.setObjectName("verify_timestamp_window")
@@ -284,7 +286,10 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         return report, info_file_path
 
     def get_current_dir(self):
-        configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        open_folder = os.path.expanduser(
-            os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
-        return open_folder
+        if not self.acquisition_directory:
+            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            open_folder = os.path.expanduser(
+                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+            return open_folder
+        else:
+            return self.acquisition_directory

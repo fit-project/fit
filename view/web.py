@@ -233,7 +233,7 @@ class Web(QtWidgets.QMainWindow):
         verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
         verify_pdf_action.setStatusTip("Verify the timestamp of a report")
         verify_pdf_view= VerifyPDFTimestampView()
-        verify_pdf_view.init(self.case_info)
+        verify_pdf_view.init(self.case_info,self.acquisition_directory)
         verify_pdf_action.triggered.connect(verify_pdf_view.show)
         self.menuBar().addAction(verify_pdf_action)
 
