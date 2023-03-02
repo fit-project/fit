@@ -42,6 +42,7 @@ from common.settings import DEBUG
 from common.config import LogConfigMail
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 from view.timestamp import Timestamp as TimestampView
 from controller.report import Report as ReportController
 import logging
@@ -107,6 +108,14 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_status_action.triggered.connect(self._acquisition_status)
         self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
         self.acquisition_menu.addAction(self.acquisition_status_action)
+
+        # VERIFY PDF ACTION
+        verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
+        verify_pdf_action.setStatusTip("Verify the timestamp of a report")
+        verify_pdf_view = VerifyPDFTimestampView()
+        verify_pdf_view.init(self.case_info)
+        verify_pdf_action.triggered.connect(verify_pdf_view.show)
+        self.menuBar().addAction(verify_pdf_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 

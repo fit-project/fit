@@ -45,6 +45,7 @@ from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.timestamp import Timestamp as TimestampView
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -227,6 +228,14 @@ class Web(QtWidgets.QMainWindow):
         acquisition_status_action.setObjectName('StatusAcquisitionAction')
         acquisition_status_action.triggered.connect(self._acquisition_status)
         acquisition_menu.addAction(acquisition_status_action)
+
+        # VERIFY PDF ACTION
+        verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
+        verify_pdf_action.setStatusTip("Verify the timestamp of a report")
+        verify_pdf_view= VerifyPDFTimestampView()
+        verify_pdf_view.init(self.case_info)
+        verify_pdf_action.triggered.connect(verify_pdf_view.show)
+        self.menuBar().addAction(verify_pdf_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
