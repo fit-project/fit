@@ -67,7 +67,16 @@ logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
 
-# logger_traceroute = logging.getLogger('traceroute')
+class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
+    """ When you click a link that has the target="_blank" attribute, QT calls the CreateWindow 
+    method in QWebEnginePage to create a new tab/new window. """
+    new_page_after_link_with_target_blank_attribute = QtCore.pyqtSignal(QtWebEngineWidgets.QWebEnginePage)
+
+    def createWindow(self, _type, ):
+        page = WebEnginePage(self)
+        self.new_page_after_link_with_target_blank_attribute.emit(page)
+        
+        return page
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -91,6 +100,7 @@ class Screenshot(QtWebEngineWidgets.QWebEngineView):
     def take_screenshot(self):
         self.grab().save(self.output_file, b'PNG')
         self.close()
+
 
 
 class Web(QtWidgets.QMainWindow):
@@ -226,6 +236,8 @@ class Web(QtWidgets.QMainWindow):
 
         # Get timestamp parameters
         self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
+        
+
 
         self.add_new_tab(QtCore.QUrl(self.configuration_general.configuration['home_page_url']), 'Homepage')
 
@@ -374,9 +386,13 @@ class Web(QtWidgets.QMainWindow):
 
             # Step 7: Get peer SSL certificate
             if utility.check_if_peer_certificate_exist(url):
-                logger_acquisition.info('Get SSL certificate for URL:' + url)
+                logger_acquisition.info('Try get SSL certificate for URL:' + url)
+            
                 certificate = utility.get_peer_PEM_cert(url)
-                utility.save_PEM_cert_to_CER_cert(os.path.join(self.acquisition_directory, 'server.cer'), certificate)
+                if certificate is not None:
+                    utility.save_PEM_cert_to_CER_cert(os.path.join(self.acquisition_directory, 'server.cer'), certificate)
+                else:
+                    logger_acquisition.info('Don\'t get SSL certificate for URL {0} (don\'t find network location part in the URL)' + url)
                 self.status.showMessage('Get SSL CERTIFICATE')
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
@@ -596,8 +612,9 @@ class Web(QtWidgets.QMainWindow):
         if self.acquisition_is_started:
             logger_acquisition.info('User clicked the reload button')
         self.tabs.currentWidget().reload()
-
-    def add_new_tab(self, qurl=None, label="Blank"):
+    
+    
+    def add_new_tab(self, qurl=None, label="Blank", page=None):
         if self.acquisition_is_started:
             logger_acquisition.info('User add new tab')
 
@@ -605,10 +622,20 @@ class Web(QtWidgets.QMainWindow):
             qurl = QtCore.QUrl('')
 
         browser = QtWebEngineWidgets.QWebEngineView()
+
+        if page is None:
+            page = WebEnginePage(browser)
+
+        browser.setPage(page)
+
+        
         browser.setUrl(qurl)
+
         i = self.tabs.addTab(browser, label)
 
         self.tabs.setCurrentIndex(i)
+
+        page.new_page_after_link_with_target_blank_attribute.connect(lambda page: self.add_new_tab(page=page))
 
         # More difficult! We only want to update the url when it's from the
         # correct tab
@@ -619,9 +646,14 @@ class Web(QtWidgets.QMainWindow):
 
         browser.loadFinished.connect(lambda _, i=i, browser=browser:
                                      self.tabs.setTabText(i, browser.page().title()))
+        browser.page().linkHovered.connect(self.link_hovered)
+
 
         if i == 0:
             self.showMaximized()
+    
+    def link_hovered(self, link):
+        self.statusBar().showMessage(link)
 
     def tab_open_doubleclick(self, i):
         if i == -1:  # No tab under the click
