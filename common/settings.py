@@ -26,6 +26,6 @@
 # -----
 ###### 
 
-DEBUG = True
+DEBUG = False
 MAKE_REQUEST = 'make'
 CHECK_REQUEST = 'check'
