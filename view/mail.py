@@ -327,9 +327,7 @@ class Mail(QtWidgets.QMainWindow):
         # VERIFY PDF ACTION
         verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
         verify_pdf_action.setStatusTip("Verify the timestamp of a report")
-        verify_pdf_view = VerifyPDFTimestampView()
-        verify_pdf_view.init(self.case_info,self.acquisition_directory)
-        verify_pdf_action.triggered.connect(verify_pdf_view.show)
+        verify_pdf_action.triggered.connect(self.verify_timestamp)
         self.menuBar().addAction(verify_pdf_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
@@ -688,3 +686,8 @@ class Mail(QtWidgets.QMainWindow):
             child_item = item.child(i)
             child_item.setSelected(selected)
             self.update_child_items(child_item, selected)
+
+    def verify_timestamp(self):
+        verify_pdf_view = VerifyPDFTimestampView()
+        verify_pdf_view.init(self.case_info, self.acquisition_directory)
+        verify_pdf_view.show()
