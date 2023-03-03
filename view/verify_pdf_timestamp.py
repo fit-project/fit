@@ -257,6 +257,8 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         timestamp_datetime = rfc3161ng.get_timestamp(timestamp)
 
         info_file_path = f'{folder}/timestamp_info.txt'
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
         with open(info_file_path, 'w') as file:
 
             file.write('======================================================================\n')

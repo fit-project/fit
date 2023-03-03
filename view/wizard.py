@@ -75,7 +75,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
                 if item is not None:
                     if isinstance(item, QtWidgets.QLineEdit) is not False:
                         if value is not None:
-                            item.setText(value)
+                            item.setText(str(value))
                     if isinstance(item, QtWidgets.QComboBox):
                         if keyword in 'types_proceedings_id': 
                             if value is not None:
