@@ -94,37 +94,21 @@ class MitmThread(QThread):
             pass
 
 
+class WebEnginePage(QWebEnginePage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def certificateError(self, error):
+        error.ignoreCertificateError()
+        return True
+
+
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # Load the mitmproxy CA certificate
-        self.set_ssl_config()
+        page = WebEnginePage(self)
+        self.setPage(page)
 
-    def set_ssl_config(self):
-        pem_path = os.path.join(os.path.expanduser("~"), ".mitmproxy")  # current pem path #todo:check
-        pem_path = f'{pem_path}/mitmproxy-ca.p12'
-        with open(pem_path, 'rb') as f:
-            pfx_data = f.read()
-
-        pfx = crypto.load_pkcs12(pfx_data)
-        key = pfx.get_privatekey()
-        cert = pfx.get_certificate()
-
-        cert_crypt = cert.to_cryptography()
-        cert_der = cert_crypt.public_bytes(serialization.Encoding.DER)
-        certi = QSslCertificate.fromData(cert_der, QSsl.EncodingFormat.Der)[0]
-
-        pem_key = key.to_cryptography_key().private_bytes(
-            encoding=cryptography.hazmat.primitives.serialization.Encoding.PEM,
-            format=cryptography.hazmat.primitives.serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=cryptography.hazmat.primitives.serialization.NoEncryption(),
-        )
-        key_qba = QByteArray.fromRawData(pem_key)
-
-        # Convert the PEM-encoded private key to a QSslKey object
-        key = QSslKey(key_qba, QSsl.Rsa, QSsl.EncodingFormat.Pem, QSsl.PrivateKey)
-
-        self.page().profile().clientCertificateStore().add(certi, key)
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
 
@@ -329,7 +313,6 @@ class Web(QtWidgets.QMainWindow):
         # create the proxy
         self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
         QNetworkProxy.setApplicationProxy(self.proxy)
-
 
         # start mitm_thread
         self.mitm_thread.start()
