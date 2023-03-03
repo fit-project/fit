@@ -33,7 +33,6 @@ from mitmproxy import ctx
 from scapy.all import *
 
 import asyncio
-import certifi
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 from PyQt5.QtCore import QThread, QUrl
