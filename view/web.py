@@ -29,20 +29,16 @@
 import logging.config
 import shutil
 
-import OpenSSL
-import cryptography
-from OpenSSL import crypto
-from cryptography.hazmat.primitives import serialization
 from mitmproxy import ctx
 from scapy.all import *
-import ssl
+
 import asyncio
 import certifi
 
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets, QtNetwork
-from PyQt5.QtCore import QThread, QUrl, QByteArray
-from PyQt5.QtNetwork import QSslCertificate, QSslConfiguration, QNetworkProxy, QSslKey, QSsl
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEnginePage
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from PyQt5.QtCore import QThread, QUrl
+from PyQt5.QtNetwork import QNetworkProxy
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
@@ -451,6 +447,8 @@ class Web(QtWidgets.QMainWindow):
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
 
+            # stop the proxy (before stopping the packet capture)
+            self.mitm_thread.stop_proxy()
             # Step 6: stop threads
             if self.is_enabled_packet_capture:
                 self.packetcapture.stop()
@@ -474,7 +472,7 @@ class Web(QtWidgets.QMainWindow):
 
             # Step 8:  Save all resource of current page
 
-            self.mitm_thread.stop_proxy()
+
 
             self.proxy.setType(QNetworkProxy.DefaultProxy)
             QNetworkProxy.setApplicationProxy(self.proxy)
