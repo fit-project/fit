@@ -35,7 +35,7 @@ from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
-from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     mail.hide()
     insta = InstagramView()
     insta.hide()
-    timestamp = VerifyTimestampView()
+    timestamp = VerifyPDFTimestampView()
     timestamp.hide()
 
     
