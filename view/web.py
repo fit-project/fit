@@ -350,7 +350,7 @@ class Web(QtWidgets.QMainWindow):
             # Step 4: Add new thread for network packet capture and start it
             self.configuration_packetcapture = self.configuration_view.get_tab_from_name("configuration_packetcapture")
             options = self.configuration_packetcapture.options
-            self.is_enabled_packet_capture = False
+            self.is_enabled_packet_capture = False #options['enabled']
             if self.is_enabled_packet_capture:
                 options['acquisition_directory'] = self.acquisition_directory
                 self.start_packet_capture(options)
@@ -445,15 +445,17 @@ class Web(QtWidgets.QMainWindow):
                 self.status.showMessage('Get SSL CERTIFICATE')
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
+            try:
+                # stop the proxy (before stopping the packet capture)
+                self.mitm_thread.stop_proxy()
+                # Step 6: stop threads
+                if self.is_enabled_packet_capture:
+                    self.packetcapture.stop()
 
-            # stop the proxy (before stopping the packet capture)
-            self.mitm_thread.stop_proxy()
-            # Step 6: stop threads
-            if self.is_enabled_packet_capture:
-                self.packetcapture.stop()
-
-            if self.is_enabled_screen_recorder:
-                self.screenrecorder.stop()
+                if self.is_enabled_screen_recorder:
+                    self.screenrecorder.stop()
+            except:
+                pass
 
             # Step 7:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
