@@ -25,8 +25,12 @@
 # SOFTWARE.
 # -----
 ######
+from typing import BinaryIO
+
+#import dpkt
 from mitmproxy import http
 from mitmproxy import ctx
+from mitmproxy.addons import save
 from scapy.all import *
 
 import hashlib
@@ -34,7 +38,7 @@ import re
 
 import mitmproxy.http
 from PyQt5.QtCore import QObject, pyqtSignal
-
+from mitmproxy import io
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 from controller.warc_creator import WarcCreator as WarcCreatorController
@@ -49,13 +53,14 @@ class ProxyServer(QObject):
         self.acquisition_directory = acquisition_directory
 
     async def start(self):
+
         # set proxy opts
         options = main.options.Options(listen_host='127.0.0.1', listen_port=self.port,
                                        ssl_insecure=True)
         self.master = DumpMaster(options=options)
 
         addons = [
-            FlowReaderAddon(self.acquisition_directory),
+            FlowReaderAddon(self.acquisition_directory),Writer(self.acquisition_directory),
             #PcapWriter(self.acquisition_directory)
         ]
 
@@ -65,6 +70,17 @@ class ProxyServer(QObject):
         except:
             pass
 
+# addon taken from https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
+class Writer:
+    def __init__(self, acquisition_directory) -> None:
+        self.f: BinaryIO = open(f'{acquisition_directory}/capture.pcap', "wb")
+        self.w = mitmproxy.io.FlowWriter(self.f)
+
+    def response(self, flow: http.HTTPFlow) -> None:
+        self.w.add(flow)
+
+    def done(self):
+        self.f.close()
 
 # creating a custom addon to intercept requests and reponses
 class FlowReaderAddon:
@@ -76,7 +92,7 @@ class FlowReaderAddon:
         return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-        # TODO: search a better way to get the resource's name (for same-hocst resources)
+        # TODO: search a better way to get the resource's name (for same-host resources)
         if len(flow.response.content) > 0:
             url = flow.request.url
             # save html first (since it has no extension in the flow)
