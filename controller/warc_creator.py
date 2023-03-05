@@ -27,8 +27,10 @@
 ######
 import json
 import os
+import zipfile
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from types import SimpleNamespace
 
 from mitmproxy import http
@@ -36,7 +38,18 @@ from warcio import StatusAndHeaders, ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from wacz.main import create_wacz
 
+class OptionalNamespace(SimpleNamespace):
+    def __getattribute__(self, name):
+        try:
+            return super().__getattribute__(name)
+        except:
+            return None
 
+
+class PosixZipInfo(zipfile.ZipInfo):
+    def __init__(self, filename="NoName", date_time=(1980, 1, 1, 0, 0, 0)):
+        filename = Path(filename).as_posix()
+        super().__init__(filename=filename, date_time=date_time)
 class WarcCreator:
     def __init__(self):
         return
@@ -108,16 +121,15 @@ class WarcCreator:
                                 json.dump(page, outfile)
 
     def warc_to_wacz(self, pages_path, warc_path, wacz_path):
-        class OptionalNamespace(SimpleNamespace):
-            def __getattribute__(self, name):
-                try:
-                    return super().__getattribute__(name)
-                except:
-                    return None
+        warc_file_path = Path(warc_path).as_posix()
+        pages_path = Path(pages_path).as_posix()
+        wacz_output_path = Path(wacz_path).as_posix()
+
+        zipfile.ZipInfo = PosixZipInfo
 
         res = OptionalNamespace(
-            output=wacz_path,
-            inputs=[warc_path],
+            output=wacz_output_path,
+            inputs=[warc_file_path],
             pages=pages_path,
             detect_pages=False
         )
