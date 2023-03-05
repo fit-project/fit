@@ -26,7 +26,7 @@
 # -----
 ######
 
-from mitmproxy import http, tcp
+from mitmproxy import http, tcp, udp
 from scapy.all import *
 
 import hashlib
@@ -63,7 +63,7 @@ class ProxyServer(QObject):
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             FlowWriterAddon(self.acquisition_directory),
-            PacketWriterAddon(self.acquisition_directory),
+            #PacketWriterAddon(self.acquisition_directory),
         ]
 
         master.addons.add(*addons)
@@ -73,16 +73,6 @@ class ProxyServer(QObject):
         except Exception as e:
             pass
 
-
-class PacketWriterAddon:
-    def __init__(self, acquisition_directory):
-        self.acquisition_directory = acquisition_directory
-
-    def tcp_start(self, flow: tcp.TCPFlow):
-        print('start')
-
-    def tcp_message(self, flow: tcp.TCPFlow):
-        print('tcp_message')
 
 
 # addon from doc: https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file

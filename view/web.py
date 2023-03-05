@@ -350,7 +350,7 @@ class Web(QtWidgets.QMainWindow):
             # Step 4: Add new thread for network packet capture and start it
             self.configuration_packetcapture = self.configuration_view.get_tab_from_name("configuration_packetcapture")
             options = self.configuration_packetcapture.options
-            self.is_enabled_packet_capture = False #options['enabled']
+            self.is_enabled_packet_capture = options['enabled']
             if self.is_enabled_packet_capture:
                 options['acquisition_directory'] = self.acquisition_directory
                 self.start_packet_capture(options)
