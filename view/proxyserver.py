@@ -25,12 +25,8 @@
 # SOFTWARE.
 # -----
 ######
-from typing import BinaryIO
 
-#import dpkt
-from mitmproxy import http
-from mitmproxy import ctx
-from mitmproxy.addons import save
+from mitmproxy import http, tcp
 from scapy.all import *
 
 import hashlib
@@ -53,27 +49,46 @@ class ProxyServer(QObject):
         self.acquisition_directory = acquisition_directory
 
     async def start(self):
+        # Set proxy options
+        options = main.options.Options(
+            listen_host='127.0.0.1',
+            listen_port=self.port,
+            ssl_insecure=True,
+            tcp_hosts=[".*"]
+        )
 
-        # set proxy opts
-        options = main.options.Options(listen_host='127.0.0.1', listen_port=self.port,
-                                       ssl_insecure=True)
-        self.master = DumpMaster(options=options)
+        # Create a master object and add addons
+        master = DumpMaster(options=options)
 
         addons = [
-            FlowReaderAddon(self.acquisition_directory),FlowWriterAddon(self.acquisition_directory),
-            #PcapWriter(self.acquisition_directory) # <-todo
+            FlowReaderAddon(self.acquisition_directory),
+            FlowWriterAddon(self.acquisition_directory),
+            PacketWriterAddon(self.acquisition_directory),
         ]
 
-        self.master.addons.add(*addons)
+        master.addons.add(*addons)
+
         try:
-            await ctx.master.run()
-        except:
+            await master.run()
+        except Exception as e:
             pass
+
+
+class PacketWriterAddon:
+    def __init__(self, acquisition_directory):
+        self.acquisition_directory = acquisition_directory
+
+    def tcp_start(self, flow: tcp.TCPFlow):
+        print('start')
+
+    def tcp_message(self, flow: tcp.TCPFlow):
+        print('tcp_message')
+
 
 # addon from doc: https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
 class FlowWriterAddon:
     def __init__(self, acquisition_directory) -> None:
-        self.w = mitmproxy.io.FlowWriter(open(f'{acquisition_directory}/flow_dump.pcap', "wb"))
+        self.w = mitmproxy.io.FlowWriter(open(f'{acquisition_directory}/flow_dump.txt', "wb")) #standard: .mitm
 
     def response(self, flow: http.HTTPFlow) -> None:
         self.w.add(flow)

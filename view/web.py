@@ -306,7 +306,7 @@ class Web(QtWidgets.QMainWindow):
         self.mitm_thread = MitmThread(port, self.acquisition_directory)
 
         # create the proxy
-        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8081)
+        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', port)
         QNetworkProxy.setApplicationProxy(self.proxy)
 
         # start mitm_thread
