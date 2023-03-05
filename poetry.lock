@@ -4266,14 +4266,14 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pypdf"
-version = "3.4.1"
+version = "3.5.0"
 description = "A pure-python PDF library capable of splitting, merging, cropping, and transforming PDF files"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "pypdf-3.4.1-py3-none-any.whl", hash = "sha256:5e84dc66d17f3e74fd6c84ab1e0b0cc6e21aae79e391eac88853cdac47847813"},
-    {file = "pypdf-3.4.1.tar.gz", hash = "sha256:8b0badc787062e8fb0d8393eb2a76903717fb24e5cc84e2b03cde5ac3881700f"},
+    {file = "pypdf-3.5.0-py3-none-any.whl", hash = "sha256:7866b622880e3f24ef5b175e481de334cd17cd01a2e3526aa78815fdbc03a15d"},
+    {file = "pypdf-3.5.0.tar.gz", hash = "sha256:35dce3544f965762ccab49219713de195b19cfeade4b847bd69f8531c090a71e"},
 ]
 
 [package.dependencies]
@@ -4796,6 +4796,8 @@ files = [
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:045e0626baf1c52e5527bd5db361bc83180faaba2ff586e763d3d5982a876a9e"},
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-macosx_12_6_arm64.whl", hash = "sha256:721bc4ba4525f53f6a611ec0967bdcee61b31df5a56801281027a3a6d1c2daf5"},
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:41d0f1fa4c6830176eef5b276af04c89320ea616655d01327d5ce65e50575c94"},
+    {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-win32.whl", hash = "sha256:f6d3d39611ac2e4f62c3128a9eed45f19a6608670c5a2f4f07f24e8de3441d38"},
+    {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-win_amd64.whl", hash = "sha256:da538167284de58a52109a9b89b8f6a53ff8437dd6dc26d33b57bf6699153122"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:4b3a93bb9bc662fc1f99c5c3ea8e623d8b23ad22f861eb6fce9377ac07ad6072"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-macosx_12_0_arm64.whl", hash = "sha256:a234a20ae07e8469da311e182e70ef6b199d0fbeb6c6cc2901204dd87fb867e8"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:15910ef4f3e537eea7fe45f8a5d19997479940d9196f357152a09031c5be59f3"},
@@ -5130,6 +5132,21 @@ files = [
 ]
 
 [[package]]
+name = "warcio"
+version = "1.7.4"
+description = "Streaming WARC (and ARC) IO library"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "warcio-1.7.4-py2.py3-none-any.whl", hash = "sha256:ced1a162d76434d56abd81b37ac152821d1a11e1db835ead5d649f58068c2203"},
+    {file = "warcio-1.7.4.tar.gz", hash = "sha256:e1889dad9ecac654de5b0973247f335a55827b1b14a8203772d18c749143ea51"},
+]
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "webencodings"
 version = "0.5.1"
 description = "Character encoding aliases for legacy web content"
@@ -5282,4 +5299,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "145e035036af0f24396d4de52b40fbeaf7dc0294bd53226a96c656604dd38d58"
+content-hash = "13bfde12c391ef45f9f8c255d7021de32a0171104a248fdc130c85a448a400c5"

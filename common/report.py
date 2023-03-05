@@ -34,7 +34,7 @@ class ReportText:
             'img': '..\\asset\\images\\FIT.png',
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
-            'version': "Versione 1.0 beta",
+            'version': "Versione 1.4 beta",
             'index': "Indice",
 
             'description': "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti "
@@ -112,7 +112,14 @@ class ReportText:
             't7': "File prodotti dall'utente",
             't7descr': "Tutti i file prodotti dall'utente durante l'acquisizione sono raccolti all'interno "
                        "della cartella compressa avente estensione .zip. Per ognuno di questi file viene riportata "
-                       "la dimensione espressa in bytes."
+                       "la dimensione espressa in bytes.",
+            'verifi_ok': "La verifica del timestamp del report in formato PDF ha fornito esito positivo. "
+                         "Di seguito vengono riportate le informazioni riguardanti l'esito della verifica, il file, "
+                         "l'algoritmo di hashing e il servizio di Time Stamp Authority utilizzato per effettuare il controllo.",
+            'verifi_ko': "La verifica del timestamp del report in formato PDF ha fornito esito negativo. "
+                         "Di seguito vengono riportate le informazioni riguardanti l'esito della verifica, il file, "
+                         "l'algoritmo di hashing e il servizio di Time Stamp Authority utilizzato per effettuare il controllo.",
+            'verification': "Verifica del timestamp del report",
         }
         self.CASE = ["Cliente / Caso", "Avvocato", "Tipo di procedimento",
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
