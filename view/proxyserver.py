@@ -60,8 +60,8 @@ class ProxyServer(QObject):
         self.master = DumpMaster(options=options)
 
         addons = [
-            FlowReaderAddon(self.acquisition_directory),Writer(self.acquisition_directory),
-            #PcapWriter(self.acquisition_directory)
+            FlowReaderAddon(self.acquisition_directory),FlowWriterAddon(self.acquisition_directory),
+            #PcapWriter(self.acquisition_directory) # <-todo
         ]
 
         self.master.addons.add(*addons)
@@ -70,17 +70,14 @@ class ProxyServer(QObject):
         except:
             pass
 
-# addon taken from https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
-class Writer:
+# addon from doc: https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
+class FlowWriterAddon:
     def __init__(self, acquisition_directory) -> None:
-        self.f: BinaryIO = open(f'{acquisition_directory}/capture.pcap', "wb")
-        self.w = mitmproxy.io.FlowWriter(self.f)
+        self.w = mitmproxy.io.FlowWriter(open(f'{acquisition_directory}/flow_dump.pcap', "wb"))
 
     def response(self, flow: http.HTTPFlow) -> None:
         self.w.add(flow)
 
-    def done(self):
-        self.f.close()
 
 # creating a custom addon to intercept requests and reponses
 class FlowReaderAddon:
