@@ -95,37 +95,36 @@ class FlowReaderAddon:
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         # TODO: search a better way to get the resource's name (for same-host resources)
-        if len(flow.response.content) > 0:
-            url = flow.request.url
-            # save html first (since it has no extension in the flow)
-            if flow.response.headers.get('content-type', '').startswith('text/html'):
-                # get html to disk
-                html_text = flow.response.content
-                with open(f"{self.acq_dir}/{flow.request.pretty_host}.html", "wb") as f:
-                    f.write(html_text)
+        url = flow.request.url
+        # save html first (since it has no extension in the flow)
+        if flow.response.headers.get('content-type', '').startswith('text/html'):
+            # get html to disk
+            html_text = flow.response.content
+            with open(f"{self.acq_dir}/{flow.request.pretty_host}.html", "wb") as f:
+                f.write(html_text)
 
-            # get extension for other resources
-            content_type = flow.response.headers.get('content-type', '').lower()
-            extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
-            if extension:
-                extension = '.' + extension.group(2)
+        # get extension for other resources
+        content_type = flow.response.headers.get('content-type', '').lower()
+        extension = re.search(r'\b(?!text\/)(\w+)\/(\w+)', content_type)
+        if extension:
+            extension = '.' + extension.group(2)
+        else:
+            extension = None
+
+        if extension is not None:
+
+            if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
+                # save image to disk
+                with open(
+                        f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
+                        "wb") as f:
+                    f.write(flow.response.content)
             else:
-                extension = None
-
-            if extension is not None:
-
-                if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
-                    # save image to disk
-                    with open(
-                            f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
-                            "wb") as f:
-                        f.write(flow.response.content)
-                else:
-                    # save other resources to disk
-                    with open(
-                            f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
-                            "wb") as f:
-                        f.write(flow.response.content)
+                # save other resources to disk
+                with open(
+                        f"{self.acq_dir}/{hashlib.md5(url.encode()).hexdigest()}{extension}",
+                        "wb") as f:
+                    f.write(flow.response.content)
 
         warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
         warc_creator = WarcCreatorController()
