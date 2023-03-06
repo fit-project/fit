@@ -26,8 +26,11 @@
 # -----
 ######
 import os
+import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication
+
 from common.error import ErrorMessage
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from common.config import LogConfigMail
@@ -67,7 +70,7 @@ class Pec(QtWidgets.QMainWindow):
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
         self.setObjectName("mainWindow")
-        self.resize(452, 333)
+        self.resize(452, 400)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.input_username = QtWidgets.QLineEdit(self.centralwidget)
@@ -84,12 +87,12 @@ class Pec(QtWidgets.QMainWindow):
         self.label_password.setGeometry(QtCore.QRect(30, 60, 100, 20))
         self.label_password.setObjectName("label_password")
         self.scrapeButton = QtWidgets.QPushButton(self.centralwidget)
-        self.scrapeButton.setGeometry(QtCore.QRect(340, 230, 75, 25))
+        self.scrapeButton.setGeometry(QtCore.QRect(340, 297, 75, 25))
         self.scrapeButton.setObjectName("scrapeButton")
         self.scrapeButton.clicked.connect(self.button_clicked)
         self.scrapeButton.setEnabled(False)
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setGeometry(QtCore.QRect(320, 280, 131, 23))
+        self.progressBar.setGeometry(QtCore.QRect(320, 347, 131, 23))
         self.progressBar.setProperty("value", 24)
         self.progressBar.setObjectName("progressBar")
         self.progressBar.setValue(0)
@@ -106,13 +109,30 @@ class Pec(QtWidgets.QMainWindow):
         self.input_username_2.setGeometry(QtCore.QRect(170, 120, 240, 20))
         self.input_username_2.setObjectName("input_username_2")
 
+        self.label_username_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_username_3.setGeometry(QtCore.QRect(30, 190, 100, 20))
+        self.label_username_3.setObjectName("label_username_3")
+
+        self.label_password_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_password_3.setGeometry(QtCore.QRect(30, 220, 100, 20))
+        self.label_password_3.setObjectName("label_password_3")
+
+        self.input_password_3 = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_password_3.setGeometry(QtCore.QRect(170, 220, 240, 20))
+        self.input_password_3.setObjectName("input_password_3")
+
+        self.input_username_3 = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_username_3.setGeometry(QtCore.QRect(170, 190, 240, 20))
+        self.input_username_3.setObjectName("input_username_3")
+
         # Verify if input fields are empty
-        self.input_fields = [self.input_username, self.input_password, self.input_username_2, self.input_password_2]
+        self.input_fields = [self.input_username, self.input_password, self.input_username_2, self.input_password_2,
+                             self.input_username_3, self.input_password_3]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.onTextChanged)
 
         self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox.setGeometry(QtCore.QRect(170, 190, 111, 17))
+        self.checkBox.setGeometry(QtCore.QRect(170, 257, 111, 17))
         self.checkBox.setObjectName("checkBox")
         self.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(self)
@@ -137,6 +157,8 @@ class Pec(QtWidgets.QMainWindow):
                 self.input_password.setText(pecConfig.password)
                 self.input_username_2.setText(pecConfig.server)
                 self.input_password_2.setText(pecConfig.port)
+                self.input_username_3.setText(pecConfig.serverImap)
+                self.input_password_3.setText(pecConfig.portImap)
 
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -147,8 +169,10 @@ class Pec(QtWidgets.QMainWindow):
         self.label_username.setText(_translate("mainWindow", "Inserisci indirizzo PEC"))
         self.label_password.setText(_translate("mainWindow", "Inserisci la password"))
         self.scrapeButton.setText(_translate("mainWindow", "Invio"))
-        self.label_username_2.setText(_translate("mainWindow", "Server"))
-        self.label_password_2.setText(_translate("mainWindow", "Porta"))
+        self.label_username_2.setText(_translate("mainWindow", "Server SMTP"))
+        self.label_password_2.setText(_translate("mainWindow", "Porta SMTP"))
+        self.label_username_3.setText(_translate("mainWindow", "Server IMAP"))
+        self.label_password_3.setText(_translate("mainWindow", "Porta IMAP"))
         self.checkBox.setText(_translate("mainWindow", "Salva i miei dati"))
         self.menuConfiguration.setTitle(_translate("mainWindow", "Configuration"))
         self.menuCase.setTitle(_translate("mainWindow", "Case"))
@@ -162,7 +186,7 @@ class Pec(QtWidgets.QMainWindow):
         self.progressBar.setValue(10)
         pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition,
                             self.case_info['name'], self.directory, self.input_username_2.text(),
-                            self.input_password_2.text())
+                            self.input_password_2.text(), self.input_username_3.text(), self.input_password_3.text())
         self.progressBar.setValue(30)
 
         sendedPec = pec.sendPec()
@@ -178,8 +202,9 @@ class Pec(QtWidgets.QMainWindow):
                         self.controller.delete(pecConfigPec)
                 else:
                     pass
-                self.controller.add(self.input_username.text(), self.input_password.text(), self.input_username_2.text(),
-                                    self.input_password_2.text())
+                self.controller.add(self.input_username.text(), self.input_password.text(),
+                                    self.input_username_2.text(), self.input_password_2.text(),
+                                    self.input_username_3.text(), self.input_password_3.text())
 
 
         self.progressBar.setValue(100)
@@ -188,3 +213,5 @@ class Pec(QtWidgets.QMainWindow):
             pass
         else:
             self.close()
+
+

@@ -40,6 +40,8 @@ class Pec(Base):
     password = Column(String)
     server = Column(String)
     port = Column(String)
+    serverImap = Column(String)
+    portImap = Column(String)
 
     def __init__(self) -> None:
         super().__init__()
@@ -52,15 +54,18 @@ class Pec(Base):
     def get(self):
         return self.db.session.query(Pec).all()
 
-    def update(self, pecData, passwordData, serverData, portData):
-        self.db.session.query(Pec).filter(Pec.pec == pecData).update(pecData, passwordData, serverData, portData)
+    def update(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
+        self.db.session.query(Pec).filter(Pec.pec == pecData).update(pecData, passwordData, serverData, portData,
+                                                                     serverImapData, portImapData)
         self.db.session.commit()
 
-    def add(self, pecData, passwordData, serverData, portData):
+    def add(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
         self.pec = pecData
         self.password = passwordData
         self.server = serverData
         self.port = portData
+        self.serverImap = serverImapData
+        self.portImap = portImapData
 
         self.db.session.add(self)
         self.db.session.commit()

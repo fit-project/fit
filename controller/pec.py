@@ -36,7 +36,7 @@ from email.mime.multipart import MIMEMultipart
 from common.error import ErrorMessage
 
 class Pec:
-    def __init__(self, username, password, acquisition, case, path, server, port):
+    def __init__(self, username, password, acquisition, case, path, server, port, serverImap, portImap):
         self.username = username
         # TODO: implement secure password handling
         self.password = password
@@ -47,6 +47,8 @@ class Pec:
         self.acquisition = acquisition
         self.case = case
         self.error_msg = ErrorMessage()
+        self.serverImap = serverImap
+        self.portImap = portImap
         return
 
     def sendPec(self):

@@ -38,6 +38,7 @@ from view.instagram import Instagram as InstagramView
 from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
 from view.pecChoose import PecChoose as PecChooseView
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     wizard = WizardView()

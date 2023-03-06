@@ -36,14 +36,14 @@ class Pec():
         self.model = PecModel()
         _options = self.model.get()
 
-    def add(self, pec, password, server, port):
-        self.model.add(pec, password, server, port)
+    def add(self, pec, password, server, port, serverImap, portImap):
+        self.model.add(pec, password, server, port, serverImap, portImap)
 
     def delete(self, pecData):
         self.model.delete(pecData)
 
-    def update(self, pecData, passwordData, serverData, portData):
-        self.model.update(pecData, passwordData, serverData, portData)
+    def update(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
+        self.model.update(pecData, passwordData, serverData, portData, serverImapData, portImapData)
 
     def get(self):
         return self.model.get()
