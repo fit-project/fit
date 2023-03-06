@@ -103,6 +103,7 @@ class MainWindow(QWebEngineView):
         super().__init__(parent)
         page = WebEnginePage(self)
         self.setPage(page)
+        self.profile().setHttpCacheMaximumSize(0)
 
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
@@ -337,7 +338,9 @@ class Web(QtWidgets.QMainWindow):
             # refreshing the page so we can get back the resources already loaded
             # tricky way to refresh the url
 
-            self.tabs.currentWidget().page().profile().clearHttpCache()
+
+            self.tabs.currentWidget().page().profile().cookieStore().deleteAllCookies()
+            self.tabs.currentWidget().page().profile().cookieStore().deleteSessionCookies()
 
             self.reload_btn.trigger()
 
