@@ -38,6 +38,7 @@ from warcio import StatusAndHeaders, ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from wacz.main import create_wacz
 
+
 class OptionalNamespace(SimpleNamespace):
     def __getattribute__(self, name):
         try:
@@ -50,47 +51,47 @@ class PosixZipInfo(zipfile.ZipInfo):
     def __init__(self, filename="NoName", date_time=(1980, 1, 1, 0, 0, 0)):
         filename = Path(filename).as_posix()
         super().__init__(filename=filename, date_time=date_time)
+
+
 class WarcCreator:
     def __init__(self):
         return
 
     def flow_to_warc(self, flow: http.HTTPFlow, warc_path):
-
         with open(warc_path, 'ab') as output:
-
             # create new warcio writer
             writer = WARCWriter(output, gzip=False)
-            if len(flow.response.content) > 0:
-                content_type = flow.response.headers.get('content-type', '').split(';')[0]
-                payload = flow.response.content
-                headers = flow.response.headers
+            content_type = flow.response.headers.get('content-type', '').split(';')[0]
+            payload = flow.response.content
+            headers = flow.response.headers
 
-                # date from flow is returning as float, needs to be converted
-                date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
-                # convert the datetime object to an ISO formatted string
-                iso_date_str = date_obj.isoformat()
+            # date from flow is returning as float, needs to be converted
+            date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
+            # convert the datetime object to an ISO formatted string
+            iso_date_str = date_obj.isoformat()
 
-                # create http headers from the information inside the flow
-                http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
-                                                protocol=flow.response.http_version)
-                warc_headers = {
-                    'WARC-Type': 'resource',
-                    'WARC-Target-URI': flow.request.url,
-                    'WARC-Source-URI': flow.request.url,
-                    'WARC-Date': iso_date_str,
-                    'Content-Type': content_type,
-                    'Content-Length': str(len(payload))
-                }
-                # check if payload is in bytes format
-                if type(payload) is bytes:
-                    payload = BytesIO(payload)
+            # create http headers from the information inside the flow
+            http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
+                                            protocol=flow.response.http_version)
+            warc_headers = {
+                'WARC-Type': 'resource',
+                'WARC-Target-URI': flow.request.url,
+                'WARC-Source-URI': flow.request.url,
+                'WARC-Date': iso_date_str,
+                'Content-Type': content_type,
+                'Content-Length': str(len(payload))
+            }
+            # check if payload is in bytes format
+            if type(payload) is bytes:
+                payload = BytesIO(payload)
 
-                # create the actual warc record
-                record = writer.create_warc_record(flow.request.url, 'response',
-                                                   payload=payload,
-                                                   http_headers=http_headers,
-                                                   warc_headers_dict=warc_headers)
-                writer.write_record(record)
+            # create the actual warc record
+            record = writer.create_warc_record(flow.request.url, 'response',
+                                               payload=payload,
+                                               http_headers=http_headers,
+                                               warc_headers_dict=warc_headers)
+            writer.write_record(record)
+
 
     def create_pages(self, pages_path, warc_path):
         # set the header
@@ -119,6 +120,7 @@ class WarcCreator:
                                 }
                                 outfile.write('\n')
                                 json.dump(page, outfile)
+
 
     def warc_to_wacz(self, pages_path, warc_path, wacz_path):
         warc_file_path = Path(warc_path).as_posix()
