@@ -92,6 +92,7 @@ class MitmThread(QThread):
 class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.profile().setHttpCacheMaximumSize(0)
 
     def certificateError(self, error):
         error.ignoreCertificateError()
@@ -103,7 +104,6 @@ class MainWindow(QWebEngineView):
         super().__init__(parent)
         page = WebEnginePage(self)
         self.setPage(page)
-        self.profile().setHttpCacheMaximumSize(0)
 
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
