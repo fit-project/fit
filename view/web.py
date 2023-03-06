@@ -337,6 +337,8 @@ class Web(QtWidgets.QMainWindow):
             # refreshing the page so we can get back the resources already loaded
             # tricky way to refresh the url
 
+            self.tabs.currentWidget().page().profile().clearHttpCache()
+
             self.reload_btn.trigger()
 
             # Step 4: Add new thread for network packet capture and start it
