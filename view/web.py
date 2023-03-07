@@ -92,7 +92,6 @@ class MitmThread(QThread):
 class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.profile().setHttpCacheMaximumSize(0)
 
     def certificateError(self, error):
         error.ignoreCertificateError()
@@ -338,9 +337,7 @@ class Web(QtWidgets.QMainWindow):
             # refreshing the page so we can get back the resources already loaded
             # tricky way to refresh the url
 
-
-            self.tabs.currentWidget().page().profile().cookieStore().deleteAllCookies()
-            self.tabs.currentWidget().page().profile().cookieStore().deleteSessionCookies()
+            self.tabs.currentWidget().page().profile().clearHttpCache()
 
             self.reload_btn.trigger()
 

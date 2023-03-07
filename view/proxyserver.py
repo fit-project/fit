@@ -95,8 +95,6 @@ class FlowReaderAddon:
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         # TODO: search a better way to get the resource's name (for same-host resources)
-        headers = flow.request.headers
-        headers.pop("X-CSRFToken", None)
         url = flow.request.url
         # save html first (since it has no extension in the flow)
         if flow.response.headers.get('content-type', '').startswith('text/html'):
