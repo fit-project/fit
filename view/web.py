@@ -35,7 +35,7 @@ from scapy.all import *
 import asyncio
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QThread, QUrl
+from PyQt5.QtCore import QThread, QTimer
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
@@ -301,18 +301,26 @@ class Web(QtWidgets.QMainWindow):
             self.tabs.currentWidget().url().toString()
         )
 
-        # set port and start the thread
-        port = 8081
+        # set port and create the proxy
+        port = 8080
         self.mitm_thread = MitmThread(port, self.acquisition_directory)
-
-        # create the proxy
         self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', port)
         QNetworkProxy.setApplicationProxy(self.proxy)
 
-        # start mitm_thread
-        self.mitm_thread.start()
-        if self.acquisition_directory is not None:
+        # delete cookies from the store and clean the cache
+        cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+        cookie_store.deleteAllCookies()
+        self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
+        self.tabs.currentWidget().page().profile().clearHttpCache()
 
+        # start mitmproxy thread
+
+        self.mitm_thread.start()
+        # reload the page (waiting for the thread to be fully started)
+        QtCore.QTimer.singleShot(1000, self.tabs.currentWidget().reload)
+
+
+        if self.acquisition_directory is not None:
             # show progress bar
             self.progress_bar.setHidden(False)
 
@@ -333,13 +341,6 @@ class Web(QtWidgets.QMainWindow):
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
             self.progress_bar.setValue(50)
-
-            # refreshing the page so we can get back the resources already loaded
-            # tricky way to refresh the url
-
-            self.tabs.currentWidget().page().profile().clearHttpCache()
-
-            self.reload_btn.trigger()
 
             # Step 4: Add new thread for network packet capture and start it
             self.configuration_packetcapture = self.configuration_view.get_tab_from_name("configuration_packetcapture")
@@ -466,8 +467,6 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(20)
 
             # Step 8:  Save all resource of current page
-
-
 
             self.proxy.setType(QNetworkProxy.DefaultProxy)
             QNetworkProxy.setApplicationProxy(self.proxy)

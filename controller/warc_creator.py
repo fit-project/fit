@@ -57,6 +57,17 @@ class WarcCreator:
     def __init__(self):
         return
 
+    def warcinfo(self, warc_path):
+        with open(warc_path, 'wb') as output:
+            # create new warcio writer
+            writer = WARCWriter(output, gzip=False)
+            warcinfo_content = {
+                'software': 'Freezing Internet Tool - FIT',
+                'format': 'WARC File Format 1.0'
+            }
+            record = writer.create_warcinfo_record(warc_path, info=warcinfo_content)
+            writer.write_record(record)
+
     def flow_to_warc(self, flow: http.HTTPFlow, warc_path):
         with open(warc_path, 'ab') as output:
             # create new warcio writer
@@ -86,12 +97,12 @@ class WarcCreator:
                 payload = BytesIO(payload)
 
             # create the actual warc record
+
             record = writer.create_warc_record(flow.request.url, 'response',
                                                payload=payload,
                                                http_headers=http_headers,
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
-
 
     def create_pages(self, pages_path, warc_path):
         # set the header
@@ -120,7 +131,6 @@ class WarcCreator:
                                 }
                                 outfile.write('\n')
                                 json.dump(page, outfile)
-
 
     def warc_to_wacz(self, pages_path, warc_path, wacz_path):
         warc_file_path = Path(warc_path).as_posix()

@@ -25,16 +25,17 @@
 # SOFTWARE.
 # -----
 ######
-
-from mitmproxy import http, tcp, udp
-from scapy.all import *
+from mitmproxy import http
 
 import hashlib
 import re
+import os.path
 
+import mitmproxy.types
+from mitmproxy import http
+from mitmproxy import io
 import mitmproxy.http
 from PyQt5.QtCore import QObject, pyqtSignal
-from mitmproxy import io
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 from controller.warc_creator import WarcCreator as WarcCreatorController
@@ -48,24 +49,29 @@ class ProxyServer(QObject):
         self.port = port
         self.acquisition_directory = acquisition_directory
 
+        warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
+        warc_creator = WarcCreatorController()
+        warc_creator.warcinfo(warc_path)
+
     async def start(self):
+
         # Set proxy options
         options = main.options.Options(
             listen_host='127.0.0.1',
             listen_port=self.port,
             ssl_insecure=True,
-            tcp_hosts=[".*"]
+            tcp_hosts=[".*"],
+            udp_hosts=[".*"],
+            rawtcp=True,
+            rawudp=True,
+            mode = ['regular','transparent']
         )
-
         # Create a master object and add addons
         master = DumpMaster(options=options)
-
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             FlowWriterAddon(self.acquisition_directory),
-            #PacketWriterAddon(self.acquisition_directory),
         ]
-
         master.addons.add(*addons)
 
         try:
@@ -73,12 +79,10 @@ class ProxyServer(QObject):
         except Exception as e:
             pass
 
-
-
 # addon from doc: https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
 class FlowWriterAddon:
     def __init__(self, acquisition_directory) -> None:
-        self.w = mitmproxy.io.FlowWriter(open(f'{acquisition_directory}/flow_dump.txt', "wb")) #standard: .mitm
+        self.w = mitmproxy.io.FlowWriter(open(f'{acquisition_directory}/flow_dump.txt', "wb"))  # standard: .mitm
 
     def response(self, flow: http.HTTPFlow) -> None:
         self.w.add(flow)
