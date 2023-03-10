@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import datetime
 import os
 import smtplib
 import subprocess
@@ -34,6 +35,7 @@ from view.error import Error as ErrorView
 from PyQt5 import QtWidgets
 from email.mime.multipart import MIMEMultipart
 from common.error import ErrorMessage
+from controller.searchPec import SearchPec as SearchPecController
 
 class Pec:
     def __init__(self, username, password, acquisition, case, path, server, port, serverImap, portImap):
@@ -91,6 +93,7 @@ class Pec:
 
             try:
                 server.login(email_utente, password_utente)
+                dataToday = datetime.datetime.today()
                 server.sendmail(email_utente, destinatario, msg.as_string())
             except smtplib.SMTPException:
                 error = True
@@ -99,5 +102,40 @@ class Pec:
                                       self.error_msg.MESSAGES['pec_error'],
                                       'Wrong parameters or credentials')
                 error_dlg.exec_()
+
+
+        retrieveEml = SearchPecController(self.username, self.password, self.serverImap, self.portImap, self.case)
+        pecs = retrieveEml.fetchPec()
+
+        for pec in pecs:
+            datePec = pec.get_decoded_header('Date')
+            datePec = datetime.datetime.strptime(datePec, '%a, %d %b %Y %H:%M:%S %z')
+            print("Confronto date")
+            print("Data pec")
+            print(datePec)
+            print("Data odierna")
+            print(dataToday)
+            print("\n")
+            if datePec == dataToday:
+
+                subject = pec.get_subject()
+                list = subject.split()
+                caseIndex = list.index("caso:")
+                casePec = " ".join(list[caseIndex + 1:])
+                if casePec == str(self.case):
+
+                    print("Caso pec")
+                    print(casePec)
+                    print("Caso inviato")
+                    print(str(self.case))
+                    print("\n")
+
+                    rawMessage = pec.as_bytes()
+                    # salva il messaggio di posta elettronica in formato EML
+                    filename = f"{pec.get('message-id')[1:-8]}.eml"
+                    # utilizza l'ID del messaggio come nome del file EML
+                    with open(filename, "wb") as f:
+                        f.write(rawMessage)
+
         return error
 

@@ -91,6 +91,13 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton.setObjectName("scrapeButton")
         self.scrapeButton.clicked.connect(self.button_clicked)
         self.scrapeButton.setEnabled(False)
+
+        self.skipButton = QtWidgets.QPushButton(self.centralwidget)
+        self.skipButton.setGeometry(QtCore.QRect(245, 297, 75, 25))
+        self.skipButton.setObjectName("skipButton")
+        self.skipButton.clicked.connect(self.skip_send)
+        self.skipButton.setEnabled(True)
+
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(320, 347, 131, 23))
         self.progressBar.setProperty("value", 24)
@@ -169,6 +176,7 @@ class Pec(QtWidgets.QMainWindow):
         self.label_username.setText(_translate("mainWindow", "Inserisci indirizzo PEC"))
         self.label_password.setText(_translate("mainWindow", "Inserisci la password"))
         self.scrapeButton.setText(_translate("mainWindow", "Invio"))
+        self.skipButton.setText(_translate("mainWindow", "Salta"))
         self.label_username_2.setText(_translate("mainWindow", "Server SMTP"))
         self.label_password_2.setText(_translate("mainWindow", "Porta SMTP"))
         self.label_username_3.setText(_translate("mainWindow", "Server IMAP"))
@@ -213,5 +221,9 @@ class Pec(QtWidgets.QMainWindow):
             pass
         else:
             self.close()
+
+    def skip_send(self):
+        os.startfile(str(self.directory))
+        self.close()
 
 
