@@ -35,7 +35,7 @@ from scapy.all import *
 import asyncio
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QThread, QTimer
+from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
@@ -304,8 +304,9 @@ class Web(QtWidgets.QMainWindow):
         # set port and create the proxy
         port = 8080
         self.mitm_thread = MitmThread(port, self.acquisition_directory)
-        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', port)
+        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8080)
         QNetworkProxy.setApplicationProxy(self.proxy)
+
 
         # delete cookies from the store and clean the cache
         cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
