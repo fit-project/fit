@@ -54,6 +54,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = self.translate_path(self.path)
+        print(path)
         f = None
         if os.path.isdir(path):
             self.send_error(404, "File not found")
@@ -65,8 +66,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return None
         self.send_response(200)
         self.send_header('Content-type', self.guess_type(path))
-        self.send_header('Content-Length', os.fstat(f.fileno()).st_size)
-        self.send_header('Last-Modified', self.date_time_string(os.path.getmtime(path)))
+        self.send_header('Content-Length', str(os.fstat(f.fileno()).st_size))
+        self.send_header('Last-Modified', self.date_time_string(int(os.path.getmtime(path))))
         self.send_header('Accept-Ranges', 'bytes')
         self.end_headers()
         self.copyfile(f, self.wfile)

@@ -718,9 +718,7 @@ class Web(QtWidgets.QMainWindow):
     def navigate_home(self):
         if self.acquisition_is_started:
             logger_acquisition.info('User clicked the home button')
-        url = QtCore.QUrl.fromLocalFile('/asset/warc_player/webrecorder_player.warc_player')
-        self.tabs.currentWidget().setUrl(url)
-        # self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
+        self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
 
     def navigate_to_url(self):  # Does not receive the Url
         q = QtCore.QUrl(self.urlbar.text())
@@ -766,7 +764,7 @@ class Web(QtWidgets.QMainWindow):
             self.load_warc(filename)
 
     def load_warc(self, filename):
-        url = QUrl('http://localhost:8000/asset/warc_player/webrecorder_player.html')
+        url = QUrl('http://localhost:8000/warc_player/webrecorder_player.html')
 
         self.browser.setUrl(url)
         # self.tabs.currentWidget().load(QUrl('https://webrecorder.io/player/?url=file://' + filename))
