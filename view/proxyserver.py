@@ -100,11 +100,11 @@ class FlowReaderAddon:
     def response(self, flow: mitmproxy.http.HTTPFlow):
         # TODO: search a better way to get the resource's name (for same-host resources)
         url = flow.request.url
-        # save html first (since it has no extension in the flow)
-        if flow.response.headers.get('content-type', '').startswith('text/html'):
-            # get html to disk
+        # save warc_player first (since it has no extension in the flow)
+        if flow.response.headers.get('content-type', '').startswith('text/warc_player'):
+            # get warc_player to disk
             html_text = flow.response.content
-            with open(f"{self.acq_dir}/{flow.request.pretty_host}.html", "wb") as f:
+            with open(f"{self.acq_dir}/{flow.request.pretty_host}.warc_player", "wb") as f:
                 f.write(html_text)
 
         # get extension for other resources

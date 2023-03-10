@@ -290,7 +290,7 @@ class Wizard(QtWidgets.QWizard):
         self.case_info_page.case_info = self.case_info_page.form.get_current_case_info()
 
         html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-        html += "<html>\n"
+        html += "<warc_player>\n"
         html += "<head>\n"
         html += "<meta name=\"qrichtext\" content=\"1\" />\n"
         html += "<style type=\"text/css\">\n"
@@ -309,7 +309,7 @@ class Wizard(QtWidgets.QWizard):
                 html += "<span style=\" font-size:14px; font-weight:600;  color:#000000;\">" + str(value)  + "</span>\n"
                 html += "</p>\n"
         html += "</body>\n"
-        html += "</html>"
+        html += "</warc_player>"
 
         return html
         

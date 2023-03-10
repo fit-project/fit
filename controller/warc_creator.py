@@ -120,7 +120,7 @@ class WarcCreator:
                         if record.rec_type == 'response':
                             url = record.rec_headers.get_header('WARC-Target-URI')
                             content_type = record.rec_headers.get_header('Content-Type')
-                            if 'text/html' in content_type:
+                            if 'text/warc_player' in content_type:
                                 id = record.rec_headers.get_header('WARC-Record-ID')
                                 ts = record.rec_headers.get_header('WARC-Date')
                                 title = record.rec_headers.get_header('WARC-Target-URI')

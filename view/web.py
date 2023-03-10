@@ -29,13 +29,14 @@
 import logging.config
 import shutil
 
+from PyQt5.QtWidgets import QFileDialog
 from mitmproxy import ctx
 from scapy.all import *
 
 import asyncio
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, QUrl
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
@@ -50,6 +51,7 @@ from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
 from controller.warc_creator import WarcCreator as WarcCreatorController
+from controller.warc_replay import WarcReplay as WarcReplayController
 
 from common.error import ErrorMessage
 
@@ -258,6 +260,12 @@ class Web(QtWidgets.QMainWindow):
         acquisition_status_action.triggered.connect(self._acquisition_status)
         acquisition_menu.addAction(acquisition_status_action)
 
+        # REPLAY WARC
+        replay_warc_action = QtWidgets.QAction("Replay warc/wacz", self)
+        replay_warc_action.setStatusTip("Replay warc and wacz files")
+        replay_warc_action.triggered.connect(self.replay)
+        self.menuBar().addAction(replay_warc_action)
+
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
         # Get network parameters for check (NTP, nslookup)
@@ -307,7 +315,6 @@ class Web(QtWidgets.QMainWindow):
         self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8080)
         QNetworkProxy.setApplicationProxy(self.proxy)
 
-
         # delete cookies from the store and clean the cache
         cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
         cookie_store.deleteAllCookies()
@@ -318,8 +325,7 @@ class Web(QtWidgets.QMainWindow):
 
         self.mitm_thread.start()
         # reload the page (waiting for the thread to be fully started)
-        QtCore.QTimer.singleShot(1000, self.tabs.currentWidget().reload)
-
+        QtCore.QTimer.singleShot(500, self.tabs.currentWidget().reload)
 
         if self.acquisition_directory is not None:
             # show progress bar
@@ -665,21 +671,21 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
 
-        browser = MainWindow()
-        browser.setUrl(qurl)
-        i = self.tabs.addTab(browser, label)
+        self.browser = MainWindow()
+        self.browser.setUrl(qurl)
+        i = self.tabs.addTab(self.browser, label)
 
         self.tabs.setCurrentIndex(i)
 
         # More difficult! We only want to update the url when it's from the
         # correct tab
-        browser.urlChanged.connect(lambda qurl, browser=browser:
-                                   self.update_urlbar(qurl, browser))
+        self.browser.urlChanged.connect(lambda qurl, browser=self.browser:
+                                        self.update_urlbar(qurl, browser))
 
-        browser.loadProgress.connect(self.load_progress)
+        self.browser.loadProgress.connect(self.load_progress)
 
-        browser.loadFinished.connect(lambda _, i=i, browser=browser:
-                                     self.tabs.setTabText(i, browser.page().title()))
+        self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
+                                          self.tabs.setTabText(i, browser.page().title()))
 
         if i == 0:
             self.showMaximized()
@@ -712,8 +718,9 @@ class Web(QtWidgets.QMainWindow):
     def navigate_home(self):
         if self.acquisition_is_started:
             logger_acquisition.info('User clicked the home button')
-
-        self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
+        url = QtCore.QUrl.fromLocalFile('/asset/warc_player/webrecorder_player.warc_player')
+        self.tabs.currentWidget().setUrl(url)
+        # self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
 
     def navigate_to_url(self):  # Does not receive the Url
         q = QtCore.QUrl(self.urlbar.text())
@@ -742,7 +749,44 @@ class Web(QtWidgets.QMainWindow):
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
 
+    def replay(self):
+        # start the server
+        self.server_thread = WarcReplayController()
+        self.server_thread.finished.connect(self.server_thread_finished)
+        self.server_thread.start()
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        open_folder = self.get_current_dir()
+
+        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona WARC", open_folder,
+                                                  "WARC Files (*.warc);;WACZ Files (*.wacz)", options=options)
+        if filename:
+            self.load_warc(filename)
+
+    def load_warc(self, filename):
+        url = QUrl('http://localhost:8000/asset/warc_player/webrecorder_player.html')
+
+        self.browser.setUrl(url)
+        # self.tabs.currentWidget().load(QUrl('https://webrecorder.io/player/?url=file://' + filename))
+
+    def get_current_dir(self):
+        if not self.acquisition_directory:
+            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            open_folder = os.path.expanduser(
+                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+            return open_folder
+        else:
+            return self.acquisition_directory
+
+    def server_thread_finished(self):
+        self.server_thread.quit()
+        self.server_thread.wait()
+
     def closeEvent(self, event):
+        self.server_thread.stop_server = True
+
         packetcapture = getattr(self, 'packetcapture', None)
 
         if packetcapture is not None:
