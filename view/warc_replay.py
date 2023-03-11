@@ -134,13 +134,13 @@ class Screenshot(QtWebEngineWidgets.QWebEngineView):
         self.close()
 
 
-class Web(QtWidgets.QMainWindow):
+class WarcReplay(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
 
     def __init__(self, *args, **kwargs):
         if not os.path.isdir("resources"):
             os.makedirs("resources")
-        super(Web, self).__init__(*args, **kwargs)
+        super(WarcReplay, self).__init__(*args, **kwargs)
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
