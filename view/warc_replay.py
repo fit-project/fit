@@ -34,7 +34,6 @@ from PyQt5.QtWidgets import QFileDialog
 
 from scapy.all import *
 
-
 from PyQt5.QtCore import QThread, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
@@ -43,19 +42,17 @@ from view.configuration import Configuration as ConfigurationView
 
 from controller.warc_replay import WarcReplay as WarcReplayController
 
-
-
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
 logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
-
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
+
 
 class WarcReplay(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -76,7 +73,6 @@ class WarcReplay(QMainWindow):
         self.setWindowTitle("Freezing Internet Tool")
         self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
         self.showMaximized()
-
 
     def replay(self):
         # start the server
@@ -103,7 +99,7 @@ class WarcReplay(QMainWindow):
         # prepare the url with the file path
         url = QUrl(f'http://localhost:8000/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
-        os.remove(os.path.join(destination,os.path.basename(filename)))
+        os.remove(os.path.join(destination, os.path.basename(filename)))
 
     def get_current_dir(self):
         if not self.acquisition_directory:
@@ -120,4 +116,3 @@ class WarcReplay(QMainWindow):
 
     def closeEvent(self, event):
         self.server_thread.stop_server = True
-
