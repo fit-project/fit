@@ -770,19 +770,7 @@ class Web(QtWidgets.QMainWindow):
         destination = "warc_player/cache/"
         shutil.copy(origin, destination)
 
-        url = (os.path.join(destination,os.path.basename(filename)))
-        # removing redun warc_player path
-        new_path = os.path.split(f'/{url}')[1]
-
-        with open("warc_player/webrecorder_player.html", "r+") as f:
-            html = f.read()
-            html = html.replace('{source}', new_path)
-            f.seek(0)
-            f.write(html)
-            f.truncate()
-
-
-        url = QUrl('http://localhost:8000/warc_player/webrecorder_player.html')
+        url = QUrl(f'http://localhost:8000/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
 
         self.browser.setUrl(url)
         # self.tabs.currentWidget().load(QUrl('https://webrecorder.io/player/?url=file://' + filename))
