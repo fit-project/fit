@@ -765,15 +765,15 @@ class Web(QtWidgets.QMainWindow):
             self.load_warc(filename)
 
     def load_warc(self, filename):
-
+        # copy the file in a temp folder
         origin = filename
         destination = "warc_player/cache/"
         shutil.copy(origin, destination)
 
+        # prepare the url with the file path
         url = QUrl(f'http://localhost:8000/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
-
         self.browser.setUrl(url)
-        # self.tabs.currentWidget().load(QUrl('https://webrecorder.io/player/?url=file://' + filename))
+        os.remove(os.path.join(destination,os.path.basename(filename)))
 
     def get_current_dir(self):
         if not self.acquisition_directory:
