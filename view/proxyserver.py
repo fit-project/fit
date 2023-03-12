@@ -25,6 +25,8 @@
 # SOFTWARE.
 # -----
 ######
+from pathlib import Path
+
 from mitmproxy import http
 
 import hashlib
@@ -100,11 +102,11 @@ class FlowReaderAddon:
     def response(self, flow: mitmproxy.http.HTTPFlow):
         # TODO: search a better way to get the resource's name (for same-host resources)
         url = flow.request.url
-        # save warc_player first (since it has no extension in the flow)
-        if flow.response.headers.get('content-type', '').startswith('text/warc_player'):
-            # get warc_player to disk
+        # save html first (since it has no extension in the flow)
+        if flow.response.headers.get('content-type', '').startswith('text/html'):
+            # write html to disk
             html_text = flow.response.content
-            with open(f"{self.acq_dir}/{flow.request.pretty_host}.warc_player", "wb") as f:
+            with open(f"{self.acq_dir}/{flow.request.pretty_host}.html", "wb") as f:
                 f.write(html_text)
 
         # get extension for other resources
@@ -130,6 +132,6 @@ class FlowReaderAddon:
                         "wb") as f:
                     f.write(flow.response.content)
 
-        warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
+        path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
-        warc_creator.flow_to_warc(flow, warc_path)
+        warc_creator.flow_to_warc(flow, path)

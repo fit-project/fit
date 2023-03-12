@@ -29,6 +29,7 @@
 import logging.config
 import os
 import shutil
+from pathlib import Path
 
 from PyQt5.QtWidgets import QFileDialog
 from mitmproxy import ctx
@@ -486,14 +487,12 @@ class Web(QtWidgets.QMainWindow):
             self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
 
             # create wacz when acquisition is finished
-            warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
-            wacz_path = f'{self.acquisition_directory}/acquisition_wacz.wacz'
-            pages_path = f'{self.acquisition_directory}/acquisition_pages.jsonl'
+            path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
 
             warc_creator = WarcCreatorController()
-            if os.path.exists(warc_path):
-                warc_creator.create_pages(pages_path, warc_path)
-                warc_creator.warc_to_wacz(pages_path, warc_path, wacz_path)
+            if os.path.exists(path):
+                warc_creator.create_pages(path)
+                warc_creator.warc_to_wacz(path)
 
             zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')

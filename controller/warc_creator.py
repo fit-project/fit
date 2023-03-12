@@ -68,7 +68,8 @@ class WarcCreator:
             record = writer.create_warcinfo_record(warc_path, info=warcinfo_content)
             writer.write_record(record)
 
-    def flow_to_warc(self, flow: http.HTTPFlow, warc_path):
+    def flow_to_warc(self, flow: http.HTTPFlow, output_prefix):
+        warc_path = output_prefix.with_suffix(".warc")
         with open(warc_path, 'ab') as output:
             # create new warcio writer
             writer = WARCWriter(output, gzip=False)
@@ -104,7 +105,9 @@ class WarcCreator:
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
 
-    def create_pages(self, pages_path, warc_path):
+    def create_pages(self, path):
+        warc_path = path.with_suffix(".warc")
+        pages_path = path.with_suffix(".json")
         # set the header
         header = {
             "format": "json-pages-1.0", "id": "pages", "title": "All Pages",
@@ -120,7 +123,7 @@ class WarcCreator:
                         if record.rec_type == 'response':
                             url = record.rec_headers.get_header('WARC-Target-URI')
                             content_type = record.rec_headers.get_header('Content-Type')
-                            if 'text/warc_player' in content_type:
+                            if 'text/html' in content_type:
                                 id = record.rec_headers.get_header('WARC-Record-ID')
                                 ts = record.rec_headers.get_header('WARC-Date')
                                 title = record.rec_headers.get_header('WARC-Target-URI')
@@ -132,10 +135,13 @@ class WarcCreator:
                                 outfile.write('\n')
                                 json.dump(page, outfile)
 
-    def warc_to_wacz(self, pages_path, warc_path, wacz_path):
+    def warc_to_wacz(self, path):
+        warc_path = path.with_suffix(".warc")
+        wacz_output = path.with_suffix(".wacz")
+        pages_path = path.with_suffix(".json")
         warc_file_path = Path(warc_path).as_posix()
         pages_path = Path(pages_path).as_posix()
-        wacz_output_path = Path(wacz_path).as_posix()
+        wacz_output_path = Path(wacz_output).as_posix()
 
         zipfile.ZipInfo = PosixZipInfo
 
