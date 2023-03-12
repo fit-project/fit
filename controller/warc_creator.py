@@ -94,17 +94,22 @@ class WarcCreator:
                 'Content-Type': content_type,
                 'Content-Length': str(len(payload))
             }
-            # check if payload is in bytes format
-            if type(payload) is bytes:
-                payload = BytesIO(payload)
+            if len(payload) == 0:
+                not_found = "No data"
+                _bytes = not_found.encode()
+                payload = BytesIO(_bytes)
+            else:
+                if type(payload) is bytes:
+                    payload = BytesIO(payload)
 
             # create the actual warc record
-
             record = writer.create_warc_record(flow.request.url, 'response',
-                                               payload=payload,
+                                                payload=payload,
                                                http_headers=http_headers,
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
+
+
 
     def create_pages(self, path):
         warc_path = path.with_suffix(".warc")
