@@ -99,7 +99,7 @@ class WarcReplay(QMainWindow):
         # prepare the url with the file path
         url = QUrl(f'http://localhost:8000/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
-        os.remove(os.path.join(destination, os.path.basename(filename)))
+
 
     def get_current_dir(self):
         if not self.acquisition_directory:
@@ -115,4 +115,10 @@ class WarcReplay(QMainWindow):
         self.server_thread.wait()
 
     def closeEvent(self, event):
+        destination = "warc_player/cache"
+        for root, dirs, files in os.walk(destination):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            for d in dirs:
+                shutil.rmtree(os.path.join(root, d))
         self.server_thread.stop_server = True

@@ -57,7 +57,8 @@ class WarcCreator:
     def __init__(self):
         return
 
-    def warcinfo(self, warc_path):
+    def warcinfo(self, output_prefix):
+        warc_path = str(output_prefix.with_suffix(".warc"))
         with open(warc_path, 'wb') as output:
             # create new warcio writer
             writer = WARCWriter(output, gzip=False)

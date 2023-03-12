@@ -490,9 +490,8 @@ class Web(QtWidgets.QMainWindow):
             path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
 
             warc_creator = WarcCreatorController()
-            if os.path.exists(path):
-                warc_creator.create_pages(path)
-                warc_creator.warc_to_wacz(path)
+            warc_creator.create_pages(path)
+            warc_creator.warc_to_wacz(path)
 
             zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')

@@ -51,9 +51,9 @@ class ProxyServer(QObject):
         self.port = port
         self.acquisition_directory = acquisition_directory
 
-        warc_path = f'{self.acquisition_directory}/acquisition_warc.warc'
+        path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
-        warc_creator.warcinfo(warc_path)
+        warc_creator.warcinfo(path)
 
     async def start(self):
 
