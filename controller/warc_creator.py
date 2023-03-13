@@ -94,22 +94,16 @@ class WarcCreator:
                 'Content-Type': content_type,
                 'Content-Length': str(len(payload))
             }
-            if len(payload) == 0:
-                not_found = "No data"
-                _bytes = not_found.encode()
-                payload = BytesIO(_bytes)
-            else:
-                if type(payload) is bytes:
-                    payload = BytesIO(payload)
+
+            if type(payload) is bytes:
+                payload = BytesIO(payload)
 
             # create the actual warc record
             record = writer.create_warc_record(flow.request.url, 'response',
-                                                payload=payload,
+                                               payload=payload,
                                                http_headers=http_headers,
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
-
-
 
     def create_pages(self, path):
         warc_path = path.with_suffix(".warc")
@@ -130,16 +124,18 @@ class WarcCreator:
                             url = record.rec_headers.get_header('WARC-Target-URI')
                             content_type = record.rec_headers.get_header('Content-Type')
                             if 'text/html' in content_type:
-                                id = record.rec_headers.get_header('WARC-Record-ID')
-                                ts = record.rec_headers.get_header('WARC-Date')
-                                title = record.rec_headers.get_header('WARC-Target-URI')
+                                html = record.content_stream().read()
+                                if len(html) > 0:
+                                    id = record.rec_headers.get_header('WARC-Record-ID')
+                                    ts = record.rec_headers.get_header('WARC-Date')
+                                    title = record.rec_headers.get_header('WARC-Target-URI')
 
-                                page = {
-                                    "id": id, "url": url,
-                                    "ts": ts, "title": title
-                                }
-                                outfile.write('\n')
-                                json.dump(page, outfile)
+                                    page = {
+                                        "id": id, "url": url,
+                                        "ts": ts, "title": title
+                                    }
+                                    outfile.write('\n')
+                                    json.dump(page, outfile)
 
     def warc_to_wacz(self, path):
         warc_path = path.with_suffix(".warc")

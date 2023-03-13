@@ -151,6 +151,7 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_screen_recorder = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
+        self.server_thread = False
 
     def init(self, case_info):
 
@@ -787,7 +788,8 @@ class Web(QtWidgets.QMainWindow):
         self.server_thread.wait()
 
     def closeEvent(self, event):
-        self.server_thread.stop_server = True
+        if self.server_thread:
+            self.server_thread.stop_server = True
 
         packetcapture = getattr(self, 'packetcapture', None)
 
