@@ -38,7 +38,7 @@ from warcio import StatusAndHeaders, ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from wacz.main import create_wacz
 
-
+# thanks to Andrea Lazzarotto @lazza for the contribution on the warc and wacz creation
 class OptionalNamespace(SimpleNamespace):
     def __getattribute__(self, name):
         try:
