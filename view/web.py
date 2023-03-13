@@ -97,6 +97,7 @@ class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    # thanks to Andrea Lazzarotto @lazza for fixing the SSL error
     def certificateError(self, error):
         error.ignoreCertificateError()
         return True
