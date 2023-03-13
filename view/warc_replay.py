@@ -29,7 +29,7 @@
 
 import shutil
 
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
 from scapy.all import *
@@ -48,13 +48,12 @@ logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
-import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
 
 
-class WarcReplay(QMainWindow):
+class WarcReplay(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(WarcReplay, self).__init__(*args, **kwargs)
 
@@ -67,12 +66,43 @@ class WarcReplay(QMainWindow):
         self.case_view.hide()
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
         self.replay()
         self.setCentralWidget(self.browser)
+        self.showMaximized()
+
+        # CONFIGURATION ACTION
+        configuration_action = QtWidgets.QAction("Configuration", self)
+        configuration_action.setStatusTip("Show configuration info")
+        configuration_action.triggered.connect(self.configuration)
+        self.menuBar().addAction(configuration_action)
+
+        # CASE ACTION
+        case_action = QtWidgets.QAction("Case", self)
+        case_action.setStatusTip("Show case info")
+        case_action.triggered.connect(self.case)
+        self.menuBar().addAction(case_action)
+
+
+        # REPLAY WARC
+        replay_warc_action = QtWidgets.QAction("Replay", self)
+        replay_warc_action.setStatusTip("Replay warc and wacz files")
+        replay_warc_action.triggered.connect(self.replay)
+        self.menuBar().addAction(replay_warc_action)
+
+        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+
+        # Get network parameters for check (NTP, nslookup)
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+                                                                          'group_box_network_check')
+
+        # Get timestamp parameters
+        self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
+
+
+        self.show()
+
         self.setWindowTitle("Freezing Internet Tool")
         self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
-        self.showMaximized()
 
     def replay(self):
         # start the server
@@ -113,6 +143,14 @@ class WarcReplay(QMainWindow):
     def server_thread_finished(self):
         self.server_thread.quit()
         self.server_thread.wait()
+
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
+
+
 
     def closeEvent(self, event):
         destination = "warc_player/cache"
