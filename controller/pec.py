@@ -140,41 +140,35 @@ class Pec:
             pass
         else:
             # cerca i messaggi di posta elettronica nella cartella PEC
-            oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
+            oggetto = 'POSTA CERTIFICATA: Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
                       str(timestampDate)
             oggettoStr = str(oggetto)
             searchCriteria = f'SUBJECT "{oggettoStr}"'
             status, messages = server.search(None, searchCriteria)
             messages = messages[0].split(b" ")
-            if len(messages) < 3:
+            if len(messages) < 1:
                 pass
             else:
-                pecs = []
-                for msg_id in messages:
-                    # scarica il messaggio di posta elettronica in formato raw
-                    status, raw_email = server.fetch(msg_id, "(RFC822)")
-                    pec_data = raw_email[0][1]
-                    message = pyzmail.PyzMessage.factory(pec_data)
-                    pecs.append(message)
-                for pec in pecs:
-                    if pec.get_subject().startswith("POSTA CERTIFICATA:"):
-                        find = True
-                        rawMessage = pec.as_bytes()
+                find = True
+                # scarica il messaggio di posta elettronica in formato raw
+                status, raw_email = server.fetch(messages[0], "(RFC822)")
+                pec_data = raw_email[0][1]
 
-                        # analizzare la PEC utilizzando la libreria email
-                        pec_message = email.message_from_bytes(rawMessage)
+                # analizzare la PEC utilizzando la libreria email
+                pec_message = email.message_from_bytes(pec_data)
+                message = pyzmail.PyzMessage.factory(pec_data)
 
-                        # ottenere il nome dell'ID digitale
-                        nome_id_digitale = pec_message.get('X-Digital-ID', '')
+                # ottenere il nome dell'ID digitale
+                nome_id_digitale = pec_message.get('X-Digital-ID', '')
 
-                        # aggiungere il nome dell'ID digitale alla PEC
-                        pec_data = pec_data.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
-                                                                 f' {nome_id_digitale}\r\n\r\n'.encode(), 1)
+                # aggiungere il nome dell'ID digitale alla PEC
+                pec_data = pec_data.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
+                                                           f' {nome_id_digitale}\r\n\r\n'.encode(), 1)
 
-                        filename = f"{pec.get('message-id')[1:-8]}.eml"
-                        # salvare la PEC sul disco
-                        with open(filename, 'wb') as f:
-                            f.write(pec_data)
+                filename = f"{message.get('message-id')[1:-8]}.eml"
+                # salvare la PEC sul disco
+                with open(filename, 'wb') as f:
+                    f.write(pec_data)
 
             results.append(error)
             results.append(find)
