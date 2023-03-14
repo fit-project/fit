@@ -208,7 +208,7 @@ class Pec(QtWidgets.QMainWindow):
         self.outputMessage.setText("Ricerca PEC per download eml...")
         results = []
         for i in range(3):
-            self.outputMessage.setText("Tentativo " + str(i+1) + " dowload eml...")
+            self.outputMessage.setText("Tentativo " + str(i+1) + " download eml...")
             self.progressBar.setValue(40 + ((i+1)*10))
             time.sleep(10)
             results = pec.retrieveEml(timestampDate)

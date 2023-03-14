@@ -153,19 +153,28 @@ class Pec:
                 for msg_id in messages:
                     # scarica il messaggio di posta elettronica in formato raw
                     status, raw_email = server.fetch(msg_id, "(RFC822)")
-                    raw_email = raw_email[0][1]
-                    message = pyzmail.PyzMessage.factory(raw_email)
+                    pec_data = raw_email[0][1]
+                    message = pyzmail.PyzMessage.factory(pec_data)
                     pecs.append(message)
                 for pec in pecs:
                     if pec.get_subject().startswith("POSTA CERTIFICATA:"):
                         find = True
                         rawMessage = pec.as_bytes()
-                        # salva il messaggio di posta elettronica in formato EML
-                        filename = f"{pec.get('message-id')[1:-8]}.eml"
 
-                        # utilizza l'ID del messaggio come nome del file EML
-                        with open(filename, "wb") as f:
-                            f.write(rawMessage)
+                        # analizzare la PEC utilizzando la libreria email
+                        pec_message = email.message_from_bytes(rawMessage)
+
+                        # ottenere il nome dell'ID digitale
+                        nome_id_digitale = pec_message.get('X-Digital-ID', '')
+
+                        # aggiungere il nome dell'ID digitale alla PEC
+                        pec_data = pec_data.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
+                                                                 f' {nome_id_digitale}\r\n\r\n'.encode(), 1)
+
+                        filename = f"{pec.get('message-id')[1:-8]}.eml"
+                        # salvare la PEC sul disco
+                        with open(filename, 'wb') as f:
+                            f.write(pec_data)
 
             results.append(error)
             results.append(find)
