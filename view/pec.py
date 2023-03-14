@@ -27,6 +27,7 @@
 ######
 import os
 import sys
+import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication
@@ -132,6 +133,10 @@ class Pec(QtWidgets.QMainWindow):
         self.input_username_3.setGeometry(QtCore.QRect(170, 190, 240, 20))
         self.input_username_3.setObjectName("input_username_3")
 
+        self.outputMessage = QtWidgets.QLabel(self.centralwidget)
+        self.outputMessage.setGeometry(QtCore.QRect(30, 347, 270, 20))
+        self.outputMessage.setObjectName("outputMessage")
+
         # Verify if input fields are empty
         self.input_fields = [self.input_username, self.input_password, self.input_username_2, self.input_password_2,
                              self.input_username_3, self.input_password_3]
@@ -191,36 +196,55 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton.setEnabled(all_field_filled)
 
     def button_clicked(self):
+        self.outputMessage.setText("Creazione PEC...")
         self.progressBar.setValue(10)
         pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition,
                             self.case_info['name'], self.directory, self.input_username_2.text(),
                             self.input_password_2.text(), self.input_username_3.text(), self.input_password_3.text())
         self.progressBar.setValue(30)
-
-        sendedPec = pec.sendPec()
-
-        if sendedPec:
-            pass
-        else:
-            if self.checkBox.isChecked():
-                self.pecConfiguration = self.controller.get()
-                if len(self.pecConfiguration) > 0:
-                    for pecConfig in self.pecConfiguration:
-                        pecConfigPec = pecConfig.pec
-                        self.controller.delete(pecConfigPec)
+        self.outputMessage.setText("Invio PEC...")
+        timestampDate = pec.sendPec()
+        self.progressBar.setValue(40)
+        self.outputMessage.setText("Ricerca PEC per download eml...")
+        results = []
+        for i in range(3):
+            self.outputMessage.setText("Tentativo " + str(i+1) + " dowload eml...")
+            self.progressBar.setValue(40 + ((i+1)*10))
+            time.sleep(10)
+            results = pec.retrieveEml(timestampDate)
+            if results[0]:
+                self.progressBar.setValue(0)
+                break
+            else:
+                if self.checkBox.isChecked():
+                    self.pecConfiguration = self.controller.get()
+                    if len(self.pecConfiguration) > 0:
+                        for pecConfig in self.pecConfiguration:
+                            pecConfigPec = pecConfig.pec
+                            self.controller.delete(pecConfigPec)
+                    else:
+                        pass
+                    self.controller.add(self.input_username.text(), self.input_password.text(),
+                                        self.input_username_2.text(), self.input_password_2.text(),
+                                        self.input_username_3.text(), self.input_password_3.text())
+                if results[1]:
+                    break
                 else:
                     pass
-                self.controller.add(self.input_username.text(), self.input_password.text(),
-                                    self.input_username_2.text(), self.input_password_2.text(),
-                                    self.input_username_3.text(), self.input_password_3.text())
 
-
-        self.progressBar.setValue(100)
-        os.startfile(str(self.directory))
-        if sendedPec:
-            pass
-        else:
+        if results[1]:
+            self.progressBar.setValue(100)
+            os.startfile(str(self.directory))
             self.close()
+        else:
+            if results[0]:
+                pass
+            else:
+                # aprire scelta fetch pec
+                self.close()
+
+
+
 
     def skip_send(self):
         os.startfile(str(self.directory))

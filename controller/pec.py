@@ -26,11 +26,15 @@
 # -----
 ######
 import datetime
+import imaplib
 import os
 import smtplib
 import subprocess
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
+
+import pyzmail
+
 from view.error import Error as ErrorView
 from PyQt5 import QtWidgets
 from email.mime.multipart import MIMEMultipart
@@ -62,7 +66,10 @@ class Pec:
 
         # Destinatario, oggetto e contenuto del messaggio
         destinatario = self.username
-        oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case)
+        todayDate = datetime.datetime.now()
+        timestampDate = todayDate.timestamp()
+        oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
+                  str(timestampDate)
         contenuto = 'In allegato report e relativo timestamp dell\' acquisizione ' + str(self.acquisition) +\
                   ' relativa al caso: ' + str(self.case)
 
@@ -102,40 +109,60 @@ class Pec:
                                       self.error_msg.MESSAGES['pec_error'],
                                       'Wrong parameters or credentials')
                 error_dlg.exec_()
+        return timestampDate
+
+    def retrieveEml(self, timestampDate):
+
+        error = False
+        find = False
+        results = []
+
+        try:
+            server = imaplib.IMAP4_SSL(self.serverImap, self.portImap)
+            server.login(self.username, self.password)
+            server.select('inbox')
+        except Exception:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['pec_error'],
+                                  self.error_msg.MESSAGES['pec_error'],
+                                  'Wrong parameters or credentials')
+            error = True
+            error_dlg.exec_()
+
+        if error == True:
+            pass
+        else:
+            # cerca i messaggi di posta elettronica nella cartella PEC
+            oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
+                      str(timestampDate)
+            oggettoStr = str(oggetto)
+            searchCriteria = f'SUBJECT "{oggettoStr}"'
+            status, messages = server.search(None, searchCriteria)
+            messages = messages[0].split(b" ")
+            if len(messages) < 3:
+                pass
+            else:
+                pecs = []
+                for msg_id in messages:
+                    # scarica il messaggio di posta elettronica in formato raw
+                    status, raw_email = server.fetch(msg_id, "(RFC822)")
+                    raw_email = raw_email[0][1]
+                    message = pyzmail.PyzMessage.factory(raw_email)
+                    pecs.append(message)
+                for pec in pecs:
+                    if pec.get_subject().startswith("POSTA CERTIFICATA:"):
+                        find = True
+                        rawMessage = pec.as_bytes()
+                        # salva il messaggio di posta elettronica in formato EML
+                        filename = f"{pec.get('message-id')[1:-8]}.eml"
+
+                        # utilizza l'ID del messaggio come nome del file EML
+                        with open(filename, "wb") as f:
+                            f.write(rawMessage)
+
+        results.append(error)
+        results.append(find)
+        return results
 
 
-        retrieveEml = SearchPecController(self.username, self.password, self.serverImap, self.portImap, self.case)
-        pecs = retrieveEml.fetchPec()
-
-        for pec in pecs:
-            datePec = pec.get_decoded_header('Date')
-            datePec = datetime.datetime.strptime(datePec, '%a, %d %b %Y %H:%M:%S %z')
-            print("Confronto date")
-            print("Data pec")
-            print(datePec)
-            print("Data odierna")
-            print(dataToday)
-            print("\n")
-            if datePec == dataToday:
-
-                subject = pec.get_subject()
-                list = subject.split()
-                caseIndex = list.index("caso:")
-                casePec = " ".join(list[caseIndex + 1:])
-                if casePec == str(self.case):
-
-                    print("Caso pec")
-                    print(casePec)
-                    print("Caso inviato")
-                    print(str(self.case))
-                    print("\n")
-
-                    rawMessage = pec.as_bytes()
-                    # salva il messaggio di posta elettronica in formato EML
-                    filename = f"{pec.get('message-id')[1:-8]}.eml"
-                    # utilizza l'ID del messaggio come nome del file EML
-                    with open(filename, "wb") as f:
-                        f.write(rawMessage)
-
-        return error
 
