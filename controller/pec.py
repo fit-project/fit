@@ -26,14 +26,21 @@
 # -----
 ######
 import datetime
+import email
 import imaplib
 import os
 import smtplib
 import subprocess
+import uuid
+from email import policy
+from email.generator import Generator
+from email.message import Message
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 
+import OpenSSL
 import pyzmail
+from OpenSSL import crypto
 
 from view.error import Error as ErrorView
 from PyQt5 import QtWidgets
@@ -160,9 +167,6 @@ class Pec:
                         with open(filename, "wb") as f:
                             f.write(rawMessage)
 
-        results.append(error)
-        results.append(find)
-        return results
-
-
-
+            results.append(error)
+            results.append(find)
+            return results
