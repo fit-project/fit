@@ -196,21 +196,19 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton.setEnabled(all_field_filled)
 
     def button_clicked(self):
-        self.outputMessage.setText("Creazione PEC...")
+        self.outputMessage.setText("Invio PEC...")
         self.progressBar.setValue(10)
         pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition,
                             self.case_info['name'], self.directory, self.input_username_2.text(),
                             self.input_password_2.text(), self.input_username_3.text(), self.input_password_3.text())
         self.progressBar.setValue(30)
-        self.outputMessage.setText("Invio PEC...")
         timestampDate = pec.sendPec()
         self.progressBar.setValue(40)
-        self.outputMessage.setText("Ricerca PEC per download eml...")
         results = []
         for i in range(3):
             self.outputMessage.setText("Tentativo " + str(i+1) + " download eml...")
             self.progressBar.setValue(40 + ((i+1)*10))
-            time.sleep(10)
+            time.sleep(5)
             results = pec.retrieveEml(timestampDate)
             if results[0]:
                 self.progressBar.setValue(0)
