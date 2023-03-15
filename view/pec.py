@@ -37,6 +37,7 @@ from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from common.config import LogConfigMail
 from view.configuration import Configuration as ConfigurationView
 from view.case import Case as CaseView
+from view.emlNotFound import EmlNotFound as EmlNotFoundView
 from controller.pec import Pec as PecController
 from controller.configurations.tabs.pec.pec import Pec as PecConfigController
 
@@ -208,7 +209,7 @@ class Pec(QtWidgets.QMainWindow):
         for i in range(3):
             self.outputMessage.setText("Tentativo " + str(i+1) + " download eml...")
             self.progressBar.setValue(40 + ((i+1)*10))
-            time.sleep(5)
+            time.sleep(8)
             results = pec.retrieveEml(timestampDate)
             if results[0]:
                 self.progressBar.setValue(0)
@@ -238,8 +239,13 @@ class Pec(QtWidgets.QMainWindow):
             if results[0]:
                 pass
             else:
-                # aprire scelta fetch pec
+                self.emlNotFound = EmlNotFoundView()
+                self.emlNotFound.hide()
+                self.acquisition_window = self.emlNotFound
+                self.acquisition_window.init(self.directory, self.case_info)
+                self.acquisition_window.show()
                 self.close()
+
 
 
 

@@ -140,13 +140,13 @@ class Pec:
             pass
         else:
             # cerca i messaggi di posta elettronica nella cartella PEC
-            oggetto = 'POSTA CERTIFICATA: Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
-                      str(timestampDate)
+            oggetto = 'POSTA CERTIFICATA: Report acquisizione ' + str(self.acquisition) + ' caso: ' +\
+                      str(self.case) + ' ID: ' + str(timestampDate)
             oggettoStr = str(oggetto)
             searchCriteria = f'SUBJECT "{oggettoStr}"'
             status, messages = server.search(None, searchCriteria)
             messages = messages[0].split(b" ")
-            if len(messages) < 1:
+            if str(messages) == "[b'']":
                 pass
             else:
                 find = True
