@@ -158,10 +158,21 @@ class Report:
             filename = os.path.join(self.cases_folder_path, file)
             extension = str(filename.partition('.')[2])
             extensions[extension] = str(file)
+        # todo: check problems
         if "png" not in extensions:
-            extensions['png'] = "Screenshot non prodotto"  # todo: check problema cattura
+            extensions['png'] = "Screenshot non prodotto"
         if "pcap" not in extensions:
-            extensions['pcap'] = "Cattura dei pacchetti non prodotta"  # todo: check problema cattura
+            extensions['pcap'] = "Cattura dei pacchetti non prodotta"
+        if "avi" not in extensions:
+            extensions['avi'] = "Cattura video non prodotta"
+        if "hash" not in extensions:
+            extensions['hash'] = "File hash non prodotto"
+        if "log" not in extensions:
+            extensions['log'] = "File log non prodotto"
+        if "zip" not in extensions:
+            extensions['zip'] = "Archivio zip non prodotto"
+        if "txt" not in extensions:
+            extensions['txt'] = "File whois non prodotto"
         return extensions
 
     def _zip_files_enum(self):
