@@ -160,6 +160,8 @@ class Report:
             extensions[extension] = str(file)
         if "png" not in extensions:
             extensions['png'] = "Screenshot non prodotto"  # todo: check problema cattura
+        if "pcap" not in extensions:
+            extensions['pcap'] = "Cattura dei pacchetti non prodotta"  # todo: check problema cattura
         return extensions
 
     def _zip_files_enum(self):
