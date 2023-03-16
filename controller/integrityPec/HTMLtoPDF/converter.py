@@ -26,22 +26,13 @@
 # -----
 ######
 
-from jinja2 import Environment, FileSystemLoader
-from xhtml2pdf import pisa
-from io import BytesIO
 from datetime import datetime
-import os
+from controller.integrityPec.generateReport import GenerateReport as GenerateReportController
 
 
 
-def pdf_creator(mittente, destinatario, oggeto, data_invio, messaggio, data_scadenza, firma_digitale, integrita, revoca,
+def pdf_creator(mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza, firma_digitale, integrita, revoca,
                 ente, ver_ente, n):
-    # Definisci il percorso dove trovare i template
-    env = Environment(loader=FileSystemLoader('HTMLtoPDF'))
-
-
-    # Carica il template HTML
-    template = env.get_template('template.html')
 
     # Definisce il contesto per il template HTML
     if firma_digitale == True:
@@ -66,47 +57,7 @@ def pdf_creator(mittente, destinatario, oggeto, data_invio, messaggio, data_scad
 
     today_date = datetime.today().strftime("%d %b, %Y")
 
+    verifyPec = GenerateReportController()
+    verifyPec.generate_report_verification(mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza,
+                                           integrita, revoca, firma_digitale, today_date, ente, ver_ente)
 
-
-
-
-
-    context = {
-        'mittente': mittente,
-        'destinatario': destinatario,
-        'oggetto': oggeto,
-        'data_invio': data_invio,
-        'messaggio': messaggio,
-        'data_scadenza': data_scadenza,
-        'integrita': integrita,
-        'revoca': revoca,
-        'firma_digitale': firma_digitale,
-        'today_date': today_date,
-        'ente': ente,
-        'ver_ente': ver_ente
-    }
-
-    # Renderizza il template HTML con il contesto e sostuisce le variabili {{}} con il loro valore
-    html = template.render(context)
-
-    # Genera il file PDF
-    result = BytesIO()
-
-    pisa_status = pisa.CreatePDF(html.encode('UTF-8'), dest=result)
-
-    # Gestione errore
-    if pisa_status.err:
-        return 'Errore durante la generazione del PDF: %s' % pisa_status.err
-
-    result.seek(0)
-
-    # Salva il file PDF nella cartella "risultati"
-    if not os.path.exists('risultati'):
-        os.mkdir('risultati')
-
-    if data_scadenza != "NULL":
-        with open('Risultati/email_integra_' + str(n) + '.pdf', 'wb') as f:
-            f.write(result.getvalue())
-    else:
-        with open('Risultati/email_alterata_' + str(n) + '.pdf', 'wb') as f:
-            f.write(result.getvalue())
