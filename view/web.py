@@ -28,6 +28,7 @@
 
 import logging.config
 import os
+import pathlib
 import shutil
 from pathlib import Path
 
@@ -769,6 +770,9 @@ class Web(QtWidgets.QMainWindow):
         # copy the file in a temp folder
         origin = filename
         destination = "warc_player/cache/"
+        directory_path = pathlib.Path(destination)
+        if not directory_path.exists():
+            directory_path.mkdir()
         shutil.copy(origin, destination)
 
         # prepare the url with the file path
