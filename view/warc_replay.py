@@ -82,7 +82,6 @@ class WarcReplay(QtWidgets.QMainWindow):
         case_action.triggered.connect(self.case)
         self.menuBar().addAction(case_action)
 
-
         # REPLAY WARC
         replay_warc_action = QtWidgets.QAction("Replay", self)
         replay_warc_action.setStatusTip("Replay warc and wacz files")
@@ -97,7 +96,6 @@ class WarcReplay(QtWidgets.QMainWindow):
 
         # Get timestamp parameters
         self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
-
 
         self.show()
 
@@ -130,7 +128,6 @@ class WarcReplay(QtWidgets.QMainWindow):
         url = QUrl(f'http://localhost:8000/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
 
-
     def get_current_dir(self):
         if not self.acquisition_directory:
             configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
@@ -149,8 +146,6 @@ class WarcReplay(QtWidgets.QMainWindow):
 
     def configuration(self):
         self.configuration_view.exec_()
-
-
 
     def closeEvent(self, event):
         destination = "warc_player/cache"

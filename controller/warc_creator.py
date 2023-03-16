@@ -38,6 +38,7 @@ from warcio import StatusAndHeaders, ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from wacz.main import create_wacz
 
+
 # thanks to Andrea Lazzarotto @lazza for the contribution on the warc and wacz creation
 class OptionalNamespace(SimpleNamespace):
     def __getattribute__(self, name):
@@ -144,6 +145,8 @@ class WarcCreator:
         warc_file_path = Path(warc_path).as_posix()
         pages_path = Path(pages_path).as_posix()
         wacz_output_path = Path(wacz_output).as_posix()
+
+        zipfile.ZipInfo = PosixZipInfo
 
         res = OptionalNamespace(
             output=wacz_output_path,
