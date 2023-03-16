@@ -145,8 +145,6 @@ class WarcCreator:
         pages_path = Path(pages_path).as_posix()
         wacz_output_path = Path(wacz_output).as_posix()
 
-        zipfile.ZipInfo = PosixZipInfo
-
         res = OptionalNamespace(
             output=wacz_output_path,
             inputs=[warc_file_path],
@@ -155,3 +153,4 @@ class WarcCreator:
         )
         create_wacz(res)
         os.remove(pages_path)
+        os.remove(warc_path)
