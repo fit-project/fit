@@ -1,0 +1,109 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            77:4d:f1:48:4c:b7:91:18:70:ad:8c:f4:55:4f:64:80
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C = IT, L = Roma, O = Agenzia per l'Italia Digitale, OU = Area Soluzioni per la Pubblica Amministrazione, CN = AgID CA1
+        Validity
+            Not Before: Oct  8 10:38:09 2020 GMT
+            Not After : Oct  8 10:38:09 2023 GMT
+        Subject: C = IT, ST = Bergamo, L = Ponte San Pietro, O = Aruba PEC S.p.A., CN = Posta Certificata ARUBA PEC
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:c0:37:d4:45:79:16:ae:55:cf:c5:13:72:16:7d:
+                    be:cd:7d:19:73:59:44:48:fb:a1:7d:c5:f5:09:ce:
+                    48:1a:91:f3:91:b3:4f:69:ff:e3:0a:95:1f:a0:1a:
+                    d3:f4:02:14:54:ae:e7:60:f7:1f:cf:28:87:37:00:
+                    07:d3:fb:dd:54:d4:d2:cd:85:6f:48:da:3c:57:db:
+                    c6:dc:8a:d5:03:cf:b7:3a:22:61:9f:8b:b1:29:3c:
+                    88:38:45:13:83:6a:5d:e7:c1:70:20:59:77:f2:0c:
+                    9d:d9:7f:43:54:19:a9:61:bb:ca:72:9f:da:e0:39:
+                    f4:e3:f9:08:92:69:a5:88:53:9b:83:de:fd:d7:23:
+                    65:fa:e9:af:2c:09:38:0c:6b:a6:e8:a1:b2:dd:4b:
+                    5c:50:4d:ee:a5:f7:5c:e5:11:c0:59:89:e2:5e:cd:
+                    fd:db:3d:00:a5:16:f2:23:3c:76:fc:75:b7:65:7f:
+                    7a:a7:93:a1:79:13:3b:b3:be:be:71:c3:64:ef:8a:
+                    82:b0:3d:df:5f:2a:01:a0:d1:ff:eb:5b:59:cd:64:
+                    86:c9:d1:55:06:ec:df:67:e1:43:35:89:9d:2a:4f:
+                    cd:06:f9:a4:0e:01:21:a5:a8:0c:2f:ab:e8:fb:0d:
+                    04:ae:54:16:5b:3d:c8:95:f6:9f:ed:60:8b:33:72:
+                    05:ff
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            Authority Information Access: 
+                OCSP - URI:http://ca1.agid.gov.it/OCSP
+
+            X509v3 Subject Key Identifier: 
+                CD:D7:DB:32:9D:63:2F:1C:F1:81:8B:E1:E5:F6:A1:CE:64:9F:92:53
+            X509v3 Authority Key Identifier: 
+                keyid:A5:FD:85:05:0E:C3:F1:D6:65:4A:20:6C:E2:DB:4D:60:93:2B:8A:A0
+
+            X509v3 Certificate Policies: 
+                Policy: 1.3.76.16.3.1.1
+                  CPS: http://www.agid.gov.it/certificati-firma-pec
+
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:ldap://ca1.agid.gov.it/cn=AgID%20CA1,ou=Area%20Soluzioni%20per%20la%20Pubblica%20Amministrazione,o=Agenzia%20per%20l%27Italia%20Digitale,C=IT?certificateRevocationList
+
+                Full Name:
+                  URI:http://ca1.agid.gov.it/CRL
+
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage: 
+                E-mail Protection
+            X509v3 Subject Alternative Name: 
+                email:posta-certificata@pec.aruba.it
+    Signature Algorithm: sha256WithRSAEncryption
+         aa:83:32:87:ac:3e:20:c9:35:5a:1d:cf:d9:cf:1f:92:80:a7:
+         b0:c5:31:74:02:3a:ca:c4:22:c5:45:47:e3:91:66:6f:01:12:
+         50:f5:e5:d8:77:fc:e8:5b:56:cd:21:06:23:69:71:a7:8f:4a:
+         62:93:7c:05:28:1d:72:1b:fe:27:ce:d9:1c:78:0e:f1:27:ba:
+         de:be:73:90:fd:09:8e:7c:cc:c0:31:3e:96:a7:b4:b7:ef:8d:
+         8f:69:94:36:3e:ac:38:b2:31:c5:8c:2d:ef:49:bb:8d:40:07:
+         b2:1b:5c:67:88:5b:63:a0:33:46:9d:fc:6b:70:a4:6e:c4:00:
+         09:16:85:f8:5a:83:2a:dd:75:75:d8:4d:7d:46:6c:8e:12:45:
+         04:d1:34:7e:e4:84:e5:db:1c:96:7f:b5:56:67:28:37:1b:a2:
+         86:d3:a4:f8:9b:d1:3c:5e:45:9c:81:30:67:5d:69:d8:ff:82:
+         79:24:ad:79:aa:e6:cc:37:a1:bb:0a:5f:9b:6d:e7:3d:05:59:
+         67:8e:9c:38:40:7e:b7:fb:9b:da:91:9c:d5:ce:50:06:c9:75:
+         ca:d1:ab:d5:5a:4b:72:82:97:a0:f2:2b:7c:ae:9b:0e:18:f5:
+         4f:ef:4e:e6:5d:94:8c:ad:ee:eb:be:5d:d8:0e:5f:ea:74:ae:
+         b0:a9:fd:03
+-----BEGIN CERTIFICATE-----
+MIIFmTCCBIGgAwIBAgIQd03xSEy3kRhwrYz0VU9kgDANBgkqhkiG9w0BAQsFADCB
+kDELMAkGA1UEBhMCSVQxDTALBgNVBAcMBFJvbWExJjAkBgNVBAoMHUFnZW56aWEg
+cGVyIGwnSXRhbGlhIERpZ2l0YWxlMTcwNQYDVQQLDC5BcmVhIFNvbHV6aW9uaSBw
+ZXIgbGEgUHViYmxpY2EgQW1taW5pc3RyYXppb25lMREwDwYDVQQDDAhBZ0lEIENB
+MTAeFw0yMDEwMDgxMDM4MDlaFw0yMzEwMDgxMDM4MDlaMHsxCzAJBgNVBAYTAklU
+MRAwDgYDVQQIDAdCZXJnYW1vMRkwFwYDVQQHDBBQb250ZSBTYW4gUGlldHJvMRkw
+FwYDVQQKDBBBcnViYSBQRUMgUy5wLkEuMSQwIgYDVQQDDBtQb3N0YSBDZXJ0aWZp
+Y2F0YSBBUlVCQSBQRUMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDA
+N9RFeRauVc/FE3IWfb7NfRlzWURI+6F9xfUJzkgakfORs09p/+MKlR+gGtP0AhRU
+rudg9x/PKIc3AAfT+91U1NLNhW9I2jxX28bcitUDz7c6ImGfi7EpPIg4RRODal3n
+wXAgWXfyDJ3Zf0NUGalhu8pyn9rgOfTj+QiSaaWIU5uD3v3XI2X66a8sCTgMa6bo
+obLdS1xQTe6l91zlEcBZieJezf3bPQClFvIjPHb8dbdlf3qnk6F5Ezuzvr5xw2Tv
+ioKwPd9fKgGg0f/rW1nNZIbJ0VUG7N9n4UM1iZ0qT80G+aQOASGlqAwvq+j7DQSu
+VBZbPciV9p/tYIszcgX/AgMBAAGjggIBMIIB/TA3BggrBgEFBQcBAQQrMCkwJwYI
+KwYBBQUHMAGGG2h0dHA6Ly9jYTEuYWdpZC5nb3YuaXQvT0NTUDAdBgNVHQ4EFgQU
+zdfbMp1jLxzxgYvh5fahzmSfklMwHwYDVR0jBBgwFoAUpf2FBQ7D8dZlSiBs4ttN
+YJMriqAwTwYDVR0gBEgwRjBEBgYrTBADAQEwOjA4BggrBgEFBQcCARYsaHR0cDov
+L3d3dy5hZ2lkLmdvdi5pdC9jZXJ0aWZpY2F0aS1maXJtYS1wZWMwgeAGA1UdHwSB
+2DCB1TCBsKCBraCBqoaBp2xkYXA6Ly9jYTEuYWdpZC5nb3YuaXQvY249QWdJRCUy
+MENBMSxvdT1BcmVhJTIwU29sdXppb25pJTIwcGVyJTIwbGElMjBQdWJibGljYSUy
+MEFtbWluaXN0cmF6aW9uZSxvPUFnZW56aWElMjBwZXIlMjBsJTI3SXRhbGlhJTIw
+RGlnaXRhbGUsQz1JVD9jZXJ0aWZpY2F0ZVJldm9jYXRpb25MaXN0MCCgHqAchhpo
+dHRwOi8vY2ExLmFnaWQuZ292Lml0L0NSTDAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0l
+BAwwCgYIKwYBBQUHAwQwKQYDVR0RBCIwIIEecG9zdGEtY2VydGlmaWNhdGFAcGVj
+LmFydWJhLml0MA0GCSqGSIb3DQEBCwUAA4IBAQCqgzKHrD4gyTVaHc/Zzx+SgKew
+xTF0AjrKxCLFRUfjkWZvARJQ9eXYd/zoW1bNIQYjaXGnj0pik3wFKB1yG/4nztkc
+eA7xJ7revnOQ/QmOfMzAMT6Wp7S3742PaZQ2Pqw4sjHFjC3vSbuNQAeyG1xniFtj
+oDNGnfxrcKRuxAAJFoX4WoMq3XV12E19RmyOEkUE0TR+5ITl2xyWf7VWZyg3G6KG
+06T4m9E8XkWcgTBnXWnY/4J5JK15qubMN6G7Cl+bbec9BVlnjpw4QH63+5vakZzV
+zlAGyXXK0avVWktygpeg8it8rpsOGPVP707mXZSMre7rvl3YDl/qdK6wqf0D
+-----END CERTIFICATE-----

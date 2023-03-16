@@ -28,7 +28,7 @@
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
-from controller.verifyPec import verifyPec as verifyPecController
+from controller.integrityPec.verifyPec import verifyPec as verifyPecController
 from common.error import ErrorMessage
 
 

@@ -395,6 +395,10 @@ class SearchPec(QtWidgets.QMainWindow):
                             None, None, self.input_server.text(), self.input_port.text())
 
         pec.retrieveEml(timestampSlice)
+
+
+
+    #######################################APRIRE VERIFY PEC]####################
         self.close()
         os.startfile(directory)
 

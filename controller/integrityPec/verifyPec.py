@@ -25,10 +25,16 @@
 # SOFTWARE.
 # -----
 ######
+import email
 import subprocess
 from view.error import Error as ErrorView
 from PyQt5 import QtWidgets
 from common.error import ErrorMessage
+from controller.integrityPec import scadenza_pec
+from controller.integrityPec import firma_digitale
+from controller.integrityPec import revoca
+from controller.integrityPec import verifica_ente
+from controller.integrityPec.HTMLtoPDF import converter
 
 class verifyPec:
     def __init__(self):
@@ -38,12 +44,64 @@ class verifyPec:
     def verifyPec(self, path):
         eml_file_path = path
 
-        # Estrai la firma digitale dal file EML
-        result = subprocess.call(
-            ['openssl', 'smime', '-verify', '-in', eml_file_path, '-noverify', '-out', 'signature.txt'],
-            stdout=subprocess.PIPE)
 
-        if result == 0:
+        ris_sca_pec = scadenza_pec.crt_extract(eml_file_path)  # -1 mail corrotta, TRUE mail inviata prima della scadenza, FALSE dopo la scadenza
+        if ris_sca_pec != -1:
+            # Verifica se è presente una firma digitale
+            ris_firma = firma_digitale.firma_src(eml_file_path)  # TRUE la firma è presente, FALSE altrimenti
+            # verifica se la pec è stata revocata
+            ris_rev = revoca.revoca_der()
+            ente = revoca.extract_ente()
+            ver_ente = verifica_ente.ver_ente()
+            converter.pdf_creator(
+                ris_sca_pec[1],
+                ris_sca_pec[2],
+                ris_sca_pec[3],
+                ris_sca_pec[4],
+                ris_firma[1],
+                ris_sca_pec[0],
+                ris_firma[0],
+                True,
+                ris_rev,
+                ente,
+                ver_ente,
+                1)
+        else:
+            with open(eml_file_path, 'rb') as f:
+                msg = email.message_from_binary_file(f)
+
+            mittente = msg['Reply-To']
+            destinatario = msg['To']
+            oggetto = msg['Subject']
+            data_invio = msg['Date']
+            messaggio = ris_firma = firma_digitale.firma_src(eml_file_path)  # TRUE la firma è presente, FALSE altrimenti
+
+            converter.pdf_creator(
+                mittente,
+                destinatario,
+                oggetto,
+                data_invio,
+                messaggio[1],
+                'NULL',
+                'NULL',
+                False,
+                'NULL',
+                'NULL',
+                False,
+                1)
+
+
+
+
+
+
+
+
+
+
+
+
+    """if result == 0:
             # Stampa l'output del comando
             error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
                                   self.error_msg.TITLES['pec_verified'],
@@ -57,6 +115,6 @@ class verifyPec:
                                   self.error_msg.MESSAGES['pec_not_verified'],
                                   'PEC has an invalid signature')
             error_dlg.exec_()
-
+"""
 
 

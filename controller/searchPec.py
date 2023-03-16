@@ -28,9 +28,8 @@
 import email
 import imaplib
 import os
-from controller.verifyPec import verifyPec as verifyPecController
+from controller.integrityPec.verifyPec import verifyPec as verifyPecController
 import pyzmail
-from view.case import Case as CaseView
 from common.error import ErrorMessage
 from PyQt5 import QtWidgets
 from view.error import Error as ErrorView
