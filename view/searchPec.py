@@ -26,17 +26,24 @@
 # -----
 ######
 import datetime
+import email
+import imaplib
 import os
 
+import pyzmail
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 from PyQt5.QtCore import QRegExp, QDate
 from PyQt5.QtGui import QRegExpValidator, QDoubleValidator
 from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem, QAbstractItemView
+from view.error import Error as ErrorView
 
 from common.error import ErrorMessage
 from view.configuration import Configuration as ConfigurationView
 from view.case import Case as CaseView
 from controller.searchPec import SearchPec as SearchPecController
+from controller.pec import Pec as PecController
+
+from controller.configurations.tabs.pec.pec import Pec as PecConfigController
 
 class SearchPec(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
@@ -58,6 +65,7 @@ class SearchPec(QtWidgets.QMainWindow):
         self.input_from_date = None
         self.input_to_date = None
         self.error_msg = ErrorMessage()
+        self.controller = PecConfigController()
 
 
     def init(self, case_info):
@@ -257,6 +265,15 @@ class SearchPec(QtWidgets.QMainWindow):
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
 
+        self.pecConfiguration = self.controller.get()
+        if len(self.pecConfiguration) > 0:
+            for pecConfig in self.pecConfiguration:
+                self.input_pec.setText(pecConfig.pec)
+                self.input_password.setText(pecConfig.password)
+                self.input_server.setText(pecConfig.serverImap)
+                self.input_port.setText(pecConfig.portImap)
+
+
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -288,7 +305,7 @@ class SearchPec(QtWidgets.QMainWindow):
 
         searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
                                         self.input_port.text(), self.case_info)
-        messages = searchPec.fetchPec()
+
 
         recipient = self.input_recipient.text()
         case = self.input_case.text()
@@ -299,32 +316,22 @@ class SearchPec(QtWidgets.QMainWindow):
                                    self.input_to_date.date().day())
         toDate = toDate.date()
 
+        searchCriteria = f'SUBJECT "POSTA CERTIFICATA:"'
+
         #CONTROLLO DESTINATARIO
-        filteredPecs = []
         if len(recipient) == 0:
             pass
         else:
-            for message in messages:
-                if message.get_address('to')[1] == recipient:
-                    filteredPecs.append(message)
-            messages = filteredPecs
+           searchCriteria = searchCriteria + f' TO "{recipient}"'
 
-        # CONTROLLO CASO
-        filteredPecs = []
+        #CONTROLLO CASO
+
         if len(case) == 0:
             pass
         else:
-            for message in messages:
-                subject = message.get_subject()
-                list = subject.split()
-                caseIndex = list.index("caso:")
-                casePec = " ".join(list[caseIndex + 1:])
-                if casePec == case:
-                    filteredPecs.append(message)
-            messages = filteredPecs
+            searchCriteria = searchCriteria + f' SUBJECT "{case}"'
 
-        # CONTROLLO DATA FROM
-        filteredPecs = []
+        #CONTROLLO DATA FROM
         data = "1990-01-01"
         defaultData = datetime.datetime.strptime(data, '%Y-%m-%d')
         defaultData = defaultData.date()
@@ -332,15 +339,11 @@ class SearchPec(QtWidgets.QMainWindow):
         if fromDate == defaultData:
             pass
         else:
-            for message in messages:
-                datePec = message.get_decoded_header('Date')
-                datePec = datetime.datetime.strptime(datePec, '%a, %d %b %Y %H:%M:%S %z')
-                datePec = datePec.date()
-                if datePec > fromDate or datePec == fromDate:
-                    filteredPecs.append(message)
-            messages = filteredPecs
+            fromDate = fromDate.strftime('%d-%b-%Y')
+            searchCriteria = searchCriteria + f' SINCE "{fromDate}"'
 
-        # CONTROLLO DATA TO
+
+        #CONTROLLO DATA TO
         filteredPecs = []
         dataToday = datetime.datetime.today()
         dataToday = dataToday.date()
@@ -348,13 +351,10 @@ class SearchPec(QtWidgets.QMainWindow):
         if toDate == dataToday:
             pass
         else:
-            for message in messages:
-                datePec = message.get_decoded_header('Date')
-                datePec = datetime.datetime.strptime(datePec, '%a, %d %b %Y %H:%M:%S %z')
-                datePec = datePec.date()
-                if datePec < toDate or datePec == toDate:
-                    filteredPecs.append(message)
-            messages = filteredPecs
+            toDate = toDate.strftime('%d-%b-%Y')
+            searchCriteria = searchCriteria + f' BEFORE "{toDate}"'
+
+        messages = searchPec.fetchPec(searchCriteria)
 
         for message in messages:
             subject = message.get_subject()
@@ -373,18 +373,31 @@ class SearchPec(QtWidgets.QMainWindow):
         self.acquisition_status.show()
 
     def verify_eml(self):
-
-        searchPec = SearchPecController(self.input_pec.text(), self.input_password.text(), self.input_server.text(),
-                                        self.input_port.text(), self.case_info)
         pecSelected = self.pec_tree.currentItem()
         uid = pecSelected.text(0)
-        indiceUid = uid.find("UID:")
-        uidSlice = uid[indiceUid + len("UID:") + 1:]
 
-        pecs = searchPec.fetchPec()
+        indiceTimestamp = uid.find("ID:")
+        indiceUID = uid.find("UID:")
+        timestampSlice = uid[indiceTimestamp + len("ID:") + 1: indiceUID]
+
+        indiceAcquisition = uid.find("acquisizione")
+        indiceCase = uid.find("caso: ")
+        acquisitionSlice = uid[indiceAcquisition + len("acquisizione") + 1: indiceCase]
+        caseSlice = uid[indiceCase + len("caso:") + 1: indiceTimestamp]
+
         directory = os.path.join(os.path.expanduser(self.configuration_general.configuration['cases_folder_path']),
                                  self.case_info['name'], 'Eml files')
-        searchPec.verifyEml(uidSlice, pecs, directory)
+        acquisitionSlice = acquisitionSlice.strip()
+        timestampSlice = timestampSlice.strip()
+        caseSlice = caseSlice.strip()
+
+        pec = PecController(self.input_pec.text(), self.input_password.text(), acquisitionSlice, caseSlice, directory,
+                            None, None, self.input_server.text(), self.input_port.text())
+
+        pec.retrieveEml(timestampSlice)
+        self.close()
+        os.startfile(directory)
+
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)

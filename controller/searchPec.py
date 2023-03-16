@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import email
 import imaplib
 import os
 from controller.verifyPec import verifyPec as verifyPecController
@@ -45,7 +46,7 @@ class SearchPec:
         self.case_info = case_info
         return
 
-    def fetchPec(self):
+    def fetchPec(self, searchCriteria):
         error = False
         pecsToShow = []
         # Impostazioni di connessione
@@ -69,45 +70,49 @@ class SearchPec:
             if error == True:
                 pass
             else:
-                # cerca i messaggi di posta elettronica nella cartella PEC
-                status, messages = server.search(None, "ALL")
+                status, messages = server.search(None, searchCriteria)
                 messages = messages[0].split(b" ")
                 pecs = []
-                for msg_id in messages:
-                    # scarica il messaggio di posta elettronica in formato raw
-                    status, raw_email = server.fetch(msg_id, "(RFC822)")
-                    raw_email = raw_email[0][1]
-                    message = pyzmail.PyzMessage.factory(raw_email)
-                    pecs.append(message)
-                for pec in pecs:
-                    if pec.get_subject().startswith("POSTA CERTIFICATA:"):
-                        pecsToShow.append(pec)
+                pecsToShow = []
+                if str(messages) == "[b'']":
+                    pass
+                else:
+                    for msg_id in messages:
+                        # scarica il messaggio di posta elettronica in formato raw
+                        status, raw_email = server.fetch(msg_id, "(RFC822)")
+                        raw_email = raw_email[0][1]
+                        message = pyzmail.PyzMessage.factory(raw_email)
+                        pecsToShow.append(message)
+
 
         return pecsToShow
 
-    def verifyEml(self, uid, pecs, acquisition_directory):
-        message = None
+    def verifyEml(self, pecs, acquisition_directory):
+        message = pecs
         directory = str(acquisition_directory)
-        uidModified = uid[1:-3]
-        for pec in pecs:
-            text = pec.text_part.get_payload().decode(pec.text_part.charset)
-            for linea in text.split('\n'):
-                if linea.startswith("Messaggio di posta certificata"):
-                    for linea2 in text.split('\n'):
-                        if linea2.startswith('Identificativo del messaggio:'):
-                            uidFound = linea2.split(':')[-1].strip()
-                            if uidFound == uidModified:
-                                message = pec
 
         if not os.path.isdir(directory):
             # la cartella non esiste, quindi la creiamo
             os.makedirs(directory)
         os.chdir(directory)
         rawMessage = message.as_bytes()
+
+        # analizzare la PEC utilizzando la libreria email
+        pec_message = email.message_from_bytes(rawMessage)
+        message = pyzmail.PyzMessage.factory(rawMessage)
+
+        # ottenere il nome dell'ID digitale
+        nome_id_digitale = pec_message.get('X-Digital-ID', '')
+
+        # aggiungere il nome dell'ID digitale alla PEC
+        pec_data = rawMessage.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
+                                                 f' {nome_id_digitale}\r\n\r\n'.encode(), 1)
+
+
         # salva il messaggio di posta elettronica in formato EML
         filename = f"{message.get('message-id')[1:-8]}.eml"  # utilizza l'ID del messaggio come nome del file EML
         with open(filename, "wb") as f:
-            f.write(rawMessage)
+            f.write(pec_data)
 
         verifyPec = verifyPecController()
         path = directory+"/"+filename
