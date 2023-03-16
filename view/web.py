@@ -760,8 +760,8 @@ class Web(QtWidgets.QMainWindow):
 
         open_folder = self.get_current_dir()
 
-        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona il file wacz", open_folder,
-                                                  "WACZ Files (*.wacz)", options=options)
+        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona il file warc o wacz", open_folder,
+                                                  "WARC and WACZ Files (*.warc *.wacz)", options=options)
         if filename:
             self.load_warc(filename, port)
 
