@@ -314,10 +314,10 @@ class Web(QtWidgets.QMainWindow):
         )
 
         # set port and create the proxy
-        port = 8080
+        port = utility.find_free_port()
         self.mitm_thread = MitmThread(port, self.acquisition_directory)
-        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', 8080)
-        QNetworkProxy.setApplicationProxy(self.proxy)
+        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', port)
+        self.proxy.setApplicationProxy(self.proxy)
 
         # delete cookies from the store and clean the cache
         cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
@@ -751,6 +751,7 @@ class Web(QtWidgets.QMainWindow):
     def replay(self):
         # start the server
         self.server_thread = WarcReplayController()
+        port = self.server_thread.get_port()
         self.server_thread.finished.connect(self.server_thread_finished)
         self.server_thread.start()
 
@@ -759,19 +760,19 @@ class Web(QtWidgets.QMainWindow):
 
         open_folder = self.get_current_dir()
 
-        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona il file warc o wacz", open_folder,
-                                                  "WARC and WACZ Files (*.warc *.wacz)", options=options)
+        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona il file wacz", open_folder,
+                                                  "WACZ Files (*.wacz)", options=options)
         if filename:
-            self.load_warc(filename)
+            self.load_warc(filename, port)
 
-    def load_warc(self, filename):
+    def load_warc(self, filename, port):
         # copy the file in a temp folder
         origin = filename
         destination = "warc_player/cache/"
         shutil.copy(origin, destination)
 
         # prepare the url with the file path
-        url = QUrl(f'http://localhost:8000/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
+        url = QUrl(f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
         os.remove(os.path.join(destination,os.path.basename(filename)))
 

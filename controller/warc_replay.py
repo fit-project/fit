@@ -30,6 +30,8 @@ import os
 
 from PyQt5.QtCore import pyqtSignal, QThread
 
+from common import utility
+
 
 def parse_range_header(self, f):
     # Extract start and end byte positions from Range header
@@ -42,6 +44,7 @@ def parse_range_header(self, f):
     start = int(start)
     end = int(end) if end else f.size - 1
     return start, end
+
 
 class Handler(http.server.SimpleHTTPRequestHandler):
 
@@ -76,19 +79,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 class WarcReplay(QThread):
     finished = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.stop_server = False
         self.httpd = None
-    def run(self):
+        self.port = utility.find_free_port()
 
+    def get_port(self):
+        return self.port
+
+    def run(self):
         server_class = http.server.HTTPServer
         handler_class = Handler
-        server_address = ('', 8000)
+        server_address = ('', self.port)
         self.httpd = server_class(server_address, handler_class)
         while not self.stop_server:
             self.httpd.handle_request()
         self.httpd.server_close()
         self.finished.emit()
-
-
