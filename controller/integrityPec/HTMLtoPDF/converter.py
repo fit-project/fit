@@ -33,6 +33,7 @@ from datetime import datetime
 import os
 
 
+
 def pdf_creator(mittente, destinatario, oggeto, data_invio, messaggio, data_scadenza, firma_digitale, integrita, revoca,
                 ente, ver_ente, n):
     # Definisci il percorso dove trovare i template
@@ -64,6 +65,11 @@ def pdf_creator(mittente, destinatario, oggeto, data_invio, messaggio, data_scad
         revoca = "L'indirizzo non e' stato revocato."
 
     today_date = datetime.today().strftime("%d %b, %Y")
+
+
+
+
+
 
     context = {
         'mittente': mittente,
