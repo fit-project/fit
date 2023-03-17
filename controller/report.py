@@ -111,9 +111,16 @@ class Report:
                 titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
                 titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
             )
+            pdf_options = {
+                'page-size': 'Letter',
+                'margin-top': '1in',
+                'margin-right': '1in',
+                'margin-bottom': '1in',
+                'margin-left': '1in',
+            }
             # create pdf front and content, merge them and remove merged files
-            pisa.CreatePDF(front_index, dest=self.output_front_result)
-            pisa.CreatePDF(content_index, dest=self.output_content_result)
+            pisa.CreatePDF(front_index, dest=self.output_front_result, options=pdf_options)
+            pisa.CreatePDF(content_index, dest=self.output_content_result,options=pdf_options)
 
         if type == 'email' or type == 'instagram':
             content_index = open(os.getcwd() + '/asset/templates/template_email.html').read().format(
