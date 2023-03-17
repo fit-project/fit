@@ -30,8 +30,7 @@ import email
 import os
 import email.message
 import re
-
-from email.header import decode_header
+import pyzmail
 
 
 class Mail:
@@ -87,7 +86,7 @@ class Mail:
                     date_str = str(email_part['date'])
                     sender = email_part['from']
                     recipient = email_part['to']
-                    dict_value ='Mittente: '  +sender+ '\nDestinatario: '+recipient + '\nData: '\
+                    dict_value = 'Mittente: ' + sender + '\nDestinatario: ' + recipient + '\nData: ' \
                                  + date_str + '\nOggetto: ' + subject + '\nUID: ' + uid
                     # add message to dict
                     if folder in scraped_emails:
@@ -123,34 +122,20 @@ class Mail:
 
                 # Create acquisition folder
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
-                acquisition_dir = os.path.join(project_folder,'acquisition',folder_stripped)
+                acquisition_dir = os.path.join(project_folder, 'acquisition', folder_stripped)
                 if not os.path.exists(acquisition_dir):
                     os.makedirs(acquisition_dir)
 
-                status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
-                email_message = email_data[0][1].decode("utf-8")
-                email_part = email.message_from_bytes(email_data[0][1])
+                status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
 
-                with open(
-                        '%s/%s.eml' % (acquisition_dir, email_id),
-                        'w') as f:
-                    f.write(email_message)
-                    f.close()
+                message_mail = raw_email[0][1]
 
-                # attachments acquisition
-                for part in email_part.walk():
-                    if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
-                        filename, encoding = decode_header(part.get_filename())[0]
-                        path = os.path.join(acquisition_dir, email_id)
-                        os.makedirs(path)
-                        if encoding is None:
-                            with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id + '/' + filename, 'wb') as f:
-                                f.write(part.get_payload(decode=True))
-                                f.close()
-                        else:
-                            with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id+ '/' + filename.decode(encoding), 'wb') as f:
-                                f.write(part.get_payload(decode=True))
-                                f.close()
+                message = pyzmail.PyzMessage.factory(message_mail)
+
+                filename = f"{message.get('message-id')[1:-8]}.eml"
+                with open(project_folder + '//acquisition//' + folder_stripped + '/' + filename, 'wb') as f:
+                    f.write(message.as_bytes())
+
         return
 
     def download_everything(self, project_folder):
@@ -176,34 +161,19 @@ class Mail:
                 if not os.path.exists(acquisition_dir):
                     os.makedirs(acquisition_dir)
                 # Fetch every message in specified folder
+
                 messages = data[0].split()
                 for email_id in messages:
-                    status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
-                    email_message = email_data[0][1].decode("utf-8")
-                    email_part = email.message_from_bytes(email_data[0][1])
-                    with open(
-                            '%s/%s.eml' % (acquisition_dir, email_id.decode("utf-8")),
-                            'w') as f:
-                        f.write(email_message)
-                        f.close()
+                    status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
 
-                    # attachments acquisition
-                    for part in email_part.walk():
-                        if part.get_content_maintype() != 'multipart' and part.get('Content-Disposition') is not None:
-                            filename, encoding = decode_header(part.get_filename())[0]
-                            path = os.path.join(acquisition_dir, email_id.decode("utf-8"))
-                            os.makedirs(path)
-                            if (encoding is None):
-                                with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id.decode(
-                                        "utf-8") + '/' + filename, 'wb') as f:
-                                    f.write(part.get_payload(decode=True))
-                                    f.close()
-                            else:
-                                with open(project_folder + '//acquisition//' + folder_stripped + '/' + email_id.decode(
-                                        "utf-8") + '/' + filename.decode(encoding), 'wb') as f:
-                                    f.write(part.get_payload(decode=True))
-                                    f.close()
+                    message_mail = raw_email[0][1]
+
+                    message = pyzmail.PyzMessage.factory(message_mail)
+
+                    filename = f"{message.get('message-id')[1:-8]}.eml"
+                    with open(project_folder + '//acquisition//' + folder_stripped + '/' + filename, 'wb') as f:
+                        f.write(message.as_bytes())
+
 
             except Exception as e:  # handle exception
                 pass
-
