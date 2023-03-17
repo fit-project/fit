@@ -297,7 +297,7 @@ class SearchPec(QtWidgets.QMainWindow):
         self.label_from_date.setText(_translate("eml_verify_window", "Data di inizio"))
         self.label_to_date.setText(_translate("eml_verify_window", "Data di fine"))
         self.login_button.setText(_translate("eml_verify_window", "Fetch"))
-        self.verify_button.setText(_translate("eml_verify_window", "Verify"))
+        self.verify_button.setText(_translate("eml_verify_window", "Download"))
 
     def login(self):
         self.pec_tree.clear()
