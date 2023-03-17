@@ -32,7 +32,7 @@ class ReportText:
     def __init__(self):
         self.TEXT = {
             'report_pec': "Report di verifica della PEC",
-            'img': '..\\asset\\images\\FIT.png',
+            'img': '../asset/images/FIT.png',
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
             'version': "Versione 1.4 beta",
@@ -102,8 +102,16 @@ class ReportText:
             'logd': "Informazioni generate dai vari componenti del sistema",
             'pcapd': "Registrazione del traffico di rete",
             'zipd': "Archivio contenente l'acquisizione",
-            'txtd': "File whois",
+            'whoisd': "File whois",
             'pngd': "Screenshot della pagina",
+            'waczd': "Archivio WACZ dell'acquisizione",
+            'dumpd': "File di analisi del traffico",
+            'headersd': "Headers della richiesta",
+            'nslookupd': "Record DNS",
+            'cerd': "Certificato del server",
+            'sslkeyd': "Chiavi SSL",
+            'tracerouted': "Traceroute dei pacchetti",
+
 
             't6': "Hash dei file prodotti dal sistema",
             't6descr': "Ogni file prodotto dall'infrastruttura viene validato mediante il calcolo degli hash. "
