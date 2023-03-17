@@ -176,7 +176,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         server_name = options['server_name']
 
         # verify timestamp
-        rt = rfc3161ng.RemoteTimestamper(server_name, certificate=certificate)
+        rt = rfc3161ng.RemoteTimestamper(server_name, certificate=certificate, hashname='sha256')
         timestamp = open(tsr_in, 'rb').read()
 
         try:
@@ -249,7 +249,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             verification = 'Il report non ha un timestamp valido'
 
         # calculate hash (as in rfc lib)
-        hashobj = hashlib.new(rt.hashname)
+        hashobj = hashlib.new('sha256')
         hashobj.update(open(data, 'rb').read())
         digest = hashobj.hexdigest()
 
@@ -257,30 +257,32 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         timestamp_datetime = rfc3161ng.get_timestamp(timestamp)
 
         info_file_path = f'{folder}/timestamp_info.txt'
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
         with open(info_file_path, 'w') as file:
 
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
             file.write(f'ESITO\n')
             file.write(f'{verification}\n')
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
             file.write(f'NOME DEL FILE\n')
             file.write(f'{os.path.basename(self.input_pdf.text())}\n')
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
             file.write(f'DIMENSIONE\n')
             file.write(f'{os.path.getsize(self.input_pdf.text())} bytes\n')
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
             file.write(f'ALGORITMO DI HASHING\n')
-            file.write(f'{rt.hashname}\n')
-            file.write('=========================================================\n')
+            file.write('sha-256\n')
+            file.write('======================================================================\n')
             file.write(f'DIGEST\n')
             file.write(f'{digest}\n')
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
             file.write(f'TIMESTAMP\n')
             file.write(f'{str(timestamp_datetime)}\n')
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
             file.write(f'SERVER\n')
             file.write(f'{server_name}\n')
-            file.write('=========================================================\n')
+            file.write('======================================================================\n')
 
         report = VerifyPDFTimestampController(folder, self.case_info, ntp)
         return report, info_file_path

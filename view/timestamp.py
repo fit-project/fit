@@ -65,7 +65,7 @@ class Timestamp(QObject):
         certificate = open(cert_path, 'rb').read()
 
         # create the object
-        rt = rfc3161ng.RemoteTimestamper(self.server_name, certificate=certificate)
+        rt = rfc3161ng.RemoteTimestamper(self.server_name, certificate=certificate, hashname='sha256')
 
         # file to be certificated
         with open(pdf_path, 'rb') as f:
