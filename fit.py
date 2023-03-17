@@ -37,8 +37,6 @@ from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
 
 
-
-from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
 from view.verify_pec import VerifyPec as VerifyPecView
 
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
