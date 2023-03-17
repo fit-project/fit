@@ -273,6 +273,7 @@ class SearchPec(QtWidgets.QMainWindow):
                 self.input_password.setText(pecConfig.password)
                 self.input_server.setText(pecConfig.serverImap)
                 self.input_port.setText(pecConfig.portImap)
+        self.controller.close()
 
 
         self.retranslateUi()
@@ -397,10 +398,6 @@ class SearchPec(QtWidgets.QMainWindow):
 
         self.close()
 
-        path = str(self.directory) + "\\fit.db"
-        print(path)
-        if os.path.isfile(path):
-            os.remove(path)
 
         os.startfile(self.directory)
 

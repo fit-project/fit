@@ -113,6 +113,9 @@ class VerifyPec(QtWidgets.QMainWindow):
         ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
         pec = verifyPecController()
         pec.verifyPec(self.input_eml.text(), self.case_info, ntp)
+        path = os.path.dirname(str(self.input_eml.text()))
+        os.startfile(path)
+        self.close()
 
     def dialog(self, extension):
         # open the correct file picker based on extension

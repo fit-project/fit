@@ -46,14 +46,17 @@ class GenerateReport:
                                      ntp, eml_file_path):
 
 
-        #TODO: far arrivare qua caseinfo, ntp, folder
+        caseIndex = oggetto.find("caso: ")
+        caseSliceBefore = oggetto[:caseIndex]
+        caseSliceAfter = oggetto[caseIndex:]
+        oggetto = caseSliceBefore + "\n" + caseSliceAfter
 
         folder = os.path.dirname(eml_file_path)
         info_file_path = f'{folder}/pec_info.txt'
         if not os.path.isdir(folder):
             os.makedirs(folder)
         with open(info_file_path, 'w') as file:
-            file.write(f'PEC INVIATA:\n')
+            file.write(f'DETTAGLI PEC:\n')
             file.write('======================================================================\n')
             file.write(f'MITTENTE\n')
             file.write(f'{mittente}\n')
@@ -90,4 +93,5 @@ class GenerateReport:
             file.write('======================================================================\n')
 
         report = VerifyIntegrityPecController(folder, case_info, ntp)
+        report.generate_pdf(True, info_file_path)
         return report, info_file_path
