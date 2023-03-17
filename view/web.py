@@ -647,7 +647,7 @@ class Web(QtWidgets.QMainWindow):
                                   )
 
             error_dlg.buttonClicked.connect(quit)
-            error_dlg.exec_()
+            #error_dlg.exec_()
 
         return zip_folder
 
@@ -777,7 +777,10 @@ class Web(QtWidgets.QMainWindow):
         # prepare the url with the file path
         url = QUrl(f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
-        os.remove(os.path.join(destination,os.path.basename(filename)))
+        #
+        try:
+            os.remove(os.path.join(destination,os.path.basename(filename)))
+        except:pass
 
     def get_current_dir(self):
         if not self.acquisition_directory:
