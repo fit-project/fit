@@ -32,7 +32,7 @@ from controller.integrityPec.generateReport import GenerateReport as GenerateRep
 
 
 def pdf_creator(mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza, firma_digitale, integrita, revoca,
-                ente, ver_ente, n):
+                ente, ver_ente, n, case_info):
 
     # Definisce il contesto per il template HTML
     if firma_digitale == True:
@@ -59,5 +59,5 @@ def pdf_creator(mittente, destinatario, oggetto, data_invio, messaggio, data_sca
 
     verifyPec = GenerateReportController()
     verifyPec.generate_report_verification(mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza,
-                                           integrita, revoca, firma_digitale, today_date, ente, ver_ente)
+                                           integrita, revoca, firma_digitale, today_date, ente, ver_ente, case_info)
 

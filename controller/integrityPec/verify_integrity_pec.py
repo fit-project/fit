@@ -98,3 +98,4 @@ class VerifyIntegrityPec:
             os.remove(self.output_content)
         if os.path.exists(info_file_path):
             os.remove(info_file_path)
+

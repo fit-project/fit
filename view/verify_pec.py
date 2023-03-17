@@ -103,7 +103,7 @@ class VerifyPec(QtWidgets.QMainWindow):
 
     def verify(self):
         pec = verifyPecController()
-        pec.verifyPec(self.input_eml.text())
+        pec.verifyPec(self.input_eml.text(), self.case_info)
 
     def dialog(self, extension):
         # open the correct file picker based on extension

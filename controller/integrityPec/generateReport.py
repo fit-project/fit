@@ -30,6 +30,8 @@ import os
 from common import utility
 from PyQt5 import QtWidgets
 from common.error import ErrorMessage
+
+from view.configuration import Configuration as ConfigurationView
 from controller.integrityPec.verify_integrity_pec import VerifyIntegrityPec as VerifyIntegrityPecController
 
 
@@ -37,14 +39,14 @@ class GenerateReport:
     def __init__(self):
         self.error_msg = ErrorMessage()
         return
-    def generate_report_verification(self, mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza,
-                                     integrità, revoca, firma_digitale, today_date, ente, ver_ente):
-        folder = self.get_current_dir()
 
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
-        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+
+    def generate_report_verification(self, mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza,
+                                     integrità, revoca, firma_digitale, today_date, ente, ver_ente, case_info):
+
+
+        #TODO: far arrivare qua caseinfo, ntp, folder
+
 
         info_file_path = f'{folder}/pec_info.txt'
         if not os.path.isdir(folder):
@@ -85,5 +87,5 @@ class GenerateReport:
             file.write(f'{ver_ente}\n')
             file.write('======================================================================\n')
 
-        report = VerifyIntegrityPecController(folder, self.case_info, ntp)
+        report = VerifyIntegrityPecController(folder, case_info, ntp)
         return report, info_file_path
