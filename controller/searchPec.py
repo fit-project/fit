@@ -62,7 +62,7 @@ class SearchPec:
                 error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                       self.error_msg.TITLES['pec_error'],
                                       self.error_msg.MESSAGES['pec_error'],
-                                      'Wrong parameters or credentials')
+                                      'Wrong IMAP or PEC parameters or credentials')
                 error = True
                 error_dlg.exec_()
 
