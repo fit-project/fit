@@ -188,6 +188,28 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.timestamp_radio_button_wrapper)
         self.radio_button_group.addButton(self.timestamp, 4)
 
+
+        # RADIO BUTTON VERIFY PEC
+        self.pec_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.pec_radio_button_wrapper.setStyleSheet(
+            "QWidget#pec_radio_button_wrapper {\n""border: 1px solid black;\n""}")
+        self.pec_radio_button_wrapper.setObjectName("pec_radio_button_wrapper")
+        self.pec_vlayout = QtWidgets.QVBoxLayout(self.pec_radio_button_wrapper)
+        self.pec_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.pec_vlayout.setObjectName("pec_vlayout")
+        self.pec_img = QtWidgets.QLabel(self.pec_radio_button_wrapper)
+        self.pec_img.setEnabled(False)
+        self.pec_img.setStyleSheet("image: url(asset/images/wizard/email.png);")
+        self.pec_img.setText("")
+        self.pec_img.setObjectName("pec_img")
+        self.pec_vlayout.addWidget(self.pec_img)
+        self.pec = QtWidgets.QRadioButton(self.pec_radio_button_wrapper)
+        self.pec.setEnabled(True)
+        self.pec.setObjectName("pec")
+        self.pec_vlayout.addWidget(self.pec)
+        self.radio_buttons_hlayout.addWidget(self.pec_radio_button_wrapper)
+        self.radio_button_group.addButton(self.pec, 5)
+
         # RADIO BUTTON REPLAY
         self.replay_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
         self.replay_radio_button_wrapper.setStyleSheet(
@@ -208,7 +230,6 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.replay_vlayout.addWidget(self.replay)
         self.radio_buttons_hlayout.addWidget(self.replay_radio_button_wrapper)
         self.radio_button_group.addButton(self.replay, 5)
-
 
 
         #AREA RECAP INFO
@@ -304,7 +325,9 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.mail.setText(_translate("FITWizard", "MAIL"))
         self.select_task_page.insta.setText(_translate("FITWizard", "INSTAGRAM"))
         self.select_task_page.timestamp.setText(_translate("FITWizard", "VERIFY TIMESTAMP"))
+        self.select_task_page.pec.setText(_translate("FITWizard", "VERIFY PEC"))
         self.select_task_page.replay.setText(_translate("FITWizard", "REPLAY WARC"))
+
 
 
     def _get_recap_case_info_HTML(self):

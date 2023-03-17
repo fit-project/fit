@@ -3,19 +3,19 @@
 ######
 # -----
 # MIT License
-# 
+#
 # Copyright (c) 2022 FIT-Project and others
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
+######
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -35,6 +35,12 @@ from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
+
+
+
+from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
+from view.verify_pec import VerifyPec as VerifyPecView
+
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 from view.warc_replay import WarcReplay as WarcReplayView
 
@@ -46,15 +52,22 @@ if __name__ == '__main__':
     web.hide()
     mail = MailView()
     mail.hide()
+   
     insta = InstagramView()
     insta.hide()
+    
     timestamp = VerifyPDFTimestampView()
     timestamp.hide()
+
+    pec = VerifyPecView()
+    pec.hide()
+
+
     timestamp = VerifyPDFTimestampView()
     timestamp.hide()
     replay=WarcReplayView()
     replay.hide()
-    
+
     def start_task(task, case_info):
         if (task == 'web'):
             acquisition_window = web
@@ -66,15 +79,22 @@ if __name__ == '__main__':
             acquisition_window = insta
         elif (task == 'timestamp'):
             acquisition_window = timestamp
+        elif (task == 'pec'):
+            acquisition_window = pec
         elif (task == 'replay'):
             acquisition_window = replay
 
+
         acquisition_window.init(case_info)
         acquisition_window.show()
+
+
 
     #Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
     wizard.show()
+
+
 
     sys.exit(app.exec_())

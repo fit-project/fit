@@ -31,6 +31,7 @@ import os
 class ReportText:
     def __init__(self):
         self.TEXT = {
+            'report_pec': "Report di verifica della PEC",
             'img': '..\\asset\\images\\FIT.png',
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
