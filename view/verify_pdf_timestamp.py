@@ -25,11 +25,16 @@
 # SOFTWARE.
 # -----
 ######
+import hashlib
 import os
+
 import rfc3161ng
 
+import common.utility as utility
 from view.error import Error as ErrorView
 from view.configuration import Configuration as ConfigurationView
+
+from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
 
 from common.error import ErrorMessage
 
@@ -38,11 +43,11 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QFileDialog
 
 
-class VerifyTimestamp(QtWidgets.QMainWindow):
+class VerifyPDFTimestamp(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
-        super(VerifyTimestamp, self).__init__(*args, **kwargs)
+        super(VerifyPDFTimestamp, self).__init__(*args, **kwargs)
 
         self.data = None  # acquisition_report.pdf
         self.tsr_in = None  # timestamp.tsr
@@ -51,11 +56,12 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-    def init(self, case_info):
+    def init(self, case_info, acquisition_directory=None):
         self.width = 690
         self.height = 250
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
+        self.acquisition_directory = acquisition_directory
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
         self.setObjectName("verify_timestamp_window")
@@ -163,30 +169,45 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
         tsr_in = self.input_tsr.text()
         untrusted = self.input_crt.text()
         data = self.input_pdf.text()
+
         certificate = open(untrusted, 'rb').read()
         configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
         options = configuration_timestamp.options
         server_name = options['server_name']
 
         # verify timestamp
-        rt = rfc3161ng.RemoteTimestamper(server_name, certificate=certificate)
+        rt = rfc3161ng.RemoteTimestamper(server_name, certificate=certificate, hashname='sha256')
         timestamp = open(tsr_in, 'rb').read()
+
         try:
             verified = rt.check(timestamp, data=open(data, 'rb').read())
+
+            report, info_file_path = self.generate_report_verification(data, rt, server_name, timestamp, True)
             if verified:  # it's called ErrorView but it's an informative message :(
+
+                report.generate_pdf(True, info_file_path)
+
                 error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
                                       self.error_msg.TITLES['verification_ok'],
                                       self.error_msg.MESSAGES['verification_ok'],
-                                      "PDF has a valid timestamp.")
+                                      "PDF has a valid timestamp, report has been generated.")
                 error_dlg.exec_()
+
 
         except Exception:
             # timestamp not validated
+
+            report, info_file_path = self.generate_report_verification(data, rt, server_name, timestamp, False)
+            report.generate_pdf(False, info_file_path)
+
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   self.error_msg.TITLES['verification_failed'],
                                   self.error_msg.MESSAGES['verification_failed'],
-                                  "PDF may have been tampered with.")
+                                  "PDF may have been tampered with, report has been generated.")
             error_dlg.exec_()
+
+        folder = self.get_current_dir()
+        os.startfile(folder)
         return
 
     def onTextChanged(self):
@@ -195,9 +216,7 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
 
     def dialog(self, extension):
         # open the correct file picker based on extension
-        configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        open_folder = os.path.expanduser(
-            os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+        open_folder = self.get_current_dir()
 
         if extension == 'pdf':
             file, check = QFileDialog.getOpenFileName(None, "Open PDF",
@@ -215,3 +234,64 @@ class VerifyTimestamp(QtWidgets.QMainWindow):
                                                       open_folder, "CERT Files (*.crt)")
             if check:
                 self.input_crt.setText(file)
+
+    def generate_report_verification(self, data, rt, server_name, timestamp, check):
+        folder = self.get_current_dir()
+
+        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+                                                                          'group_box_network_check')
+        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+
+        if check:
+            verification = 'Il report ha un timestamp valido'
+        else:
+            verification = 'Il report non ha un timestamp valido'
+
+        # calculate hash (as in rfc lib)
+        hashobj = hashlib.new('sha256')
+        hashobj.update(open(data, 'rb').read())
+        digest = hashobj.hexdigest()
+
+        # get date from tsr file
+        timestamp_datetime = rfc3161ng.get_timestamp(timestamp)
+
+        info_file_path = f'{folder}/timestamp_info.txt'
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        with open(info_file_path, 'w') as file:
+
+            file.write('======================================================================\n')
+            file.write(f'ESITO\n')
+            file.write(f'{verification}\n')
+            file.write('======================================================================\n')
+            file.write(f'NOME DEL FILE\n')
+            file.write(f'{os.path.basename(self.input_pdf.text())}\n')
+            file.write('======================================================================\n')
+            file.write(f'DIMENSIONE\n')
+            file.write(f'{os.path.getsize(self.input_pdf.text())} bytes\n')
+            file.write('======================================================================\n')
+            file.write(f'ALGORITMO DI HASHING\n')
+            file.write('sha-256\n')
+            file.write('======================================================================\n')
+            file.write(f'DIGEST\n')
+            file.write(f'{digest}\n')
+            file.write('======================================================================\n')
+            file.write(f'TIMESTAMP\n')
+            file.write(f'{str(timestamp_datetime)}\n')
+            file.write('======================================================================\n')
+            file.write(f'SERVER\n')
+            file.write(f'{server_name}\n')
+            file.write('======================================================================\n')
+
+        report = VerifyPDFTimestampController(folder, self.case_info, ntp)
+        return report, info_file_path
+
+    def get_current_dir(self):
+        if not self.acquisition_directory:
+            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            open_folder = os.path.expanduser(
+                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+            return open_folder
+        else:
+            return self.acquisition_directory

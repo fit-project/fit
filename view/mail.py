@@ -46,6 +46,7 @@ from view.timestamp import Timestamp as TimestampView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
 from common.error import ErrorMessage
 
@@ -323,6 +324,12 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status_action.triggered.connect(self._acquisition_status)
         self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
         self.acquisition_menu.addAction(self.acquisition_status_action)
+
+        # VERIFY PDF ACTION
+        verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
+        verify_pdf_action.setStatusTip("Verify the timestamp of a report")
+        verify_pdf_action.triggered.connect(self.verify_timestamp)
+        self.menuBar().addAction(verify_pdf_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
@@ -665,3 +672,8 @@ class Mail(QtWidgets.QMainWindow):
             child_item = item.child(i)
             child_item.setSelected(selected)
             self.update_child_items(child_item, selected)
+
+    def verify_timestamp(self):
+        verify_pdf_view = VerifyPDFTimestampView()
+        verify_pdf_view.init(self.case_info, self.acquisition_directory)
+        verify_pdf_view.show()

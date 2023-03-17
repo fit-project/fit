@@ -35,9 +35,14 @@ from view.wizard import Wizard as WizardView
 from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
+
+
+
 from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
 from view.verify_pec import VerifyPec as VerifyPecView
 
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
+from view.warc_replay import WarcReplay as WarcReplayView
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -47,12 +52,21 @@ if __name__ == '__main__':
     web.hide()
     mail = MailView()
     mail.hide()
+   
     insta = InstagramView()
     insta.hide()
-    timestamp = VerifyTimestampView()
+    
+    timestamp = VerifyPDFTimestampView()
     timestamp.hide()
+
     pec = VerifyPecView()
     pec.hide()
+
+
+    timestamp = VerifyPDFTimestampView()
+    timestamp.hide()
+    replay=WarcReplayView()
+    replay.hide()
 
     def start_task(task, case_info):
         if (task == 'web'):
@@ -67,6 +81,9 @@ if __name__ == '__main__':
             acquisition_window = timestamp
         elif (task == 'pec'):
             acquisition_window = pec
+        elif (task == 'replay'):
+            acquisition_window = replay
+
 
         acquisition_window.init(case_info)
         acquisition_window.show()

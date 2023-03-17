@@ -3,19 +3,19 @@
 ######
 # -----
 # MIT License
-# 
+#
 # Copyright (c) 2022 FIT-Project and others
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,34 +24,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
+######
 
-import os
-import logging
 import logging.config
+import os
+import pathlib
 import shutil
+from pathlib import Path
 
-# I don't know why but pywebcopy "original" (by Raja Tomar) hangs the console and does not exit.
-# If I understood corretly this issue is knowed (https://github.com/rajatomar788/pywebcopy/issues/46)
-# David W Grossman has found a workaround He removed all multithreading and commit this version
-# here https://github.com/davidwgrossman/pywebcopy. for this reason I used this "unofficial" version in the local lib path
-# from lib.pywebcopy import WebPage, config as pwc_config, core
+from PyQt5.QtWidgets import QFileDialog
+from mitmproxy import ctx
+from scapy.all import *
 
-from pywebcopy import save_webpage
+import asyncio
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from PyQt5.QtCore import QThread, QUrl
+from PyQt5.QtNetwork import QNetworkProxy
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
 from view.pec import Pec as PecView
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.timestamp import Timestamp as TimestampView
-
+from view.proxyserver import ProxyServer as ProxyServerView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
+from controller.warc_creator import WarcCreator as WarcCreatorController
+from controller.warc_replay import WarcReplay as WarcReplayController
 
 from common.error import ErrorMessage
 
@@ -68,7 +72,47 @@ logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
 
-# logger_traceroute = logging.getLogger('traceroute')
+class MitmThread(QThread):
+    def __init__(self, port, acquisition_directory):
+        super().__init__()
+        self.port = port
+        self.acquisition_directory = acquisition_directory
+
+    def run(self):
+        # create new event loop
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
+        # mitmproxy's creation
+        self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
+        asyncio.run(self.proxy_server.start())
+
+    def stop_proxy(self):
+        try:
+            ctx.master.shutdown()
+            ctx.master = None
+        except:
+            pass
+
+
+class WebEnginePage(QWebEnginePage):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    # thanks to Andrea Lazzarotto @lazza for fixing the SSL error
+    def certificateError(self, error):
+        error.ignoreCertificateError()
+        return True
+
+
+class MainWindow(QWebEngineView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        page = WebEnginePage(self)
+        self.setPage(page)
+
+    def closeEvent(self, event):
+        self.page().profile().clearHttpCache()
 
 
 class Screenshot(QtWebEngineWidgets.QWebEngineView):
@@ -98,6 +142,8 @@ class Web(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
 
     def __init__(self, *args, **kwargs):
+        if not os.path.isdir("resources"):
+            os.makedirs("resources")
         super(Web, self).__init__(*args, **kwargs)
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
@@ -108,6 +154,7 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_screen_recorder = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
+        self.server_thread = False
 
     def init(self, case_info):
 
@@ -153,11 +200,11 @@ class Web(QtWidgets.QMainWindow):
         next_btn.triggered.connect(lambda: self.forward())
         navtb.addAction(next_btn)
 
-        reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-circle-315.png')), "Reload",
-                                       self)
-        reload_btn.setStatusTip("Reload page")
-        reload_btn.triggered.connect(lambda: self.reload())
-        navtb.addAction(reload_btn)
+        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-circle-315.png')), "Reload",
+                                            self)
+        self.reload_btn.setStatusTip("Reload page")
+        self.reload_btn.triggered.connect(lambda: self.reload())
+        navtb.addAction(self.reload_btn)
 
         home_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'home.png')), "Home", self)
         home_btn.setStatusTip("Go home")
@@ -219,6 +266,12 @@ class Web(QtWidgets.QMainWindow):
         acquisition_status_action.triggered.connect(self._acquisition_status)
         acquisition_menu.addAction(acquisition_status_action)
 
+        # REPLAY WARC
+        replay_warc_action = QtWidgets.QAction("Replay", self)
+        replay_warc_action.setStatusTip("Replay warc and wacz files")
+        replay_warc_action.triggered.connect(self.replay)
+        self.menuBar().addAction(replay_warc_action)
+
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
         # Get network parameters for check (NTP, nslookup)
@@ -261,8 +314,26 @@ class Web(QtWidgets.QMainWindow):
             self.case_info['name'],
             self.tabs.currentWidget().url().toString()
         )
-        if self.acquisition_directory is not None:
 
+        # set port and create the proxy
+        port = utility.find_free_port()
+        self.mitm_thread = MitmThread(port, self.acquisition_directory)
+        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', port)
+        self.proxy.setApplicationProxy(self.proxy)
+
+        # delete cookies from the store and clean the cache
+        cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+        cookie_store.deleteAllCookies()
+        self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
+        self.tabs.currentWidget().page().profile().clearHttpCache()
+
+        # start mitmproxy thread
+
+        self.mitm_thread.start()
+        # reload the page (waiting for the thread to be fully started)
+        QtCore.QTimer.singleShot(500, self.tabs.currentWidget().reload)
+
+        if self.acquisition_directory is not None:
             # show progress bar
             self.progress_bar.setHidden(False)
 
@@ -321,6 +392,7 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('')
 
     def stop_acquisition(self):
+
         if self.acquisition_is_started:
             self.progress_bar.setHidden(False)
             url = self.tabs.currentWidget().url().toString()
@@ -381,13 +453,17 @@ class Web(QtWidgets.QMainWindow):
                 self.status.showMessage('Get SSL CERTIFICATE')
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
+            try:
+                # stop the proxy (before stopping the packet capture)
+                self.mitm_thread.stop_proxy()
+                # Step 6: stop threads
+                if self.is_enabled_packet_capture:
+                    self.packetcapture.stop()
 
-            # Step 6: stop threads
-            if self.is_enabled_packet_capture:
-                self.packetcapture.stop()
-
-            if self.is_enabled_screen_recorder:
-                self.screenrecorder.stop()
+                if self.is_enabled_screen_recorder:
+                    self.screenrecorder.stop()
+            except:
+                pass
 
             # Step 7:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
@@ -402,14 +478,31 @@ class Web(QtWidgets.QMainWindow):
 
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
-            # Step 8:  Save all resource of current page
-            zip_folder = self.save_page()
 
+            # Step 8:  Save all resource of current page
+
+            self.proxy.setType(QNetworkProxy.DefaultProxy)
+            QNetworkProxy.setApplicationProxy(self.proxy)
+            # set the proxy for the manager to the NoProxy object
+            self.tabs.currentWidget().page().profile().clearHttpCache()
+            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+            # Delete all cookies from the store
+            cookie_store.deleteAllCookies()
+            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
+
+            # create wacz when acquisition is finished
+            path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
+
+            warc_creator = WarcCreatorController()
+            warc_creator.create_pages(path)
+            warc_creator.warc_to_wacz(path)
+
+            zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')
             self.acquisition_status.add_task('Save Page')
             self.acquisition_status.set_status('Save Page', zip_folder, 'done')
 
-            ### Waiting everything is synchronized  
+            ### Waiting everything is synchronized
             loop = QtCore.QEventLoop()
             QtCore.QTimer.singleShot(2000, loop.quit)
             loop.exec_()
@@ -537,33 +630,9 @@ class Web(QtWidgets.QMainWindow):
         self.th_screenrecorder.wait()
 
     def save_page(self):
-
-        url = self.tabs.currentWidget().url().toString()
-
         project_folder = self.acquisition_directory
 
         project_name = "acquisition_page"
-
-        try:
-            save_webpage(
-                url=url,
-                project_folder=project_folder,
-                project_name=project_name,
-                bypass_robots=True,
-                debug=DEBUG,
-                open_in_browser=False,
-                delay=None,
-                threaded=None
-            )
-        except Exception as error:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['save_web_page'],
-                                  self.error_msg.MESSAGES['save_web_page'],
-                                  str(error)
-                                  )
-
-            error_dlg.buttonClicked.connect(quit)
-            error_dlg.exec_()
 
         acquisition_page_folder = os.path.join(project_folder, project_name)
         zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
@@ -609,21 +678,21 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
 
-        browser = QtWebEngineWidgets.QWebEngineView()
-        browser.setUrl(qurl)
-        i = self.tabs.addTab(browser, label)
+        self.browser = MainWindow()
+        self.browser.setUrl(qurl)
+        i = self.tabs.addTab(self.browser, label)
 
         self.tabs.setCurrentIndex(i)
 
         # More difficult! We only want to update the url when it's from the
         # correct tab
-        browser.urlChanged.connect(lambda qurl, browser=browser:
-                                   self.update_urlbar(qurl, browser))
+        self.browser.urlChanged.connect(lambda qurl, browser=self.browser:
+                                        self.update_urlbar(qurl, browser))
 
-        browser.loadProgress.connect(self.load_progress)
+        self.browser.loadProgress.connect(self.load_progress)
 
-        browser.loadFinished.connect(lambda _, i=i, browser=browser:
-                                     self.tabs.setTabText(i, browser.page().title()))
+        self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
+                                          self.tabs.setTabText(i, browser.page().title()))
 
         if i == 0:
             self.showMaximized()
@@ -656,7 +725,6 @@ class Web(QtWidgets.QMainWindow):
     def navigate_home(self):
         if self.acquisition_is_started:
             logger_acquisition.info('User clicked the home button')
-
         self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
 
     def navigate_to_url(self):  # Does not receive the Url
@@ -686,7 +754,54 @@ class Web(QtWidgets.QMainWindow):
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
 
+    def replay(self):
+        # start the server
+        self.server_thread = WarcReplayController()
+        port = self.server_thread.get_port()
+        self.server_thread.finished.connect(self.server_thread_finished)
+        self.server_thread.start()
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        open_folder = self.get_current_dir()
+
+        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona il file warc o wacz", open_folder,
+                                                  "WARC and WACZ Files (*.warc *.wacz)", options=options)
+        if filename:
+            self.load_warc(filename, port)
+
+    def load_warc(self, filename, port):
+        # copy the file in a temp folder
+        origin = filename
+        destination = "warc_player/cache/"
+        directory_path = pathlib.Path(destination)
+        if not directory_path.exists():
+            directory_path.mkdir()
+        shutil.copy(origin, destination)
+
+        # prepare the url with the file path
+        url = QUrl(f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
+        self.browser.setUrl(url)
+        os.remove(os.path.join(destination,os.path.basename(filename)))
+
+    def get_current_dir(self):
+        if not self.acquisition_directory:
+            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            open_folder = os.path.expanduser(
+                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+            return open_folder
+        else:
+            return self.acquisition_directory
+
+    def server_thread_finished(self):
+        self.server_thread.quit()
+        self.server_thread.wait()
+
     def closeEvent(self, event):
+        if self.server_thread:
+            self.server_thread.stop_server = True
+
         packetcapture = getattr(self, 'packetcapture', None)
 
         if packetcapture is not None:

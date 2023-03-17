@@ -75,7 +75,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
                 if item is not None:
                     if isinstance(item, QtWidgets.QLineEdit) is not False:
                         if value is not None:
-                            item.setText(value)
+                            item.setText(str(value))
                     if isinstance(item, QtWidgets.QComboBox):
                         if keyword in 'types_proceedings_id': 
                             if value is not None:
@@ -188,6 +188,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.timestamp_radio_button_wrapper)
         self.radio_button_group.addButton(self.timestamp, 4)
 
+
         # RADIO BUTTON VERIFY PEC
         self.pec_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
         self.pec_radio_button_wrapper.setStyleSheet(
@@ -209,6 +210,26 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.pec_radio_button_wrapper)
         self.radio_button_group.addButton(self.pec, 5)
 
+        # RADIO BUTTON REPLAY
+        self.replay_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.replay_radio_button_wrapper.setStyleSheet(
+            "QWidget#replay_radio_button_wrapper {\n""border: 1px solid black;\n""}")
+        self.replay_radio_button_wrapper.setObjectName("replay_radio_button_wrapper")
+        self.replay_vlayout = QtWidgets.QVBoxLayout(self.replay_radio_button_wrapper)
+        self.replay_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.replay_vlayout.setObjectName("replay_vlayout")
+        self.replay_img = QtWidgets.QLabel(self.replay_radio_button_wrapper)
+        self.replay_img.setEnabled(False)
+        self.replay_img.setStyleSheet("image: url(asset/images/wizard/replay.png);")
+        self.replay_img.setText("")
+        self.replay_img.setObjectName("replay_img")
+        self.replay_vlayout.addWidget(self.replay_img)
+        self.replay = QtWidgets.QRadioButton(self.replay_radio_button_wrapper)
+        self.replay.setEnabled(True)
+        self.replay.setObjectName("replay")
+        self.replay_vlayout.addWidget(self.replay)
+        self.radio_buttons_hlayout.addWidget(self.replay_radio_button_wrapper)
+        self.radio_button_group.addButton(self.replay, 5)
 
 
         #AREA RECAP INFO
@@ -305,6 +326,8 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.insta.setText(_translate("FITWizard", "INSTAGRAM"))
         self.select_task_page.timestamp.setText(_translate("FITWizard", "VERIFY TIMESTAMP"))
         self.select_task_page.pec.setText(_translate("FITWizard", "VERIFY PEC"))
+        self.select_task_page.replay.setText(_translate("FITWizard", "REPLAY WARC"))
+
 
 
     def _get_recap_case_info_HTML(self):

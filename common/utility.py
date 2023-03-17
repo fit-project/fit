@@ -34,6 +34,7 @@ import platform
 import subprocess
 import ntplib
 import urllib.request
+from   urllib.parse import urlparse
 from datetime import datetime, timezone
 
 from whois import NICClient, WhoisEntry, extract_domain, IPV4_OR_V6
@@ -152,19 +153,29 @@ def whois(url, flags=0):
     return nic_client.whois_lookup(None, domain.encode('idna'), flags)
 
 def nslookup(url, dns_server, enable_verbose_mode, enable_tcp):
+    url=urlparse(url)
+    netloc = url.netloc
 
-    dns_query = Nslookup(dns_servers=[dns_server], verbose=enable_verbose_mode, tcp=enable_tcp)
-    ips_record = dns_query.dns_lookup(extract_domain(url))
+    if not netloc:
+       return "Don't find Network location part in the URL"
+    else: 
+        dns_query = Nslookup(dns_servers=[dns_server], verbose=enable_verbose_mode, tcp=enable_tcp)
+        ips_record = dns_query.dns_lookup(url.netloc)
 
-    return '\n'.join(map(str, ips_record.response_full))
+        return '\n'.join(map(str, ips_record.response_full))
 
 def traceroute(url, filename):
-    domain = extract_domain(url)
-    with open(filename, 'w') as f:
-        with redirect_stdout(f):
-            ans, unans = scapy.sr(scapy.IP(dst=domain, ttl=(1,22),id=scapy.RandShort())/scapy.TCP(flags=0x2), timeout=10)
-            for snd,rcv in ans:
-                print(snd.ttl, rcv.src, isinstance(rcv.payload, scapy.TCP))
+    url=urlparse(url)
+    netloc = url.netloc
+
+    if not netloc:
+        print("Don't find Network location part in the URL")
+    else: 
+        with open(filename, 'w') as f:
+            with redirect_stdout(f):
+                ans, unans = scapy.sr(scapy.IP(dst=netloc, ttl=(1,22),id=scapy.RandShort())/scapy.TCP(flags=0x2), timeout=10)
+                for snd,rcv in ans:
+                    print(snd.ttl, rcv.src, isinstance(rcv.payload, scapy.TCP))
 
 def get_headers_information(url):
     response = requests.get(url)
@@ -178,6 +189,7 @@ def check_internet_connection(host='http://google.com'):
         return True
     except:
         return False
+        
 
 def check_if_peer_certificate_exist(url):
     with requests.get(url, stream=True, timeout=10, verify=False) as response:
@@ -188,18 +200,23 @@ def check_if_peer_certificate_exist(url):
             return False
 
 def get_peer_PEM_cert(url, port=443, timeout=10):
-    domain = extract_domain(url)
-    context = ssl.create_default_context()
-    conn = socket.create_connection((domain, port))
-    sock = context.wrap_socket(conn, server_hostname=domain)
-    sock.settimeout(timeout)
+    url=urlparse(url)
+    netloc = url.netloc
+    
+    if not netloc:
+       return None
+    else: 
+        context = ssl.create_default_context()
+        conn = socket.create_connection((netloc, port))
+        sock = context.wrap_socket(conn, server_hostname=netloc)
+        sock.settimeout(timeout)
 
-    try:
-        der_cert = sock.getpeercert(True)
-    finally:
-        sock.close()
+        try:
+            der_cert = sock.getpeercert(True)
+        finally:
+            sock.close()
 
-    return ssl.DER_cert_to_PEM_cert(der_cert)
+        return ssl.DER_cert_to_PEM_cert(der_cert)
 
 def save_PEM_cert_to_CER_cert(filename, certificate):
     try:
@@ -229,5 +246,11 @@ def import_modules(start_path, start_module_name = ""):
             module = util.module_from_spec(spec)
             sys.modules[module_name] = module
             spec.loader.exec_module(module)
+
+#search for the first free port to bind the proxy
+def find_free_port():
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    return sock.getsockname()[1]
 
 
