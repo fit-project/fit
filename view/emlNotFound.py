@@ -74,7 +74,7 @@ class EmlNotFound(QtWidgets.QMainWindow):
         self.manualSearch = SearchPecView()
         self.manualSearch.hide()
         self.acquisition_window = self.manualSearch
-        self.acquisition_window.init(self.case_info)
+        self.acquisition_window.init(self.case_info, self.directory)
         self.acquisition_window.show()
         self.close()
 

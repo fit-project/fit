@@ -36,7 +36,7 @@ from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
 from view.verify_timestamp import VerifyTimestamp as VerifyTimestampView
-from view.pecChoose import PecChoose as PecChooseView
+from view.verify_pec import VerifyPec as VerifyPecView
 
 
 if __name__ == '__main__':
@@ -51,9 +51,8 @@ if __name__ == '__main__':
     insta.hide()
     timestamp = VerifyTimestampView()
     timestamp.hide()
-    pecChoose = PecChooseView()
-    pecChoose.hide()
-
+    pec = VerifyPecView()
+    pec.hide()
 
     def start_task(task, case_info):
         if (task == 'web'):
@@ -67,7 +66,7 @@ if __name__ == '__main__':
         elif (task == 'timestamp'):
             acquisition_window = timestamp
         elif (task == 'pec'):
-            acquisition_window = pecChoose
+            acquisition_window = pec
 
         acquisition_window.init(case_info)
         acquisition_window.show()

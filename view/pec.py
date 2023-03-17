@@ -209,7 +209,7 @@ class Pec(QtWidgets.QMainWindow):
         for i in range(3):
             self.outputMessage.setText("Tentativo " + str(i+1) + " download eml...")
             self.progressBar.setValue(40 + ((i+1)*10))
-            time.sleep(8)
+            time.sleep(1)
             results = pec.retrieveEml(timestampDate)
             if results[0]:
                 self.progressBar.setValue(0)
@@ -239,6 +239,7 @@ class Pec(QtWidgets.QMainWindow):
             if results[0]:
                 pass
             else:
+                self.controller.close()
                 self.emlNotFound = EmlNotFoundView()
                 self.emlNotFound.hide()
                 self.acquisition_window = self.emlNotFound

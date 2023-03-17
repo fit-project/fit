@@ -48,7 +48,7 @@ class verifyPec:
         self.error_msg = ErrorMessage()
         return
 
-    def verifyPec(self, path, case_info):
+    def verifyPec(self, path, case_info, ntp):
         eml_file_path = path
 
 
@@ -73,7 +73,9 @@ class verifyPec:
                 ente,
                 ver_ente,
                 1,
-                case_info)
+                case_info,
+                ntp,
+                eml_file_path)
         else:
             with open(eml_file_path, 'rb') as f:
                 msg = email.message_from_binary_file(f)
@@ -97,7 +99,9 @@ class verifyPec:
                 'NULL',
                 False,
                 1,
-                case_info)
+                case_info,
+                ntp,
+                eml_file_path)
 
 
 

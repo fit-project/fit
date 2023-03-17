@@ -82,42 +82,4 @@ class SearchPec:
                         raw_email = raw_email[0][1]
                         message = pyzmail.PyzMessage.factory(raw_email)
                         pecsToShow.append(message)
-
-
         return pecsToShow
-
-    def verifyEml(self, pecs, acquisition_directory):
-        message = pecs
-        directory = str(acquisition_directory)
-
-        if not os.path.isdir(directory):
-            # la cartella non esiste, quindi la creiamo
-            os.makedirs(directory)
-        os.chdir(directory)
-        rawMessage = message.as_bytes()
-
-        # analizzare la PEC utilizzando la libreria email
-        pec_message = email.message_from_bytes(rawMessage)
-        message = pyzmail.PyzMessage.factory(rawMessage)
-
-        # ottenere il nome dell'ID digitale
-        nome_id_digitale = pec_message.get('X-Digital-ID', '')
-
-        # aggiungere il nome dell'ID digitale alla PEC
-        pec_data = rawMessage.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
-                                                 f' {nome_id_digitale}\r\n\r\n'.encode(), 1)
-
-
-        # salva il messaggio di posta elettronica in formato EML
-        filename = f"{message.get('message-id')[1:-8]}.eml"  # utilizza l'ID del messaggio come nome del file EML
-        with open(filename, "wb") as f:
-            f.write(pec_data)
-
-        verifyPec = verifyPecController()
-        path = directory+"/"+filename
-        verifyPec.verifyPec(path)
-        os.remove(directory+"/signature.txt")
-        os.startfile(directory)
-
-
-

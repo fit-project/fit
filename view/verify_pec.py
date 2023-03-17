@@ -28,8 +28,11 @@
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
+
+from common import utility
 from controller.integrityPec.verifyPec import verifyPec as verifyPecController
 from common.error import ErrorMessage
+from view.configuration import Configuration as ConfigurationView
 
 
 class VerifyPec(QtWidgets.QMainWindow):
@@ -39,6 +42,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         super(VerifyPec, self).__init__(*args, **kwargs)
         self.data = None  # file .eml
         self.error_msg = ErrorMessage()
+        self.configuration_view = ConfigurationView(self)
 
     def init(self, case_info):
         self.width = 600
@@ -102,8 +106,13 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.verification_button.setEnabled(all_fields_filled)
 
     def verify(self):
+        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        # Get network parameters for check (NTP, nslookup)
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+                                                                          'group_box_network_check')
+        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
         pec = verifyPecController()
-        pec.verifyPec(self.input_eml.text(), self.case_info)
+        pec.verifyPec(self.input_eml.text(), self.case_info, ntp)
 
     def dialog(self, extension):
         # open the correct file picker based on extension

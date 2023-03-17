@@ -68,11 +68,12 @@ class SearchPec(QtWidgets.QMainWindow):
         self.controller = PecConfigController()
 
 
-    def init(self, case_info):
+    def init(self, case_info, directory):
         self.width = 1140
         self.height = 590
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
+        self.directory = directory
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
         self.case_view = CaseView(self.case_info, self)
@@ -385,22 +386,23 @@ class SearchPec(QtWidgets.QMainWindow):
         acquisitionSlice = uid[indiceAcquisition + len("acquisizione") + 1: indiceCase]
         caseSlice = uid[indiceCase + len("caso:") + 1: indiceTimestamp]
 
-        directory = os.path.join(os.path.expanduser(self.configuration_general.configuration['cases_folder_path']),
-                                 self.case_info['name'], 'Eml files')
         acquisitionSlice = acquisitionSlice.strip()
         timestampSlice = timestampSlice.strip()
         caseSlice = caseSlice.strip()
 
-        pec = PecController(self.input_pec.text(), self.input_password.text(), acquisitionSlice, caseSlice, directory,
-                            None, None, self.input_server.text(), self.input_port.text())
+        pec = PecController(self.input_pec.text(), self.input_password.text(), acquisitionSlice, caseSlice,
+                            self.directory, None, None, self.input_server.text(), self.input_port.text())
 
         pec.retrieveEml(timestampSlice)
 
-
-
-    #######################################APRIRE VERIFY PEC]####################
         self.close()
-        os.startfile(directory)
+
+        path = str(self.directory) + "\\fit.db"
+        print(path)
+        if os.path.isfile(path):
+            os.remove(path)
+
+        os.startfile(self.directory)
 
 
     def onTextChanged(self):

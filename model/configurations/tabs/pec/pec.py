@@ -54,6 +54,10 @@ class Pec(Base):
     def get(self):
         return self.db.session.query(Pec).all()
 
+    def close(self):
+        self.db.session.close_all()
+        return
+
     def update(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
         self.db.session.query(Pec).filter(Pec.pec == pecData).update(pecData, passwordData, serverData, portData,
                                                                      serverImapData, portImapData)

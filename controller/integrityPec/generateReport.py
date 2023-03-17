@@ -42,16 +42,18 @@ class GenerateReport:
 
 
     def generate_report_verification(self, mittente, destinatario, oggetto, data_invio, messaggio, data_scadenza,
-                                     integrità, revoca, firma_digitale, today_date, ente, ver_ente, case_info):
+                                     integrità, revoca, firma_digitale, today_date, ente, ver_ente, case_info,
+                                     ntp, eml_file_path):
 
 
         #TODO: far arrivare qua caseinfo, ntp, folder
 
-
+        folder = os.path.dirname(eml_file_path)
         info_file_path = f'{folder}/pec_info.txt'
         if not os.path.isdir(folder):
             os.makedirs(folder)
         with open(info_file_path, 'w') as file:
+            file.write(f'PEC INVIATA:\n')
             file.write('======================================================================\n')
             file.write(f'MITTENTE\n')
             file.write(f'{mittente}\n')
@@ -65,8 +67,8 @@ class GenerateReport:
             file.write(f'DATA INVIO\n')
             file.write(f'{data_invio}\n')
             file.write('======================================================================\n')
-            file.write(f'MESSAGGIO\n')
-            file.write(f'{messaggio}\n')
+            file.write(f'\n')
+            file.write(f'RISULTATI:\n')
             file.write('======================================================================\n')
             file.write(f'DATA SCADENZA\n')
             file.write(f'{data_scadenza}\n')

@@ -42,6 +42,10 @@ class Pec():
     def delete(self, pecData):
         self.model.delete(pecData)
 
+    def close(self):
+        self.model.close()
+        return
+
     def update(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
         self.model.update(pecData, passwordData, serverData, portData, serverImapData, portImapData)
 
