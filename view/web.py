@@ -30,9 +30,10 @@ import logging.config
 import os
 import pathlib
 import shutil
+import sys
 from pathlib import Path
 
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication
 from mitmproxy import ctx
 from scapy.all import *
 
@@ -646,7 +647,7 @@ class Web(QtWidgets.QMainWindow):
                                   )
 
             error_dlg.buttonClicked.connect(quit)
-            error_dlg.exec_()
+            #error_dlg.exec_()
 
         return zip_folder
 
@@ -755,21 +756,14 @@ class Web(QtWidgets.QMainWindow):
         self.urlbar.setCursorPosition(0)
 
     def replay(self):
-        # start the server
-        self.server_thread = WarcReplayController()
-        port = self.server_thread.get_port()
-        self.server_thread.finished.connect(self.server_thread_finished)
-        self.server_thread.start()
+        from view.warc_replay import WarcReplay as WarcReplayView
 
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        self.replay = WarcReplayView()
+        self.replay.hide()
+        acquisition_window = self.replay
 
-        open_folder = self.get_current_dir()
-
-        filename, _ = QFileDialog.getOpenFileName(self, "Seleziona il file warc o wacz", open_folder,
-                                                  "WARC and WACZ Files (*.warc *.wacz)", options=options)
-        if filename:
-            self.load_warc(filename, port)
+        acquisition_window.init(self.case_info)
+        acquisition_window.show()
 
     def load_warc(self, filename, port):
         # copy the file in a temp folder
@@ -783,7 +777,10 @@ class Web(QtWidgets.QMainWindow):
         # prepare the url with the file path
         url = QUrl(f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
-        os.remove(os.path.join(destination,os.path.basename(filename)))
+        #
+        try:
+            os.remove(os.path.join(destination,os.path.basename(filename)))
+        except:pass
 
     def get_current_dir(self):
         if not self.acquisition_directory:
