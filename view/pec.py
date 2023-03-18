@@ -25,6 +25,8 @@
 # SOFTWARE.
 # -----
 ######
+import imaplib
+from view.error import Error as ErrorView
 import os
 import sys
 import time
@@ -197,23 +199,34 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton.setEnabled(all_field_filled)
 
     def button_clicked(self):
+        results = []
+        error = False
         self.outputMessage.setText("Invio PEC...")
         self.progressBar.setValue(10)
         pec = PecController(self.input_username.text(), self.input_password.text(), self.acquisition,
                             self.case_info['name'], self.directory, self.input_username_2.text(),
                             self.input_password_2.text(), self.input_username_3.text(), self.input_password_3.text())
         self.progressBar.setValue(30)
-        timestampDate = pec.sendPec()
-        self.progressBar.setValue(40)
-        results = []
-        for i in range(3):
-            self.outputMessage.setText("Tentativo " + str(i+1) + " download eml...")
-            self.progressBar.setValue(40 + ((i+1)*10))
-            time.sleep(8)
-            results = pec.retrieveEml(timestampDate)
-            if results[0]:
+
+        try:
+            server = imaplib.IMAP4_SSL(self.input_username_3.text(), self.input_password_3.text())
+            server.login(self.input_username.text(), self.input_password.text())
+        except Exception:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['pec_error'],
+                                  self.error_msg.MESSAGES['pec_error'],
+                                  'Wrong IMAP or PEC parameters or credentials')
+            error = True
+            error_dlg.exec_()
+
+        if error:
+            self.progressBar.setValue(0)
+            self.outputMessage.setText("")
+        else:
+            result = pec.sendPec()
+            if result[1]:
                 self.progressBar.setValue(0)
-                break
+                self.outputMessage.setText("")
             else:
                 if self.checkBox.isChecked():
                     self.pecConfiguration = self.controller.get()
@@ -226,29 +239,38 @@ class Pec(QtWidgets.QMainWindow):
                     self.controller.add(self.input_username.text(), self.input_password.text(),
                                         self.input_username_2.text(), self.input_password_2.text(),
                                         self.input_username_3.text(), self.input_password_3.text())
+                self.progressBar.setValue(40)
+
+                for i in range(3):
+                    self.outputMessage.setText("Tentativo " + str(i + 1) + " download eml...")
+                    self.progressBar.setValue(40 + ((i + 1) * 10))
+                    time.sleep(8)
+                    results = pec.retrieveEml(result[0])
+                    if results[0]:
+                        self.progressBar.setValue(0)
+                        self.outputMessage.setText("")
+                        break
+                    else:
+                        if results[1]:
+                            break
+                        else:
+                            pass
+
                 if results[1]:
-                    break
+                    self.progressBar.setValue(100)
+                    os.startfile(str(self.directory))
+                    self.close()
                 else:
-                    pass
-
-        if results[1]:
-            self.progressBar.setValue(100)
-            os.startfile(str(self.directory))
-            self.close()
-        else:
-            if results[0]:
-                pass
-            else:
-                self.controller.close()
-                self.emlNotFound = EmlNotFoundView()
-                self.emlNotFound.hide()
-                self.acquisition_window = self.emlNotFound
-                self.acquisition_window.init(self.directory, self.case_info)
-                self.acquisition_window.show()
-                self.close()
-
-
-
+                    if results[0]:
+                        pass
+                    else:
+                        self.controller.close()
+                        self.emlNotFound = EmlNotFoundView()
+                        self.emlNotFound.hide()
+                        self.acquisition_window = self.emlNotFound
+                        self.acquisition_window.init(self.directory, self.case_info)
+                        self.acquisition_window.show()
+                        self.close()
 
 
     def skip_send(self):

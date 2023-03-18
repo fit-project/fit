@@ -65,6 +65,7 @@ class Pec:
         return
 
     def sendPec(self):
+        results = []
         error = False
         email_utente = self.username
         password_utente = self.password
@@ -102,21 +103,20 @@ class Pec:
             allegato_tsr.add_header('content-disposition', 'attachment', filename="timestamp.tsr")
             msg.attach(allegato_tsr)
 
-        # Connessione e invio del messaggio
-        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-
-            try:
-                server.login(email_utente, password_utente)
-                dataToday = datetime.datetime.today()
-                server.sendmail(email_utente, destinatario, msg.as_string())
-            except smtplib.SMTPException:
-                error = True
-                error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                      self.error_msg.TITLES['pec_error'],
-                                      self.error_msg.MESSAGES['pec_error'],
-                                      'Wrong parameters or credentials')
-                error_dlg.exec_()
-        return timestampDate
+        try:
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+            server.login(email_utente, password_utente)
+            server.sendmail(email_utente, destinatario, msg.as_string())
+        except Exception:
+            error = True
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['pec_error'],
+                                  self.error_msg.MESSAGES['pec_error'],
+                                  'Wrong SMTP or PEC parameters or credentials')
+            error_dlg.exec_()
+        results.append(timestampDate)
+        results.append(error)
+        return results
 
     def retrieveEml(self, timestampDate):
 
@@ -132,7 +132,7 @@ class Pec:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   self.error_msg.TITLES['pec_error'],
                                   self.error_msg.MESSAGES['pec_error'],
-                                  'Wrong parameters or credentials')
+                                  'Wrong IMAP or PEC parameters or credentials')
             error = True
             error_dlg.exec_()
 
@@ -171,6 +171,6 @@ class Pec:
                     f.write(pec_data)
 
 
-            results.append(error)
-            results.append(find)
-            return results
+        results.append(error)
+        results.append(find)
+        return results
