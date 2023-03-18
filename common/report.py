@@ -32,7 +32,7 @@ class ReportText:
     def __init__(self):
         self.TEXT = {
             'report_pec': "Report di verifica della PEC",
-            'img': '..\\asset\\images\\FIT.png',
+            'img': '../asset/images/FIT.png',
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
             'version': "Versione 1.4 beta",
@@ -102,8 +102,16 @@ class ReportText:
             'logd': "Informazioni generate dai vari componenti del sistema",
             'pcapd': "Registrazione del traffico di rete",
             'zipd': "Archivio contenente l'acquisizione",
-            'txtd': "File whois",
+            'whoisd': "File whois",
             'pngd': "Screenshot della pagina",
+            'waczd': "Archivio WACZ dell'acquisizione",
+            'dumpd': "File di analisi del traffico",
+            'headersd': "Headers della richiesta",
+            'nslookupd': "Record DNS",
+            'cerd': "Certificato del server",
+            'sslkeyd': "Chiavi SSL",
+            'tracerouted': "Traceroute dei pacchetti",
+
 
             't6': "Hash dei file prodotti dal sistema",
             't6descr': "Ogni file prodotto dall'infrastruttura viene validato mediante il calcolo degli hash. "
@@ -114,6 +122,8 @@ class ReportText:
             't7descr': "Tutti i file prodotti dall'utente durante l'acquisizione sono raccolti all'interno "
                        "della cartella compressa avente estensione .zip. Per ognuno di questi file viene riportata "
                        "la dimensione espressa in bytes.",
+            't8': "Screenshot della pagina",
+            't8descr': "Viene di seguito riportato lo screenshot della pagina navigata durante l'acquisizione.",
             'verifi_ok': "La verifica del timestamp del report in formato PDF ha fornito esito positivo. "
                          "Di seguito vengono riportate le informazioni riguardanti l'esito della verifica, il file, "
                          "l'algoritmo di hashing e il servizio di Time Stamp Authority utilizzato per effettuare il controllo.",
