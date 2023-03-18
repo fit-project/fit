@@ -38,8 +38,8 @@ from common.report import ReportText
 class Report:
     def __init__(self, cases_folder_path, case_info):
         self.cases_folder_path = cases_folder_path
-        self.output_front = self.cases_folder_path + "\\" + "front_report.pdf"
-        self.output_content = self.cases_folder_path + "\\" + "content_report.pdf"
+        self.output_front = os.path.join(self.cases_folder_path, "front_report.pdf")
+        self.output_content = os.path.join(self.cases_folder_path, "content_report.pdf")
         self.output_front_result = open(self.output_front, "w+b")
         self.output_content_result = open(self.output_content, "w+b")
         self.case_info = case_info
@@ -49,16 +49,17 @@ class Report:
         # PREPARING DATA TO FILL THE PDF
         phrases = ReportText()
         if type == 'web':
-            with open(os.path.join(self.cases_folder_path,'whois.txt'), "r") as f:
+            with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
                 whois_text = f.read()
                 f.close()
-        with open(os.path.join(self.cases_folder_path,'acquisition.hash'),"r", encoding='utf-8') as f:
+        with open(os.path.join(self.cases_folder_path, 'acquisition.hash'), "r", encoding='utf-8') as f:
             user_files = f.read()
             f.close()
 
         acquisition_files = self._acquisition_files_names()
 
         zip_enum = self._zip_files_enum()
+        screenshot = self._get_screenshot()
 
         # FILLING FRONT PAGE WITH DATA
         front_index = open(os.getcwd() + '/asset/templates/front.html').read().format(
@@ -108,6 +109,8 @@ class Report:
                 t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
                 t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
                 t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
+                t8=phrases.TEXT['t8'], t8descr=phrases.TEXT['t8descr'],
+                screenshot=screenshot,
                 titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
                 titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
             )
@@ -120,7 +123,7 @@ class Report:
             }
             # create pdf front and content, merge them and remove merged files
             pisa.CreatePDF(front_index, dest=self.output_front_result, options=pdf_options)
-            pisa.CreatePDF(content_index, dest=self.output_content_result,options=pdf_options)
+            pisa.CreatePDF(content_index, dest=self.output_content_result, options=pdf_options)
 
         if type == 'email' or type == 'instagram':
             content_index = open(os.getcwd() + '/asset/templates/template_email.html').read().format(
@@ -168,6 +171,21 @@ class Report:
         if os.path.exists(self.output_content):
             os.remove(self.output_content)
 
+    def _get_screenshot(self):
+        acquisition_files = {}
+        files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
+        for file in files:
+            acquisition_files[file] = file
+            print(file)
+        if not any(value.endswith('.png') for value in acquisition_files.values()):
+            print('nessun png')
+            return "<p> File non trovato </p>"
+        else:
+            file_path = os.path.join(self.cases_folder_path, 'screenshot.png')
+
+            print('un png')
+            print(file_path)
+            return "<img src="+file_path+ " class='center'>"
     def _acquisition_files_names(self):
         acquisition_files = {}
         files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
@@ -177,7 +195,7 @@ class Report:
         if not any(value.endswith('.avi') for value in acquisition_files.values()):
             acquisition_files['acquisition.avi'] = "File non prodotto"
         if not any(value.endswith('.png') for value in acquisition_files.values()):
-            acquisition_files['acquisition.png'] = "File non prodotto"
+            acquisition_files['screenshot.png'] = "File non prodotto"
         if not 'acquisition.hash' in acquisition_files.values():
             acquisition_files['acquisition.hash'] = "File non prodotto"
         if not 'acquisition.log' in acquisition_files.values():

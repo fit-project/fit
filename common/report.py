@@ -122,6 +122,8 @@ class ReportText:
             't7descr': "Tutti i file prodotti dall'utente durante l'acquisizione sono raccolti all'interno "
                        "della cartella compressa avente estensione .zip. Per ognuno di questi file viene riportata "
                        "la dimensione espressa in bytes.",
+            't8': "Screenshot della pagina",
+            't8descr': "Viene di seguito riportato lo screenshot della pagina navigata durante l'acquisizione.",
             'verifi_ok': "La verifica del timestamp del report in formato PDF ha fornito esito positivo. "
                          "Di seguito vengono riportate le informazioni riguardanti l'esito della verifica, il file, "
                          "l'algoritmo di hashing e il servizio di Time Stamp Authority utilizzato per effettuare il controllo.",
