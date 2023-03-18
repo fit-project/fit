@@ -457,8 +457,8 @@ class Mail(QtWidgets.QMainWindow):
         if action is not None:
             action.setEnabled(False)
         self.acquisition_status.clear()
-        self.acquisition_status.set_title('Acquisition is started!')
-        self.status.showMessage('Calculate acquisition file hash')
+        self.acquisition_status.set_title('Fetching e-mails...')
+        self.status.showMessage('Fetching e-mails, please wait')
         self.progress_bar.setValue(100)
 
         ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
@@ -530,6 +530,11 @@ class Mail(QtWidgets.QMainWindow):
         emails_dict = {}
         folders_list = []
         selected_items = self.emails_tree.selectedItems()
+        if len(selected_items) == 0:
+            # scrape everything anyway (even is nothing is selected)
+            self.mail_controller.download_everything(self.acquisition_directory)
+            self.save_info()
+            return
         for items in selected_items:
             if items.text(0) == 'Cartelle':
                 # scrape everything anyway (even is single messages are selected)
