@@ -86,6 +86,9 @@ class FlowWriterAddon:
     def __init__(self, acquisition_directory) -> None:
         self.w = mitmproxy.io.FlowWriter(open(f'{acquisition_directory}/flow_dump.txt', "wb"))  # standard: .mitm
 
+    def request(self, flow: http.HTTPFlow) -> None:
+        self.w.add(flow)
+
     def response(self, flow: http.HTTPFlow) -> None:
         self.w.add(flow)
 
@@ -132,6 +135,11 @@ class FlowReaderAddon:
                         "wb") as f:
                     f.write(flow.response.content)
 
+        path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
+        warc_creator = WarcCreatorController()
+        warc_creator.flow_to_warc(flow, path)
+
+    def request(self, flow: mitmproxy.http.HTTPFlow):
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
         warc_creator.flow_to_warc(flow, path)

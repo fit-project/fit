@@ -176,15 +176,10 @@ class Report:
         files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
         for file in files:
             acquisition_files[file] = file
-            print(file)
         if not any(value.endswith('.png') for value in acquisition_files.values()):
-            print('nessun png')
             return "<p> File non trovato </p>"
         else:
             file_path = os.path.join(self.cases_folder_path, 'screenshot.png')
-
-            print('un png')
-            print(file_path)
             return "<img src="+file_path+ " class='center'>"
     def _acquisition_files_names(self):
         acquisition_files = {}
