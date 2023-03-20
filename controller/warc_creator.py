@@ -161,7 +161,7 @@ class WarcCreator:
                 # read from warc file
                 with open(warc_path, 'rb') as stream:
                     for record in ArchiveIterator(stream):
-                        if record.rec_type == 'request':
+                        if record.rec_type == 'response':
                             url = record.rec_headers.get_header('WARC-Target-URI')
                             content_type = record.rec_headers.get_header('Content-Type')
                             if 'text/html' in content_type:
