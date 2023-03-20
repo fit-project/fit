@@ -103,7 +103,6 @@ class FlowReaderAddon:
         return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-        # TODO: search a better way to get the resource's name (for same-host resources)
         url = flow.request.url
         # save html first (since it has no extension in the flow)
         if flow.response.headers.get('content-type', '').startswith('text/html'):
@@ -121,7 +120,6 @@ class FlowReaderAddon:
             extension = None
 
         if extension is not None:
-
             if flow.response.headers.get('content-type', '').split(';')[0].startswith('image/'):
                 # save image to disk
                 with open(
@@ -137,9 +135,9 @@ class FlowReaderAddon:
 
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
-        warc_creator.flow_to_warc(flow, path)
+        warc_creator.response_to_warc(flow, path)
 
     def request(self, flow: mitmproxy.http.HTTPFlow):
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
-        warc_creator.flow_to_warc(flow, path)
+        warc_creator.request_to_warc(flow, path)

@@ -70,12 +70,54 @@ class WarcCreator:
             record = writer.create_warcinfo_record(warc_path, info=warcinfo_content)
             writer.write_record(record)
 
-    def flow_to_warc(self, flow: http.HTTPFlow, output_prefix):
+    def request_to_warc(self, flow: http.HTTPFlow, output_prefix):
         warc_path = output_prefix.with_suffix(".warc")
         with open(warc_path, 'ab') as output:
             # create new warcio writer
             writer = WARCWriter(output, gzip=False)
-            content_type = flow.response.headers.get('content-type', '').split(';')[0]
+            content_type = flow.request.headers.get('content-type', '')
+
+            payload = flow.request.content
+            headers = flow.request.headers
+
+            # date from flow is returning as float, needs to be converted
+            date_obj = datetime.fromtimestamp(flow.request.timestamp_start)
+            # convert the datetime object to an ISO formatted string
+            iso_date_str = date_obj.isoformat()
+            # create http headers from the information inside the flow
+
+            http_headers = StatusAndHeaders(
+                statusline=f"{flow.request.method} {flow.request.path}", headers=headers,
+                protocol=flow.request.http_version)
+
+            warc_headers = {
+                'WARC-Type': 'request',
+                'WARC-Target-URI': flow.request.url,
+                'WARC-Date': iso_date_str,
+                'Content-Type': content_type,
+                'Content-Length': str(len(payload)),
+                'WARC-Concurrent-To': self.get_response_record_id(flow,output_prefix)
+            }
+
+            if type(payload) is bytes:
+                payload = BytesIO(payload)
+
+            # create the actual warc record
+            record = writer.create_warc_record(flow.request.url, 'request',
+                                               payload=payload,
+                                               http_headers=http_headers,
+                                               warc_headers_dict=warc_headers)
+
+            writer.write_record(record)
+
+    def response_to_warc(self, flow: http.HTTPFlow, output_prefix):
+
+        warc_path = output_prefix.with_suffix(".warc")
+
+        with open(warc_path, 'ab') as output:
+            # create new warcio writer
+            writer = WARCWriter(output, gzip=False)
+            content_type = flow.response.headers.get('content-type', '')
             payload = flow.response.content
             headers = flow.response.headers
 
@@ -88,9 +130,7 @@ class WarcCreator:
             http_headers = StatusAndHeaders(str(flow.response.status_code) + ' ' + flow.response.reason, headers,
                                             protocol=flow.response.http_version)
             warc_headers = {
-                'WARC-Type': 'resource',
                 'WARC-Target-URI': flow.request.url,
-                'WARC-Source-URI': flow.request.url,
                 'WARC-Date': iso_date_str,
                 'Content-Type': content_type,
                 'Content-Length': str(len(payload))
@@ -121,7 +161,7 @@ class WarcCreator:
                 # read from warc file
                 with open(warc_path, 'rb') as stream:
                     for record in ArchiveIterator(stream):
-                        if record.rec_type == 'response':
+                        if record.rec_type == 'request':
                             url = record.rec_headers.get_header('WARC-Target-URI')
                             content_type = record.rec_headers.get_header('Content-Type')
                             if 'text/html' in content_type:
@@ -157,3 +197,14 @@ class WarcCreator:
         create_wacz(res)
         os.remove(pages_path)
         os.remove(warc_path)
+
+    def get_response_record_id(self, flow: http.HTTPFlow,output_prefix):
+        # find the most recent request with the same WARC-Target-URI as the response
+        # we need to connect request to the response in order to correctly load the resources
+        warc_path = str(output_prefix.with_suffix(".warc"))
+        with open(warc_path, 'rb') as output:
+
+            for record in ArchiveIterator(output):
+                if record.rec_type == 'response' and record.rec_headers.get('WARC-Target-URI') == flow.request.url:
+                    most_recent_response = record
+            return most_recent_response.rec_headers.get('WARC-Record-ID')
