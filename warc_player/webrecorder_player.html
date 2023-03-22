@@ -9,22 +9,17 @@
       width: 100%;
       height: 100%;
     }
-
-
     </style>
 
 </head>
 <body>
-
-<replay-web-page id="replay" noCache="true" loading="eager" replayBase="replay/" url=""></replay-web-page>
+<replay-web-page id="replay" loading="eager" replayBase="replay/" url=""></replay-web-page>
 <script>
         const urlParams = new URLSearchParams(window.location.search);
         const file = urlParams.get('file');
 
         document.getElementById('replay').setAttribute('source', file);
-
 </script>
 <script src="ui.js"></script>
-<?= $_GET['file'] ?>
 </body>
 </html>
