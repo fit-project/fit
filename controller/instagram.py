@@ -34,7 +34,6 @@ import os
 class Instagram:
     def __init__(self, username, password, profileName, path):
         self.username = username
-        # TODO: implement secure password handling
         self.password = password
         self.profileName = profileName
         self.loader = Instaloader()

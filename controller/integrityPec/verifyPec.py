@@ -102,32 +102,3 @@ class verifyPec:
                 case_info,
                 ntp,
                 eml_file_path)
-
-
-
-
-
-
-
-
-
-
-
-
-    """if result == 0:
-            # Stampa l'output del comando
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  self.error_msg.TITLES['pec_verified'],
-                                  self.error_msg.MESSAGES['pec_verified'],
-                                  'PEC has a valid signature')
-            error_dlg.exec_()
-        else:
-            # Stampa l'output del comando
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['pec_not_verified'],
-                                  self.error_msg.MESSAGES['pec_not_verified'],
-                                  'PEC has an invalid signature')
-            error_dlg.exec_()
-"""
-
-
