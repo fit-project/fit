@@ -32,6 +32,7 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
+from bs4 import BeautifulSoup
 
 from mitmproxy import http
 from warcio import StatusAndHeaders, ArchiveIterator
@@ -62,7 +63,7 @@ class WarcCreator:
         warc_path = str(output_prefix.with_suffix(".warc"))
         with open(warc_path, 'wb') as output:
             # create new warcio writer
-            writer = WARCWriter(output, gzip=False)
+            writer = WARCWriter(output, gzip=True)
             warcinfo_content = {
                 'software': 'Freezing Internet Tool - FIT',
                 'format': 'WARC File Format 1.0'
@@ -74,7 +75,7 @@ class WarcCreator:
         warc_path = output_prefix.with_suffix(".warc")
         with open(warc_path, 'ab') as output:
             # create new warcio writer
-            writer = WARCWriter(output, gzip=False)
+            writer = WARCWriter(output, gzip=True)
             content_type = flow.request.headers.get('content-type', '')
 
             payload = flow.request.content
@@ -96,7 +97,7 @@ class WarcCreator:
                 'WARC-Date': iso_date_str,
                 'Content-Type': content_type,
                 'Content-Length': str(len(payload)),
-                'WARC-Concurrent-To': self.get_response_record_id(flow,output_prefix)
+                'WARC-Concurrent-To': self.get_response_record_id(flow, output_prefix)
             }
 
             if type(payload) is bytes:
@@ -116,7 +117,7 @@ class WarcCreator:
 
         with open(warc_path, 'ab') as output:
             # create new warcio writer
-            writer = WARCWriter(output, gzip=False)
+            writer = WARCWriter(output, gzip=True)
             content_type = flow.response.headers.get('content-type', '')
             payload = flow.response.content
             headers = flow.response.headers
@@ -164,12 +165,15 @@ class WarcCreator:
                         if record.rec_type == 'response':
                             url = record.rec_headers.get_header('WARC-Target-URI')
                             content_type = record.rec_headers.get_header('Content-Type')
-                            if 'text/html' in content_type:
-                                html = record.content_stream().read()
-                                if len(html) > 0:
+                            if content_type.startswith('text/html'):
+                                content_length = record.rec_headers.get_header('Content-Length')
+                                if not content_length == '0':
+                                    html = record.content_stream().read().decode(errors='ignore')
+                                    soup = BeautifulSoup(html, 'html.parser')
+                                    title = soup.title.string.strip() if soup.title else ''
+
                                     id = record.rec_headers.get_header('WARC-Record-ID')
                                     ts = record.rec_headers.get_header('WARC-Date')
-                                    title = record.rec_headers.get_header('WARC-Target-URI')
 
                                     page = {
                                         "id": id, "url": url,
@@ -187,18 +191,21 @@ class WarcCreator:
         wacz_output_path = Path(wacz_output).as_posix()
 
         zipfile.ZipInfo = PosixZipInfo
+        try:
+            res = OptionalNamespace(
+                output=wacz_output_path,
+                inputs=[warc_file_path],
+                pages=pages_path,
+                detect_pages=False
+            )
+            create_wacz(res)
+        except:
+            pass
 
-        res = OptionalNamespace(
-            output=wacz_output_path,
-            inputs=[warc_file_path],
-            pages=pages_path,
-            detect_pages=False
-        )
-        create_wacz(res)
         os.remove(pages_path)
         os.remove(warc_path)
 
-    def get_response_record_id(self, flow: http.HTTPFlow,output_prefix):
+    def get_response_record_id(self, flow: http.HTTPFlow, output_prefix):
         # find the most recent request with the same WARC-Target-URI as the response
         # we need to connect request to the response in order to correctly load the resources
         warc_path = str(output_prefix.with_suffix(".warc"))

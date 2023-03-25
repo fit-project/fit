@@ -26,6 +26,7 @@
 # -----
 ######
 import mimetypes
+from datetime import datetime
 from pathlib import Path
 
 from mitmproxy import http
@@ -111,25 +112,33 @@ class FlowReaderAddon:
             html_text = flow.response.content
             if len(html_text) > 0:
                 url = flow.request.pretty_host
-                with open(f"{self.acq_dir}/{url}.html", "wb") as f:
-                    f.write(html_text)
-                    f.flush()
+                if not os.path.exists(f"{self.acq_dir}/{url}.html"):
+                    with open(f"{self.acq_dir}/{url}.html", "wb") as f:
+                        f.write(html_text)
+                        f.flush()
+                else:
+                    date_obj = datetime.fromtimestamp(flow.request.timestamp_start)
+                    # convert the datetime object to an ISO formatted string
+                    str_date_str = str(date_obj)
+                    url += str_date_str
+                    with open(f"{self.acq_dir}/{url}.html", "wb") as f:
+                        f.write(html_text)
+                        f.flush()
 
         content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
-                         "video/mp4", "audio/mpeg", "text/css"]
+                         "video/mp4", "audio/mpeg", "text/css", "text/javascript", "image/gif"]
         if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
             filename = flow.request.url.split("/")[-1]
             content_type, encoding = mimetypes.guess_type(filename)
             if not content_type:
-                content_type = flow.response.headers["content-type"]
+                content_type = flow.response.headers.get('content-type', '').split(';')[0]
             if content_type:
                 extension = mimetypes.guess_extension(content_type)
                 if extension:
                     filename += extension
-
-            filepath = f"{self.acq_dir}/{filename}"
-            with open(filepath, "wb") as f:
-                f.write(flow.response.content)
+                    filepath = f"{self.acq_dir}/{filename}"
+                    with open(filepath, "wb") as f:
+                        f.write(flow.response.content)
 
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
