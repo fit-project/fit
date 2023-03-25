@@ -103,7 +103,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_button_group = QtWidgets.QButtonGroup()
         self.radio_button_group.buttonToggled[QtWidgets.QAbstractButton, bool].connect(self.completeChanged)
         self.radio_button_container = QtWidgets.QWidget(self)
-        self.radio_button_container.setGeometry(QtCore.QRect(130, 80, 501, 112))
+        self.radio_button_container.setGeometry(QtCore.QRect(80, 80, 650, 112))
         self.radio_button_container.setObjectName("radio_button_container")
         self.radio_buttons_hlayout = QtWidgets.QHBoxLayout(self.radio_button_container)
         self.radio_buttons_hlayout.setContentsMargins(0, 0, 0, 0)
@@ -326,7 +326,7 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.insta.setText(_translate("FITWizard", "INSTAGRAM"))
         self.select_task_page.timestamp.setText(_translate("FITWizard", "VERIFY TIMESTAMP"))
         self.select_task_page.pec.setText(_translate("FITWizard", "VERIFY PEC"))
-        self.select_task_page.replay.setText(_translate("FITWizard", "REPLAY WARC"))
+        self.select_task_page.replay.setText(_translate("FITWizard", "REPLAY WACZ"))
 
 
 
