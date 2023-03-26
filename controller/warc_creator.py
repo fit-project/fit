@@ -220,3 +220,4 @@ class WarcCreator:
                 if record.rec_type == 'response' and record.rec_headers.get('WARC-Target-URI') == flow.request.url:
                     most_recent_response = record
             return most_recent_response.rec_headers.get('WARC-Record-ID')
+

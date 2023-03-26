@@ -57,6 +57,7 @@ from view.error import Error as ErrorView
 from controller.report import Report as ReportController
 from controller.warc_creator import WarcCreator as WarcCreatorController
 from controller.warc_replay import WarcReplay as WarcReplayController
+from controller.proxyserver import ProxyServer as ProxyServerController
 
 from common.error import ErrorMessage
 

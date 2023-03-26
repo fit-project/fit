@@ -26,25 +26,16 @@
 # -----
 ######
 import mimetypes
-from datetime import datetime
-from pathlib import Path
+import threading
 from urllib.parse import urlparse
 
+import requests
+from pytube import YouTube
+from bs4 import BeautifulSoup
 from mitmproxy import http
 
-import hashlib
-import re
 import os.path
-
-import mitmproxy.types
-from mitmproxy import http
-from mitmproxy import io
 import mitmproxy.http
-from PyQt5.QtCore import QObject, pyqtSignal
-from mitmproxy.tools import main
-from mitmproxy.tools.dump import DumpMaster
-
-from controller.warc_creator import WarcCreator as WarcCreatorController
 
 
 class ProxyServer:
@@ -71,9 +62,35 @@ class ProxyServer:
         return
 
     def save_resources(self, flow: mitmproxy.http.HTTPFlow):
+        # save resources in separate threads
+        html_thread = threading.Thread(target=self.save_html, args=(flow,))
+        html_thread.start()
+
+        media_thread = threading.Thread(target=self.save_content, args=(flow,))
+        media_thread.start()
+
+        video_threaad = threading.Thread(target=self.save_embedded_videos, args=(flow.request.url,))
+        video_threaad.start()
+        return
+
+    def save_embedded_videos(self, url):
+        response = requests.get(url)
+        html = response.text
+        soup = BeautifulSoup(html, 'html.parser')
+        video_element = soup.find("iframe")
+        if video_element:
+            video_url = video_element["src"]
+            if video_url:
+                yt = YouTube(video_url)
+                # get video on highest resolution possible
+                video = yt.streams.get_highest_resolution()
+                video.download(output_path=self.acq_dir)
+            return
+
+    def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
         content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
-                         "video/mp4", "audio/mpeg", "text/css", "text/javascript", "image/gif"]
+                         "audio/mpeg", "text/css", "text/javascript", "image/gif"]
         if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
             filename = flow.request.url.split("/")[-1]
             content_type, encoding = mimetypes.guess_type(filename)
@@ -86,8 +103,3 @@ class ProxyServer:
                     filepath = f"{self.acq_dir}/{filename}"
                     with open(filepath, "wb") as f:
                         f.write(flow.response.content)
-        return
-
-    def save_embedded_videos(self, flow: mitmproxy.http.HTTPFlow):
-
-        return

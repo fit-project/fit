@@ -25,14 +25,8 @@
 # SOFTWARE.
 # -----
 ######
-import mimetypes
 from pathlib import Path
-from urllib.parse import urlparse
-
 from mitmproxy import http
-
-import hashlib
-import re
 import os.path
 
 import mitmproxy.types
@@ -109,7 +103,6 @@ class FlowReaderAddon:
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         proxy_controller = ProxyServerController(self.acq_dir)
-        proxy_controller.save_html(flow)
         proxy_controller.save_resources(flow)
 
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
@@ -120,3 +113,4 @@ class FlowReaderAddon:
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
         warc_creator.request_to_warc(flow, path)
+
