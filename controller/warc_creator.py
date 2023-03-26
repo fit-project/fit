@@ -32,6 +32,8 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.parse import urljoin
+
 from bs4 import BeautifulSoup
 
 from mitmproxy import http
@@ -171,16 +173,20 @@ class WarcCreator:
                                     html = record.content_stream().read().decode(errors='ignore')
                                     soup = BeautifulSoup(html, 'html.parser')
                                     title = soup.title.string.strip() if soup.title else ''
+                                    if not title == '':
+                                        icon_tag = soup.find('link', rel='icon')
+                                        icon_url = icon_tag['href'] if icon_tag else ''
+                                        icon_url = urljoin(url, icon_url)
+                                        id = record.rec_headers.get_header('WARC-Record-ID')
+                                        ts = record.rec_headers.get_header('WARC-Date')
 
-                                    id = record.rec_headers.get_header('WARC-Record-ID')
-                                    ts = record.rec_headers.get_header('WARC-Date')
-
-                                    page = {
-                                        "id": id, "url": url,
-                                        "ts": ts, "title": title
-                                    }
-                                    outfile.write('\n')
-                                    json.dump(page, outfile)
+                                        page = {
+                                            "id": id, "url": url,
+                                            "ts": ts, "title": title,
+                                            "favIconUrl": icon_url
+                                        }
+                                        outfile.write('\n')
+                                        json.dump(page, outfile)
 
     def warc_to_wacz(self, path):
         warc_path = path.with_suffix(".warc")
@@ -199,11 +205,10 @@ class WarcCreator:
                 detect_pages=False
             )
             create_wacz(res)
+            os.remove(warc_path)
         except:
             pass
-
         os.remove(pages_path)
-        os.remove(warc_path)
 
     def get_response_record_id(self, flow: http.HTTPFlow, output_prefix):
         # find the most recent request with the same WARC-Target-URI as the response

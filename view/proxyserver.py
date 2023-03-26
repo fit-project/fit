@@ -116,14 +116,14 @@ class FlowReaderAddon:
                 parsed_url = urlparse(url)
                 domain = parsed_url.netloc
                 path = parsed_url.path
-                filename = f"{domain}_{path.replace('//', '_')}.html"
+                path = path.replace('//', '-')
+                filename = f"{domain}{path.replace('/', '-')}.html"
                 filepath = os.path.join(self.acq_dir, filename)
-                print(filepath)
+
                 if not os.path.exists(f"{filepath}"):
                     with open(f"{filepath}", "wb") as f:
                         f.write(html_text)
                         f.flush()
-
 
         content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
                          "video/mp4", "audio/mpeg", "text/css", "text/javascript", "image/gif"]
