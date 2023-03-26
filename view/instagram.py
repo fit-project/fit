@@ -247,7 +247,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_username.setText(_translate("mainWindow", "Inserisci l\'username"))
         self.label_password.setText(_translate("mainWindow", "Inserisci la password"))
         self.scrapeButton.setText(_translate("mainWindow", "Scrape"))
-        self.label_profile.setText(_translate("mainWindow", "Inserisci il nome dell\'profilo"))
+        self.label_profile.setText(_translate("mainWindow", "Inserisci il nome del profilo"))
         self.label_baseInfo.setText(_translate("mainWindow", "Informazioni di base:"))
         self.checkBox_post.setText(_translate("mainWindow", "Post"))
         self.checkBox_2_followee.setText(_translate("mainWindow", "Seguiti"))
@@ -289,7 +289,8 @@ class Instagram(QtWidgets.QMainWindow):
         logging.config.dictConfig(self.log_confing.config)
 
         logger_acquisition.info('Acquisition started')
-        logger_acquisition.info(f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
+        logger_acquisition.info(f'NTP start acquisition time: '
+                                f'{utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
 
         self.acquisition_status.add_task('Logger')
         self.acquisition_status.set_status('Logger', 'Started', 'done')
@@ -300,8 +301,8 @@ class Instagram(QtWidgets.QMainWindow):
         error = False
         self.labelStatus.setText("")
         self.progressBar.setValue(0)
-        insta = InstragramController(self.input_username.text(), self.input_password.text(), self.input_profile.text(), self.acquisition_directory)
-
+        insta = InstragramController(self.input_username.text(), self.input_password.text(),
+                                     self.input_profile.text(), self.acquisition_directory)
         try:
             logger_acquisition.info('Login into Instagram account')
             insta.login()

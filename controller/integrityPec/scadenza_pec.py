@@ -35,9 +35,11 @@ import os
 
 def crt_extract(filePath):
     # estrazione certificato
+
     result = subprocess.run(
         ["openssl", "smime", "-verify", "-in", filePath, "-noverify", "-signer", "cert.pem", "-out", "textdata"],
         capture_output=True, text=True)
+
     # prelevare l'ente ceh ha estratto il certificato
     if result.returncode == 0:
         output = result.stdout

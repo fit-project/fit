@@ -107,9 +107,9 @@ def revoca_der():
     found = analyze_CRL(crl_bytes, serial_number)
 
     if found:
-        # print('NOOOOO HA ASHATO, impostazioni>arrenditi>si, SEI STATO REVOCATO!')
+
         return found
 
     else:
-        # print('mi spiace fra, ATTIVO l effetto di NEGA IL REVOCATO, mi permette di ucciderti, HO VINTO!')
+
         return found

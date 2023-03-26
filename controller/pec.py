@@ -64,6 +64,8 @@ class Pec:
         self.portImap = portImap
         return
 
+
+
     def sendPec(self):
         results = []
         error = False
@@ -78,8 +80,8 @@ class Pec:
         timestampDate = todayDate.timestamp()
         oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
                   str(timestampDate)
-        contenuto = 'In allegato report e relativo timestamp dell\' acquisizione ' + str(self.acquisition) +\
-                  ' relativa al caso: ' + str(self.case)
+        contenuto = 'In allegato report e relativo timestamp dell\' acquisizione ' + str(self.acquisition) + \
+                    ' relativa al caso: ' + str(self.case)
 
         # Costruzione del messaggio email
         msg = MIMEMultipart()
@@ -88,8 +90,8 @@ class Pec:
         msg['Subject'] = oggetto
         msg.attach(MIMEText(contenuto, 'plain'))
 
-        pdf = str(self.path)+'/acquisition_report.pdf'
-        timestamp = str(self.path)+'/timestamp.tsr'
+        pdf = str(self.path) + '/acquisition_report.pdf'
+        timestamp = str(self.path) + '/timestamp.tsr'
 
         # Aggiunta di un file PDF come allegato
         with open(pdf, "rb") as f:
@@ -117,7 +119,6 @@ class Pec:
         results.append(timestampDate)
         results.append(error)
         return results
-
     def retrieveEml(self, timestampDate):
 
         error = False
