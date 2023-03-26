@@ -26,7 +26,6 @@
 # -----
 ######
 import mimetypes
-from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -45,6 +44,7 @@ from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 
 from controller.warc_creator import WarcCreator as WarcCreatorController
+from controller.proxyserver import ProxyServer as ProxyServerController
 
 
 class ProxyServer(QObject):
@@ -70,7 +70,7 @@ class ProxyServer(QObject):
             udp_hosts=[".*"],
             rawtcp=True,
             rawudp=True,
-            mode=['regular', 'transparent']
+            mode=['regular']
         )
         # Create a master object and add addons
         master = DumpMaster(options=options)
@@ -108,37 +108,9 @@ class FlowReaderAddon:
         return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
-        if flow.response.headers.get('content-type', '').startswith('text/html'):
-            # write html to disk
-            html_text = flow.response.content
-            if len(html_text) > 0:
-                url = flow.request.pretty_url
-                parsed_url = urlparse(url)
-                domain = parsed_url.netloc
-                path = parsed_url.path
-                path = path.replace('//', '-')
-                filename = f"{domain}{path.replace('/', '-')}.html"
-                filepath = os.path.join(self.acq_dir, filename)
-
-                if not os.path.exists(f"{filepath}"):
-                    with open(f"{filepath}", "wb") as f:
-                        f.write(html_text)
-                        f.flush()
-
-        content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
-                         "video/mp4", "audio/mpeg", "text/css", "text/javascript", "image/gif"]
-        if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
-            filename = flow.request.url.split("/")[-1]
-            content_type, encoding = mimetypes.guess_type(filename)
-            if not content_type:
-                content_type = flow.response.headers.get('content-type', '').split(';')[0]
-            if content_type:
-                extension = mimetypes.guess_extension(content_type)
-                if extension:
-                    filename += extension
-                    filepath = f"{self.acq_dir}/{filename}"
-                    with open(filepath, "wb") as f:
-                        f.write(flow.response.content)
+        proxy_controller = ProxyServerController(self.acq_dir)
+        proxy_controller.save_html(flow)
+        proxy_controller.save_resources(flow)
 
         path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
         warc_creator = WarcCreatorController()
