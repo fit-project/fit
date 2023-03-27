@@ -48,58 +48,48 @@ class ProxyServer:
             # write html to disk
             html_text = flow.response.content
             if len(html_text) > 0:
-                url = flow.request.pretty_url
-                parsed_url = urlparse(url)
-                domain = parsed_url.netloc
-                path = parsed_url.path
-                path = path.replace('//', '-')
-                filename = f"{domain}{path.replace('/', '-')}.html"
+                url = flow.request.pretty_host
+                filename = os.path.basename(url)
                 filepath = os.path.join(self.acq_dir, filename)
 
-                if not os.path.exists(f"{filepath}"):
-                    with open(f"{filepath}", "wb") as f:
+                if not os.path.exists(f"{filepath}.html"):
+                    with open(f"{filepath}.html", "wb") as f:
                         f.write(html_text)
         return
 
     def save_resources(self, flow: mitmproxy.http.HTTPFlow):
         # save resources in separate threads
-        html_thread = threading.Thread(target=self.save_html, args=(flow,))
-        html_thread.start()
+        self.save_html(flow)
+        self.save_content(flow)
 
-        media_thread = threading.Thread(target=self.save_content, args=(flow,))
-        media_thread.start()
-
-        video_threaad = threading.Thread(target=self.save_embedded_videos, args=(flow.request.url,))
-        video_threaad.start()
+        video_thread = threading.Thread(target=self.save_embedded_videos, args=(flow.request.url,))
+        video_thread.start()
         return
 
     def save_embedded_videos(self, url):
-        response = requests.get(url)
-        html = response.text
-        soup = BeautifulSoup(html, 'html.parser')
-        video_element = soup.find("iframe")
-        if video_element:
-            video_url = video_element["src"]
-            if video_url:
-                yt = YouTube(video_url)
-                # get video on highest resolution possible
-                video = yt.streams.get_highest_resolution()
-                video.download(output_path=self.acq_dir)
-            return
+        try:
+            response = requests.get(url)
+            html = response.text
+            soup = BeautifulSoup(html, 'html.parser')
+            video_element = soup.find("iframe")
+            if video_element:
+
+                video_url = video_element["src"]
+                if video_url:
+                    yt = YouTube(video_url)
+                    # get video on highest resolution possible
+                    video = yt.streams.get_highest_resolution()
+                    video.download(output_path=self.acq_dir)
+        except:
+            pass  # no video
+        return
 
     def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
         content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
                          "audio/mpeg", "text/css", "text/javascript", "image/gif"]
         if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
-            filename = flow.request.url.split("/")[-1]
-            content_type, encoding = mimetypes.guess_type(filename)
-            if not content_type:
-                content_type = flow.response.headers.get('content-type', '').split(';')[0]
-            if content_type:
-                extension = mimetypes.guess_extension(content_type)
-                if extension:
-                    filename += extension
-                    filepath = f"{self.acq_dir}/{filename}"
-                    with open(filepath, "wb") as f:
-                        f.write(flow.response.content)
+            filename = os.path.basename(flow.request.url)
+            filepath = f"{self.acq_dir}/{filename}"
+            with open(filepath, "wb") as f:
+                f.write(flow.response.content)

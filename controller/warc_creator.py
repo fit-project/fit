@@ -34,6 +34,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import urljoin
 
+import requests
 from bs4 import BeautifulSoup
 
 from mitmproxy import http
@@ -124,6 +125,7 @@ class WarcCreator:
             payload = flow.response.content
             headers = flow.response.headers
 
+
             # date from flow is returning as float, needs to be converted
             date_obj = datetime.fromtimestamp(flow.response.timestamp_start)
             # convert the datetime object to an ISO formatted string
@@ -149,6 +151,35 @@ class WarcCreator:
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
 
+    def video_to_warc(self, path, url):
+        warc_path = path.with_suffix(".warc")
+        with open(warc_path, 'ab') as output:
+            # create new warcio writer
+            writer = WARCWriter(output, gzip=True)
+            response = requests.get(url)
+            html = response.text
+            soup = BeautifulSoup(html, 'html.parser')
+            video_element = soup.find("iframe")
+            if video_element:
+                video_url = video_element["src"]
+                if video_url:
+                    video_response = requests.get(video_url)
+                    video_payload = BytesIO(video_response.content)
+                    video_content_type = video_response.headers.get('content-type', '')
+                    video_content_length = str(len(video_response.content))
+
+                    # create a new WARC record for the video
+                    video_warc_headers = {
+                        'WARC-Type': 'resource',
+                        'WARC-Target-URI': video_url,
+                        'Content-Type': video_content_type,
+                        'Content-Length': video_content_length
+                    }
+                    video_record = writer.create_warc_record(video_url, 'resource',
+                                                             payload=video_payload,
+                                                             warc_headers_dict=video_warc_headers)
+                    writer.write_record(video_record)
+
     def create_pages(self, path):
         warc_path = path.with_suffix(".warc")
         pages_path = path.with_suffix(".json")
@@ -170,23 +201,25 @@ class WarcCreator:
                             if content_type.startswith('text/html'):
                                 content_length = record.rec_headers.get_header('Content-Length')
                                 if not content_length == '0':
-                                    html = record.content_stream().read().decode(errors='ignore')
-                                    soup = BeautifulSoup(html, 'html.parser')
-                                    title = soup.title.string.strip() if soup.title else ''
-                                    if not title == '':
-                                        icon_tag = soup.find('link', rel='icon')
-                                        icon_url = icon_tag['href'] if icon_tag else ''
-                                        icon_url = urljoin(url, icon_url)
-                                        id = record.rec_headers.get_header('WARC-Record-ID')
-                                        ts = record.rec_headers.get_header('WARC-Date')
+                                    try:
+                                        html = record.content_stream().read().decode(errors='ignore')
+                                        soup = BeautifulSoup(html, 'html.parser')
+                                        title = soup.title.string.strip() if soup.title else ''
+                                        if not title == '':
+                                            icon_tag = soup.find('link', rel='icon')
+                                            icon_url = icon_tag['href'] if icon_tag else ''
+                                            icon_url = urljoin(url, icon_url)
+                                            id = record.rec_headers.get_header('WARC-Record-ID')
+                                            ts = record.rec_headers.get_header('WARC-Date')
 
-                                        page = {
-                                            "id": id, "url": url,
-                                            "ts": ts, "title": title,
-                                            "favIconUrl": icon_url
-                                        }
-                                        outfile.write('\n')
-                                        json.dump(page, outfile)
+                                            page = {
+                                                "id": id, "url": url,
+                                                "ts": ts, "title": title,
+                                                "favIconUrl": icon_url
+                                            }
+                                            outfile.write('\n')
+                                            json.dump(page, outfile)
+                                    except:pass # no pages created, check error
 
     def warc_to_wacz(self, path):
         warc_path = path.with_suffix(".warc")
@@ -206,9 +239,9 @@ class WarcCreator:
             )
             create_wacz(res)
             os.remove(warc_path)
+            os.remove(pages_path)
         except:
             pass
-        os.remove(pages_path)
 
     def get_response_record_id(self, flow: http.HTTPFlow, output_prefix):
         # find the most recent request with the same WARC-Target-URI as the response
@@ -220,4 +253,3 @@ class WarcCreator:
                 if record.rec_type == 'response' and record.rec_headers.get('WARC-Target-URI') == flow.request.url:
                     most_recent_response = record
             return most_recent_response.rec_headers.get('WARC-Record-ID')
-

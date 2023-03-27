@@ -57,7 +57,6 @@ from view.error import Error as ErrorView
 from controller.report import Report as ReportController
 from controller.warc_creator import WarcCreator as WarcCreatorController
 from controller.warc_replay import WarcReplay as WarcReplayController
-from controller.proxyserver import ProxyServer as ProxyServerController
 
 from common.error import ErrorMessage
 
@@ -407,14 +406,7 @@ class Web(QtWidgets.QMainWindow):
             logger_acquisition.info('End URL: ' + url)
             self.statusBar().showMessage('Message in statusbar.')
 
-            ### START NETWORK CHECK ###
-            # Step 2: Get whois info
-            logger_acquisition.info('Get WHOIS info for URL: ' + url)
-            logger_whois.info(utility.whois(url))
-            self.status.showMessage('Get WHOIS info')
-            self.progress_bar.setValue(1)
-
-            # Step 3: Get nslookup info
+            # Step 2: Get nslookup info
             logger_acquisition.info('Get NSLOOKUP info for URL: ' + url)
             logger_nslookup.info(utility.nslookup(url,
                                                   self.configuration_network.configuration["nslookup_dns_server"],
@@ -426,14 +418,14 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Get WHOIS info')
             self.progress_bar.setValue(2)
 
-            # Step 4: Get headers info
+            # Step 3: Get headers info
             logger_acquisition.info('Get HEADERS info for URL: ' + url)
             logger_headers.info(utility.get_headers_information(url))
 
             self.status.showMessage('Get HEADERS info')
             self.progress_bar.setValue(3)
 
-            # Step 5: Get traceroute info
+            # Step 4: Get traceroute info
             logger_acquisition.info('Get TRACEROUTE info for URL: ' + url)
             utility.traceroute(url, os.path.join(self.acquisition_directory, 'traceroute.txt'))
             self.status.showMessage('Get TRACEROUTE info')
@@ -441,13 +433,13 @@ class Web(QtWidgets.QMainWindow):
             ### END NETWORK CHECK ###
 
             ### START GET SSLKEYLOG AND SSL CERTIFICATE ###
-            # Step 6: Get sslkey.log
+            # Step 5: Get sslkey.log
             logger_acquisition.info('Get SSLKEYLOG')
             sslkeylog.set_keylog(os.path.join(self.acquisition_directory, 'sslkey.log'))
             self.status.showMessage('Get SSLKEYLOG')
             self.progress_bar.setValue(9)
 
-            # Step 7: Get peer SSL certificate
+            # Step 6: Get peer SSL certificate
             if utility.check_if_peer_certificate_exist(url):
                 logger_acquisition.info('Get SSL certificate for URL:' + url)
                 certificate = utility.get_peer_PEM_cert(url)
@@ -481,8 +473,7 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
 
-            # Step 8:  Save all resource of current page
-
+            ### STOP PROXY ###
             self.proxy.setType(QNetworkProxy.DefaultProxy)
             QNetworkProxy.setApplicationProxy(self.proxy)
             # set the proxy for the manager to the NoProxy object
@@ -492,6 +483,14 @@ class Web(QtWidgets.QMainWindow):
             cookie_store.deleteAllCookies()
             self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
 
+            ### START NETWORK CHECK ###
+            # Step 8: Get whois info
+            logger_acquisition.info('Get WHOIS info for URL: ' + url)
+            logger_whois.info(utility.whois(url))
+            self.status.showMessage('Get WHOIS info')
+            self.progress_bar.setValue(1)
+
+            # Step 9:  Save all resource of current page
             # create wacz when acquisition is finished
             path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
 
@@ -648,7 +647,7 @@ class Web(QtWidgets.QMainWindow):
                                   )
 
             error_dlg.buttonClicked.connect(quit)
-            #error_dlg.exec_()
+            # error_dlg.exec_()
 
         return zip_folder
 
@@ -776,12 +775,14 @@ class Web(QtWidgets.QMainWindow):
         shutil.copy(origin, destination)
 
         # prepare the url with the file path
-        url = QUrl(f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
+        url = QUrl(
+            f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
         self.browser.setUrl(url)
         #
         try:
-            os.remove(os.path.join(destination,os.path.basename(filename)))
-        except:pass
+            os.remove(os.path.join(destination, os.path.basename(filename)))
+        except:
+            pass
 
     def get_current_dir(self):
         if not self.acquisition_directory:
