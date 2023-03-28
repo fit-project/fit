@@ -75,6 +75,7 @@ class WarcCreator:
             writer.write_record(record)
 
     def request_to_warc(self, flow: http.HTTPFlow, output_prefix):
+
         warc_path = output_prefix.with_suffix(".warc")
         with open(warc_path, 'ab') as output:
             # create new warcio writer
@@ -91,7 +92,7 @@ class WarcCreator:
             # create http headers from the information inside the flow
 
             http_headers = StatusAndHeaders(
-                statusline=f"{flow.request.method} {flow.request.path}", headers=headers,
+                statusline=f"{flow.request.path} {flow.request.method}", headers=headers,
                 protocol=flow.request.http_version)
 
             warc_headers = {
@@ -103,6 +104,8 @@ class WarcCreator:
                 'WARC-Concurrent-To': self.get_response_record_id(flow, output_prefix)
             }
 
+            if type(payload) is bytes:
+                payload = BytesIO(payload)
 
             # create the actual warc record
             record = writer.create_warc_record(flow.request.url, 'request',
@@ -122,7 +125,6 @@ class WarcCreator:
             content_type = flow.response.headers.get('content-type', '')
             payload = flow.response.content
             headers = flow.response.headers
-
 
             # date from flow is returning as float, needs to be converted
             date_obj = datetime.fromtimestamp(flow.response.timestamp_start)

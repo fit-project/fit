@@ -65,14 +65,19 @@ class ProxyServer:
         resources_thread.start()
         return
 
-
     def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
         content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
                          "audio/mpeg", "text/css", "text/javascript", "image/gif"]
         if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
             filename = os.path.basename(flow.request.url)
-            filename = filename.replace("?","-")
+
+            char_remov = ["?", "<", ">", "*", "|", "\"", "\\", "/", ":"]
+            for char in char_remov:
+                filename = filename.replace(char, "-")
+
             filepath = f"{self.acq_dir}/{filename}"
-            with open(filepath, "wb") as f:
-                f.write(flow.response.content)
+            try:
+                with open(filepath, "wb") as f:
+                    f.write(flow.response.content)
+            except:pass #could not write
