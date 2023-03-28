@@ -98,7 +98,7 @@ class Report:
                 whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
                 png=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.png')[0]], pngd=phrases.TEXT['pngd'],
 
-                wacz=acquisition_files['acquisition.wacz'], waczd=phrases.TEXT['waczd'],
+                wacz=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.wacz')[0]], waczd=phrases.TEXT['waczd'],
                 dump=acquisition_files['flow_dump.txt'], dumpd=phrases.TEXT['dumpd'],
                 headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
                 nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
@@ -177,7 +177,7 @@ class Report:
         for file in files:
             acquisition_files[file] = file
         if not any(value.endswith('.png') for value in acquisition_files.values()):
-            return "<p> File non trovato </p>"
+            return "<p> File non prodotto </p>"
         else:
             file_path = os.path.join(self.cases_folder_path, 'screenshot.png')
 
