@@ -14,13 +14,14 @@
 </head>
 <body>
 
-<replay-web-page id="replay" noCache="true" loading="eager" replayBase="replay/" url=""></replay-web-page>
+
+<replay-web-page id="replay" loading="eager" replayBase="replay/" url=""></replay-web-page>
 <script>
         const urlParams = new URLSearchParams(window.location.search);
         const file = urlParams.get('file');
 
         document.getElementById('replay').setAttribute('source', file);
 </script>
-<script src="ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/replaywebpage@1.7.13/ui.js"></script>
 </body>
 </html>
