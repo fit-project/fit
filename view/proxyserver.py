@@ -37,7 +37,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 
-from controller.warc_creator import WarcCreator as WarcCreatorController
+
 from controller.proxyserver import ProxyServer as ProxyServerController
 
 
@@ -49,9 +49,6 @@ class ProxyServer(QObject):
         self.port = port
         self.acquisition_directory = acquisition_directory
 
-        path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
-        warc_creator = WarcCreatorController()
-        warc_creator.warcinfo(path)
 
     async def start(self):
 
@@ -104,13 +101,4 @@ class FlowReaderAddon:
     def response(self, flow: mitmproxy.http.HTTPFlow):
         proxy_controller = ProxyServerController(self.acq_dir)
         proxy_controller.save_resources(flow)
-
-        path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
-        warc_creator = WarcCreatorController()
-        warc_creator.response_to_warc(flow, path)
-
-    def request(self, flow: mitmproxy.http.HTTPFlow):
-        path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
-        warc_creator = WarcCreatorController()
-        warc_creator.request_to_warc(flow, path)
 

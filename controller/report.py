@@ -98,7 +98,6 @@ class Report:
                 whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
                 png=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.png')[0]], pngd=phrases.TEXT['pngd'],
 
-                wacz=acquisition_files['acquisition.wacz'], waczd=phrases.TEXT['waczd'],
                 dump=acquisition_files['flow_dump.txt'], dumpd=phrases.TEXT['dumpd'],
                 headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
                 nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
@@ -201,8 +200,6 @@ class Report:
             acquisition_files['acquisition.zip'] = "File non prodotto"
         if not 'whois.txt' in acquisition_files.values():
             acquisition_files['whois.txt'] = "File non prodotto"
-        if not 'acquisizion.wacz' in acquisition_files.values():
-            acquisition_files['acquisizion.wacz'] = "File non prodotto"
         if not 'flow_dump.txt' in acquisition_files.values():
             acquisition_files['flow_dump.txt'] = "File non prodotto"
         if not 'headers.txt' in acquisition_files.values():

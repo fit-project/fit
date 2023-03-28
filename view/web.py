@@ -27,13 +27,10 @@
 ######
 
 import logging.config
-import os
 import pathlib
 import shutil
-import sys
 from pathlib import Path
 
-from PyQt5.QtWidgets import QFileDialog, QApplication
 from mitmproxy import ctx
 from scapy.all import *
 
@@ -55,8 +52,7 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
-from controller.warc_creator import WarcCreator as WarcCreatorController
-from controller.warc_replay import WarcReplay as WarcReplayController
+
 
 from common.error import ErrorMessage
 
@@ -298,7 +294,6 @@ class Web(QtWidgets.QMainWindow):
             self.log_confing.disable_loggers(loggers)
 
     def start_acquisition(self):
-
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
         self.progress_bar.setValue(50)
@@ -391,7 +386,6 @@ class Web(QtWidgets.QMainWindow):
             # hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
-
     def stop_acquisition(self):
 
         if self.acquisition_is_started:
@@ -491,13 +485,6 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(1)
 
             # Step 9:  Save all resource of current page
-            # create wacz when acquisition is finished
-            path = Path(os.path.join(self.acquisition_directory, 'acquisition'))
-
-            warc_creator = WarcCreatorController()
-            warc_creator.create_pages(path)
-            warc_creator.warc_to_wacz(path)
-
             zip_folder = self.save_page()
             logger_acquisition.info('Save all resource of current page')
             self.acquisition_status.add_task('Save Page')
