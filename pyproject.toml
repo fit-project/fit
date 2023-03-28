@@ -31,7 +31,6 @@ warcio = "^1.7.4"
 wacz = "^0.4.7"
 brotlipy = "^0.7.0"
 bs4 = "^0.0.1"
-pytube = "^12.1.2"
 
 [tool.poetry.dev-dependencies]
 

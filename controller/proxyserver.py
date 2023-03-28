@@ -60,29 +60,11 @@ class ProxyServer:
     def save_resources(self, flow: mitmproxy.http.HTTPFlow):
         # save resources in separate threads
         self.save_html(flow)
-        self.save_content(flow)
 
-        video_thread = threading.Thread(target=self.save_embedded_videos, args=(flow.request.url,))
-        video_thread.start()
+        resources_thread = threading.Thread(target=self.save_content, args=(flow,))
+        resources_thread.start()
         return
 
-    def save_embedded_videos(self, url):
-        try:
-            response = requests.get(url)
-            html = response.text
-            soup = BeautifulSoup(html, 'html.parser')
-            video_element = soup.find("iframe")
-            if video_element:
-
-                video_url = video_element["src"]
-                if video_url:
-                    yt = YouTube(video_url)
-                    # get video on highest resolution possible
-                    video = yt.streams.get_highest_resolution()
-                    video.download(output_path=self.acq_dir)
-        except:
-            pass  # no video
-        return
 
     def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
@@ -90,6 +72,7 @@ class ProxyServer:
                          "audio/mpeg", "text/css", "text/javascript", "image/gif"]
         if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
             filename = os.path.basename(flow.request.url)
+            filename = filename.replace("?","-")
             filepath = f"{self.acq_dir}/{filename}"
             with open(filepath, "wb") as f:
                 f.write(flow.response.content)

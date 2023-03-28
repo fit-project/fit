@@ -103,8 +103,6 @@ class WarcCreator:
                 'WARC-Concurrent-To': self.get_response_record_id(flow, output_prefix)
             }
 
-            if type(payload) is bytes:
-                payload = BytesIO(payload)
 
             # create the actual warc record
             record = writer.create_warc_record(flow.request.url, 'request',

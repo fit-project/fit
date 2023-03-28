@@ -5285,18 +5285,6 @@ files = [
 ]
 
 [[package]]
-name = "pytube"
-version = "12.1.2"
-description = "Python 3 library for downloading YouTube Videos."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pytube-12.1.2-py3-none-any.whl", hash = "sha256:a844800002744f33107f4440543f9a5f1fd9fcd97dad35cf2dd4803212352d9a"},
-    {file = "pytube-12.1.2.tar.gz", hash = "sha256:2d34a484f81cae106ea84e8c00871f97dcc293e8ed8c074e65abc4119f02c98f"},
-]
-
-[[package]]
 name = "pytweening"
 version = "1.0.4"
 description = "A collection of tweening / easing functions."
@@ -6327,4 +6315,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "304480944dc6bcfa9634bfe29eaebd140e285c44069db9580aa61bc2eb9d1839"
+content-hash = "25f88bba9969b51490e701dacf28323f8055a005dacc47979a823c388603ab02"
