@@ -151,35 +151,6 @@ class WarcCreator:
                                                warc_headers_dict=warc_headers)
             writer.write_record(record)
 
-    def video_to_warc(self, path, url):
-        warc_path = path.with_suffix(".warc")
-        with open(warc_path, 'ab') as output:
-            # create new warcio writer
-            writer = WARCWriter(output, gzip=True)
-            response = requests.get(url)
-            html = response.text
-            soup = BeautifulSoup(html, 'html.parser')
-            video_element = soup.find("iframe")
-            if video_element:
-                video_url = video_element["src"]
-                if video_url:
-                    video_response = requests.get(video_url)
-                    video_payload = BytesIO(video_response.content)
-                    video_content_type = video_response.headers.get('content-type', '')
-                    video_content_length = str(len(video_response.content))
-
-                    # create a new WARC record for the video
-                    video_warc_headers = {
-                        'WARC-Type': 'resource',
-                        'WARC-Target-URI': video_url,
-                        'Content-Type': video_content_type,
-                        'Content-Length': video_content_length
-                    }
-                    video_record = writer.create_warc_record(video_url, 'resource',
-                                                             payload=video_payload,
-                                                             warc_headers_dict=video_warc_headers)
-                    writer.write_record(video_record)
-
     def create_pages(self, path):
         warc_path = path.with_suffix(".warc")
         pages_path = path.with_suffix(".json")
