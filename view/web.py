@@ -263,11 +263,6 @@ class Web(QtWidgets.QMainWindow):
         acquisition_status_action.triggered.connect(self._acquisition_status)
         acquisition_menu.addAction(acquisition_status_action)
 
-        # REPLAY WARC
-        replay_warc_action = QtWidgets.QAction("Replay", self)
-        replay_warc_action.setStatusTip("Replay warc and wacz files")
-        replay_warc_action.triggered.connect(self.replay)
-        self.menuBar().addAction(replay_warc_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
@@ -421,7 +416,7 @@ class Web(QtWidgets.QMainWindow):
 
             # Step 4: Get traceroute info
             logger_acquisition.info('Get TRACEROUTE info for URL: ' + url)
-            utility.traceroute(url, os.path.join(self.acquisition_directory, 'traceroute.txt'))
+            #utility.traceroute(url, os.path.join(self.acquisition_directory, 'traceroute.txt'))
             self.status.showMessage('Get TRACEROUTE info')
             self.progress_bar.setValue(8)
             ### END NETWORK CHECK ###
@@ -741,35 +736,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
-
-    def replay(self):
-        from view.warc_replay import WarcReplay as WarcReplayView
-
-        self.replay = WarcReplayView()
-        self.replay.hide()
-        acquisition_window = self.replay
-
-        acquisition_window.init(self.case_info)
-        acquisition_window.show()
-
-    def load_warc(self, filename, port):
-        # copy the file in a temp folder
-        origin = filename
-        destination = "warc_player/cache/"
-        directory_path = pathlib.Path(destination)
-        if not directory_path.exists():
-            directory_path.mkdir()
-        shutil.copy(origin, destination)
-
-        # prepare the url with the file path
-        url = QUrl(
-            f'http://localhost:{port}/warc_player/webrecorder_player.html?file=cache/{os.path.basename(filename)}')
-        self.browser.setUrl(url)
-        #
-        try:
-            os.remove(os.path.join(destination, os.path.basename(filename)))
-        except:
-            pass
 
     def get_current_dir(self):
         if not self.acquisition_directory:
