@@ -247,7 +247,7 @@ class SearchPec(QtWidgets.QMainWindow):
 
         # ACQUISITION BUTTON
         self.acquisition_menu = self.menuBar().addMenu("&Acquisition")
-        self.acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'info.png')),
+        self.acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'info.png')),
                                                            "Status",
                                                            self)
         self.acquisition_status_action.triggered.connect(self._acquisition_status)
@@ -279,7 +279,7 @@ class SearchPec(QtWidgets.QMainWindow):
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
 
 
 

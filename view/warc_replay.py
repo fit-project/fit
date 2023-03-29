@@ -101,7 +101,7 @@ class WarcReplay(QtWidgets.QMainWindow):
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
 
     def replay(self):
         # start the server

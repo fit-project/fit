@@ -63,7 +63,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.case_info = case_info
         self.acquisition_directory = acquisition_directory
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
         self.setObjectName("verify_timestamp_window")
 
         self.centralwidget = QtWidgets.QWidget(self)

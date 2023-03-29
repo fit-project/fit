@@ -54,7 +54,7 @@ class EmlNotFound(QtWidgets.QMainWindow):
         self.label.setGeometry(QtCore.QRect(50, 30, 251, 21))
         self.label.setObjectName("label")
         self.setCentralWidget(self.centralwidget)
-        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 

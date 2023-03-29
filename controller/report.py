@@ -62,14 +62,14 @@ class Report:
         screenshot = self._get_screenshot()
 
         # FILLING FRONT PAGE WITH DATA
-        front_index = open(os.getcwd() + '/asset/templates/front.html').read().format(
+        front_index = open(os.getcwd() + '/assets/templates/front.html').read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
         )
 
         # FILLING TEMPLATE WITH DATA
         if type == 'web':
-            content_index = open(os.getcwd() + '/asset/templates/template_web.html').read().format(
+            content_index = open(os.getcwd() + '/assets/templates/template_web.html').read().format(
 
                 title=phrases.TEXT['title'],
                 index=phrases.TEXT['index'],
@@ -124,7 +124,7 @@ class Report:
             pisa.CreatePDF(content_index, dest=self.output_content_result, options=pdf_options)
 
         if type == 'email' or type == 'instagram':
-            content_index = open(os.getcwd() + '/asset/templates/template_email.html').read().format(
+            content_index = open(os.getcwd() + '/assets/templates/template_email.html').read().format(
 
                 title=phrases.TEXT['title'],
                 index=phrases.TEXT['index'],

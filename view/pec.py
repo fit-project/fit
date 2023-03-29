@@ -163,7 +163,7 @@ class Pec(QtWidgets.QMainWindow):
         self.menuBar.addAction(self.menuConfiguration.menuAction())
         self.menuBar.addAction(self.menuCase.menuAction())
         self.menuBar.addAction(self.menuAcquisition.menuAction())
-        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
 
         self.pecConfiguration = self.controller.get()
         if len(self.pecConfiguration) > 0:

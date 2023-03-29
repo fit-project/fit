@@ -132,9 +132,9 @@ class AcquisitionStatus(QtWidgets.QDialog):
 
         icon = self.findChild(QtWidgets.QLabel, name.title().replace(" ", "") + 'Icon')
         if icon is not None:
-            pixmap = QtGui.QPixmap(os.path.join('asset/images', 'progress.png'))
+            pixmap = QtGui.QPixmap(os.path.join('assets/images', 'progress.png'))
             if status == 'done':
-                pixmap = QtGui.QPixmap(os.path.join('asset/images', 'done.png'))
+                pixmap = QtGui.QPixmap(os.path.join('assets/images', 'done.png'))
             
             icon.setPixmap(pixmap)
 

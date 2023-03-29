@@ -187,23 +187,23 @@ class Web(QtWidgets.QMainWindow):
         navtb.setIconSize(QtCore.QSize(16, 16))
         self.addToolBar(navtb)
 
-        back_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-180.png')), "Back", self)
+        back_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-180.png')), "Back", self)
         back_btn.setStatusTip("Back to previous page")
         back_btn.triggered.connect(lambda: self.back())
         navtb.addAction(back_btn)
 
-        next_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-000.png')), "Forward", self)
+        next_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-000.png')), "Forward", self)
         next_btn.setStatusTip("Forward to next page")
         next_btn.triggered.connect(lambda: self.forward())
         navtb.addAction(next_btn)
 
-        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'arrow-circle-315.png')), "Reload",
+        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-circle-315.png')), "Reload",
                                             self)
         self.reload_btn.setStatusTip("Reload page")
         self.reload_btn.triggered.connect(lambda: self.reload())
         navtb.addAction(self.reload_btn)
 
-        home_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'home.png')), "Home", self)
+        home_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'home.png')), "Home", self)
         home_btn.setStatusTip("Go home")
         home_btn.triggered.connect(self.navigate_home)
         navtb.addAction(home_btn)
@@ -211,14 +211,14 @@ class Web(QtWidgets.QMainWindow):
         navtb.addSeparator()
 
         self.httpsicon = QtWidgets.QLabel()  # Yes, really!
-        self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('asset/images', 'lock-nossl.png')))
+        self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-nossl.png')))
         navtb.addWidget(self.httpsicon)
 
         self.urlbar = QtWidgets.QLineEdit()
         self.urlbar.returnPressed.connect(self.navigate_to_url)
         navtb.addWidget(self.urlbar)
 
-        stop_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'cross-circle.png')), "Stop", self)
+        stop_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'cross-circle.png')), "Stop", self)
         stop_btn.setStatusTip("Stop loading current page")
         stop_btn.triggered.connect(lambda: self.tabs.currentWidget().stop())
         navtb.addAction(stop_btn)
@@ -227,7 +227,7 @@ class Web(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         tab_menu = self.menuBar().addMenu("&Tab")
-        new_tab_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'ui-tab--plus.png')), "New Tab",
+        new_tab_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'ui-tab--plus.png')), "New Tab",
                                            self)
         new_tab_action.setStatusTip("Open a new tab")
         new_tab_action.triggered.connect(lambda _: self.add_new_tab())
@@ -248,16 +248,16 @@ class Web(QtWidgets.QMainWindow):
         # ACQUISITION MENU
         acquisition_menu = self.menuBar().addMenu("&Acquisition")
 
-        start_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'start.png')), "Start",
+        start_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'start.png')), "Start",
                                                      self)
         start_acquisition_action.setObjectName('StartAcquisitionAction')
         start_acquisition_action.triggered.connect(self.start_acquisition)
         acquisition_menu.addAction(start_acquisition_action)
-        stop_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'stop.png')), "Stop", self)
+        stop_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'stop.png')), "Stop", self)
         stop_acquisition_action.setObjectName('StopAcquisitionAction')
         stop_acquisition_action.triggered.connect(self.stop_acquisition)
         acquisition_menu.addAction(stop_acquisition_action)
-        acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('asset/images', 'info.png')), "Status",
+        acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'info.png')), "Status",
                                                       self)
         acquisition_status_action.setObjectName('StatusAcquisitionAction')
         acquisition_status_action.triggered.connect(self._acquisition_status)
@@ -283,7 +283,7 @@ class Web(QtWidgets.QMainWindow):
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('asset/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
 
         # Enable/Disable other modules logger
         if not DEBUG:
@@ -733,11 +733,11 @@ class Web(QtWidgets.QMainWindow):
 
         if q.scheme() == 'https':
             # Secure padlock icon
-            self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('asset/images', 'lock-ssl.png')))
+            self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-ssl.png')))
 
         else:
             # Insecure padlock icon
-            self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('asset/images', 'lock-nossl.png')))
+            self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-nossl.png')))
 
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
