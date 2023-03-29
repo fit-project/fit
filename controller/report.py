@@ -97,7 +97,6 @@ class Report:
                 zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
                 whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
                 png=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.png')[0]], pngd=phrases.TEXT['pngd'],
-
                 dump=acquisition_files['flow_dump.txt'], dumpd=phrases.TEXT['dumpd'],
                 headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
                 nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
@@ -145,7 +144,7 @@ class Report:
                 name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
                 hash=acquisition_files['acquisition.hash'], hashd=phrases.TEXT['hashd'],
                 log=acquisition_files['acquisition.log'], logd=phrases.TEXT['logd'],
-                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.avi')[0]], zipd=phrases.TEXT['zipd'],
+                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
                 t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
                 t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
                 t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
@@ -176,10 +175,11 @@ class Report:
         for file in files:
             acquisition_files[file] = file
         if not any(value.endswith('.png') for value in acquisition_files.values()):
-            return "<p> File non trovato </p>"
+            return "<p> File non prodotto </p>"
         else:
             file_path = os.path.join(self.cases_folder_path, 'screenshot.png')
             return "<img src="+file_path+ " class='center'>"
+            
     def _acquisition_files_names(self):
         acquisition_files = {}
         files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
