@@ -27,11 +27,7 @@
 ######
 import mimetypes
 import threading
-from urllib.parse import urlparse
 
-import requests
-from pytube import YouTube
-from bs4 import BeautifulSoup
 from mitmproxy import http
 
 import os.path
@@ -44,17 +40,24 @@ class ProxyServer:
 
     def save_html(self, flow: mitmproxy.http.HTTPFlow):
 
-        if flow.response.headers.get('content-type', '').startswith('text/html'):
+        content_type = flow.response.headers.get('content-type', '').split(';')[0]
+        if content_type == 'text/html':
             # write html to disk
             html_text = flow.response.content
             if len(html_text) > 0:
-                url = flow.request.pretty_host
-                filename = os.path.basename(url)
+                resource_name = flow.request.url.split("/")[-1]
+                if resource_name == '':
+                    # should be the index of the page
+                    resource_name = flow.request.pretty_host
+                # remove special chars
+                filename = self.char_remover(resource_name)
+                extension = mimetypes.guess_extension(content_type)
                 filepath = os.path.join(self.acq_dir, filename)
 
-                if not os.path.exists(f"{filepath}.html"):
-                    with open(f"{filepath}.html", "wb") as f:
+                if not os.path.exists(f"{filepath}{extension}"):
+                    with open(f"{filepath}{extension}", "wb") as f:
                         f.write(html_text)
+
         return
 
     def save_resources(self, flow: mitmproxy.http.HTTPFlow):
@@ -67,17 +70,21 @@ class ProxyServer:
 
     def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
-        content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
-                         "audio/mpeg", "text/css", "text/javascript", "image/gif"]
-        if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
+        content_type = flow.response.headers.get('content-type', '').split(';')[0]
+        if len(flow.response.content) > 0:
             filename = os.path.basename(flow.request.url)
-
-            char_remov = ["?", "<", ">", "*", "|", "\"", "\\", "/", ":"]
-            for char in char_remov:
-                filename = filename.replace(char, "-")
-
-            filepath = f"{self.acq_dir}/{filename}"
+            extension = mimetypes.guess_extension(content_type)
+            # add extension
+            filename = self.char_remover(filename)
+            filepath = f"{self.acq_dir}/{filename}{extension}"
             try:
                 with open(filepath, "wb") as f:
                     f.write(flow.response.content)
-            except:pass #could not write
+            except:
+                pass  # could not write
+
+    def char_remover(self, filename):
+        char_remov = ["?", "<", ">", "*", "|", "\"", "\\", "/", ":"]
+        for char in char_remov:
+            filename = filename.replace(char, "-")
+            return filename
