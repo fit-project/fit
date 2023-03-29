@@ -28,6 +28,7 @@
 import os
 import pathlib
 import shutil
+import sys
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
@@ -118,6 +119,8 @@ class WarcReplay(QtWidgets.QMainWindow):
                                                   "WARC and WACZ Files (*.warc *.wacz)", options=options)
         if filename:
             self.load_warc(filename, port)
+        else:
+            sys.exit()
 
     def load_warc(self, filename,port):
         # copy the file in a temp folder
