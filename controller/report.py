@@ -98,7 +98,6 @@ class Report:
                 whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
                 png=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.png')[0]], pngd=phrases.TEXT['pngd'],
 
-                wacz=acquisition_files['acquisition.wacz'], waczd=phrases.TEXT['waczd'],
                 dump=acquisition_files['flow_dump.txt'], dumpd=phrases.TEXT['dumpd'],
                 headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
                 nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
@@ -176,15 +175,10 @@ class Report:
         files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
         for file in files:
             acquisition_files[file] = file
-            print(file)
         if not any(value.endswith('.png') for value in acquisition_files.values()):
-            print('nessun png')
             return "<p> File non trovato </p>"
         else:
             file_path = os.path.join(self.cases_folder_path, 'screenshot.png')
-
-            print('un png')
-            print(file_path)
             return "<img src="+file_path+ " class='center'>"
     def _acquisition_files_names(self):
         acquisition_files = {}
@@ -206,8 +200,6 @@ class Report:
             acquisition_files['acquisition.zip'] = "File non prodotto"
         if not 'whois.txt' in acquisition_files.values():
             acquisition_files['whois.txt'] = "File non prodotto"
-        if not 'acquisizion.wacz' in acquisition_files.values():
-            acquisition_files['acquisizion.wacz'] = "File non prodotto"
         if not 'flow_dump.txt' in acquisition_files.values():
             acquisition_files['flow_dump.txt'] = "File non prodotto"
         if not 'headers.txt' in acquisition_files.values():

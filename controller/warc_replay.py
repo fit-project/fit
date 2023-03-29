@@ -57,7 +57,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = self.translate_path(self.path)
-        print(path)
         f = None
         if os.path.isdir(path):
             self.send_error(404, "File not found")
