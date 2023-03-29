@@ -57,7 +57,6 @@ class ProxyServer:
                 if not os.path.exists(f"{filepath}{extension}"):
                     with open(f"{filepath}{extension}", "wb") as f:
                         f.write(html_text)
-
         return
 
     def save_resources(self, flow: mitmproxy.http.HTTPFlow):
