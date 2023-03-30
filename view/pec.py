@@ -26,6 +26,9 @@
 # -----
 ######
 import imaplib
+
+from PyQt5.QtGui import QFont
+
 from view.error import Error as ErrorView
 import os
 import sys
@@ -42,6 +45,7 @@ from view.case import Case as CaseView
 from view.emlNotFound import EmlNotFound as EmlNotFoundView
 from controller.pec import Pec as PecController
 from controller.configurations.tabs.pec.pec import Pec as PecConfigController
+
 
 class Pec(QtWidgets.QMainWindow):
     def case(self):
@@ -63,7 +67,7 @@ class Pec(QtWidgets.QMainWindow):
         self.log_confing = LogConfigMail()
         self.controller = PecConfigController()
         self.options = self.controller.options
-        #aggiungere attributi per log, screencap ecc
+        # aggiungere attributi per log, screencap ecc
 
     def init(self, case_info, acquisition, directory):
         self.case_info = case_info
@@ -94,11 +98,16 @@ class Pec(QtWidgets.QMainWindow):
         self.scrapeButton.setGeometry(QtCore.QRect(340, 297, 75, 25))
         self.scrapeButton.setObjectName("scrapeButton")
         self.scrapeButton.clicked.connect(self.button_clicked)
+        font = QtGui.QFont('Arial', 10)
+        font.setBold(True)
+        self.scrapeButton.setFont(font)
         self.scrapeButton.setEnabled(False)
 
         self.skipButton = QtWidgets.QPushButton(self.centralwidget)
         self.skipButton.setGeometry(QtCore.QRect(245, 297, 75, 25))
         self.skipButton.setObjectName("skipButton")
+        font.setBold(False)
+        self.skipButton.setFont(font)
         self.skipButton.clicked.connect(self.skip_send)
         self.skipButton.setEnabled(True)
 
@@ -272,9 +281,6 @@ class Pec(QtWidgets.QMainWindow):
                         self.acquisition_window.show()
                         self.close()
 
-
     def skip_send(self):
         os.startfile(str(self.directory))
         self.close()
-
-
