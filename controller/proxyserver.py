@@ -46,9 +46,11 @@ class ProxyServer:
             html_text = flow.response.content
             if len(html_text) > 0:
                 resource_name = flow.request.url.split("/")[-1]
-                if resource_name == '':
+                print('resource name: ', resource_name)
+                if resource_name == '' or resource_name is None:
                     # should be the index of the page
                     resource_name = flow.request.pretty_host
+
                 # remove special chars
                 filename = self.char_remover(resource_name)
                 extension = mimetypes.guess_extension(content_type)
@@ -70,17 +72,22 @@ class ProxyServer:
     def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
         content_type = flow.response.headers.get('content-type', '').split(';')[0]
-        if len(flow.response.content) > 0:
-            filename = os.path.basename(flow.request.url)
-            extension = mimetypes.guess_extension(content_type)
-            # add extension
-            filename = self.char_remover(filename)
-            filepath = f"{self.acq_dir}/{filename}{extension}"
-            try:
-                with open(filepath, "wb") as f:
-                    f.write(flow.response.content)
-            except:
-                pass  # could not write
+        if content_type != 'text/html':
+            resources_folder = os.path.join(self.acq_dir, self.char_remover(flow.request.pretty_host))
+            if not os.path.isdir(resources_folder):
+                os.makedirs(resources_folder)
+
+            if len(flow.response.content) > 0:
+                filename = os.path.basename(flow.request.url)
+                extension = mimetypes.guess_extension(content_type)
+                # add extension
+                filename = self.char_remover(filename)
+                filepath = f"{resources_folder}/{filename}{extension}"
+                try:
+                    with open(filepath, "wb") as f:
+                        f.write(flow.response.content)
+                except:
+                    pass  # could not write
 
     def char_remover(self, filename):
         char_remov = ["?", "<", ">", "*", "|", "\"", "\\", "/", ":"]

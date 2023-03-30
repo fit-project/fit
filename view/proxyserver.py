@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import logging
 from pathlib import Path
 from mitmproxy import http
 import os.path
@@ -48,6 +49,7 @@ class ProxyServer(QObject):
         super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
+
 
 
     async def start(self):

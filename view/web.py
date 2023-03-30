@@ -449,8 +449,7 @@ class Web(QtWidgets.QMainWindow):
 
                 if self.is_enabled_screen_recorder:
                     self.screenrecorder.stop()
-            except:
-                pass
+            except: pass
 
             # Step 7:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
@@ -467,7 +466,7 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(20)
 
             ### STOP PROXY ###
-            self.proxy.setType(QNetworkProxy.DefaultProxy)
+            self.proxy.setType(QNetworkProxy.NoProxy)
             QNetworkProxy.setApplicationProxy(self.proxy)
             # set the proxy for the manager to the NoProxy object
             self.tabs.currentWidget().page().profile().clearHttpCache()
@@ -621,6 +620,8 @@ class Web(QtWidgets.QMainWindow):
         project_name = "acquisition_page"
 
         acquisition_page_folder = os.path.join(project_folder, project_name)
+        if not os.path.isdir(acquisition_page_folder):
+            os.makedirs(acquisition_page_folder)
         zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
         try:
             shutil.rmtree(acquisition_page_folder)
