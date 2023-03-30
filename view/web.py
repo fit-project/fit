@@ -86,7 +86,6 @@ class MitmThread(QThread):
         self.proxy_server.stop_proxy()
 
 
-
 class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -438,14 +437,15 @@ class Web(QtWidgets.QMainWindow):
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
             try:
-
+                # stop the proxy (before stopping the packet capture)
+                self.mitm_thread.stop_proxy()
                 # Step 6: stop threads
                 if self.is_enabled_packet_capture:
                     self.packetcapture.stop()
-                self.mitm_thread.stop_proxy()
                 if self.is_enabled_screen_recorder:
                     self.screenrecorder.stop()
-            except: pass
+            except:
+                pass
 
             # Step 7:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
@@ -528,7 +528,16 @@ class Web(QtWidgets.QMainWindow):
             if self.is_enabled_timestamp:
                 self.timestamp = TimestampView()
                 self.timestamp.set_options(options)
-                self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
+                try:
+                    self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
+                except Exception as e:
+                    error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                          self.error_msg.TITLES['timestamp'],
+                                          self.error_msg.MESSAGES['timestamp_timeout'],
+                                          "Error: %s - %s." % (e.filename, e.strerror)
+                                          )
+
+                    error_dlg.buttonClicked.connect(quit)
 
             self.pec = PecView()
             self.pec.hide()

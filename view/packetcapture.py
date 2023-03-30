@@ -24,7 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
+######
+import sys
 
 import pyshark
 import tempfile
@@ -55,22 +56,21 @@ class PacketCapture(QObject):
         self.output_file = os.path.join(options['acquisition_directory'], options['filename'])
         self.tmp_output_file = os.path.join(tempfile.gettempdir(), 'tmp' + str(datetime.utcnow().timestamp()) + '.pcap')
     
-    async def start(self):
+    def start(self):
         capture_filter = 'host 127.0.0.1'
-        capture = pyshark.LiveCapture(output_file=self.tmp_output_file, bpf_filter=capture_filter)
+        self.capture = pyshark.LiveCapture(output_file=self.tmp_output_file, bpf_filter=capture_filter)
         try:
-            for packet in capture.sniff_continuously():
+            for packet in self.capture.sniff_continuously():
                     if not self.run:
-                        await capture.close()
                         #I don't know why, but if I don't read and rewrite the pcap file generated with Livecapture 
                         #when I open it with WireShark a critical pop-up appears with this error: 
                         # (The capture file appears to have been cut short in the middle of a packet).
                         #I know this not elengant but works:
-                        capture = pyshark.FileCapture(self.tmp_output_file, output_file=self.output_file)
-                        capture.load_packets()
-
+                        self.capture = pyshark.FileCapture(self.tmp_output_file, output_file=self.output_file)
+                        self.capture.load_packets()
             os.remove(self.tmp_output_file)
             self.finished.emit()
+
         except pyshark.capture.capture.TSharkCrashException as error:
             error_dlg = ErrorView(QMessageBox.Critical,
                             self.error_msg.TITLES['capture_packet'],
@@ -82,3 +82,4 @@ class PacketCapture(QObject):
 
     def stop(self):
         self.run = False
+        self.capture.close()
