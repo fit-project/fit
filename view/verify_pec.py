@@ -32,6 +32,8 @@ from PyQt5.QtWidgets import QFileDialog
 from common import utility
 from controller.integrityPec.verifyPec import verifyPec as verifyPecController
 from common.error import ErrorMessage
+
+from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
 
@@ -44,11 +46,16 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.error_msg = ErrorMessage()
         self.configuration_view = ConfigurationView(self)
 
-    def init(self, case_info):
+    def init(self, case_info, wizard):
+        self.__init__()
+        self.wizard = wizard
         self.width = 600
         self.height = 230
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
+
+        self.case_view = CaseView(self.case_info, self)
+        self.case_view.hide()
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
         self.setObjectName("verify_pec_window")
@@ -57,6 +64,28 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.setCentralWidget(self.centralwidget)
+
+        # MENU BAR
+        self.setCentralWidget(self.centralwidget)
+        self.menuBar().setNativeMenuBar(False)
+
+        # CONF BUTTON
+        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+        self.menuConfiguration.setObjectName("menuConfiguration")
+        self.menuConfiguration.triggered.connect(self.configuration)
+        self.menuBar().addAction(self.menuConfiguration)
+
+        # CASE BUTTON
+        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action.setStatusTip("Show case info")
+        self.case_action.triggered.connect(self.case)
+        self.menuBar().addAction(self.case_action)
+
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.backAction)
+        self.menuBar().addAction(back_action)
 
         self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.eml_group_box.setEnabled(True)
@@ -125,3 +154,12 @@ class VerifyPec(QtWidgets.QMainWindow):
             if check:
                 self.input_eml.setText(file)
 
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
+
+    def backAction(self):
+        self.deleteLater()
+        self.wizard.show()

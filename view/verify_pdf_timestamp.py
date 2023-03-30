@@ -32,6 +32,7 @@ import rfc3161ng
 
 import common.utility as utility
 from view.error import Error as ErrorView
+from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
@@ -56,12 +57,17 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-    def init(self, case_info, acquisition_directory=None):
+    def init(self, case_info, wizard, acquisition_directory=None):
+        self.__init__()
+        self.wizard = wizard
         self.width = 690
         self.height = 250
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
         self.acquisition_directory = acquisition_directory
+
+        self.case_view = CaseView(self.case_info, self)
+        self.case_view.hide()
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
         self.setObjectName("verify_timestamp_window")
@@ -70,6 +76,28 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.setCentralWidget(self.centralwidget)
+
+        # MENU BAR
+        self.setCentralWidget(self.centralwidget)
+        self.menuBar().setNativeMenuBar(False)
+
+        # CONF BUTTON
+        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+        self.menuConfiguration.setObjectName("menuConfiguration")
+        self.menuConfiguration.triggered.connect(self.configuration)
+        self.menuBar().addAction(self.menuConfiguration)
+
+        # CASE BUTTON
+        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action.setStatusTip("Show case info")
+        self.case_action.triggered.connect(self.case)
+        self.menuBar().addAction(self.case_action)
+
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.backAction)
+        self.menuBar().addAction(back_action)
 
         # set font
         font = QtGui.QFont()
@@ -295,3 +323,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             return open_folder
         else:
             return self.acquisition_directory
+
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
+
+    def backAction(self):
+        self.deleteLater()
+        self.wizard.show()

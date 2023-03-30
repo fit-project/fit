@@ -54,14 +54,6 @@ logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
 
 class Instagram(QtWidgets.QMainWindow):
-    def case(self):
-        self.case_view.exec_()
-
-    def configuration(self):
-        self.configuration_view.exec_()
-
-    def _acquisition_status(self):
-        self.acquisition_status.show()
 
     def __init__(self, *args, **kwargs):
         super(Instagram, self).__init__(*args, **kwargs)
@@ -69,17 +61,20 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_directory = None
         self.acquisition_is_started = False
         self.is_enabled_timestamp = False
-        self.acquisition_status = AcquisitionStatusView(self)
-        self.acquisition_status.setupUi()
-        self.log_confing = LogConfigMail()
+
         #aggiungere attributi per log, screencap ecc
 
-    def init(self, case_info):
+    def init(self, case_info, wizard):
+        self.__init__()
+        self.wizard = wizard
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
+        self.acquisition_status = AcquisitionStatusView(self)
+        self.acquisition_status.setupUi()
+        self.log_confing = LogConfigMail()
 
         self.setObjectName("mainWindow")
         self.resize(653, 392)
@@ -111,11 +106,11 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
         self.acquisition_menu.addAction(self.acquisition_status_action)
 
-        # VERIFY PDF ACTION
-        verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
-        verify_pdf_action.setStatusTip("Verify the timestamp of a report")
-        verify_pdf_action.triggered.connect(self.verify_timestamp)
-        self.menuBar().addAction(verify_pdf_action)
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.backAction)
+        self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
@@ -453,13 +448,19 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_window = self.pec
         self.acquisition_window.init(self.case_info, "Instagram", self.acquisition_directory)
         self.acquisition_window.show()
-        self.close()
 
     def onTextChanged(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrapeButton.setEnabled(all_field_filled)
+    def case(self):
+        self.case_view.exec_()
 
-    def verify_timestamp(self):
-        verify_pdf_view = VerifyPDFTimestampView()
-        verify_pdf_view.init(self.case_info, self.acquisition_directory)
-        verify_pdf_view.show()
+    def configuration(self):
+        self.configuration_view.exec_()
+
+    def _acquisition_status(self):
+        self.acquisition_status.show()
+
+    def backAction(self):
+        self.deleteLater()
+        self.wizard.show()

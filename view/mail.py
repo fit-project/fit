@@ -46,7 +46,6 @@ from view.timestamp import Timestamp as TimestampView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
-from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
 from common.error import ErrorMessage
 
@@ -60,12 +59,6 @@ logger_hashreport = logging.getLogger('hashreport')
 
 class Mail(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
-
-    def case(self):
-        self.case_view.exec_()
-
-    def configuration(self):
-        self.configuration_view.exec_()
 
     def __init__(self, *args, **kwargs):
         super(Mail, self).__init__(*args, **kwargs)
@@ -87,14 +80,17 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
         self.log_confing = LogConfigMail()
+        self.case_info = None
 
-    def init(self, case_info):
+    def init(self, case_info, wizard):
+        self.__init__()
         self.width = 990
         self.height = 590
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
+        self.wizard = wizard
 
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
@@ -181,7 +177,6 @@ class Mail(QtWidgets.QMainWindow):
         self.input_fields = [self.input_email, self.input_password, self.input_server, self.input_port]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.onTextChanged)
-
 
         # EMAIL LABEL
         self.label_email = QtWidgets.QLabel(self.centralwidget)
@@ -325,11 +320,11 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
         self.acquisition_menu.addAction(self.acquisition_status_action)
 
-        # VERIFY PDF ACTION
-        verify_pdf_action = QtWidgets.QAction("Verify timestamp", self)
-        verify_pdf_action.setStatusTip("Verify the timestamp of a report")
-        verify_pdf_action.triggered.connect(self.verify_timestamp)
-        self.menuBar().addAction(verify_pdf_action)
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.backAction)
+        self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
@@ -339,8 +334,9 @@ class Mail(QtWidgets.QMainWindow):
         # Get network parameters for check (NTP, nslookup)
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
-         #Get network parameters for check (NTP, nslookup)
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox, 'group_box_network_check')
+        # Get network parameters for check (NTP, nslookup)
+        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+                                                                          'group_box_network_check')
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -434,7 +430,7 @@ class Mail(QtWidgets.QMainWindow):
             logger_acquisition.info(
                 f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
             self.progress_bar.setValue(75)
-            
+
             self.acquisition_status.add_task('Logger')
             self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
@@ -463,7 +459,7 @@ class Mail(QtWidgets.QMainWindow):
 
         ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
         logger_acquisition.info(f'NTP end acquisition time: {ntp}')
-                
+
         if self.acquisition_is_started:
             self.setEnabled(False)
             self.acquisition_status.clear()
@@ -544,7 +540,7 @@ class Mail(QtWidgets.QMainWindow):
         self.progress_bar.setValue(30)
 
         for folders in selected_items:
-            if folders.childCount()>0:
+            if folders.childCount() > 0:
                 # scrape every selected folder anyway (even is single messages are selected)
                 folders_list.append(folders.data(0, Qt.UserRole))
         if len(folders_list) > 0:
@@ -576,7 +572,7 @@ class Mail(QtWidgets.QMainWindow):
         self.status.showMessage('Save emails completed')
 
         project_name = "acquisition"
-        acquisition_folder = os.path.join(self.acquisition_directory,project_name)
+        acquisition_folder = os.path.join(self.acquisition_directory, project_name)
         if not os.path.exists(acquisition_folder):
             os.makedirs(acquisition_folder)
         # zipping email acquisition folder
@@ -601,7 +597,6 @@ class Mail(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
         loop.exec_()
-
 
         # Calculate acquisition hash
         self.status.showMessage('Calculate acquisition file hash')
@@ -648,8 +643,6 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_window = self.pec
         self.acquisition_window.init(self.case_info, "Mail", self.acquisition_directory)
         self.acquisition_window.show()
-        self.close()
-
 
         #### Enable all action ####
         self.setEnabled(True)
@@ -678,7 +671,12 @@ class Mail(QtWidgets.QMainWindow):
             child_item.setSelected(selected)
             self.update_child_items(child_item, selected)
 
-    def verify_timestamp(self):
-        verify_pdf_view = VerifyPDFTimestampView()
-        verify_pdf_view.init(self.case_info, self.acquisition_directory)
-        verify_pdf_view.show()
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
+
+    def backAction(self):
+        self.deleteLater()
+        self.wizard.show()

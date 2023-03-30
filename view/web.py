@@ -51,7 +51,6 @@ from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
 
-
 from common.error import ErrorMessage
 
 from common.settings import DEBUG
@@ -137,8 +136,6 @@ class Web(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()  # make a stop signal to communicate with the workers in another threads
 
     def __init__(self, *args, **kwargs):
-        if not os.path.isdir("resources"):
-            os.makedirs("resources")
         super(Web, self).__init__(*args, **kwargs)
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
@@ -149,9 +146,11 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_screen_recorder = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
+        self.case_info = None
 
-    def init(self, case_info):
-
+    def init(self, case_info, wizard):
+        self.__init__()
+        self.wizard = wizard
         self.case_info = case_info
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
@@ -194,7 +193,8 @@ class Web(QtWidgets.QMainWindow):
         next_btn.triggered.connect(lambda: self.forward())
         navtb.addAction(next_btn)
 
-        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-circle-315.png')), "Reload",
+        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-circle-315.png')),
+                                            "Reload",
                                             self)
         self.reload_btn.setStatusTip("Reload page")
         self.reload_btn.triggered.connect(lambda: self.reload())
@@ -250,7 +250,8 @@ class Web(QtWidgets.QMainWindow):
         start_acquisition_action.setObjectName('StartAcquisitionAction')
         start_acquisition_action.triggered.connect(self.start_acquisition)
         acquisition_menu.addAction(start_acquisition_action)
-        stop_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'stop.png')), "Stop", self)
+        stop_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'stop.png')), "Stop",
+                                                    self)
         stop_acquisition_action.setObjectName('StopAcquisitionAction')
         stop_acquisition_action.triggered.connect(self.stop_acquisition)
         acquisition_menu.addAction(stop_acquisition_action)
@@ -260,6 +261,11 @@ class Web(QtWidgets.QMainWindow):
         acquisition_status_action.triggered.connect(self._acquisition_status)
         acquisition_menu.addAction(acquisition_status_action)
 
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.backAction)
+        self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
@@ -378,6 +384,7 @@ class Web(QtWidgets.QMainWindow):
             # hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
+
     def stop_acquisition(self):
 
         if self.acquisition_is_started:
@@ -413,7 +420,7 @@ class Web(QtWidgets.QMainWindow):
 
             # Step 4: Get traceroute info
             logger_acquisition.info('Get TRACEROUTE info for URL: ' + url)
-            #utility.traceroute(url, os.path.join(self.acquisition_directory, 'traceroute.txt'))
+            # utility.traceroute(url, os.path.join(self.acquisition_directory, 'traceroute.txt'))
             self.status.showMessage('Get TRACEROUTE info')
             self.progress_bar.setValue(8)
             ### END NETWORK CHECK ###
@@ -733,16 +740,9 @@ class Web(QtWidgets.QMainWindow):
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
 
-    def get_current_dir(self):
-        if not self.acquisition_directory:
-            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-            open_folder = os.path.expanduser(
-                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
-            return open_folder
-        else:
-            return self.acquisition_directory
-
-
+    def backAction(self):
+        self.deleteLater()
+        self.wizard.show()
 
     def closeEvent(self, event):
         packetcapture = getattr(self, 'packetcapture', None)

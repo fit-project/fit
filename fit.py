@@ -36,7 +36,6 @@ from view.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
 
-
 from view.verify_pec import VerifyPec as VerifyPecView
 
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
@@ -45,14 +44,16 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     wizard = WizardView()
     wizard.init_wizard()
+
     web = WebView()
     web.hide()
+
     mail = MailView()
     mail.hide()
-   
+
     insta = InstagramView()
     insta.hide()
-    
+
     timestamp = VerifyPDFTimestampView()
     timestamp.hide()
 
@@ -60,10 +61,8 @@ if __name__ == '__main__':
     pec.hide()
 
 
-    timestamp = VerifyPDFTimestampView()
-    timestamp.hide()
-
     def start_task(task, case_info):
+
         if (task == 'web'):
             acquisition_window = web
         elif (task == 'mail'):
@@ -75,17 +74,12 @@ if __name__ == '__main__':
         elif (task == 'pec'):
             acquisition_window = pec
 
-
-        acquisition_window.init(case_info)
+        acquisition_window.init(case_info, wizard)
         acquisition_window.show()
 
 
-
-    #Wizard sends a signal when finish button is clicked and case is stored on the DB
+    # Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
     wizard.show()
-
-
-
     sys.exit(app.exec_())
