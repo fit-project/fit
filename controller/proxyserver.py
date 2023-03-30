@@ -46,7 +46,6 @@ class ProxyServer:
             html_text = flow.response.content
             if len(html_text) > 0:
                 resource_name = flow.request.url.split("/")[-1]
-                print('resource name: ', resource_name)
                 if resource_name == '' or resource_name is None:
                     # should be the index of the page
                     resource_name = flow.request.pretty_host

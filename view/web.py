@@ -28,6 +28,7 @@
 
 import logging.config
 import shutil
+import signal
 
 from mitmproxy import ctx
 from scapy.all import *
@@ -79,14 +80,11 @@ class MitmThread(QThread):
 
         # mitmproxy's creation
         self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
-        asyncio.run(self.proxy_server.start())
+        self.loop.run_until_complete(self.proxy_server.start())
 
     def stop_proxy(self):
-        try:
-            ctx.master.shutdown()
-            ctx.master = None
-        except:
-            pass
+        self.proxy_server.stop_proxy()
+
 
 
 class WebEnginePage(QWebEnginePage):
@@ -322,7 +320,6 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().page().profile().clearHttpCache()
 
         # start mitmproxy thread
-
         self.mitm_thread.start()
         # reload the page (waiting for the thread to be fully started)
         QtCore.QTimer.singleShot(500, self.tabs.currentWidget().reload)

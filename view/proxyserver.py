@@ -38,7 +38,6 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 
-
 from controller.proxyserver import ProxyServer as ProxyServerController
 
 
@@ -49,11 +48,9 @@ class ProxyServer(QObject):
         super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
-
-
+        self.master = None
 
     async def start(self):
-
         # Set proxy options
         options = main.options.Options(
             listen_host='127.0.0.1',
@@ -66,17 +63,18 @@ class ProxyServer(QObject):
             mode=['regular']
         )
         # Create a master object and add addons
-        master = DumpMaster(options=options)
+        self.master = DumpMaster(options=options)
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             FlowWriterAddon(self.acquisition_directory)
         ]
-        master.addons.add(*addons)
+        self.master.addons.add(*addons)
 
-        try:
-            await master.run()
-        except Exception as e:
-            pass
+        await self.master.run()
+
+    def stop_proxy(self):
+        if self.master:
+            self.master.shutdown()
 
 
 # addon from doc: https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
@@ -103,4 +101,3 @@ class FlowReaderAddon:
     def response(self, flow: mitmproxy.http.HTTPFlow):
         proxy_controller = ProxyServerController(self.acq_dir)
         proxy_controller.save_resources(flow)
-
