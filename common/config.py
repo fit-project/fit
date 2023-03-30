@@ -138,7 +138,12 @@ class LogConfig:
         for key in self.config['handlers']:
             handler = self.config['handlers'][key]
             if 'filename' in handler.keys():
-                handler['filename'] = os.path.join(path, handler['filename'])
+                stripped = handler['filename'].split("\\")[-1]
+                if stripped:
+                    handler['filename'] = os.path.join(path, stripped)
+                else:
+                    handler['filename'] = os.path.join(path, handler['filename'])
+
 
     def disable_loggers(self, loggers):
         for logger in loggers:

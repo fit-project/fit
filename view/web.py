@@ -27,9 +27,7 @@
 ######
 
 import logging.config
-import pathlib
 import shutil
-from pathlib import Path
 
 from mitmproxy import ctx
 from scapy.all import *
@@ -37,7 +35,7 @@ from scapy.all import *
 import asyncio
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import QThread, QUrl
+from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
@@ -151,7 +149,6 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_screen_recorder = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
-        self.server_thread = False
 
     def init(self, case_info):
 
@@ -536,7 +533,6 @@ class Web(QtWidgets.QMainWindow):
             self.acquisition_window = self.pec
             self.acquisition_window.init(self.case_info, "Web", self.acquisition_directory)
             self.acquisition_window.show()
-            self.close()
 
             #### Enable all action ####
             self.setEnabled(True)
@@ -746,14 +742,9 @@ class Web(QtWidgets.QMainWindow):
         else:
             return self.acquisition_directory
 
-    def server_thread_finished(self):
-        self.server_thread.quit()
-        self.server_thread.wait()
+
 
     def closeEvent(self, event):
-        if self.server_thread:
-            self.server_thread.stop_server = True
-
         packetcapture = getattr(self, 'packetcapture', None)
 
         if packetcapture is not None:
