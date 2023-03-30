@@ -438,12 +438,11 @@ class Web(QtWidgets.QMainWindow):
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
             try:
-                # stop the proxy (before stopping the packet capture)
-                self.mitm_thread.stop_proxy()
+
                 # Step 6: stop threads
                 if self.is_enabled_packet_capture:
                     self.packetcapture.stop()
-
+                self.mitm_thread.stop_proxy()
                 if self.is_enabled_screen_recorder:
                     self.screenrecorder.stop()
             except: pass

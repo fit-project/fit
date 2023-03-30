@@ -55,13 +55,13 @@ class PacketCapture(QObject):
         self.output_file = os.path.join(options['acquisition_directory'], options['filename'])
         self.tmp_output_file = os.path.join(tempfile.gettempdir(), 'tmp' + str(datetime.utcnow().timestamp()) + '.pcap')
     
-    def start(self):
+    async def start(self):
         capture_filter = 'host 127.0.0.1'
         capture = pyshark.LiveCapture(output_file=self.tmp_output_file, bpf_filter=capture_filter)
         try:
             for packet in capture.sniff_continuously():
                     if not self.run:
-                        capture.close()
+                        await capture.close()
                         #I don't know why, but if I don't read and rewrite the pcap file generated with Livecapture 
                         #when I open it with WireShark a critical pop-up appears with this error: 
                         # (The capture file appears to have been cut short in the middle of a packet).
