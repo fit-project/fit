@@ -141,6 +141,7 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_status.setupUi()
         self.log_confing = LogConfig()
         self.is_enabled_screen_recorder = False
+        self.is_enabled_mitmproxy = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
         self.case_info = None
@@ -319,6 +320,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().page().profile().clearHttpCache()
 
         # start mitmproxy thread
+        self.is_enabled_mitmproxy = True
         self.mitm_thread.start()
         # reload the page (waiting for the thread to be fully started)
         QtCore.QTimer.singleShot(500, self.tabs.currentWidget().reload)
@@ -438,7 +440,9 @@ class Web(QtWidgets.QMainWindow):
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
             try:
                 # stop the proxy (before stopping the packet capture)
-                self.mitm_thread.stop_proxy()
+                if self.is_enabled_mitmproxy:
+                    self.mitm_thread.stop_proxy()
+                    self.is_enabled_mitmproxy = False
                 # Step 6: stop threads
                 if self.is_enabled_packet_capture:
                     self.packetcapture.stop()

@@ -25,21 +25,17 @@
 # SOFTWARE.
 # -----
 ######
-import sys
-
 import pyshark
 import tempfile
 import os
 from datetime import datetime
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
-
 
 from view.error import Error as ErrorView
 
 from common.error import ErrorMessage
-import common.utility as utility
 
 
 class PacketCapture(QObject):
@@ -55,31 +51,41 @@ class PacketCapture(QObject):
     def set_options(self, options):
         self.output_file = os.path.join(options['acquisition_directory'], options['filename'])
         self.tmp_output_file = os.path.join(tempfile.gettempdir(), 'tmp' + str(datetime.utcnow().timestamp()) + '.pcap')
-    
+
     def start(self):
         capture_filter = 'host 127.0.0.1'
         self.capture = pyshark.LiveCapture(output_file=self.tmp_output_file, bpf_filter=capture_filter)
         try:
             for packet in self.capture.sniff_continuously():
-                    if not self.run:
-                        #I don't know why, but if I don't read and rewrite the pcap file generated with Livecapture 
-                        #when I open it with WireShark a critical pop-up appears with this error: 
-                        # (The capture file appears to have been cut short in the middle of a packet).
-                        #I know this not elengant but works:
-                        self.capture = pyshark.FileCapture(self.tmp_output_file, output_file=self.output_file)
-                        self.capture.load_packets()
+                if not self.run:
+                    self.capture.close()
+                    # I don't know why, but if I don't read and rewrite the pcap file generated with Livecapture
+                    # when I open it with WireShark a critical pop-up appears with this error:
+                    # (The capture file appears to have been cut short in the middle of a packet).
+                    # I know this not elengant but works:
+                    self.file = pyshark.FileCapture(self.tmp_output_file, output_file=self.output_file)
+                    self.file.load_packets()
             os.remove(self.tmp_output_file)
             self.finished.emit()
 
         except pyshark.capture.capture.TSharkCrashException as error:
             error_dlg = ErrorView(QMessageBox.Critical,
-                            self.error_msg.TITLES['capture_packet'],
-                            self.error_msg.MESSAGES['capture_packet'],
-                            str(error)
-                            )
+                                  self.error_msg.TITLES['capture_packet'],
+                                  self.error_msg.MESSAGES['capture_packet'],
+                                  str(error)
+                                  )
             error_dlg.buttonClicked.connect(quit)
             error_dlg.exec_()
 
     def stop(self):
         self.run = False
-        self.capture.close()
+        '''try:
+            self.capture.close()
+        except pyshark.capture.capture.TSharkCrashException as error:
+            error_dlg = ErrorView(QMessageBox.Critical,
+                                  self.error_msg.TITLES['capture_packet'],
+                                  self.error_msg.MESSAGES['capture_packet'],
+                                  str(error)
+                                  )
+            error_dlg.buttonClicked.connect(quit)
+            error_dlg.exec_()'''
