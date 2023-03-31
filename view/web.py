@@ -28,14 +28,14 @@
 
 import logging.config
 import shutil
-import signal
+from http.cookies import SimpleCookie
 
-from mitmproxy import ctx
+from PyQt5.QtWebEngineCore import QWebEngineCookieStore
 from scapy.all import *
 
 import asyncio
 
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets, QtNetwork
 from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
@@ -100,6 +100,17 @@ class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
+        #set same site/secure cookies
+        cookie = SimpleCookie()
+        cookie['name'] = 'value'
+        cookie['name']['samesite'] = None
+        cookie['name']['secure'] = True
+        contents = cookie.output().encode('ascii')
+        cookie_store = page.profile().cookieStore()
+        for qt_cookie in QtNetwork.QNetworkCookie.parseCookies(contents):
+            cookie_store.setCookie(qt_cookie)
+
+
         self.setPage(page)
 
     def closeEvent(self, event):
