@@ -45,7 +45,8 @@ class ErrorMessage:
             'verification_ok': 'Verification success',
             'pec_verified': 'Verification success',
             'pec_not_verified': 'Verification failed',
-            'pec_error': 'Login failed'
+            'pec_error': 'Login failed',
+            'timestamp': 'Timestamp failed'
 
         }
 
@@ -71,7 +72,8 @@ class ErrorMessage:
             'verification_ok': 'Timestamp has been verified successfully.',
             'pec_verified': 'Verification success',
             'pec_not_verified': 'Verification failed',
-            'pec_error': 'Login failed'
+            'pec_error': 'Login failed',
+            'timestamp_timeout': 'Unable to send the timestamp request. Read time out.'
 
 
         }

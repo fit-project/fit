@@ -28,13 +28,14 @@
 
 import logging.config
 import shutil
+from http.cookies import SimpleCookie
 
-from mitmproxy import ctx
+from PyQt5.QtWebEngineCore import QWebEngineCookieStore
 from scapy.all import *
 
 import asyncio
 
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets, QtNetwork
 from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
@@ -79,14 +80,10 @@ class MitmThread(QThread):
 
         # mitmproxy's creation
         self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
-        asyncio.run(self.proxy_server.start())
+        self.loop.run_until_complete(self.proxy_server.start())
 
     def stop_proxy(self):
-        try:
-            ctx.master.shutdown()
-            ctx.master = None
-        except:
-            pass
+        self.proxy_server.stop_proxy()
 
 
 class WebEnginePage(QWebEnginePage):
@@ -103,6 +100,17 @@ class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
+        #set same site/secure cookies
+        cookie = SimpleCookie()
+        cookie['name'] = 'value'
+        cookie['name']['samesite'] = None
+        cookie['name']['secure'] = True
+        contents = cookie.output().encode('ascii')
+        cookie_store = page.profile().cookieStore()
+        for qt_cookie in QtNetwork.QNetworkCookie.parseCookies(contents):
+            cookie_store.setCookie(qt_cookie)
+
+
         self.setPage(page)
 
     def closeEvent(self, event):
@@ -144,6 +152,7 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_status.setupUi()
         self.log_confing = LogConfig()
         self.is_enabled_screen_recorder = False
+        self.is_enabled_mitmproxy = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
         self.case_info = None
@@ -322,7 +331,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().page().profile().clearHttpCache()
 
         # start mitmproxy thread
-
+        self.is_enabled_mitmproxy = True
         self.mitm_thread.start()
         # reload the page (waiting for the thread to be fully started)
         QtCore.QTimer.singleShot(500, self.tabs.currentWidget().reload)
@@ -442,11 +451,12 @@ class Web(QtWidgets.QMainWindow):
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
             try:
                 # stop the proxy (before stopping the packet capture)
-                self.mitm_thread.stop_proxy()
+                if self.is_enabled_mitmproxy:
+                    self.mitm_thread.stop_proxy()
+                    self.is_enabled_mitmproxy = False
                 # Step 6: stop threads
                 if self.is_enabled_packet_capture:
                     self.packetcapture.stop()
-
                 if self.is_enabled_screen_recorder:
                     self.screenrecorder.stop()
             except:
@@ -467,7 +477,7 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setValue(20)
 
             ### STOP PROXY ###
-            self.proxy.setType(QNetworkProxy.DefaultProxy)
+            self.proxy.setType(QNetworkProxy.NoProxy)
             QNetworkProxy.setApplicationProxy(self.proxy)
             # set the proxy for the manager to the NoProxy object
             self.tabs.currentWidget().page().profile().clearHttpCache()
@@ -533,7 +543,16 @@ class Web(QtWidgets.QMainWindow):
             if self.is_enabled_timestamp:
                 self.timestamp = TimestampView()
                 self.timestamp.set_options(options)
-                self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
+                try:
+                    self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
+                except Exception as e:
+                    error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                          self.error_msg.TITLES['timestamp'],
+                                          self.error_msg.MESSAGES['timestamp_timeout'],
+                                          "Error: %s - %s." % (e.filename, e.strerror)
+                                          )
+
+                    error_dlg.buttonClicked.connect(quit)
 
             self.pec = PecView()
             self.pec.hide()
@@ -621,6 +640,8 @@ class Web(QtWidgets.QMainWindow):
         project_name = "acquisition_page"
 
         acquisition_page_folder = os.path.join(project_folder, project_name)
+        if not os.path.isdir(acquisition_page_folder):
+            os.makedirs(acquisition_page_folder)
         zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
         try:
             shutil.rmtree(acquisition_page_folder)

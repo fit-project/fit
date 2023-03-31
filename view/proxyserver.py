@@ -25,7 +25,6 @@
 # SOFTWARE.
 # -----
 ######
-from pathlib import Path
 from mitmproxy import http
 import os.path
 
@@ -37,7 +36,6 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 
-
 from controller.proxyserver import ProxyServer as ProxyServerController
 
 
@@ -48,10 +46,9 @@ class ProxyServer(QObject):
         super().__init__()
         self.port = port
         self.acquisition_directory = acquisition_directory
-
+        self.master = None
 
     async def start(self):
-
         # Set proxy options
         options = main.options.Options(
             listen_host='127.0.0.1',
@@ -64,17 +61,17 @@ class ProxyServer(QObject):
             mode=['regular']
         )
         # Create a master object and add addons
-        master = DumpMaster(options=options)
+        self.master = DumpMaster(options=options, with_termlog=False, with_dumper=False)
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             FlowWriterAddon(self.acquisition_directory)
         ]
-        master.addons.add(*addons)
+        self.master.addons.add(*addons)
+        await self.master.run()
 
-        try:
-            await master.run()
-        except Exception as e:
-            pass
+    def stop_proxy(self):
+        if self.master:
+            self.master.shutdown()
 
 
 # addon from doc: https://docs.mitmproxy.org/stable/addons-examples/#io-write-flow-file
@@ -89,16 +86,13 @@ class FlowWriterAddon:
         self.w.add(flow)
 
 
-# creating a custom addon to intercept requests and reponses
+# creating a custom addon to intercept requests and responses
 class FlowReaderAddon:
     def __init__(self, acquisition_directory):
         self.acquisition_directory = acquisition_directory
         self.acq_dir = os.path.join(self.acquisition_directory, 'acquisition_page')
-        if not os.path.isdir(self.acq_dir):
-            os.makedirs(self.acq_dir)
         return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         proxy_controller = ProxyServerController(self.acq_dir)
         proxy_controller.save_resources(flow)
-
