@@ -39,7 +39,6 @@ from mitmproxy.tools.dump import DumpMaster
 from controller.proxyserver import ProxyServer as ProxyServerController
 
 
-
 class ProxyServer(QObject):
     proxy_started = pyqtSignal()
 
@@ -62,7 +61,7 @@ class ProxyServer(QObject):
             mode=['regular']
         )
         # Create a master object and add addons
-        self.master = DumpMaster(options=options,with_termlog=False,with_dumper=False)
+        self.master = DumpMaster(options=options, with_termlog=False, with_dumper=False)
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             FlowWriterAddon(self.acquisition_directory)
@@ -87,13 +86,11 @@ class FlowWriterAddon:
         self.w.add(flow)
 
 
-# creating a custom addon to intercept requests and reponses
+# creating a custom addon to intercept requests and responses
 class FlowReaderAddon:
     def __init__(self, acquisition_directory):
         self.acquisition_directory = acquisition_directory
         self.acq_dir = os.path.join(self.acquisition_directory, 'acquisition_page')
-        if not os.path.isdir(self.acq_dir):
-            os.makedirs(self.acq_dir)
         return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
