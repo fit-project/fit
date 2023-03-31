@@ -25,8 +25,6 @@
 # SOFTWARE.
 # -----
 ######
-import logging
-from pathlib import Path
 from mitmproxy import http
 import os.path
 
@@ -39,6 +37,7 @@ from mitmproxy.tools import main
 from mitmproxy.tools.dump import DumpMaster
 
 from controller.proxyserver import ProxyServer as ProxyServerController
+
 
 
 class ProxyServer(QObject):
@@ -63,13 +62,12 @@ class ProxyServer(QObject):
             mode=['regular']
         )
         # Create a master object and add addons
-        self.master = DumpMaster(options=options)
+        self.master = DumpMaster(options=options,with_termlog=False,with_dumper=False)
         addons = [
             FlowReaderAddon(self.acquisition_directory),
             FlowWriterAddon(self.acquisition_directory)
         ]
         self.master.addons.add(*addons)
-
         await self.master.run()
 
     def stop_proxy(self):
