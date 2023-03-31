@@ -37,7 +37,6 @@ class CaseInfoPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(CaseInfoPage, self).__init__(parent)
         self.setObjectName("CaseInfoPage")
-
         self.case_info = {}
 
         self.error_msg = ErrorMessage()
@@ -79,10 +78,10 @@ class CaseInfoPage(QtWidgets.QWizardPage):
                     if isinstance(item, QtWidgets.QComboBox):
                         if keyword in 'types_proceedings_id': 
                             if value is not None:
-                                item.setCurrentIndex(value)
-                        else:
-                            if value is not None:
-                                item.setCurrentText(value)
+                                type_proceeding = next((proceeding for proceeding in self.form.proceedings if proceeding["id"] == value), None)
+                                value = type_proceeding["name"]
+                            
+                            item.setCurrentText(value)
     
     def clear_case_information(self):
         self.case_info = {}
@@ -263,6 +262,10 @@ class Wizard(QtWidgets.QWizard):
 
 
         self.retranslateUi()
+    
+    def reload_case_info(self):
+        self.case_info_page.set_case_information(self.case_info_page.form.name.currentText())
+        self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML())
 
     def _save_case(self):
         
@@ -325,6 +328,10 @@ class Wizard(QtWidgets.QWizard):
             if item is not None:
                 if value is None:
                     value = "N/A"
+                if keyword in 'types_proceedings_id':
+                    type_proceeding = next((proceeding for proceeding in self.case_info_page.form.proceedings if proceeding["id"] == value), None)
+                    value = type_proceeding["name"]
+
                 label = item.text()
                 html += "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:19px;\">\n"
                 html += "<span style=\" font-family:\'Arial\',\'Courier New\',\'monospace\'; font-size:14px; font-weight:300; color:#000000;\">" + label  + ": </span>\n"
@@ -334,5 +341,4 @@ class Wizard(QtWidgets.QWizard):
         html += "</html>"
 
         return html
-        
         

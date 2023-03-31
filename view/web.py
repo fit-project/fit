@@ -262,9 +262,9 @@ class Web(QtWidgets.QMainWindow):
         acquisition_menu.addAction(acquisition_status_action)
 
         # BACK ACTION
-        back_action = QtWidgets.QAction("Back", self)
+        back_action = QtWidgets.QAction("Back to wizard", self)
         back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.backAction)
+        back_action.triggered.connect(self.__back_to_wizard)
         self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
@@ -740,8 +740,9 @@ class Web(QtWidgets.QMainWindow):
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
 
-    def backAction(self):
+    def __back_to_wizard(self):
         self.deleteLater()
+        self.wizard.reload_case_info()
         self.wizard.show()
 
     def closeEvent(self, event):

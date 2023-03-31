@@ -106,10 +106,10 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
         self.acquisition_menu.addAction(self.acquisition_status_action)
 
-        # BACK ACTION
-        back_action = QtWidgets.QAction("Back", self)
+        # BACK TO WIZARD
+        back_action = QtWidgets.QAction("Back to wizard", self)
         back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.backAction)
+        back_action.triggered.connect(self.__back_to_wizard)
         self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
@@ -461,6 +461,7 @@ class Instagram(QtWidgets.QMainWindow):
     def _acquisition_status(self):
         self.acquisition_status.show()
 
-    def backAction(self):
+    def __back_to_wizard(self):
         self.deleteLater()
+        self.wizard.reload_case_info()
         self.wizard.show()

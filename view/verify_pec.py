@@ -82,9 +82,9 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.menuBar().addAction(self.case_action)
 
         # BACK ACTION
-        back_action = QtWidgets.QAction("Back", self)
+        back_action = QtWidgets.QAction("Back to wizard", self)
         back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.backAction)
+        back_action.triggered.connect(self.__back_to_wizard)
         self.menuBar().addAction(back_action)
 
         self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
@@ -160,6 +160,7 @@ class VerifyPec(QtWidgets.QMainWindow):
     def configuration(self):
         self.configuration_view.exec_()
 
-    def backAction(self):
+    def __back_to_wizard(self):
         self.deleteLater()
+        self.wizard.reload_case_info()
         self.wizard.show()
