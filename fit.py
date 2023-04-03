@@ -32,7 +32,7 @@ from PyQt5.QtGui import *
 
 import sys
 from view.wizard import Wizard as WizardView
-from view.web import Web as WebView
+from view.web.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
 

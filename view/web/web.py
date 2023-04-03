@@ -40,6 +40,10 @@ from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
+
+
+from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
+
 from view.pec import Pec as PecView
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
@@ -148,6 +152,7 @@ class Web(QtWidgets.QMainWindow):
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
+        self.current_page_load_is_finished = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
         self.log_confing = LogConfig()
@@ -156,8 +161,10 @@ class Web(QtWidgets.QMainWindow):
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
         self.case_info = None
+        self.setObjectName('FITWeb')
 
     def init(self, case_info, wizard):
+
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info
@@ -187,47 +194,9 @@ class Web(QtWidgets.QMainWindow):
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 
-        navtb = QtWidgets.QToolBar("Navigation")
-        navtb.setObjectName('NavigationToolBar')
-        navtb.setIconSize(QtCore.QSize(16, 16))
-        self.addToolBar(navtb)
+        self.navtb = NavigationToolBarView(self)
+        self.addToolBar(self.navtb)
 
-        back_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-180.png')), "Back", self)
-        back_btn.setStatusTip("Back to previous page")
-        back_btn.triggered.connect(lambda: self.back())
-        navtb.addAction(back_btn)
-
-        next_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-000.png')), "Forward", self)
-        next_btn.setStatusTip("Forward to next page")
-        next_btn.triggered.connect(lambda: self.forward())
-        navtb.addAction(next_btn)
-
-        self.reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'arrow-circle-315.png')),
-                                            "Reload",
-                                            self)
-        self.reload_btn.setStatusTip("Reload page")
-        self.reload_btn.triggered.connect(lambda: self.reload())
-        navtb.addAction(self.reload_btn)
-
-        home_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'home.png')), "Home", self)
-        home_btn.setStatusTip("Go home")
-        home_btn.triggered.connect(self.navigate_home)
-        navtb.addAction(home_btn)
-
-        navtb.addSeparator()
-
-        self.httpsicon = QtWidgets.QLabel()  # Yes, really!
-        self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-nossl.png')))
-        navtb.addWidget(self.httpsicon)
-
-        self.urlbar = QtWidgets.QLineEdit()
-        self.urlbar.returnPressed.connect(self.navigate_to_url)
-        navtb.addWidget(self.urlbar)
-
-        stop_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'cross-circle.png')), "Stop", self)
-        stop_btn.setStatusTip("Stop loading current page")
-        stop_btn.triggered.connect(lambda: self.tabs.currentWidget().stop())
-        navtb.addAction(stop_btn)
 
         # Uncomment to disable native menubar on Mac
         self.menuBar().setNativeMenuBar(False)
@@ -341,6 +310,12 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(False)
 
             self.acquisition_is_started = True
+
+            # enable screenshot buttons
+            self.navtb.enable_screenshot_btn()
+
+            
+
             self.acquisition_status.set_title('Acquisition in progress:')
             self.acquisition_status.add_task('Case Folder')
             self.acquisition_status.set_status('Case Folder', self.acquisition_directory, 'done')
@@ -570,6 +545,9 @@ class Web(QtWidgets.QMainWindow):
 
             self.acquisition_is_started = False
 
+            # disable screenshot buttons
+            self.navtb.enable_screenshot_btn()
+
             # hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
@@ -662,6 +640,23 @@ class Web(QtWidgets.QMainWindow):
 
     def configuration(self):
         self.configuration_view.exec_()
+    
+    def take_full_page_screenshot(self):
+
+        #Disable the possibility to make another full page screenshot in the while
+        self.navtb.enable_screenshot_btn(False)
+
+        screenshot_folder = os.path.join(self.acquisition_directory, "screenshot")
+        if not os.path.isdir(screenshot_folder):
+            os.makedirs(screenshot_folder)
+
+        #TODO Take a screenshot
+
+
+        #To re-enable the possibility to take another full page screenshot wait to previous is completed
+        self.navtb.enable_screenshot_btn()
+       
+
 
     def back(self):
         if self.acquisition_is_started:
@@ -679,8 +674,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().reload()
 
     def add_new_tab(self, qurl=None, label="Blank"):
-        if self.acquisition_is_started:
-            logger_acquisition.info('User add new tab')
+        self.current_page_load_is_finished = False
 
         if qurl is None:
             qurl = QtCore.QUrl('')
@@ -694,15 +688,22 @@ class Web(QtWidgets.QMainWindow):
         # More difficult! We only want to update the url when it's from the
         # correct tab
         self.browser.urlChanged.connect(lambda qurl, browser=self.browser:
-                                        self.update_urlbar(qurl, browser))
+                                        self.__update_urlbar(qurl, browser))
 
         self.browser.loadProgress.connect(self.load_progress)
 
         self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
-                                          self.tabs.setTabText(i, browser.page().title()))
+                                          self.__page_on_loaded(i, browser))
 
         if i == 0:
             self.showMaximized()
+        
+    def __page_on_loaded(self, tab_index, browser):
+        self.tabs.setTabText(tab_index, browser.page().title())
+
+        self.current_page_load_is_finished = True
+        self.navtb.enable_screenshot_btn()
+
 
     def tab_open_doubleclick(self, i):
         if i == -1:  # No tab under the click
@@ -710,7 +711,7 @@ class Web(QtWidgets.QMainWindow):
 
     def current_tab_changed(self, i):
         qurl = self.tabs.currentWidget().url()
-        self.update_urlbar(qurl, self.tabs.currentWidget())
+        self.__update_urlbar(qurl, self.tabs.currentWidget())
         self.update_title(self.tabs.currentWidget())
 
     def close_current_tab(self, i):
@@ -745,21 +746,25 @@ class Web(QtWidgets.QMainWindow):
         if self.acquisition_is_started and prog == 100:
             logger_acquisition.info('Loaded: ' + self.tabs.currentWidget().url().toString())
 
-    def update_urlbar(self, q, browser=None):
+    def __update_urlbar(self, q, browser=None):
+
+        self.current_page_load_is_finished = False
+        self.navtb.enable_screenshot_btn()
+
         if browser != self.tabs.currentWidget():
             # If this signal is not from the current tab, ignore
             return
 
         if q.scheme() == 'https':
             # Secure padlock icon
-            self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-ssl.png')))
+            self.navtb.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-ssl.png')))
 
         else:
             # Insecure padlock icon
-            self.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-nossl.png')))
+            self.navtb.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-nossl.png')))
 
-        self.urlbar.setText(q.toString())
-        self.urlbar.setCursorPosition(0)
+        self.navtb.urlbar.setText(q.toString())
+        self.navtb.urlbar.setCursorPosition(0)
 
     def __back_to_wizard(self):
         self.deleteLater()
