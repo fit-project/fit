@@ -39,7 +39,7 @@ from PyQt5.QtWidgets import QApplication
 
 from common.error import ErrorMessage
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
-from common.config import LogConfigMail
+from common.config import LogConfigTools
 from view.configuration import Configuration as ConfigurationView
 from view.case import Case as CaseView
 from view.emlNotFound import EmlNotFound as EmlNotFoundView
@@ -64,7 +64,7 @@ class Pec(QtWidgets.QMainWindow):
         self.acquisition_is_started = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
-        self.log_confing = LogConfigMail()
+        self.log_confing = LogConfigTools()
         self.controller = PecConfigController()
         self.options = self.controller.options
         # aggiungere attributi per log, screencap ecc

@@ -50,7 +50,7 @@ from view.error import Error as ErrorView
 from common.error import ErrorMessage
 
 from common.settings import DEBUG
-from common.config import LogConfigMail
+from common.config import LogConfigTools
 import common.utility as utility
 
 logger_acquisition = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ class Mail(QtWidgets.QMainWindow):
         self.is_enabled_timestamp = False
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
-        self.log_confing = LogConfigMail()
+        self.log_confing = LogConfigTools()
         self.case_info = None
 
     def init(self, case_info, wizard):
@@ -501,17 +501,26 @@ class Mail(QtWidgets.QMainWindow):
         logger_acquisition.info('Params acquisition completed')
         self.status.showMessage('Params acquisition completed')
         emails = self.mail_controller.get_mails_from_every_folder(self.params)
-        for key in emails:
-            self.email_folder = QTreeWidgetItem([key])
-            self.email_folder.setData(0, Qt.UserRole, key)  # add identifier to the tree items
-            self.root.addChild(self.email_folder)
+        if emails is not None:
+            for key in emails:
+                self.email_folder = QTreeWidgetItem([key])
+                self.email_folder.setData(0, Qt.UserRole, key)  # add identifier to the tree items
+                self.root.addChild(self.email_folder)
 
-            for value in emails[key]:
-                sub_item = QTreeWidgetItem([value])
-                sub_item.setData(0, Qt.UserRole, key)
-                self.email_folder.addChild(sub_item)
+                for value in emails[key]:
+                    sub_item = QTreeWidgetItem([value])
+                    sub_item.setData(0, Qt.UserRole, key)
+                    self.email_folder.addChild(sub_item)
 
-        self.emails_tree.expandItem(self.root)  # expand root folder
+            self.emails_tree.expandItem(self.root)  # expand root
+        else:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  self.error_msg.TITLES['no_email'],
+                                  self.error_msg.MESSAGES['no_email'],
+                                  "Error: no e-maild found."
+                                  )
+
+            error_dlg.buttonClicked.connect(quit)
 
         return
 

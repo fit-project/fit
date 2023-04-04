@@ -40,7 +40,7 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 from common.error import ErrorMessage
 from common.settings import DEBUG
-from common.config import LogConfigMail
+from common.config import LogConfigTools
 import common.utility as utility
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
@@ -74,7 +74,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.case_view.hide()
         self.acquisition_status = AcquisitionStatusView(self)
         self.acquisition_status.setupUi()
-        self.log_confing = LogConfigMail()
+        self.log_confing = LogConfigTools()
 
         self.setObjectName("mainWindow")
         self.resize(653, 392)

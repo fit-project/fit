@@ -31,12 +31,11 @@ import os.path
 import shutil
 from http.cookies import SimpleCookie
 
-from PyQt5.QtWebEngineCore import QWebEngineCookieStore
 from scapy.all import *
 
 import asyncio
 
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets, QtNetwork
+from PyQt5 import QtCore, QtGui, QtWidgets, QtNetwork
 from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
@@ -120,29 +119,6 @@ class MainWindow(QWebEngineView):
 
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
-
-
-class Screenshot(QtWebEngineWidgets.QWebEngineView):
-
-    def capture(self, url, output_file):
-        self.output_file = output_file
-        self.load(QtCore.QUrl(url))
-        self.loadFinished.connect(self.on_loaded)
-        # Create hidden view without scrollbars
-        self.setAttribute(QtCore.Qt.WA_DontShowOnScreen)
-        self.page().settings().setAttribute(
-            QtWebEngineWidgets.QWebEngineSettings.ShowScrollBars, False)
-        self.show()
-
-    def on_loaded(self):
-        size = self.page().contentsSize().toSize()
-        self.resize(size)
-        # Wait for resize
-        QtCore.QTimer.singleShot(500, self.take_screenshot)
-
-    def take_screenshot(self):
-        self.grab().save(self.output_file, b'PNG')
-        self.close()
 
 
 class Web(QtWidgets.QMainWindow):
@@ -443,9 +419,7 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Save screenshot of current page')
             self.progress_bar.setValue(10)
             logger_acquisition.info('Save screenshot of current page')
-            screenshot = Screenshot()
-            screenshot.capture(url,
-                               os.path.join(self.acquisition_directory, 'screenshot.png'))
+            self.take_full_page_screenshot()
 
             self.acquisition_status.add_task('Screenshot Page')
             self.acquisition_status.set_status('ScreenShot Page', 'Screenshot of current web page is done!', 'done')

@@ -152,7 +152,7 @@ class LogConfig:
             logger.addHandler(logging.NullHandler())
             logger.propagate = False
 
-class LogConfigMail:
+class LogConfigTools:
     def __init__(self):
 
         self.config = {

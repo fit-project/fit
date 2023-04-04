@@ -210,7 +210,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         try:
             verified = rt.check(timestamp, data=open(data, 'rb').read())
 
-            report, info_file_path = self.generate_report_verification(data, rt, server_name, timestamp, True)
+            report, info_file_path = self.generate_report_verification(data, server_name, timestamp, True)
             if verified:  # it's called ErrorView but it's an informative message :(
 
                 report.generate_pdf(True, info_file_path)
@@ -225,7 +225,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         except Exception:
             # timestamp not validated
 
-            report, info_file_path = self.generate_report_verification(data, rt, server_name, timestamp, False)
+            report, info_file_path = self.generate_report_verification(data, server_name, timestamp, False)
             report.generate_pdf(False, info_file_path)
 
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
@@ -263,13 +263,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             if check:
                 self.input_crt.setText(file)
 
-    def generate_report_verification(self, data, rt, server_name, timestamp, check):
+    def generate_report_verification(self, data, server_name, timestamp, check):
         folder = self.get_current_dir()
 
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+        configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        configuration_network = configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
-        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+        ntp = utility.get_ntp_date_and_time(configuration_network.configuration["ntp_server"])
 
         if check:
             verification = 'Il report ha un timestamp valido'
@@ -284,7 +284,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # get date from tsr file
         timestamp_datetime = rfc3161ng.get_timestamp(timestamp)
 
-        info_file_path = f'{folder}/timestamp_info.txt'
+        info_file_path = os.path.join(folder, 'timestamp_info.txt')
         if not os.path.isdir(folder):
             os.makedirs(folder)
         with open(info_file_path, 'w') as file:
