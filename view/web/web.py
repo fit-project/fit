@@ -27,6 +27,7 @@
 ######
 
 import logging.config
+import os.path
 import shutil
 from http.cookies import SimpleCookie
 
@@ -270,6 +271,7 @@ class Web(QtWidgets.QMainWindow):
             self.log_confing.disable_loggers(loggers)
 
     def start_acquisition(self):
+        self.screenshot_counter = 1
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
         self.progress_bar.setValue(50)
@@ -651,7 +653,9 @@ class Web(QtWidgets.QMainWindow):
             os.makedirs(screenshot_folder)
 
         #TODO Take a screenshot
-
+        screenshot_path = os.path.join(screenshot_folder, f"screenshot_{self.screenshot_counter}.pdf")
+        self.tabs.currentWidget().page().printToPdf(screenshot_path)
+        self.screenshot_counter += 1
 
         #To re-enable the possibility to take another full page screenshot wait to previous is completed
         self.navtb.enable_screenshot_btn()
