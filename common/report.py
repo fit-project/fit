@@ -25,8 +25,6 @@
 # SOFTWARE.
 # -----
 ######
-import os
-
 
 class ReportText:
     def __init__(self):

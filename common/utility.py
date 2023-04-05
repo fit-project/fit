@@ -247,10 +247,3 @@ def import_modules(start_path, start_module_name = ""):
             sys.modules[module_name] = module
             spec.loader.exec_module(module)
 
-#search for the first free port to bind the proxy
-def find_free_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    return sock.getsockname()[1]
-
-

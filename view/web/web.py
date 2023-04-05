@@ -29,18 +29,11 @@
 import logging.config
 import os.path
 import shutil
-from http.cookies import SimpleCookie
 
 from scapy.all import *
 
-import asyncio
-
-from PyQt5 import QtCore, QtGui, QtWidgets, QtNetwork
-from PyQt5.QtCore import QThread
-from PyQt5.QtNetwork import QNetworkProxy
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-
-
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 
@@ -49,12 +42,12 @@ from view.screenrecorder import ScreenRecorder as ScreenRecorderView
 from view.packetcapture import PacketCapture as PacketCaptureView
 from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.timestamp import Timestamp as TimestampView
-from view.proxyserver import ProxyServer as ProxyServerView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
+from controller.web import Web as WebController
 
 from common.error import ErrorMessage
 
@@ -70,50 +63,14 @@ logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
-
-class MitmThread(QThread):
-    def __init__(self, port, acquisition_directory):
-        super().__init__()
-        self.port = port
-        self.acquisition_directory = acquisition_directory
-
-    def run(self):
-        # create new event loop
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-
-        # mitmproxy's creation
-        self.proxy_server = ProxyServerView(self.port, self.acquisition_directory)
-        self.loop.run_until_complete(self.proxy_server.start())
-
-    def stop_proxy(self):
-        self.proxy_server.stop_proxy()
-
-
 class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-    # thanks to Andrea Lazzarotto @lazza for fixing the SSL error
-    def certificateError(self, error):
-        error.ignoreCertificateError()
-        return True
-
 
 class MainWindow(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
-        #set same site/secure cookies
-        cookie = SimpleCookie()
-        cookie['name'] = 'value'
-        cookie['name']['samesite'] = None
-        cookie['name']['secure'] = True
-        contents = cookie.output().encode('ascii')
-        cookie_store = page.profile().cookieStore()
-        for qt_cookie in QtNetwork.QNetworkCookie.parseCookies(contents):
-            cookie_store.setCookie(qt_cookie)
-
 
         self.setPage(page)
 
@@ -134,7 +91,6 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_status.setupUi()
         self.log_confing = LogConfig()
         self.is_enabled_screen_recorder = False
-        self.is_enabled_mitmproxy = False
         self.is_enabled_packet_capture = False
         self.is_enabled_timestamp = False
         self.case_info = None
@@ -265,24 +221,6 @@ class Web(QtWidgets.QMainWindow):
             self.tabs.currentWidget().url().toString()
         )
 
-        # set port and create the proxy
-        port = utility.find_free_port()
-        self.mitm_thread = MitmThread(port, self.acquisition_directory)
-        self.proxy = QNetworkProxy(QNetworkProxy.HttpProxy, '127.0.0.1', port)
-        self.proxy.setApplicationProxy(self.proxy)
-
-        # delete cookies from the store and clean the cache
-        cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
-        cookie_store.deleteAllCookies()
-        self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
-        self.tabs.currentWidget().page().profile().clearHttpCache()
-
-        # start mitmproxy thread
-        self.is_enabled_mitmproxy = True
-        self.mitm_thread.start()
-        # reload the page (waiting for the thread to be fully started)
-        QtCore.QTimer.singleShot(500, self.tabs.currentWidget().reload)
-
         if self.acquisition_directory is not None:
             # show progress bar
             self.progress_bar.setHidden(False)
@@ -292,7 +230,6 @@ class Web(QtWidgets.QMainWindow):
             # enable screenshot buttons
             self.navtb.enable_screenshot_btn()
 
-            
 
             self.acquisition_status.set_title('Acquisition in progress:')
             self.acquisition_status.add_task('Case Folder')
@@ -361,6 +298,10 @@ class Web(QtWidgets.QMainWindow):
             logger_acquisition.info('End URL: ' + url)
             self.statusBar().showMessage('Message in statusbar.')
 
+            # Stop screen recorder
+            if self.is_enabled_screen_recorder:
+                self.screenrecorder.stop()
+
             # Step 2: Get nslookup info
             logger_acquisition.info('Get NSLOOKUP info for URL: ' + url)
             logger_nslookup.info(utility.nslookup(url,
@@ -402,18 +343,7 @@ class Web(QtWidgets.QMainWindow):
                 self.status.showMessage('Get SSL CERTIFICATE')
                 self.progress_bar.setValue(10)
             ### END GET SSLKEYLOG AND SSL CERTIFICATE ###
-            try:
-                # stop the proxy (before stopping the packet capture)
-                if self.is_enabled_mitmproxy:
-                    self.mitm_thread.stop_proxy()
-                    self.is_enabled_mitmproxy = False
-                # Step 6: stop threads
-                if self.is_enabled_packet_capture:
-                    self.packetcapture.stop()
-                if self.is_enabled_screen_recorder:
-                    self.screenrecorder.stop()
-            except:
-                pass
+
 
             # Step 7:  Save screenshot of current page
             self.status.showMessage('Save screenshot of current page')
@@ -427,16 +357,6 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Save all resource of current page')
             self.progress_bar.setValue(20)
 
-            ### STOP PROXY ###
-            self.proxy.setType(QNetworkProxy.NoProxy)
-            QNetworkProxy.setApplicationProxy(self.proxy)
-            # set the proxy for the manager to the NoProxy object
-            self.tabs.currentWidget().page().profile().clearHttpCache()
-            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
-            # Delete all cookies from the store
-            cookie_store.deleteAllCookies()
-            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
-
             ### START NETWORK CHECK ###
             # Step 8: Get whois info
             logger_acquisition.info('Get WHOIS info for URL: ' + url)
@@ -449,6 +369,13 @@ class Web(QtWidgets.QMainWindow):
             logger_acquisition.info('Save all resource of current page')
             self.acquisition_status.add_task('Save Page')
             self.acquisition_status.set_status('Save Page', zip_folder, 'done')
+
+            try:
+                # Step 10: stop packet capture
+                if self.is_enabled_packet_capture:
+                    self.packetcapture.stop()
+            except:
+                pass
 
             ### Waiting everything is synchronized
             loop = QtCore.QEventLoop()
@@ -528,6 +455,12 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
 
+            # delete cookies from the store and clean the cache
+            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+            cookie_store.deleteAllCookies()
+            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
+            self.tabs.currentWidget().page().profile().clearHttpCache()
+
     def _acquisition_status(self):
         self.acquisition_status.show()
 
@@ -592,10 +525,16 @@ class Web(QtWidgets.QMainWindow):
         project_folder = self.acquisition_directory
 
         project_name = "acquisition_page"
-
         acquisition_page_folder = os.path.join(project_folder, project_name)
         if not os.path.isdir(acquisition_page_folder):
             os.makedirs(acquisition_page_folder)
+
+        # call controller here
+        web = WebController(self.tabs.currentWidget().url(),acquisition_page_folder)
+        web.save_html()
+
+        #self.tabs.currentWidget().page().save(file_name)
+
         zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
         try:
             shutil.rmtree(acquisition_page_folder)
@@ -714,7 +653,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
 
     def navigate_to_url(self):  # Does not receive the Url
-        q = QtCore.QUrl(self.urlbar.text())
+        q = QtCore.QUrl(self.navtb.urlbar.text())
         if q.scheme() == "":
             q.setScheme("http")
 
@@ -754,3 +693,4 @@ class Web(QtWidgets.QMainWindow):
 
         if packetcapture is not None:
             packetcapture.stop()
+

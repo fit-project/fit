@@ -53,8 +53,7 @@ class PacketCapture(QObject):
         self.tmp_output_file = os.path.join(tempfile.gettempdir(), 'tmp' + str(datetime.utcnow().timestamp()) + '.pcap')
 
     def start(self):
-        capture_filter = 'host 127.0.0.1'
-        self.capture = pyshark.LiveCapture(output_file=self.tmp_output_file, bpf_filter=capture_filter)
+        self.capture = pyshark.LiveCapture(output_file=self.tmp_output_file)
         try:
             for packet in self.capture.sniff_continuously():
                 if not self.run:
