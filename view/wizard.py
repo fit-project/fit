@@ -330,7 +330,8 @@ class Wizard(QtWidgets.QWizard):
                     value = "N/A"
                 if keyword in 'types_proceedings_id':
                     type_proceeding = next((proceeding for proceeding in self.case_info_page.form.proceedings if proceeding["id"] == value), None)
-                    value = type_proceeding["name"]
+                    if type_proceeding is not None:
+                        value = type_proceeding["name"]
 
                 label = item.text()
                 html += "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:19px;\">\n"
