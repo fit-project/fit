@@ -64,7 +64,7 @@ class Instagram(QtWidgets.QMainWindow):
 
         #aggiungere attributi per log, screencap ecc
 
-    def init(self, case_info, wizard):
+    def init(self, case_info, wizard, options=None):
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info

@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+######
+# -----
+# MIT License
+# 
+# Copyright (c) 2023 FIT-Project and others
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# -----
+###### 
+
+import sys
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+import numpy as np
+import cv2
+from PIL import ImageGrab, Image
+
+# Refer to https://github.com/harupy/snipping-tool
+class SnippingWidget(QtWidgets.QWidget):
+    is_snipping = False
+
+    def __init__(self, parent=None, app=None):
+        super(SnippingWidget, self).__init__()
+        self.parent = parent
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.FramelessWindowHint)
+        self.showFullScreen()
+
+        self.screen = app.primaryScreen()
+        self.setGeometry(0, 0, self.screen.size().width(), self.screen.size().height())
+        self.begin = QtCore.QPoint()
+        self.end = QtCore.QPoint()
+        self.onSnippingCompleted = None
+
+
+    def start(self):
+        SnippingWidget.is_snipping = True
+        self.setWindowOpacity(0.3)
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
+        self.show()
+
+    def paintEvent(self, event):
+        if SnippingWidget.is_snipping:
+            brush_color = (128, 128, 255, 100)
+            lw = 3
+            opacity = 0.3
+        else:
+            self.begin = QtCore.QPoint()
+            self.end = QtCore.QPoint()
+            brush_color = (0, 0, 0, 0)
+            lw = 0
+            opacity = 0
+
+        self.setWindowOpacity(opacity)
+        qp = QtGui.QPainter(self)
+        qp.setPen(QtGui.QPen(QtGui.QColor('black'), lw))
+        qp.setBrush(QtGui.QColor(*brush_color))
+        rect = QtCore.QRectF(self.begin, self.end)
+        qp.drawRect(rect)
+
+    def mousePressEvent(self, event):
+        self.begin = event.pos()
+        self.end = self.begin
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        self.end = event.pos()
+        self.update()
+
+    def mouseReleaseEvent(self, event):
+        SnippingWidget.is_snipping = False
+        QtWidgets.QApplication.restoreOverrideCursor()
+        x1 = min(self.begin.x(), self.end.x())
+        y1 = min(self.begin.y(), self.end.y())
+        x2 = max(self.begin.x(), self.end.x())
+        y2 = max(self.begin.y(), self.end.y())
+
+        self.repaint()
+        QtWidgets.QApplication.processEvents()
+        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+            
+        if self.onSnippingCompleted is not None:
+            self.onSnippingCompleted(img)
+
+        self.close()
+
+class SelectArea(QtCore.QObject):
+    finished = QtCore.pyqtSignal()  # give worker class a finished signal
+
+    def __init__(self, filename, parent=None):
+        QtCore.QObject.__init__(self, parent=parent)
+        self.filename = filename
+        self.snippingWidget = SnippingWidget(app=QtWidgets.QApplication.instance())
+        self.snippingWidget.onSnippingCompleted = self.__on_snipping_completed
+
+    
+    def __on_snipping_completed(self, frame):
+        if frame is None:
+            self.__finished()
+            return 
+        
+        frame.save(self.filename)
+        self.__finished()
+
+    def snip_area(self):
+        self.snippingWidget.start()
+
+    def __finished(self):
+          self.finished.emit()
+          self.deleteLater()

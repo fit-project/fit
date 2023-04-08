@@ -57,14 +57,18 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-    def init(self, case_info, wizard, acquisition_directory=None):
+    def init(self, case_info, wizard, options=None):
         self.__init__()
         self.wizard = wizard
         self.width = 690
         self.height = 250
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
-        self.acquisition_directory = acquisition_directory
+
+        self.acquisition_directory = None
+        if options:
+            if "acquisition_directory" in options:
+                self.acquisition_directory = options['acquisition_directory']
 
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()

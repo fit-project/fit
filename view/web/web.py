@@ -33,9 +33,13 @@ import shutil
 from scapy.all import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWebEngineWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
+from view.screenshot.select_area import SelectArea as SelectAreaView
+from view.screenshot.full_page import ScreenshotFullPage as ScreenshotFullPageView
+
 
 from view.pec import Pec as PecView
 from view.screenrecorder import ScreenRecorder as ScreenRecorderView
@@ -85,6 +89,7 @@ class Web(QtWidgets.QMainWindow):
         super(Web, self).__init__(*args, **kwargs)
         self.error_msg = ErrorMessage()
         self.acquisition_directory = None
+        self.screenshot_folder = None
         self.acquisition_is_started = False
         self.current_page_load_is_finished = False
         self.acquisition_status = AcquisitionStatusView(self)
@@ -96,11 +101,17 @@ class Web(QtWidgets.QMainWindow):
         self.case_info = None
         self.setObjectName('FITWeb')
 
-    def init(self, case_info, wizard):
+    def init(self, case_info, wizard, options=None):
 
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info
+
+        self.screenshot_full_page = None
+        if options:
+            if "screenshot_full_page" in options:
+                self.screenshot_full_page = options['screenshot_full_page']
+        
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
@@ -153,25 +164,6 @@ class Web(QtWidgets.QMainWindow):
         case_action.triggered.connect(self.case)
         self.menuBar().addAction(case_action)
 
-        # ACQUISITION MENU
-        acquisition_menu = self.menuBar().addMenu("&Acquisition")
-
-        start_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'start.png')), "Start",
-                                                     self)
-        start_acquisition_action.setObjectName('StartAcquisitionAction')
-        start_acquisition_action.triggered.connect(self.start_acquisition)
-        acquisition_menu.addAction(start_acquisition_action)
-        stop_acquisition_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'stop.png')), "Stop",
-                                                    self)
-        stop_acquisition_action.setObjectName('StopAcquisitionAction')
-        stop_acquisition_action.triggered.connect(self.stop_acquisition)
-        acquisition_menu.addAction(stop_acquisition_action)
-        acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'info.png')), "Status",
-                                                      self)
-        acquisition_status_action.setObjectName('StatusAcquisitionAction')
-        acquisition_status_action.triggered.connect(self._acquisition_status)
-        acquisition_menu.addAction(acquisition_status_action)
-
         # BACK ACTION
         back_action = QtWidgets.QAction("Back to wizard", self)
         back_action.setStatusTip("Go back to the main menu")
@@ -205,10 +197,6 @@ class Web(QtWidgets.QMainWindow):
     def start_acquisition(self):
         self.screenshot_counter = 1
         # Step 1: Disable start_acquisition_action and clear current threads and acquisition information on dialog
-        action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
-        self.progress_bar.setValue(50)
-        if action is not None:
-            action.setEnabled(False)
 
         self.acquisition_status.clear()
         self.acquisition_status.set_title('Acquisition is started!')
@@ -222,13 +210,22 @@ class Web(QtWidgets.QMainWindow):
         )
 
         if self.acquisition_directory is not None:
+
+            self.screenshot_folder = os.path.join(self.acquisition_directory, "screenshot")
+            if not os.path.isdir(self.screenshot_folder):
+                os.makedirs(self.screenshot_folder)
             # show progress bar
             self.progress_bar.setHidden(False)
 
             self.acquisition_is_started = True
 
+
+            # disable start acquisition button
+            self.navtb.enable_start_acquisition_button()
             # enable screenshot buttons
-            self.navtb.enable_screenshot_btn()
+            self.navtb.enable_screenshot_buttons()
+            # enable stop and info acquisition button
+            self.navtb.enable_stop_and_info_acquisition_button()
 
 
             self.acquisition_status.set_title('Acquisition in progress:')
@@ -291,7 +288,9 @@ class Web(QtWidgets.QMainWindow):
             url = self.tabs.currentWidget().url().toString()
 
             # Step 1: Disable all actions and clear current acquisition information on dialog
-            self.setEnabled(False)
+            self.acquisition_is_started = False
+            self.__disable_all()
+
             self.acquisition_status.clear()
             self.acquisition_status.set_title('Interruption of the acquisition in progress:')
             logger_acquisition.info('Acquisition stopped')
@@ -438,19 +437,7 @@ class Web(QtWidgets.QMainWindow):
             self.acquisition_window.init(self.case_info, "Web", self.acquisition_directory)
             self.acquisition_window.show()
 
-            #### Enable all action ####
-            self.setEnabled(True)
-            action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
-
-            # Enable start_acquisition_action
-            if action is not None:
-                action.setEnabled(True)
-
-            self.acquisition_is_started = False
-
-            # disable screenshot buttons
-            self.navtb.enable_screenshot_btn()
-
+            self.__enable_all()
             # hidden progress bar
             self.progress_bar.setHidden(True)
             self.status.showMessage('')
@@ -556,23 +543,34 @@ class Web(QtWidgets.QMainWindow):
     def configuration(self):
         self.configuration_view.exec_()
     
+    def take_screenshot(self):
+
+        if self.screenshot_folder is not None:
+            self.__disable_all()
+            filename = utility.screenshot_filename(self.screenshot_folder ,self.tabs.currentWidget().url().host())
+            self.browser.grab().save(filename)
+            self.__enable_all()
+
+    
+    def take_screenshot_selected_area(self):
+
+        if self.screenshot_folder is not None:
+            self.__disable_all()
+            filename = utility.screenshot_filename(self.screenshot_folder ,"selected_" + self.tabs.currentWidget().url().host())
+            select_area = SelectAreaView(filename, self)
+            select_area.finished.connect(self.__enable_all)
+            select_area.snip_area()
+    
     def take_full_page_screenshot(self):
 
-        #Disable the possibility to make another full page screenshot in the while
-        self.navtb.enable_screenshot_btn(False)
+        if self.screenshot_folder is not None:
+            self.__disable_all()
+            filename = utility.screenshot_filename(self.screenshot_folder ,"selected_" + self.tabs.currentWidget().url().host())
+            size = self.tabs.currentWidget().page().contentsSize().toSize()
+            url = self.tabs.currentWidget().url().toString()
 
-        screenshot_folder = os.path.join(self.acquisition_directory, "screenshot")
-        if not os.path.isdir(screenshot_folder):
-            os.makedirs(screenshot_folder)
-
-        #TODO Take a screenshot
-        screenshot_path = os.path.join(screenshot_folder, f"screenshot_{self.screenshot_counter}.pdf")
-        self.tabs.currentWidget().page().printToPdf(screenshot_path)
-        self.screenshot_counter += 1
-
-        #To re-enable the possibility to take another full page screenshot wait to previous is completed
-        self.navtb.enable_screenshot_btn()
-       
+            self.screenshot_full_page.capture(size, url, filename)
+            self.screenshot_full_page.finished.connect(self.__enable_all)
 
 
     def back(self):
@@ -619,17 +617,18 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.setTabText(tab_index, browser.page().title())
 
         self.current_page_load_is_finished = True
-        self.navtb.enable_screenshot_btn()
+        self.navtb.enable_screenshot_buttons()
 
 
     def tab_open_doubleclick(self, i):
-        if i == -1:  # No tab under the click
+        if i == -1 and self.isEnabled():  # No tab under the click
             self.add_new_tab()
 
     def current_tab_changed(self, i):
-        qurl = self.tabs.currentWidget().url()
-        self.__update_urlbar(qurl, self.tabs.currentWidget())
-        self.update_title(self.tabs.currentWidget())
+        if self.tabs.currentWidget() is not None:
+            qurl = self.tabs.currentWidget().url()
+            self.__update_urlbar(qurl, self.tabs.currentWidget())
+            self.update_title(self.tabs.currentWidget())
 
     def close_current_tab(self, i):
         if self.acquisition_is_started:
@@ -666,27 +665,43 @@ class Web(QtWidgets.QMainWindow):
     def __update_urlbar(self, q, browser=None):
 
         self.current_page_load_is_finished = False
-        self.navtb.enable_screenshot_btn()
+        self.navtb.enable_screenshot_buttons()
 
         if browser != self.tabs.currentWidget():
             # If this signal is not from the current tab, ignore
             return
-
+        
         if q.scheme() == 'https':
             # Secure padlock icon
-            self.navtb.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-ssl.png')))
+            pixmap = QtGui.QPixmap(os.path.join('assets/svg/toolbar', 'lock-close.svg'))
+            self.navtb.httpsicon.setPixmap(pixmap.scaled(16, 16, QtCore.Qt.KeepAspectRatio))
 
         else:
             # Insecure padlock icon
-            self.navtb.httpsicon.setPixmap(QtGui.QPixmap(os.path.join('assets/images', 'lock-nossl.png')))
+            pixmap = QtGui.QPixmap(os.path.join('assets/svg/toolbar', 'lock-open.svg'))
+            self.navtb.httpsicon.setPixmap(pixmap.scaled(16, 16, QtCore.Qt.KeepAspectRatio))
 
         self.navtb.urlbar.setText(q.toString())
         self.navtb.urlbar.setCursorPosition(0)
 
     def __back_to_wizard(self):
-        self.deleteLater()
-        self.wizard.reload_case_info()
-        self.wizard.show()
+          self.deleteLater()
+          self.wizard.reload_case_info()
+          self.wizard.show()
+
+    def __disable_all(self):
+        self.setEnabled(False)
+        self.navtb.setEnabled(False)
+        self.navtb.enable_actions(enabled=False)
+    
+    def __enable_all(self):
+        self.setEnabled(True)
+        self.navtb.setEnabled(True)
+        self.navtb.enable_actions(filter=self.navtb.navigation_actions)
+        self.navtb.enable_screenshot_buttons()
+        self.navtb.enable_start_acquisition_button()
+        self.navtb.enable_stop_and_info_acquisition_button()
+
 
     def closeEvent(self, event):
         packetcapture = getattr(self, 'packetcapture', None)

@@ -30,15 +30,21 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
+
 import sys
 from view.wizard import Wizard as WizardView
 from view.web.web import Web as WebView
+from view.screenshot.full_page import ScreenshotFullPage as ScreenshotFullPageView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
 
 from view.verify_pec import VerifyPec as VerifyPecView
 
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
+
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -60,11 +66,15 @@ if __name__ == '__main__':
     pec = VerifyPecView()
     pec.hide()
 
+    screenshot_full_page = ScreenshotFullPageView()
+
+
 
     def start_task(task, case_info):
-
+        options = {}
         if (task == 'web'):
             acquisition_window = web
+            options = {'screenshot_full_page' : screenshot_full_page}
         elif (task == 'mail'):
             acquisition_window = mail
         elif (task == 'insta'):
@@ -74,7 +84,7 @@ if __name__ == '__main__':
         elif (task == 'pec'):
             acquisition_window = pec
 
-        acquisition_window.init(case_info, wizard)
+        acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()
 
 

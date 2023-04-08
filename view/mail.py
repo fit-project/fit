@@ -82,7 +82,7 @@ class Mail(QtWidgets.QMainWindow):
         self.log_confing = LogConfigTools()
         self.case_info = None
 
-    def init(self, case_info, wizard):
+    def init(self, case_info, wizard, options=None):
         self.__init__()
         self.width = 990
         self.height = 590
