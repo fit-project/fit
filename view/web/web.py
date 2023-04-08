@@ -96,7 +96,10 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_status.setupUi()
         self.log_confing = LogConfig()
         self.is_enabled_screen_recorder = False
+        self.is_screenrecorder_finished = False
         self.is_enabled_packet_capture = False
+        self.is_packet_capture_finished = False
+        self.is_stop_acquisition_finished = False
         self.is_enabled_timestamp = False
         self.case_info = None
         self.setObjectName('FITWeb')
@@ -348,7 +351,7 @@ class Web(QtWidgets.QMainWindow):
             self.status.showMessage('Save screenshot of current page')
             self.progress_bar.setValue(10)
             logger_acquisition.info('Save screenshot of current page')
-            self.take_full_page_screenshot()
+            self.take_screenshot()
 
             self.acquisition_status.add_task('Screenshot Page')
             self.acquisition_status.set_status('ScreenShot Page', 'Screenshot of current web page is done!', 'done')
@@ -431,22 +434,8 @@ class Web(QtWidgets.QMainWindow):
 
                     error_dlg.buttonClicked.connect(quit)
 
-            self.pec = PecView()
-            self.pec.hide()
-            self.acquisition_window = self.pec
-            self.acquisition_window.init(self.case_info, "Web", self.acquisition_directory)
-            self.acquisition_window.show()
-
-            self.__enable_all()
-            # hidden progress bar
-            self.progress_bar.setHidden(True)
-            self.status.showMessage('')
-
-            # delete cookies from the store and clean the cache
-            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
-            cookie_store.deleteAllCookies()
-            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
-            self.tabs.currentWidget().page().profile().clearHttpCache()
+            self.is_stop_acquisition_finished = True
+            self.__stop_acquisition_is_finished()
 
     def _acquisition_status(self):
         self.acquisition_status.show()
@@ -479,6 +468,8 @@ class Web(QtWidgets.QMainWindow):
                                            'done')
         self.th_packetcapture.quit()
         self.th_packetcapture.wait()
+        self.is_enabled_packet_capture_finished = True
+        self.__stop_acquisition_is_finished()
 
     def start_screen_recoder(self, options):
         self.th_screenrecorder = QtCore.QThread()
@@ -507,6 +498,8 @@ class Web(QtWidgets.QMainWindow):
                                            'done')
         self.th_screenrecorder.quit()
         self.th_screenrecorder.wait()
+        self.is_screenrecorder_finished = True
+        self.__stop_acquisition_is_finished()
 
     def save_page(self):
         project_folder = self.acquisition_directory
@@ -701,6 +694,26 @@ class Web(QtWidgets.QMainWindow):
         self.navtb.enable_screenshot_buttons()
         self.navtb.enable_start_acquisition_button()
         self.navtb.enable_stop_and_info_acquisition_button()
+    
+    def __stop_acquisition_is_finished(self):
+        if self.is_enabled_packet_capture and self.is_enabled_screen_recorder and self.is_stop_acquisition_finished:
+            self.__enable_all()
+            self.pec = PecView()
+            self.pec.hide()
+            self.acquisition_window = self.pec
+            self.acquisition_window.init(self.case_info, "Web", self.acquisition_directory)
+            self.acquisition_window.show()
+
+
+            # hidden progress bar
+            self.progress_bar.setHidden(True)
+            self.status.showMessage('')
+
+            # delete cookies from the store and clean the cache
+            cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
+            cookie_store.deleteAllCookies()
+            self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
+            self.tabs.currentWidget().page().profile().clearHttpCache()
 
 
     def closeEvent(self, event):
