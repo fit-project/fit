@@ -248,5 +248,5 @@ def import_modules(start_path, start_module_name = ""):
             spec.loader.exec_module(module)
 
 def screenshot_filename(path, basename, extention = '.png'):
-    return os.path.join(path, basename + '_' +datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + extention)
+    return os.path.join(path, basename + '_' +datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f') + extention)
 

@@ -64,14 +64,13 @@ class Case(QtWidgets.QDialog):
         self.form = CaseForm(self)
 
         
-    
     def __set_current_config_values(self):
         self.form.set_index_from_case_id(self.case_info['id'])
         self.form.name.setEnabled(False)
         self.form.lawyer_name.setText(self.case_info['lawyer_name'])
         self.form.set_index_from_type_proceedings_id(self.case_info['types_proceedings_id'])
         self.form.courthouse.setText(self.case_info['courthouse'])
-        self.form.proceedings_number.setText(str(self.case_info['proceedings_number']))
+        self.form.proceedings_number.setText(self.case_info['proceedings_number'])
 
 
     def accept(self) -> None:

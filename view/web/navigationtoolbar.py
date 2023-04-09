@@ -39,7 +39,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         self.navigation_actions = ['back', 'forward', 'reload', 'home', 'close']
         self.acquisition_actions = ['start', 'stop', 'info']
-        self.screenshot_actions = ['camera', 'select']
+        self.screenshot_actions = ['camera', 'select', 'scroll']
 
         back_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'back.svg')), "Back", self)
         back_btn.setStatusTip("Back to previous page")
