@@ -40,7 +40,7 @@ from common.error import ErrorMessage
 
 
 class ScreenRecorder(QObject):
-    finished = pyqtSignal()  # give worker class a finished signal
+    finished = pyqtSignal()
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)

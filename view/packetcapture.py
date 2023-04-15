@@ -39,7 +39,7 @@ from common.error import ErrorMessage
 
 
 class PacketCapture(QObject):
-    finished = pyqtSignal()  # give worker class a finished signal
+    finished = pyqtSignal() 
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
@@ -63,6 +63,7 @@ class PacketCapture(QObject):
                     # (The capture file appears to have been cut short in the middle of a packet).
                     # I know this not elengant but works:
                     self.file = pyshark.FileCapture(self.tmp_output_file, output_file=self.output_file)
+
                     self.file.load_packets()
             os.remove(self.tmp_output_file)
             self.finished.emit()
