@@ -199,7 +199,6 @@ class Pec(QtWidgets.QWidget):
         for keyword in self.options:
             item = self.findChild(QtCore.QObject, keyword)
             value = ""
-
             if item is not None:
                 if isinstance(item, QtWidgets.QLineEdit) is not False and item.text():
                     value = item.text()
