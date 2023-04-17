@@ -58,7 +58,7 @@ class AcquisitionPacketCapture(AcquisitionTask):
         
         self.parent().logger.info(logger.NETWORK_PACKET_CAPTURE_STARTED)
         self.parent().task_is_completed({
-                                'name' : tasks.NETWORK_PACKET_CAPTURE,
+                                'name' : tasks.PACKET_CAPTURE,
                                 'details' : details.NETWORK_PACKET_CAPTURE_STARTED
                             })
 
@@ -69,7 +69,7 @@ class AcquisitionPacketCapture(AcquisitionTask):
     def _thread_packetcapture_is_finished(self):
         self.parent().logger.info(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
         self.parent().task_is_completed({
-                                'name' : tasks.NETWORK_PACKET_CAPTURE,
+                                'name' : tasks.PACKET_CAPTURE,
                                 'state' : state.FINISHED,
                                 'status' : status.COMPLETED,
                                 'details' : details.NETWORK_PACKET_CAPTURE_COMPLETED

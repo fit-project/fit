@@ -28,6 +28,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from view.configuration import Configuration as ConfigurationView
 from view.case_form import CaseForm as CaseFormView
 from view.error import Error as ErrorView
 
@@ -41,6 +42,8 @@ class CaseInfoPage(QtWidgets.QWizardPage):
 
         self.error_msg = ErrorMessage()
 
+        self.configuration_view = ConfigurationView(self)
+
         self.case_form_widget = QtWidgets.QWidget(self)
         self.case_form_widget.setGeometry(QtCore.QRect(0, 0, 795, 515))
         self.case_form_widget.setObjectName("case_form_widget")
@@ -52,6 +55,12 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         x = (self.case_form_widget.frameGeometry().width()/2) - (self.form.frameGeometry().width()/2) -20
         y = (self.case_form_widget.frameGeometry().height()/2) - (self.form.frameGeometry().height()/2)
         self.form.move(x, y)
+        
+        self.configuration_button = QtWidgets.QPushButton(self)
+        self.configuration_button.setGeometry(QtCore.QRect(400, 350, 100, 25))
+        self.configuration_button.setObjectName("skip_button")
+        self.configuration_button.setText("Configuration")
+        self.configuration_button.clicked.connect(self.__configuration)
 
         #This allow to edit every row on combox
         self.form.name.setEditable(True)
@@ -89,6 +98,9 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.types_proceedings.setCurrentIndex(-1)
         self.form.courthouse.setText("")
         self.form.proceedings_number.setText("")
+    
+    def __configuration(self):
+        self.configuration_view.exec_()
     
 
 
@@ -231,10 +243,10 @@ class Wizard(QtWidgets.QWizard):
 
     def __init__(self, parent=None):
         super(Wizard, self).__init__(parent)
-
+        import os
         self.width = 800
         self.height = 600
-        self.setObjectName("WizardView")  
+        self.setObjectName("WizardView")
 
 
 

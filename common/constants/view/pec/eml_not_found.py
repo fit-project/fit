@@ -24,20 +24,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
-PACKET_CAPTURE="Packet Capture"
-SCREEN_RECORDER="Screen Recoder"
-SCREENSHOT="Take screenshot"
-SAVE_PAGE="Save page resources"
-NSLOOKUP="Nslookup"
-WHOIS="Whois"
-HEADERS="Html Headers"
-TRACEROUTE="Traceroute"
-SSLKEYLOG="SSL Keylog"
-SSLCERTIFICATE="SSL Certificate"
-HASHFILE="Calculate Hash File"
-REPORTFILE="Generate PDF Report"
-TIMESTAMP="Generate TIMESTAMP for the report"
-PEC="Send the PDF Report by PEC"
-EML="Download eml file"
-    
+######
+
+WINDOW_TITLE="EML file not found"
+DOWNLOAD_BUTTON="Download"
+SKIP_BUTTON="Skip"
+MESSAGE="Download .eml file has failed after {} attempts. Do you want to try to download it manualy?"

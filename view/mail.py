@@ -30,7 +30,7 @@ import logging
 import logging.config
 import shutil
 from datetime import timedelta
-from view.pec import Pec as PecView
+from view.pec.pec import Pec as PecView
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QRegExp, QDate, Qt

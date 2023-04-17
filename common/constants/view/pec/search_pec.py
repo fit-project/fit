@@ -24,20 +24,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
-PACKET_CAPTURE="Packet Capture"
-SCREEN_RECORDER="Screen Recoder"
-SCREENSHOT="Take screenshot"
-SAVE_PAGE="Save page resources"
-NSLOOKUP="Nslookup"
-WHOIS="Whois"
-HEADERS="Html Headers"
-TRACEROUTE="Traceroute"
-SSLKEYLOG="SSL Keylog"
-SSLCERTIFICATE="SSL Certificate"
-HASHFILE="Calculate Hash File"
-REPORTFILE="Generate PDF Report"
-TIMESTAMP="Generate TIMESTAMP for the report"
-PEC="Send the PDF Report by PEC"
-EML="Download eml file"
-    
+######
+WINDOW_TITLE="Search PEC"
+SETTINGS="Server configuration"
+CRITERIA="Search criteria"
+LABEL_USERNAME="Email"
+LABEL_PASSWORD="Password"
+LABEL_IMAP_SERVER="IMAP server"
+LABEL_IMAP_PORT="IMAP port"
+LABEL_TO="To"
+LABEL_CASE="Case"
+LABEL_FROM_DATE="From date"
+LABEL_TO_DATE="To date"
+LOGIN_BUTTON="Login"
+DOWNLOAD_BUTTON="Download"

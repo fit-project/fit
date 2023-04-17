@@ -77,15 +77,16 @@ class Acquisition(Base):
         self.is_started = True
        
 
-        if Tasks.NETWORK_PACKET_CAPTURE in tasks:
+        if Tasks.PACKET_CAPTURE in tasks:
             options = PacketCaptureCotroller().options
             if options['enabled']:
                 options['acquisition_directory'] = self.folder
-                packetcapture = AcquisitionPacketCapture(Tasks.NETWORK_PACKET_CAPTURE, State.STARTED, Status.PENDING, self)
+                packetcapture = AcquisitionPacketCapture(Tasks.PACKET_CAPTURE, State.STARTED, Status.PENDING, self)
                 self.add_task(packetcapture)
-                packetcapture.completed.connect(lambda options: self.__task_is_completed(options))
                 packetcapture.start(options)
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
+            else:
+                self.total_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             options = ScreenRecorderController().options
@@ -95,6 +96,8 @@ class Acquisition(Base):
                 self.add_task(screenrecorder)
                 screenrecorder.start(options)
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_STARTED)
+            else:
+                self.total_tasks -= 1
 
     
     def stop(self, tasks, url, external_tasks=0, percent=100):
@@ -151,17 +154,21 @@ class Acquisition(Base):
             self.set_message_on_the_statusbar(logger.SSLCERTIFICATE_GET)
             _sslcertificate.start(url, self.folder)
         
-        if Tasks.NETWORK_PACKET_CAPTURE in tasks:
-            task = self.get_task(Tasks.NETWORK_PACKET_CAPTURE)
+        if Tasks.PACKET_CAPTURE in tasks:
+            task = self.get_task(Tasks.PACKET_CAPTURE)
             if task:
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STOPPED)
                 task[0].stop()
+            else:
+                self.total_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             task = self.get_task(Tasks.SCREEN_RECORDER)
             if task:
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_COMPLETED)
                 task[0].stop()
+            else:
+                self.total_tasks -= 1
       
     def task_is_completed(self, options):
         

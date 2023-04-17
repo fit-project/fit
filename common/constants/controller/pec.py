@@ -25,19 +25,6 @@
 # SOFTWARE.
 # -----
 ###### 
-PACKET_CAPTURE="Packet Capture"
-SCREEN_RECORDER="Screen Recoder"
-SCREENSHOT="Take screenshot"
-SAVE_PAGE="Save page resources"
-NSLOOKUP="Nslookup"
-WHOIS="Whois"
-HEADERS="Html Headers"
-TRACEROUTE="Traceroute"
-SSLKEYLOG="SSL Keylog"
-SSLCERTIFICATE="SSL Certificate"
-HASHFILE="Calculate Hash File"
-REPORTFILE="Generate PDF Report"
-TIMESTAMP="Generate TIMESTAMP for the report"
-PEC="Send the PDF Report by PEC"
-EML="Download eml file"
-    
+
+SUBJECT="Report acquisizione {} caso: {} ID: {}"
+BODY="In allegato report e relativo timestamp dell'acquisizione {} relativa al caso: {}"
