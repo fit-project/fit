@@ -30,17 +30,19 @@ import os
 import logging
 from PyQt5 import QtCore, QtWidgets
 
-from common.constants import logger as Logger, details, state, status, tasks, error
+from common.constants import logger as Logger, details, state, status as Status, tasks, error
 from common.utility import calculate_hash
 
 from controller.report import Report as ReportController
 from controller.configurations.tabs.timestamp.timestamp import Timestamp as TimestampController
+from controller.configurations.tabs.pec.pec import Pec as PecController
 
 from view.timestamp import Timestamp as TimestampView
-from view.pec import Pec as PecView
+from view.pec.pec import Pec as PecView
 from view.error import Error as ErrorView
 
-logger = logging.getLogger('headers')
+logger = logging.getLogger('hashreport')
+
 class PostAcquisition(QtCore.QObject):
     def __init__(self, parent: None):
         super().__init__(parent)
@@ -99,13 +101,25 @@ class PostAcquisition(QtCore.QObject):
                 error_dlg.buttonClicked.connect(quit)
         self.parent().upadate_progress_bar()
 
-    #TODO is async?s
     def send_report_from_pec(self, folder, case_info):
+
         self.parent().set_message_on_the_statusbar(tasks.PEC)
 
-        pec = PecView()
-        pec.hide()
-        pec.init(case_info, "Web", folder)
-        pec.show()
-        
-        self.parent().upadate_progress_bar()
+        options = PecController().options
+        if options['enabled']:
+            self.pec = PecView(self)
+            self.pec.sentpec.connect(lambda status: self.__is_pec_sent(status))
+            self.pec.downloadedeml.connect(lambda status: self.__is_eml_downloaded(status))
+            view_form=True
+            self.pec.init(case_info, "Web", folder, view_form)
+            if view_form is False:
+                self.pec.send()
+                
+    def __is_pec_sent(self, status):
+        if status == Status.SUCCESS:
+            self.pec.download_eml()
+            self.parent().set_message_on_the_statusbar(tasks.EML)
+    
+    def __is_eml_downloaded(self, status):
+       self.parent().upadate_progress_bar()
+    

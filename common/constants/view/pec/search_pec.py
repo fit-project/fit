@@ -24,11 +24,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
-
-NETWORK_PACKET_CAPTURE_STARTED="Capture loop has been started in a new thread!"
-NETWORK_PACKET_CAPTURE_COMPLETED="Loop has been stopped and .pcap file has been saved in the case folder"
-SCREEN_RECORDER_STARTED="Recoder loop has been started in a new thread!"
-SCREEN_RECORDER_COMPLETED="Loop has been stopped and .avi file has been saved in the case folder"
-SSLCERTIFICATE_NOT_EXIST="Certificate don't exist on URL: {}"
-ACQUISITION_FINISHED="The acquisition has finished successfully. Do you want to open the case directory?"
+######
+WINDOW_TITLE="Search PEC"
+SETTINGS="Server configuration"
+CRITERIA="Search criteria"
+LABEL_USERNAME="Email"
+LABEL_PASSWORD="Password"
+LABEL_IMAP_SERVER="IMAP server"
+LABEL_IMAP_PORT="IMAP port"
+LABEL_TO="To"
+LABEL_CASE="Case"
+LABEL_FROM_DATE="From date"
+LABEL_TO_DATE="To date"
+LOGIN_BUTTON="Login"
+DOWNLOAD_BUTTON="Download"

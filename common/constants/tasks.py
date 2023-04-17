@@ -39,4 +39,5 @@ HASHFILE="Calculate Hash File"
 REPORTFILE="Generate PDF Report"
 TIMESTAMP="Generate TIMESTAMP for the report"
 PEC="Send the PDF Report by PEC"
+EML="Download eml file"
     

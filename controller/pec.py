@@ -26,152 +26,115 @@
 # -----
 ######
 import datetime
+import os
 import email
 import imaplib
-import os
 import smtplib
-import subprocess
-import uuid
-from email import policy
-from email.generator import Generator
-from email.message import Message
+import pyzmail
+
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
-
-import OpenSSL
-import pyzmail
-from OpenSSL import crypto
-
-from view.error import Error as ErrorView
-from PyQt5 import QtWidgets
 from email.mime.multipart import MIMEMultipart
-from common.error import ErrorMessage
-from controller.searchPec import SearchPec as SearchPecController
+from common.constants.controller.pec import *
 
-class Pec:
-    def __init__(self, username, password, acquisition, case, path, server, port, serverImap, portImap):
-        self.username = username
+class Pec():
+    def __init__(self, pec_email, password, acquisition_type, case_info, acquisition_directory, smtp_server, smtp_port, imap_server, imap_port):
+        self.pec_email = pec_email
         # TODO: implement secure password handling
         self.password = password
-        self.path = path
-        self.server = server
-        self.port = port
-        os.chdir(str(self.path))
-        self.acquisition = acquisition
-        self.case = case
-        self.error_msg = ErrorMessage()
-        self.serverImap = serverImap
-        self.portImap = portImap
-        return
+        self.acquisition_directory = acquisition_directory
+        self.smtp_server = smtp_server
+        self.smtp_port = smtp_port
+        self.acquisition_type = acquisition_type
+        self.case_info = case_info
+        self.imap_server = imap_server
+        self.imap_port = imap_port
+        self.timestamp = None
+        self.subject = None
 
 
+    def send_pec(self):
 
-    def sendPec(self):
-        results = []
-        error = False
-        email_utente = self.username
-        password_utente = self.password
-        smtp_server = self.server
-        smtp_port = self.port
+        # subject and body of message
+        now = datetime.datetime.now()
+        self.timestamp = now.timestamp()
+        self.subject = SUBJECT.format(str(self.acquisition_type), str(self.case_info), str(self.timestamp))
+        body = BODY.format(str(self.acquisition_type), str(self.case_info))
 
-        # Destinatario, oggetto e contenuto del messaggio
-        destinatario = self.username
-        todayDate = datetime.datetime.now()
-        timestampDate = todayDate.timestamp()
-        oggetto = 'Report acquisizione ' + str(self.acquisition) + ' caso: ' + str(self.case) + ' ID: ' + \
-                  str(timestampDate)
-        contenuto = 'In allegato report e relativo timestamp dell\' acquisizione ' + str(self.acquisition) + \
-                    ' relativa al caso: ' + str(self.case)
-
-        # Costruzione del messaggio email
+        # Make message
         msg = MIMEMultipart()
-        msg['From'] = email_utente
-        msg['To'] = destinatario
-        msg['Subject'] = oggetto
-        msg.attach(MIMEText(contenuto, 'plain'))
+        msg['From'] = self.pec_email
+        msg['To'] = self.pec_email
+        msg['Subject'] = self.subject
+        msg.attach(MIMEText(body, 'plain'))
 
-        pdf = str(self.path) + '/acquisition_report.pdf'
-        timestamp = str(self.path) + '/timestamp.tsr'
+        pdf = os.path.join(self.acquisition_directory, 'acquisition_report.pdf')
+        tsr = os.path.join(self.acquisition_directory, 'timestamp.tsr')
 
-        # Aggiunta di un file PDF come allegato
+        # Attach PDF Report
         with open(pdf, "rb") as f:
-            allegato_pdf = MIMEApplication(f.read(), _subtype="pdf")
-            allegato_pdf.add_header('content-disposition', 'attachment', filename="report.pdf")
-            msg.attach(allegato_pdf)
+            attach_pdf = MIMEApplication(f.read(), _subtype="pdf")
+            attach_pdf.add_header('content-disposition', 'attachment', filename="report.pdf")
+            msg.attach(attach_pdf)
 
-        # Aggiunta di un file TSR come allegato
-        with open(timestamp, "rb") as f:
-            allegato_tsr = MIMEApplication(f.read(), _subtype="tsr")
-            allegato_tsr.add_header('content-disposition', 'attachment', filename="timestamp.tsr")
-            msg.attach(allegato_tsr)
-
-        try:
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-            server.login(email_utente, password_utente)
-            server.sendmail(email_utente, destinatario, msg.as_string())
-        except Exception:
-            error = True
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['pec_error'],
-                                  self.error_msg.MESSAGES['pec_error'],
-                                  'Wrong SMTP or PEC parameters or credentials')
-            error_dlg.exec_()
-        results.append(timestampDate)
-        results.append(error)
-        return results
-    def retrieveEml(self, timestampDate):
-
-        error = False
-        find = False
-        results = []
+        # Attach TSR file
+        with open(tsr, "rb") as f:
+            attach_tsr = MIMEApplication(f.read(), _subtype="tsr")
+            attach_tsr.add_header('content-disposition', 'attachment', filename="timestamp.tsr")
+            msg.attach(attach_tsr)
 
         try:
-            server = imaplib.IMAP4_SSL(self.serverImap, self.portImap)
-            server.login(self.username, self.password)
+            server = smtplib.SMTP_SSL(self.smtp_server, self.smtp_port)
+            server.login(self.pec_email, self.password)
+            server.sendmail(self.pec_email, self.pec_email, msg.as_string())
+        except Exception as e:
+            raise Exception(e)
+    
+
+    def retrieve_eml(self):
+        
+        if self.timestamp is None:
+            return
+        find_it = False
+
+        try:
+            server = imaplib.IMAP4_SSL(self.imap_server, self.imap_port)
+            server.login(self.pec_email, self.password)
             server.select('inbox')
-        except Exception:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['pec_error'],
-                                  self.error_msg.MESSAGES['pec_error'],
-                                  'Wrong IMAP or PEC parameters or credentials')
-            error = True
-            error_dlg.exec_()
 
-        if error == True:
-            pass
-        else:
-            # cerca i messaggi di posta elettronica nella cartella PEC
-            oggetto = 'POSTA CERTIFICATA: Report acquisizione ' + str(self.acquisition) + ' caso: ' +\
-                      str(self.case) + ' ID: ' + str(timestampDate)
-            oggettoStr = str(oggetto)
-            searchCriteria = f'SUBJECT "{oggettoStr}"'
-            status, messages = server.search(None, searchCriteria)
-            messages = messages[0].split(b" ")
-            if str(messages) == "[b'']":
-                pass
-            else:
-                find = True
-                # scarica il messaggio di posta elettronica in formato raw
-                status, raw_email = server.fetch(messages[0], "(RFC822)")
-                pec_data = raw_email[0][1]
+            messages = self.__search_message(server)
+            if str(messages) != "[b'']":
+                find_it = True
+                self.__save_message(server, messages[0])
+        except Exception as e:
+             raise Exception(e)
 
-                # analizzare la PEC utilizzando la libreria email
-                pec_message = email.message_from_bytes(pec_data)
-                message = pyzmail.PyzMessage.factory(pec_data)
+        return find_it
+    
+    def __search_message(self, server):
+        subject = 'POSTA CERTIFICATA: ' + self.subject
+        search_criteria = f'SUBJECT "{subject}"'
+        status, messages = server.search(None, search_criteria)
+        return messages[0].split(b" ")
+    
+    def __save_message(self, server, message):
+        # download the email message in raw format
+        status, raw_email = server.fetch(message, "(RFC822)")
+        pec_data = raw_email[0][1]
 
-                # ottenere il nome dell'ID digitale
-                nome_id_digitale = pec_message.get('X-Digital-ID', '')
+        # check the PEC using the email library
+        pec_message = email.message_from_bytes(pec_data)
+        message = pyzmail.PyzMessage.factory(pec_data)
 
-                # aggiungere il nome dell'ID digitale alla PEC
-                pec_data = pec_data.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
-                                                           f' {nome_id_digitale}\r\n\r\n'.encode(), 1)
+        digital_id_name = pec_message.get('X-Digital-ID', '')
 
-                filename = f"{message.get('message-id')[1:-8]}.eml"
-                # salvare la PEC sul disco
-                with open(filename, 'wb') as f:
-                    f.write(pec_data)
+        # add digital id name to the PEC
+        pec_data = pec_data.replace(b'\r\n\r\n', f'\r\nX-Digital-ID:'
+                                                    f' {digital_id_name}\r\n\r\n'.encode(), 1)
+        
+        filename = f"{message.get('message-id')[1:-8]}.eml"
+        filename = os.path.join(self.acquisition_directory, filename)
 
-
-        results.append(error)
-        results.append(find)
-        return results
+        # save EML file
+        with open(filename, 'wb') as f:
+            f.write(pec_data)

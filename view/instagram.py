@@ -48,7 +48,7 @@ from view.timestamp import Timestamp as TimestampView
 from controller.report import Report as ReportController
 import logging
 import logging.config
-from view.pec import Pec as PecView
+from view.pec.pec import Pec as PecView
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')

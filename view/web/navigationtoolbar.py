@@ -105,7 +105,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         # INFO ACQUISITON STATUS ACTION
         self.info_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'info-disabled.svg')), "info Acquisition", self)
         self.info_acquisition_btn.setStatusTip("info acquisition")
-        self.info_acquisition_btn.triggered.connect(parent._acquisition_status)
+        self.info_acquisition_btn.triggered.connect(parent.acquisition_info)
         self.info_acquisition_btn.setObjectName('info')
         self.info_acquisition_btn.setEnabled(False)
         self.addAction(self.info_acquisition_btn)
@@ -154,19 +154,19 @@ class NavigationToolBar(QtWidgets.QToolBar):
                     action.setEnabled(enabled)
     
     def enable_start_acquisition_button(self, enabled=True):
-        if enabled and self.parent().acquisition_is_started is not True:
+        if enabled and self.parent().acquisition_is_running is False:
              self.enable_actions(filter=['start'])
         else:
             self.enable_actions(filter=['start'], enabled=False)
     
     def enable_stop_and_info_acquisition_button(self, enabled=True):
-        if enabled and self.parent().acquisition_is_started is True:
+        if enabled and self.parent().acquisition_is_running is True:
              self.enable_actions(filter=['stop', 'info'])
         else:
             self.enable_actions(filter=['stop', 'info'], enabled=False)
              
     def enable_screenshot_buttons(self, enabled=True):
-        if enabled and self.parent().current_page_load_is_finished and self.parent().acquisition_is_started:
+        if enabled and self.parent().current_page_load_is_finished and self.parent().acquisition_is_running is True:
             self.enable_actions(filter=self.screenshot_actions)
         else:
             self.enable_actions(filter=self.screenshot_actions, enabled=False)

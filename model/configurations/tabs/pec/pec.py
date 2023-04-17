@@ -35,45 +35,41 @@ Base = declarative_base()
 
 class Pec(Base):
     __tablename__ = 'configuration_pec'
-
-    pec = Column(String, primary_key=True)
+    id = Column(Integer, primary_key = True)
+    enabled = Column(Boolean)
+    pec_email = Column(String)
     password = Column(String)
-    server = Column(String)
-    port = Column(String)
-    serverImap = Column(String)
-    portImap = Column(String)
+    smtp_server = Column(String)
+    smtp_port = Column(String)
+    imap_server = Column(String)
+    imap_port = Column(String)
+    retries = Column(Integer)
 
     def __init__(self) -> None:
         super().__init__()
         self.db = Db()
         self.metadata.create_all(self.db.engine)
 
-    def delete(self, pecData):
-        return self.db.session.query(Pec).filter(Pec.pec == pecData).delete()
-
     def get(self):
+        if self.db.session.query(Pec).first() is None:
+            self.set_default_values()
         return self.db.session.query(Pec).all()
+   
 
-    def close(self):
-        self.db.session.close_all()
-        return
-
-    def update(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
-        self.db.session.query(Pec).filter(Pec.pec == pecData).update(pecData, passwordData, serverData, portData,
-                                                                     serverImapData, portImapData)
+    def update(self, options):
+        self.db.session.query(Pec).filter(Pec.id == options.get('id')).update(options)
         self.db.session.commit()
-
-    def add(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
-        self.pec = pecData
-        self.password = passwordData
-        self.server = serverData
-        self.port = portData
-        self.serverImap = serverImapData
-        self.portImap = portImapData
+    
+    def set_default_values(self):
+        self.pec_email = ""
+        self.password = ""
+        self.smtp_server = ""
+        self.smtp_port = ""
+        self.imap_server = ""
+        self.imap_port = ""
+        self.retries = 5
+        self.enabled = True
 
         self.db.session.add(self)
         self.db.session.commit()
-
-        return self.db.session.query(Pec)
-
 

@@ -49,7 +49,7 @@ from view.error import Error as ErrorView
 
 from controller.web import Web as WebController
 
-from common.constants import tasks as Tasks, logger as Logger, state, status, error
+from common.constants import tasks as Tasks, logger as Logger, state, status, error, details as Details
 from common.error import ErrorMessage
 
 from common.settings import DEBUG
@@ -126,7 +126,8 @@ class Web(QtWidgets.QMainWindow):
         
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
-        self.stop_acquisition_is_finished = False
+        self.start_acquisition_is_started = False
+        self.stop_acquisition_is_started = False
 
         self.navtb = NavigationToolBarView(self)
         self.addToolBar(self.navtb)
@@ -188,6 +189,7 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
+        
         # Step 2: Create acquisiton directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
@@ -197,6 +199,8 @@ class Web(QtWidgets.QMainWindow):
         )
 
         if self.acquisition_directory is not None:
+            
+            self.start_acquisition_is_started = True
 
             self.screenshot_directory = os.path.join(self.acquisition_directory, "screenshot")
             if not os.path.isdir(self.screenshot_directory):
@@ -222,6 +226,8 @@ class Web(QtWidgets.QMainWindow):
     def stop_acquisition(self):
 
         if self.start_acquisition_is_finished:
+
+            self.stop_acquisition_is_started = True
             self.progress_bar.setHidden(False)
             url = self.tabs.currentWidget().url().toString()
             self.__disable_all()
@@ -238,6 +244,9 @@ class Web(QtWidgets.QMainWindow):
             
             self.acquisition.stop(tasks, url, 2)
     
+    def acquisition_info(self):
+        self.acquisition.info.show()
+    
     def __acquisition_is_completed(self):
 
         if self.start_acquisition_is_finished is False:
@@ -252,8 +261,6 @@ class Web(QtWidgets.QMainWindow):
             #TODO very if PEC and Timestamp are sync
             self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info)
 
-
-            self.stop_acquisition_is_finished = True
             self.__stop_acquisition_is_finished()
     
     def __start_acquisition_is_finished(self):
@@ -267,6 +274,7 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setValue(0)
         self.status.showMessage('')
         self.start_acquisition_is_finished = True
+        self.start_acquisition_is_started = False
     
     def __stop_acquisition_is_finished(self):
             
@@ -289,8 +297,22 @@ class Web(QtWidgets.QMainWindow):
 
         self.acquisition_is_running = False
 
-        #TODO open a dialog acquisition is finished with success ask 
-        # do you want open the case directory?
+        self.__enable_all()
+
+        self.__show_finish_acquisition_dialog()
+    
+    def __show_finish_acquisition_dialog(self):
+        msg = QtWidgets.QMessageBox(self)
+        msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
+        msg.setText(Details.ACQUISITION_FINISHED)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+
+        return_value = msg.exec()
+        if return_value == QtWidgets.QMessageBox.Yes:
+            self.__open_acquisition_directory()
+    
+    def __open_acquisition_directory(self):
+            os.startfile(self.acquisition_directory)
 
     def __disable_all(self):
         self.setEnabled(False)
@@ -306,8 +328,7 @@ class Web(QtWidgets.QMainWindow):
         self.navtb.enable_start_acquisition_button()
         self.navtb.enable_stop_and_info_acquisition_button()
         
-    def acquisition_info(self):
-        self.acquisition.info.show()
+    
 
     def save_page(self):
 
