@@ -75,9 +75,9 @@ class VerifyPDFTimestamp:
 
             data0=str(self.case_info['name'] or 'N/A'),
             data1=str(self.case_info['lawyer_name'] or 'N/A'),
-            data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+            data2=str(self.case_info['proceeding_type'] or 'N/A'),
             data3=str(self.case_info['courthouse'] or 'N/A'),
-            data4=str(self.case_info['proceedings_number'] or 'N/A'),
+            data4=str(self.case_info['proceeding_number'] or 'N/A'),
             typed=phrases.TEXT['typed'], type=phrases.TEXT['verification'],
             date=phrases.TEXT['date'], ntp=self.ntp,
 

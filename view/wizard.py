@@ -24,7 +24,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
+######
+
+import toml
+import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -32,12 +35,15 @@ from view.configuration import Configuration as ConfigurationView
 from view.case_form import CaseForm as CaseFormView
 from view.error import Error as ErrorView
 
+from common.constants.view.wizard import *
+
 from common.error import ErrorMessage
 
 class CaseInfoPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(CaseInfoPage, self).__init__(parent)
         self.setObjectName("CaseInfoPage")
+   
         self.case_info = {}
 
         self.error_msg = ErrorMessage()
@@ -85,7 +91,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
                         if value is not None:
                             item.setText(str(value))
                     if isinstance(item, QtWidgets.QComboBox):
-                        if keyword in 'types_proceedings_id': 
+                        if keyword in 'proceeding_type': 
                             if value is not None:
                                 type_proceeding = next((proceeding for proceeding in self.form.proceedings if proceeding["id"] == value), None)
                                 value = type_proceeding["name"]
@@ -97,7 +103,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.lawyer_name.setText("")
         self.form.types_proceedings.setCurrentIndex(-1)
         self.form.courthouse.setText("")
-        self.form.proceedings_number.setText("")
+        self.form.proceeding_number.setText("")
     
     def __configuration(self):
         self.configuration_view.exec_()
@@ -243,10 +249,11 @@ class Wizard(QtWidgets.QWizard):
 
     def __init__(self, parent=None):
         super(Wizard, self).__init__(parent)
-        import os
         self.width = 800
         self.height = 600
         self.setObjectName("WizardView")
+        self.temp_case_info = None
+        
 
 
 
@@ -270,10 +277,29 @@ class Wizard(QtWidgets.QWizard):
 
         self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self._save_case)
 
+        self.button(QtWidgets.QWizard.BackButton).clicked.connect(self.__back)
+
         self.button(QtWidgets.QWizard.FinishButton).setDisabled(True)
 
 
         self.retranslateUi()
+    
+    def __back(self):
+
+        if len(self.case_info_page.case_info) == 0:
+            item = self.temp_case_info.get('lawyer_name')
+            if item:
+                self.case_info_page.form.lawyer_name.setText(item)
+            item = self.temp_case_info.get('proceeding_type')
+            if item:
+                self.case_info_page.form.set_index_from_type_proceedings_id(item)
+            item = self.temp_case_info.get('courthouse')
+            if item:
+                self.case_info_page.form.courthouse.setText(item)
+            item = self.temp_case_info.get('proceeding_number')
+            if item:
+                self.case_info_page.form.proceeding_number.setText(item)
+        
     
     def reload_case_info(self):
         self.case_info_page.set_case_information(self.case_info_page.form.name.currentText())
@@ -310,21 +336,29 @@ class Wizard(QtWidgets.QWizard):
         self.finished.emit(task, case_info)
 
     def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        #TODO get the version info from external file (eg. pyproject.toml)
-        self.setWindowTitle(_translate("FITWizard", "FIT 1.4.0-beta"))
-        self.select_task_page.acquisition_group_box.setTitle(_translate("FITWizard", "Riepilogo anagrafica caso"))
-        self.select_task_page.web.setText(_translate("FITWizard", "WEB"))
-        self.select_task_page.mail.setText(_translate("FITWizard", "MAIL"))
-        self.select_task_page.insta.setText(_translate("FITWizard", "INSTAGRAM"))
-        self.select_task_page.timestamp.setText(_translate("FITWizard", "VERIFY TIMESTAMP"))
-        self.select_task_page.pec.setText(_translate("FITWizard", "VERIFY PEC"))
+        self.setWindowTitle(self.__get_version())
+        self.select_task_page.acquisition_group_box.setTitle(CASE_SUMMARY)
+        self.select_task_page.web.setText(TASK_WEB)
+        self.select_task_page.mail.setText(TASK_MAIL)
+        self.select_task_page.insta.setText(TASK_INSTAGRAM)
+        self.select_task_page.timestamp.setText(TASK_VERIFY_TIMESTAMP)
+        self.select_task_page.pec.setText(TASK_VERIFY_PEC)
+    
+    def __get_version(self):
+        version = PROJECT_NAME
+        file_toml = 'pyproject.toml'
+        if (os.path.isfile(file_toml)):
+            file_toml = toml.load(file_toml)
+            version += " " + file_toml['tool']['poetry']['version']
+        
+        return version
+
 
 
 
     def _get_recap_case_info_HTML(self):
-
         self.case_info_page.case_info = self.case_info_page.form.get_current_case_info()
+        self.temp_case_info = self.case_info_page.case_info
 
         html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
         html += "<html>\n"
@@ -340,7 +374,7 @@ class Wizard(QtWidgets.QWizard):
             if item is not None:
                 if value is None:
                     value = "N/A"
-                if keyword in 'types_proceedings_id':
+                if keyword in 'proceeding_type':
                     type_proceeding = next((proceeding for proceeding in self.case_info_page.form.proceedings if proceeding["id"] == value), None)
                     if type_proceeding is not None:
                         value = type_proceeding["name"]

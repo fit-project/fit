@@ -80,9 +80,9 @@ class Report:
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
-                data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+                data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
-                data4=str(self.case_info['proceedings_number'] or 'N/A'),
+                data4=str(self.case_info['proceeding_number'] or 'N/A'),
                 typed=phrases.TEXT['typed'], type=type,
                 date=phrases.TEXT['date'], ntp=ntp,
                 t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
@@ -133,9 +133,9 @@ class Report:
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
-                data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+                data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
-                data4=str(self.case_info['proceedings_number'] or 'N/A'),
+                data4=str(self.case_info['proceeding_number'] or 'N/A'),
                 typed=phrases.TEXT['typed'], type=type,
                 date=phrases.TEXT['date'], ntp=ntp,
                 t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],

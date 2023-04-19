@@ -28,6 +28,7 @@ brotlipy = "^0.7.0"
 bs4 = "^0.0.1"
 qtawesome = "^1.2.3"
 netifaces = "^0.11.0"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 

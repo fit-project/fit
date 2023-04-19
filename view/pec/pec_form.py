@@ -163,11 +163,9 @@ class PecForm(QtWidgets.QDialog):
 
         effect = QtWidgets.QGraphicsOpacityEffect()
         if all_field_filled:
-            self.send_button.setFocus()
             effect.setOpacity(0.5)
             self.skip_button.setGraphicsEffect(effect)
         else:
-            self.skip_button.setFocus()
             effect.setOpacity(1)
             self.skip_button.setGraphicsEffect(effect)
 
