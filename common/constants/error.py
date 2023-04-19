@@ -28,4 +28,5 @@
 
 TIMESTAMP_TIMEOUT="Unable to send the timestamp request. Read time out."
 DELETE_PROJECT_FOLDER="An error occurred during the execution of shutil.rmtree method"
+PACKET_CAPTURE="An error occurred during network packets acquisition! \nSee bellow for more detail."
 
