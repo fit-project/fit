@@ -30,27 +30,11 @@ from model.configurations.tabs.pec.pec import Pec as PecModel
 
 class Pec():
 
-    _options = {}
-
     def __init__(self):
         self.model = PecModel()
-        _options = self.model.get()
-
-    def add(self, pec, password, server, port, serverImap, portImap):
-        self.model.add(pec, password, server, port, serverImap, portImap)
-
-    def delete(self, pecData):
-        self.model.delete(pecData)
-
-    def close(self):
-        self.model.close()
-        return
-
-    def update(self, pecData, passwordData, serverData, portData, serverImapData, portImapData):
-        self.model.update(pecData, passwordData, serverData, portData, serverImapData, portImapData)
-
-    def get(self):
-        return self.model.get()
+        self._options = self.model.get()
+        if self._options:
+           self._options = {key: value for key, value in self._options[0].__dict__.items() if not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
 
     @property
     def options(self):

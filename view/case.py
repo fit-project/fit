@@ -29,11 +29,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from view.case_form import CaseForm
-from view.error import Error as ErrorView
+
 
 from controller.case import Case as CaseController
-
-from common.error import ErrorMessage
+from common.constants.view.case import *
 
 class Case(QtWidgets.QDialog):
 
@@ -44,7 +43,7 @@ class Case(QtWidgets.QDialog):
 
         self.setObjectName("Case")
         self.resize(479, 311)
-        self.setWindowTitle(self.case_info['name'] + " Case Information (ID:" + str(self.case_info['id']) + ")")
+        self.setWindowTitle(DIALOG_TITLE.format(self.case_info['name'], str(self.case_info['id'])))
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
 
         self.initUI()
@@ -64,14 +63,13 @@ class Case(QtWidgets.QDialog):
         self.form = CaseForm(self)
 
         
-    
     def __set_current_config_values(self):
         self.form.set_index_from_case_id(self.case_info['id'])
         self.form.name.setEnabled(False)
         self.form.lawyer_name.setText(self.case_info['lawyer_name'])
-        self.form.set_index_from_type_proceedings_id(self.case_info['types_proceedings_id'])
+        self.form.set_index_from_type_proceedings_id(self.case_info['proceeding_type'])
         self.form.courthouse.setText(self.case_info['courthouse'])
-        self.form.proceedings_number.setText(str(self.case_info['proceedings_number']))
+        self.form.proceeding_number.setText(self.case_info['proceeding_number'])
 
 
     def accept(self) -> None:

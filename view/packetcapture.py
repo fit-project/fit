@@ -25,66 +25,46 @@
 # SOFTWARE.
 # -----
 ######
-import pyshark
-import tempfile
+import scapy.all as scapy
 import os
-from datetime import datetime
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, QEventLoop, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
 
 from view.error import Error as ErrorView
 
-from common.error import ErrorMessage
+from common.constants import tasks, error
 
 
 class PacketCapture(QObject):
-    finished = pyqtSignal()  # give worker class a finished signal
+    finished = pyqtSignal() 
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
-        self.error_msg = ErrorMessage()
-        self.run = True
         self.options = None
-        self.destroyed.connect(self.stop)
+        self.output_file = None
+        self.sniffer = scapy.AsyncSniffer()
 
     def set_options(self, options):
         self.output_file = os.path.join(options['acquisition_directory'], options['filename'])
-        self.tmp_output_file = os.path.join(tempfile.gettempdir(), 'tmp' + str(datetime.utcnow().timestamp()) + '.pcap')
 
     def start(self):
-        self.capture = pyshark.LiveCapture(output_file=self.tmp_output_file)
         try:
-            for packet in self.capture.sniff_continuously():
-                if not self.run:
-                    self.capture.close()
-                    # I don't know why, but if I don't read and rewrite the pcap file generated with Livecapture
-                    # when I open it with WireShark a critical pop-up appears with this error:
-                    # (The capture file appears to have been cut short in the middle of a packet).
-                    # I know this not elengant but works:
-                    self.file = pyshark.FileCapture(self.tmp_output_file, output_file=self.output_file)
-                    self.file.load_packets()
-            os.remove(self.tmp_output_file)
-            self.finished.emit()
-
-        except pyshark.capture.capture.TSharkCrashException as error:
+            self.sniffer.start()
+        except Exception as e:
             error_dlg = ErrorView(QMessageBox.Critical,
-                                  self.error_msg.TITLES['capture_packet'],
-                                  self.error_msg.MESSAGES['capture_packet'],
-                                  str(error)
+                                  tasks.PACKET_CAPTURE,
+                                  error.PACKET_CAPTURE,
+                                  str(e)
                                   )
-            error_dlg.buttonClicked.connect(quit)
             error_dlg.exec_()
 
     def stop(self):
-        self.run = False
-        '''try:
-            self.capture.close()
-        except pyshark.capture.capture.TSharkCrashException as error:
-            error_dlg = ErrorView(QMessageBox.Critical,
-                                  self.error_msg.TITLES['capture_packet'],
-                                  self.error_msg.MESSAGES['capture_packet'],
-                                  str(error)
-                                  )
-            error_dlg.buttonClicked.connect(quit)
-            error_dlg.exec_()'''
+        self.sniffer.stop()
+        loop = QEventLoop()
+        QTimer.singleShot(1000, loop.quit)
+        loop.exec_()
+        scapy.wrpcap(self.output_file, self.sniffer.results)
+        self.finished.emit()
+
+

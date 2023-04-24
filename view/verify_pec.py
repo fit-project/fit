@@ -46,7 +46,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.error_msg = ErrorMessage()
         self.configuration_view = ConfigurationView(self)
 
-    def init(self, case_info, wizard):
+    def init(self, case_info, wizard, options=None):
         self.__init__()
         self.wizard = wizard
         self.width = 600

@@ -29,19 +29,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-from view.error import Error as ErrorView
-
 from controller.case import Case as CaseController
 from controller.configurations.tabs.general.typesproceedings import TypesProceedings as TypesProceedingsController
 
-from common.error import ErrorMessage
-
+from common.constants.view.case import *
 
 class CaseForm(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(CaseForm, self).__init__(parent)
-
-        error_msg = ErrorMessage()
         self.controller = CaseController()
         self.cases = self.controller.cases
         self.proceedings = TypesProceedingsController().proceedings
@@ -101,13 +96,13 @@ class CaseForm(QtWidgets.QWidget):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.types_proceedings_label.setFont(font)
-        self.types_proceedings_label.setObjectName("types_proceedings_id_label")
+        self.types_proceedings_label.setObjectName("proceeding_type_label")
         self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.types_proceedings_label)
         self.types_proceedings = QtWidgets.QComboBox(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.types_proceedings.setFont(font)
-        self.types_proceedings.setObjectName("types_proceedings_id")        
+        self.types_proceedings.setObjectName("proceeding_type")        
         self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.types_proceedings)
 
 
@@ -126,31 +121,31 @@ class CaseForm(QtWidgets.QWidget):
         self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.courthouse)
 
 
-        #PROCEEDINGS_NUMBER_LINE_EDIT
-        self.proceedings_number_label = QtWidgets.QLabel(self)
+        #proceeding_number_LINE_EDIT
+        self.proceeding_number_label = QtWidgets.QLabel(self)
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.proceedings_number_label.setFont(font)
-        self.proceedings_number_label.setObjectName("proceedings_number_label")
-        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.proceedings_number_label)
-        self.proceedings_number = QtWidgets.QLineEdit(self)
+        self.proceeding_number_label.setFont(font)
+        self.proceeding_number_label.setObjectName("proceeding_number_label")
+        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.proceeding_number_label)
+        self.proceeding_number = QtWidgets.QLineEdit(self)
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.proceedings_number.setFont(font)
-        self.proceedings_number.setObjectName("proceedings_number")
-        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.proceedings_number)
+        self.proceeding_number.setFont(font)
+        self.proceeding_number.setObjectName("proceeding_number")
+        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.proceeding_number)
 
         self.retranslateUi()
 
 
     def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("CaseForm", "Dialog"))
-        self.name_label.setText(_translate("CaseForm", "Cliente/Caso*"))
-        self.lawyer_name_label.setText(_translate("CaseForm", "Avvocato"))
-        self.types_proceedings_label.setText(_translate("CaseForm", "Tipo procedimento"))
-        self.courthouse_label.setText(_translate("CaseForm", "Tribunale"))
-        self.proceedings_number_label.setText(_translate("CaseForm", "Numero Procedimento"))
+
+        self.setWindowTitle(TITLE)
+        self.name_label.setText(NAME)
+        self.lawyer_name_label.setText(LAWYER)
+        self.types_proceedings_label.setText(PROCEEDING_TYPE)
+        self.courthouse_label.setText(COURTHOUSE)
+        self.proceeding_number_label.setText(PROCEEDING_NUMBER)
     
 
     def set_index_from_type_proceedings_id(self, type_proceedings_id):
@@ -161,7 +156,6 @@ class CaseForm(QtWidgets.QWidget):
     
 
     def __set_current_config_values(self):
-
         for case in self.cases:
             self.name.addItem(case['name'], case['id'])
 
@@ -169,14 +163,13 @@ class CaseForm(QtWidgets.QWidget):
             self.types_proceedings.addItem(proceedings['name'], proceedings['id'])
     
     def get_current_case_info(self):
-
         case_info = next((item for item in self.cases if item["name"] == self.name.currentText()), {})
         
         for keyword in self.controller.keys:
             item = self.findChild(QtCore.QObject, keyword)
             if item is not None:
                 if isinstance(item, QtWidgets.QComboBox):
-                    if keyword in 'types_proceedings_id': 
+                    if keyword in 'proceeding_type': 
                         item= item.currentData()
                     else:
                         item= item.currentText()

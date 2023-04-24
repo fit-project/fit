@@ -30,7 +30,7 @@ import logging
 import logging.config
 import shutil
 from datetime import timedelta
-from view.pec import Pec as PecView
+from view.pec.pec import Pec as PecView
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QRegExp, QDate, Qt
@@ -82,7 +82,7 @@ class Mail(QtWidgets.QMainWindow):
         self.log_confing = LogConfigTools()
         self.case_info = None
 
-    def init(self, case_info, wizard):
+    def init(self, case_info, wizard, options=None):
         self.__init__()
         self.width = 990
         self.height = 590
