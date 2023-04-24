@@ -27,13 +27,21 @@
 ######
 
 import logging.config
+import mimetypes
 import os.path
 import shutil
+import urllib
 
+import requests
+from PyQt5.QtCore import QFile, QEventLoop, QTextStream, QUrl
+from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+from PyQt5.QtWidgets import QApplication
+from bs4 import BeautifulSoup
 from scapy.all import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings, QWebEngineDownloadItem, \
+    QWebEngineProfile
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 
@@ -47,7 +55,6 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from controller.report import Report as ReportController
-from controller.web import Web as WebController
 
 from common.error import ErrorMessage
 
@@ -63,19 +70,6 @@ logger_whois = logging.getLogger('whois')
 logger_headers = logging.getLogger('headers')
 logger_nslookup = logging.getLogger('nslookup')
 
-class WebEnginePage(QWebEnginePage):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-class MainWindow(QWebEngineView):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        page = WebEnginePage(self)
-
-        self.setPage(page)
-
-    def closeEvent(self, event):
-        self.page().profile().clearHttpCache()
 
 
 class Web(QtWidgets.QMainWindow):
@@ -529,9 +523,8 @@ class Web(QtWidgets.QMainWindow):
         if not os.path.isdir(acquisition_page_folder):
             os.makedirs(acquisition_page_folder)
 
-        # call controller here
-        web = WebController(self.tabs.currentWidget().url(),acquisition_page_folder)
-        web.save_html()
+
+        self.save_html(self.tabs.currentWidget().url(),acquisition_page_folder)
 
         #self.tabs.currentWidget().page().save(file_name)
 
@@ -596,20 +589,22 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
 
-        self.browser = MainWindow()
-        self.browser.setUrl(qurl)
-        i = self.tabs.addTab(self.browser, label)
+        browser = QWebEngineView()
+        interceptor = WebEngineUrlRequestInterceptor()
+        browser.page().profile().setUrlRequestInterceptor(interceptor)
+        browser.setUrl(qurl)
+        i = self.tabs.addTab(browser, label)
 
         self.tabs.setCurrentIndex(i)
 
         # More difficult! We only want to update the url when it's from the
         # correct tab
-        self.browser.urlChanged.connect(lambda qurl, browser=self.browser:
+        browser.urlChanged.connect(lambda qurl, browser=browser:
                                         self.__update_urlbar(qurl, browser))
 
-        self.browser.loadProgress.connect(self.load_progress)
+        browser.loadProgress.connect(self.load_progress)
 
-        self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
+        browser.loadFinished.connect(lambda _, i=i, browser=browser:
                                           self.__page_on_loaded(i, browser))
 
         if i == 0:
@@ -683,6 +678,12 @@ class Web(QtWidgets.QMainWindow):
         self.navtb.urlbar.setText(q.toString())
         self.navtb.urlbar.setCursorPosition(0)
 
+    def save_html(self, qurl, acquisition_page):
+       ''' browser = QWebEngineView()
+        interceptor = WebEngineUrlRequestInterceptor()
+        browser.page().profile().setUrlRequestInterceptor(interceptor)
+        browser.setUrl(qurl)'''
+
     def __back_to_wizard(self):
         self.deleteLater()
         self.wizard.reload_case_info()
@@ -694,3 +695,37 @@ class Web(QtWidgets.QMainWindow):
         if packetcapture is not None:
             packetcapture.stop()
 
+class WebEngineUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
+    print('interceptor')
+    def interceptRequest(self, info):
+        print('intercepted requesr')
+        # info.setHttpHeader("X-Frame-Options", "ALLOWALL")
+        url = info.requestUrl()
+        response = requests.get(url.toString())
+        self.save_content(info, response)
+
+    def save_content(self, info, response):
+        # save every other resource in the acquisition dir
+        content_type = response.headers.get('content-type', '').split(';')[0]
+        if content_type != 'text/html':
+            resources_folder = os.path.join("C:\\Users\\Routi\\Desktop", 'objects')
+            if not os.path.isdir(resources_folder):
+                os.makedirs(resources_folder)
+
+            if len(response.content) > 0:
+                filename = os.path.basename(info.requestUrl().toString())
+                extension = mimetypes.guess_extension(content_type)
+                # add extension
+                filename = self.char_remover(filename)
+                filepath = f"{resources_folder}/{filename}{extension}"
+                try:
+                    with open(filepath, "wb") as f:
+                        f.write(response.content)
+                except:
+                    pass  # could not write
+
+    def char_remover(self, filename):
+        char_remov = ["?", "<", ">", "*", "|", "\"", "\\", "/", ":"]
+        for char in char_remov:
+            filename = filename.replace(char, "-")
+            return filename
