@@ -39,13 +39,14 @@ class verifyPec():
     def __init__(self):
         self.temp_x509 = os.path.join(tempfile.gettempdir(), 'tmp_x509')
         self.temp_pem = os.path.join(tempfile.gettempdir(), 'tmp_cert.pem')
+        self.temp_textdata = os.path.join(tempfile.gettempdir(), 'tmp_textdata')
     
     def verify(self, eml_file_path, case_info, ntp):
-        
+
         report_info = {'case_info':case_info, 'ntp':ntp, 'eml_file_path':eml_file_path}
 
         try:
-            email_info = ExpirationDate().verify(eml_file_path, self.temp_pem, self.temp_x509)
+            email_info = ExpirationDate().verify(eml_file_path, self.temp_pem, self.temp_x509, self.temp_textdata)
         except Exception as e:
             raise Exception(e)
         

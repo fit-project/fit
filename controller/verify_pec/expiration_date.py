@@ -35,7 +35,7 @@ import os
 
 class ExpirationDate:        
     
-    def verify(self, eml_file_path, pem_file_path, x509_file_path):
+    def verify(self, eml_file_path, pem_file_path, x509_file_path, textdata_file_path):
         result = {}
         openssl = "openssl"
         is_installed_openssl = is_cmd(openssl)
@@ -45,7 +45,7 @@ class ExpirationDate:
             openssl = '.\ext_lib\openssl\{}\openssl'.format(get_platform())
         # extract pem certificate from eml
         extract_pem = subprocess.run(
-            [openssl, "smime", "-verify", "-in", eml_file_path, "-noverify", "-signer", pem_file_path, "-out", "textdata"],
+            [openssl, "smime", "-verify", "-in", eml_file_path, "-noverify", "-signer", pem_file_path, "-out", textdata_file_path],
             capture_output=True, text=True)
         
         # Convert pem to x509

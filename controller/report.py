@@ -172,12 +172,19 @@ class Report:
         screenshot_dir = os.path.join(self.cases_folder_path, 'screenshot')
         files = [f.name for f in os.scandir(screenshot_dir) if f.is_file()]
         if len(files) == 0:
-            return "<p> File non prodotto </p>"
+            try:
+                screenshot_file = os.path.join(self.cases_folder_path, 'screenshot.png')
+                screenshot_enum += '<p>' + os.path.join(self.cases_folder_path, 'screenshot.png') + "</p>"
+                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
+                screenshot_enum += '<hr>'
+                return screenshot_enum
+            except:
+                return "<p> File non prodotto </p>"
         else:
             for file in files:
                 screenshot_file = os.path.join(screenshot_dir, file)
                 screenshot_enum += '<p>' + file + "</p>"
-                screenshot_enum += "<iframe src='" + screenshot_file + "' width='100%' height='500px'> </iframe>"
+                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
                 screenshot_enum += '<hr>'
         return screenshot_enum
 
