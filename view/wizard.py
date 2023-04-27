@@ -255,8 +255,6 @@ class Wizard(QtWidgets.QWizard):
         self.temp_case_info = None
         
 
-
-
     def init_wizard(self):
         self.setFixedSize(self.width, self.height)
         self.setSizeGripEnabled(False)

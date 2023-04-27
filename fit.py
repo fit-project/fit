@@ -25,14 +25,10 @@
 # SOFTWARE.
 # -----
 ######
-
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
-
 import sys
+from PyQt5.QtWidgets import QApplication
+
+
 from view.wizard import Wizard as WizardView
 from view.web.web import Web as WebView
 from view.mail import Mail as MailView

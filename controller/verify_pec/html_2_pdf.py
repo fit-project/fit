@@ -33,7 +33,7 @@ from PyPDF2 import PdfMerger
 from common.report import ReportText
 
 
-class VerifyIntegrityPec:
+class Html2Pdf:
     def __init__(self, cases_folder_path, case_info, ntp):
         self.cases_folder_path = cases_folder_path
         self.output_front = self.cases_folder_path + "\\" + "front_report.pdf"
