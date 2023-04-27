@@ -154,8 +154,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         path = os.path.dirname(str(self.input_eml.text()))
         if get_platform() == 'win':
             os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
-            
-        self.close()
+
 
     def __dialog(self):
 
