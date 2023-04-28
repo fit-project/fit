@@ -82,7 +82,6 @@ class PostAcquisition(QtCore.QObject):
         report.generate_pdf(type, self.parent().get_time())
         self.parent().upadate_progress_bar()
 
-    #TODO is async?
     def generate_timestamp_report(self, folder):
         self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
         options = TimestampController().options

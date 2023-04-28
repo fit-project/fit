@@ -51,7 +51,7 @@ from view.error import Error as ErrorView
 from common.settings import DEBUG
 from common.config import LogConfigTools
 import common.utility as utility
-
+from common.constants import error, details as Details, logger as Logger
 from view.acquisition.acquisition import Acquisition
 
 logger_acquisition = logging.getLogger(__name__)
@@ -556,27 +556,11 @@ class Mail(QtWidgets.QMainWindow):
         acquisition_folder = os.path.join(self.acquisition_directory, project_name)
         if not os.path.exists(acquisition_folder):
             os.makedirs(acquisition_folder)
-        # zipping email acquisition folder
+
         acquisition_emails_folder = os.path.join(self.acquisition_directory, project_name)
-        zip_folder = shutil.make_archive(acquisition_emails_folder, 'zip', acquisition_emails_folder)
-        self.progress_bar.setValue(90)
-        try:
-            # removing unused acquisition folder
-            shutil.rmtree(acquisition_emails_folder)
-        except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  mail.SAVE_MAIL,
-                                  error.SAVE_MAIL,
-                                  "Error: %s - %s." % (e.filename, e.strerror)
-                                  )
 
-            error_dlg.buttonClicked.connect(quit)
-            error_dlg.exec_()
+        self.__zip_and_remove(acquisition_emails_folder)
 
-        ### Waiting everything is synchronized
-        loop = QtCore.QEventLoop()
-        QtCore.QTimer.singleShot(2000, loop.quit)
-        loop.exec_()
 
         # Calculate acquisition hash
         self.status.showMessage('Calculate acquisition file hash')
@@ -624,6 +608,7 @@ class Mail(QtWidgets.QMainWindow):
         self.setEnabled(True)
         action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
 
+
         # Enable start_acquisition_action
         if action is not None:
             action.setEnabled(True)
@@ -633,7 +618,8 @@ class Mail(QtWidgets.QMainWindow):
         # hidden progress bar
         self.progress_bar.setHidden(True)
         self.status.showMessage('')
-        return
+
+        self.__show_finish_acquisition_dialog()
 
     def on_item_selection_changed(self):
         selected_items = self.emails_tree.selectedItems()
@@ -646,6 +632,34 @@ class Mail(QtWidgets.QMainWindow):
             child_item = item.child(i)
             child_item.setSelected(selected)
             self.update_child_items(child_item, selected)
+
+    def __zip_and_remove(self, acquisition_page_folder):
+
+        shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+
+        try:
+            shutil.rmtree(acquisition_page_folder)
+        except OSError as e:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  mail.SAVE_MAIL,
+                                  error.SAVE_MAIL,
+                                  "Error: %s - %s." % (e.filename, e.strerror)
+                                  )
+
+            error_dlg.buttonClicked.connect(quit)
+
+    def __show_finish_acquisition_dialog(self):
+        msg = QtWidgets.QMessageBox(self)
+        msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
+        msg.setText(Details.ACQUISITION_FINISHED)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+
+        return_value = msg.exec()
+        if return_value == QtWidgets.QMessageBox.Yes:
+            self.__open_acquisition_directory()
+
+    def __open_acquisition_directory(self):
+        os.startfile(self.acquisition_directory)
 
     def case(self):
         self.case_view.exec_()
