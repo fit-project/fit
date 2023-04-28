@@ -28,7 +28,7 @@
 from common.constants import logger, status as Status, state as  State
 
 import logging.config
-from common.config import LogConfig
+from common.config import LogConfigTools
 import common.utility
 
 from PyQt5.QtCore import QObject
@@ -41,7 +41,8 @@ class Base(QObject):
     def __init__(self, logger, progress_bar=None, status_bar=None, parent=None) -> None:
         super().__init__(parent)
         self.logger = logger
-        self.log_confing = LogConfig()
+        self.log_confing = LogConfigTools()
+        self.log_confing.set_web_loggers()
         self.is_started = False
         self.is_completed = False
         self.send_pyqt_signal = False

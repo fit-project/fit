@@ -52,7 +52,7 @@ from view.error import Error as ErrorView
 from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
 
 from common.settings import DEBUG
-from common.config import LogConfig
+from common.config import LogConfigTools
 from common.utility import screenshot_filename
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,8 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_directory = None
         self.screenshot_directory = None
         self.current_page_load_is_finished = False
-        self.log_confing = LogConfig()
+        self.log_confing = LogConfigTools()
+        self.log_confing.set_web_loggers()
         self.case_info = None
         self.__tasks = []
 
