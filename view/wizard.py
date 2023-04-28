@@ -26,7 +26,7 @@
 # -----
 ######
 
-import toml
+from configparser import SafeConfigParser
 import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -343,11 +343,9 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.pec.setText(TASK_VERIFY_PEC)
     
     def __get_version(self):
-        version = PROJECT_NAME
-        file_toml = 'pyproject.toml'
-        if (os.path.isfile(file_toml)):
-            file_toml = toml.load(file_toml)
-            version += " " + file_toml['tool']['poetry']['version']
+        parser = SafeConfigParser()
+        parser.read('assets/config.ini')
+        version = parser.get('fit_properties', 'version')
         
         return version
 
