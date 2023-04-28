@@ -31,13 +31,12 @@ import os
 import rfc3161ng
 
 import common.utility as utility
+from common.constants.view import verify_pdf_timestamp
 from view.error import Error as ErrorView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
-
-from common.error import ErrorMessage
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
@@ -53,7 +52,6 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.data = None  # acquisition_report.pdf
         self.tsr_in = None  # timestamp.tsr
         self.untrusted = None  # tsa.crt
-        self.error_msg = ErrorMessage()
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
@@ -215,14 +213,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             verified = rt.check(timestamp, data=open(data, 'rb').read())
 
             report, info_file_path = self.generate_report_verification(data, server_name, timestamp, True)
-            if verified:  # it's called ErrorView but it's an informative message :(
-
+            if verified:
                 report.generate_pdf(True, info_file_path)
 
                 error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                      self.error_msg.TITLES['verification_ok'],
-                                      self.error_msg.MESSAGES['verification_ok'],
-                                      "PDF has a valid timestamp, report has been generated.")
+                                      verify_pdf_timestamp.VERIFICATION_COMPLETED,
+                                      verify_pdf_timestamp.VERIFICATION_SUCCESS,
+                                      verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
                 error_dlg.exec_()
 
 
@@ -233,9 +230,9 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             report.generate_pdf(False, info_file_path)
 
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['verification_failed'],
-                                  self.error_msg.MESSAGES['verification_failed'],
-                                  "PDF may have been tampered with, report has been generated.")
+                                  verify_pdf_timestamp.VERIFICATION_COMPLETED,
+                                  verify_pdf_timestamp.VERIFICATION_FAIL,
+                                  verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
             error_dlg.exec_()
 
         folder = self.get_current_dir()
@@ -277,9 +274,9 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         ntp = utility.get_ntp_date_and_time(configuration_network.configuration["ntp_server"])
 
         if check:
-            verification = 'Il report ha un timestamp valido'
+            verification = verify_pdf_timestamp.VALID_TIMESTAMP
         else:
-            verification = 'Il report non ha un timestamp valido'
+            verification = verify_pdf_timestamp.INVALID_TIMESTAMP
 
         # calculate hash (as in rfc lib)
         hashobj = hashlib.new('sha256')

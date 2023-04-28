@@ -40,7 +40,6 @@ from controller.report import Report as ReportController
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
-from common.error import ErrorMessage
 from common.settings import DEBUG
 from common.config import LogConfigTools
 import common.utility as utility
@@ -59,12 +58,10 @@ class Instagram(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Instagram, self).__init__(*args, **kwargs)
-        self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
         self.is_enabled_timestamp = False
 
-        #aggiungere attributi per log, screencap ecc
 
     def init(self, case_info, wizard, options=None):
         self.__init__()

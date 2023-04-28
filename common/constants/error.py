@@ -29,4 +29,9 @@
 TIMESTAMP_TIMEOUT="Unable to send the timestamp request. Read time out."
 DELETE_PROJECT_FOLDER="An error occurred during the execution of shutil.rmtree method"
 PACKET_CAPTURE="An error occurred during network packets acquisition! \nSee bellow for more detail."
-
+INSERT_UPDATE_CASE_INFO="Insert/Update case information is not possible."
+SAVE_MAIL="An error occurred during the execution of save_mailmessages."
+SERVER_ERROR="Wrong server or IMAP port."
+LOGIN_ERROR="Wrong login credentials."
+NO_EMAILS = "No e-mails found."
+SCREEN_RECODER = "Screen Recoder error"

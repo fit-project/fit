@@ -25,9 +25,7 @@
 # SOFTWARE.
 # -----
 ######
-
-import toml
-import os.path
+from configparser import SafeConfigParser
 
 class ReportText:
     def __init__(self):
@@ -137,11 +135,8 @@ class ReportText:
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
         
     def __get_version(self):
-        version = ''
-
-        file_toml = 'pyproject.toml'
-        if (os.path.isfile(file_toml)):
-            file_toml = toml.load(file_toml)
-            version = file_toml['tool']['poetry']['version']
+        parser = SafeConfigParser()
+        parser.read('assets/config.ini')
+        version = parser.get('fit_properties', 'version')
         
         return version

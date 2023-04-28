@@ -50,7 +50,6 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
-from common.error import ErrorMessage
 
 from common.settings import DEBUG
 from common.config import LogConfig
@@ -93,7 +92,6 @@ class Web(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Web, self).__init__(*args, **kwargs)
-        self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.screenshot_directory = None
         self.current_page_load_is_finished = False

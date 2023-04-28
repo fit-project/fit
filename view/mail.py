@@ -31,13 +31,14 @@ import logging.config
 import shutil
 from datetime import timedelta
 
-from common.constants import logger
+from common.constants import logger, error, details
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QRegExp, QDate, Qt
 from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator
 from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem
 
+from common.constants.view import mail
 from controller.mail import Mail as MailController
 from controller.report import Report as ReportController
 
@@ -46,8 +47,6 @@ from view.timestamp import Timestamp as TimestampView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
-
-from common.error import ErrorMessage
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
@@ -75,7 +74,6 @@ class Mail(QtWidgets.QMainWindow):
         self.input_subject = None
         self.input_from_date = None
         self.input_to_date = None
-        self.error_msg = ErrorMessage()
         self.acquisition_directory = None
         self.acquisition_is_started = False
         self.is_enabled_timestamp = False
@@ -373,9 +371,9 @@ class Mail(QtWidgets.QMainWindow):
             self.mail_controller.check_server(server, port)
         except Exception as e:  # WRONG SERVER
             error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  self.error_msg.TITLES['server_error'],
-                                  self.error_msg.MESSAGES['server_error'],
-                                  "Please retry.")
+                                  mail.SERVER_ERROR,
+                                  error.SERVER_ERROR,
+                                  details.RETRY)
             error_dlg.exec_()
             return
 
@@ -383,9 +381,9 @@ class Mail(QtWidgets.QMainWindow):
             self.mail_controller.check_login(email, password)
         except Exception as e:  # WRONG CREDENTIALS
             error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  self.error_msg.TITLES['login_error'],
-                                  self.error_msg.MESSAGES['login_error'],
-                                  "Please retry.")
+                                  mail.LOGIN_ERROR,
+                                  error.LOGIN_ERROR,
+                                  details.RETRY)
             error_dlg.exec_()
             return
 
@@ -492,9 +490,9 @@ class Mail(QtWidgets.QMainWindow):
             self.emails_tree.expandItem(self.root)  # expand root
         else:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['no_email'],
-                                  self.error_msg.MESSAGES['no_email'],
-                                  "Error: no e-maild found."
+                                  mail.NO_EMAILS,
+                                  error.NO_EMAILS,
+                                  details.RETRY
                                   )
 
             error_dlg.buttonClicked.connect(quit)
@@ -567,8 +565,8 @@ class Mail(QtWidgets.QMainWindow):
             shutil.rmtree(acquisition_emails_folder)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  self.error_msg.TITLES['save_mail'],
-                                  self.error_msg.MESSAGES['save_mail'],
+                                  mail.SAVE_MAIL,
+                                  error.SAVE_MAIL,
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 

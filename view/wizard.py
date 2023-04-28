@@ -31,22 +31,19 @@ import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from common.constants import error
+from common.constants.view import wizard
 from view.configuration import Configuration as ConfigurationView
 from view.case_form import CaseForm as CaseFormView
 from view.error import Error as ErrorView
 
 from common.constants.view.wizard import *
-
-from common.error import ErrorMessage
-
 class CaseInfoPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(CaseInfoPage, self).__init__(parent)
         self.setObjectName("CaseInfoPage")
    
         self.case_info = {}
-
-        self.error_msg = ErrorMessage()
 
         self.configuration_view = ConfigurationView(self)
 
@@ -320,11 +317,11 @@ class Wizard(QtWidgets.QWizard):
                 self.case_info_page.form.controller.cases = self.case_info_page.case_info
             else:
                 case_info =  self.case_info_page.form.controller.add(self.case_info_page.case_info)
-        except Exception as error:
+        except Exception as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Warning,
-                            self.case_info_page.error_msg.TITLES['insert_update_case_info'],
-                            self.case_info_page.error_msg.MESSAGES['insert_update_case_info'],
-                            str(error)
+                            wizard.INSERT_UPDATE_CASE_INFO,
+                            error.INSERT_UPDATE_CASE_INFO,
+                            str(e)
                             )
 
             error_dlg.buttonClicked.connect(self.close)
@@ -348,8 +345,6 @@ class Wizard(QtWidgets.QWizard):
         version = parser.get('fit_properties', 'version')
         
         return version
-
-
 
 
     def _get_recap_case_info_HTML(self):

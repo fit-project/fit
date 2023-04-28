@@ -33,10 +33,11 @@ import sys
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
 
+from common.constants import error
+from common.constants.view import screenrecorder
 from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 
 from view.error import Error as ErrorView
-from common.error import ErrorMessage
 
 
 class ScreenRecorder(QObject):
@@ -44,7 +45,6 @@ class ScreenRecorder(QObject):
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
-        self.error_msg = ErrorMessage()
         self.run = True
         self.destroyed.connect(self.stop)
         self.controller = CodecController()
@@ -85,8 +85,8 @@ class ScreenRecorder(QObject):
 
         except:
                 error_dlg = ErrorView(QMessageBox.Critical,
-                            self.error_msg.TITLES['screen_recoder'],
-                            self.error_msg.MESSAGES['screen_recoder'],
+                            screenrecorder.SCREEN_RECODER,
+                            error.SCREEN_RECODER,
                             str(sys.exc_info()[0])
                             )
 

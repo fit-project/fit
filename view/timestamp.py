@@ -25,18 +25,11 @@
 # SOFTWARE.
 # -----
 ######
-import hashlib
 import os
 
 import requests
 import rfc3161ng
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox
-from pyasn1.codec.der import encoder,decoder
-
-from view.error import Error as ErrorView
-
-from common.error import ErrorMessage
+from PyQt5.QtCore import QObject, pyqtSignal
 
 
 class Timestamp(QObject):
@@ -44,7 +37,6 @@ class Timestamp(QObject):
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
-        self.error_msg = ErrorMessage()
         self.options = None
 
     def set_options(self, options):
