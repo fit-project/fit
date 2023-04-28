@@ -43,12 +43,13 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineD
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
 from view.acquisition.acquisition import Acquisition
+from view.acquisition.task import AcquisitionTask
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
-from common.constants import tasks as Tasks, logger as Logger, state, status, error, details as Details
+from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
 from common.error import ErrorMessage
 
 from common.settings import DEBUG
@@ -64,16 +65,25 @@ class WebEnginePage(QWebEnginePage):
 
 
 class MainWindow(QWebEngineView):
+
+    saveResourcesFinished = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
 
         self.setPage(page)
+        self.page().profile().downloadRequested.connect(lambda download_item:self.__retrieve_download_item(download_item))
 
     def save_resources(self, acquisition_page_folder):
         hostname = urlparse(self.url().toString()).hostname
         self.page().save(os.path.join(acquisition_page_folder, hostname+'.html'),
                          format=QWebEngineDownloadItem.SavePageFormat.CompleteHtmlSaveFormat)
+        
+    
+    def __retrieve_download_item(self, download_item):
+        download_item.finished.connect(self.saveResourcesFinished.emit)
+
 
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
@@ -89,6 +99,7 @@ class Web(QtWidgets.QMainWindow):
         self.current_page_load_is_finished = False
         self.log_confing = LogConfig()
         self.case_info = None
+        self.__tasks = []
 
         self.setWindowFlag(QtCore.Qt.WindowMinMaxButtonsHint, False)
         self.setObjectName('FITWeb')
@@ -127,12 +138,13 @@ class Web(QtWidgets.QMainWindow):
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
-        self.acquisition.completed.connect(self.__acquisition_is_completed)
+        self.acquisition.completed.connect(self.__are_external_tasks_completed)
 
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
         self.start_acquisition_is_started = False
         self.stop_acquisition_is_started = False
+
 
         self.navtb = NavigationToolBarView(self)
         self.addToolBar(self.navtb)
@@ -218,8 +230,8 @@ class Web(QtWidgets.QMainWindow):
             self.navtb.enable_screenshot_buttons()
             # enable stop and info acquisition button
             self.navtb.enable_stop_and_info_acquisition_button()
-
-            # TODO RISOLVERE BUG PACKET CAPTURE
+            
+            #external tasks
             tasks = [Tasks.SCREEN_RECORDER, Tasks.PACKET_CAPTURE]
             self.acquisition.start(tasks, self.acquisition_directory, self.case_info)
 
@@ -231,7 +243,7 @@ class Web(QtWidgets.QMainWindow):
             url = self.tabs.currentWidget().url().toString()
             self.__disable_all()
 
-            # TODO RISOLVERE BUG PACKET CAPTURE
+            #external tasks
             tasks = [Tasks.SCREEN_RECORDER,
                      Tasks.PACKET_CAPTURE,
                      Tasks.WHOIS,
@@ -241,26 +253,36 @@ class Web(QtWidgets.QMainWindow):
                      Tasks.SSLKEYLOG,
                      Tasks.SSLCERTIFICATE
                      ]
+            
+            #internal tasks
+            screenshot = AcquisitionTask(Tasks.SCREENSHOT, state.STARTED, Status.PENDING)
+            self.__tasks.append(screenshot)
+            save_page = AcquisitionTask(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
+            self.__tasks.append(save_page)
 
-            self.acquisition.stop(tasks, url, 2)
+            self.acquisition.stop(tasks, url, len(self.__tasks))
 
     def acquisition_info(self):
         self.acquisition.info.show()
 
-    def __acquisition_is_completed(self):
+    def __are_external_tasks_completed(self):
 
         if self.start_acquisition_is_finished is False:
             self.__start_acquisition_is_finished()
         else:
-            # start local tasks
+            # start internal tasks
             self.take_full_page_screenshot(last=True)
             self.save_page()
+                
 
-            # start post acquisition tasks
-            # TODO very if PEC and Timestamp are sync
+    def __are_internal_tasks_completed(self):
+        status = [task.status for task in self.__tasks]
+        status = list(set(status))
+        if len(status) == 1 and status[0] == Status.COMPLETED:
+            # start post acquisition external tasks
             self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info)
-
             self.__stop_acquisition_is_finished()
+
 
     def __start_acquisition_is_finished(self):
         self.acquisition.set_completed_progress_bar()
@@ -329,14 +351,22 @@ class Web(QtWidgets.QMainWindow):
     def save_page(self):
 
         self.acquisition.logger.info(Logger.SAVE_PAGE)
-        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, status.PENDING)
+        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
 
         acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
         if not os.path.isdir(acquisition_page_folder):
             os.makedirs(acquisition_page_folder)
+        
 
+        self.browser.saveResourcesFinished.connect(lambda folder=acquisition_page_folder: 
+                                                   self.__zip_and_remove(folder))
+        
         self.browser.save_resources(acquisition_page_folder)
-        zip_folder = shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+    
+    def __zip_and_remove(self, acquisition_page_folder):
+
+        shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+        
         try:
             shutil.rmtree(acquisition_page_folder)
         except OSError as e:
@@ -347,9 +377,12 @@ class Web(QtWidgets.QMainWindow):
                                   )
 
             error_dlg.buttonClicked.connect(quit)
-            # error_dlg.exec_()
-
-        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.FINISHED, status.COMPLETED)
+        
+        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.FINISHED, Status.COMPLETED)
+        task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]
+        task.state = state.FINISHED
+        task.status = Status.COMPLETED
+        self.__are_internal_tasks_completed()
 
     def case(self):
         self.case_view.exec_()
@@ -376,7 +409,7 @@ class Web(QtWidgets.QMainWindow):
     def take_full_page_screenshot(self, last=False):
         if last:
             self.acquisition.logger.info(Logger.SCREENSHOT)
-            self.acquisition.info.add_task(Tasks.SCREENSHOT, state.STARTED, status.PENDING)
+            self.acquisition.info.add_task(Tasks.SCREENSHOT, state.STARTED, Status.PENDING)
 
         if self.screenshot_directory is not None:
             full_page_folder = os.path.join(
@@ -444,7 +477,12 @@ class Web(QtWidgets.QMainWindow):
             imgs_comb.save(whole_img_filename)
 
             if last:
-                self.acquisition.info.add_task(Tasks.SCREENSHOT, state.FINISHED, status.COMPLETED)
+                self.acquisition.info.add_task(Tasks.SCREENSHOT, state.FINISHED, Status.COMPLETED)
+                task = list(filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks))[0]
+                task.state = state.FINISHED
+                task.status = Status.COMPLETED
+                self.__are_internal_tasks_completed()
+
             else:
                 self.progress_bar.setValue(100 - progress)
                 self.__enable_all()

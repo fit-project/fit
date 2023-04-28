@@ -29,7 +29,7 @@
 from PyQt5.QtCore import QObject
 
 class AcquisitionTask(QObject):
-    def __init__(self, name, state, status, parent: None):
+    def __init__(self, name, state, status, parent=None):
         super().__init__(parent)
         self.name = name
         self.state = state

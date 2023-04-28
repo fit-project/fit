@@ -31,7 +31,7 @@ import logging.config
 from common.config import LogConfig
 import common.utility
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject
 
 from view.acquisition.info import AcquisitionInfo
 from controller.configurations.tabs.general import network
