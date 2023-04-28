@@ -203,7 +203,7 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        # Step 2: Create acquisiton directory
+        # Step 2: Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],

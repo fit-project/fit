@@ -87,14 +87,14 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         self.addSeparator()
 
-        # START ACQUISITON ACTION
+        # START ACQUISITION ACTION
         self.start_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'start.svg')), "Start Acquisition", self)
         self.start_acquisition_btn.setStatusTip("Start acquisition")
         self.start_acquisition_btn.triggered.connect(parent.start_acquisition)
         self.start_acquisition_btn.setObjectName('start')
         self.addAction(self.start_acquisition_btn)
 
-        # STOP ACQUISITON ACTION
+        # STOP ACQUISITION ACTION
         self.stop_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'stop-disabled.svg')), "Stop Acquisition", self)
         self.stop_acquisition_btn.setStatusTip("Stop acquisition")
         self.stop_acquisition_btn.triggered.connect(parent.stop_acquisition)
@@ -102,7 +102,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.stop_acquisition_btn.setEnabled(False)
         self.addAction(self.stop_acquisition_btn)
 
-        # INFO ACQUISITON STATUS ACTION
+        # INFO ACQUISITION STATUS ACTION
         self.info_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'info-disabled.svg')), "info Acquisition", self)
         self.info_acquisition_btn.setStatusTip("info acquisition")
         self.info_acquisition_btn.triggered.connect(parent.acquisition_info)

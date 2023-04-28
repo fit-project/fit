@@ -67,7 +67,7 @@ class Case:
      return list(map(lambda x : x['name'], self._names))
 
   def create_acquisition_directory(self, acquisition_type, cases_folder, case_folder, content):
-        #Directories: Cases -> Case Name -> Acquisition Type -> Acquisiton Content
+        #Directories: Cases -> Case Name -> Acquisition Type -> Acquisition Content
         if acquisition_type == 'web' :
             content = urlparse(content).netloc
             

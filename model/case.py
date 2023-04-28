@@ -78,7 +78,7 @@ class Case(Base):
                                                 directories['acquisition_type_folder']
                                             )
         
-        acquisition_directory = os.path.join(acquisition_type_directory,  'acquisiton_1')
+        acquisition_directory = os.path.join(acquisition_type_directory,  'acquisition_1')
 
         if os.path.isdir(acquisition_directory):
 
@@ -89,7 +89,7 @@ class Case(Base):
             index = max([int(''.join(filter(str.isdigit, item))) for item in acquisition_directories])
 
             #Increment index and create the new content folder
-            acquisition_directory = os.path.join(acquisition_type_directory, 'acquisiton_' + str(index + 1))            
+            acquisition_directory = os.path.join(acquisition_type_directory, 'acquisition_' + str(index + 1))
 
         os.makedirs(acquisition_directory)
 

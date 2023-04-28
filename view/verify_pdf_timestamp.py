@@ -255,6 +255,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                                                       open_folder, "PDF Files (*.pdf)")
             if check:
                 self.input_pdf.setText(file)
+                self.acquisition_directory = os.path.dirname(file)
         elif extension == 'tsr':
             file, check = QFileDialog.getOpenFileName(None, "Open timestamp",
                                                       open_folder, "TSR Files (*.tsr)")
@@ -267,8 +268,8 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             if check:
                 self.input_crt.setText(file)
 
+
     def generate_report_verification(self, data, server_name, timestamp, check):
-        folder = self.get_current_dir()
 
         configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
         configuration_network = configuration_general.findChild(QtWidgets.QGroupBox,
@@ -288,9 +289,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # get date from tsr file
         timestamp_datetime = rfc3161ng.get_timestamp(timestamp)
 
-        info_file_path = os.path.join(folder, 'timestamp_info.txt')
-        if not os.path.isdir(folder):
-            os.makedirs(folder)
+        info_file_path = os.path.join(self.acquisition_directory, 'timestamp_info.txt')
         with open(info_file_path, 'w') as file:
 
             file.write('======================================================================\n')
@@ -316,7 +315,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             file.write(f'{server_name}\n')
             file.write('======================================================================\n')
 
-        report = VerifyPDFTimestampController(folder, self.case_info, ntp)
+        report = VerifyPDFTimestampController(self.acquisition_directory, self.case_info, ntp)
         return report, info_file_path
 
     def get_current_dir(self):
