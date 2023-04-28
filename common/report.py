@@ -25,8 +25,9 @@
 # SOFTWARE.
 # -----
 ######
-import os
 
+import toml
+import os.path
 
 class ReportText:
     def __init__(self):
@@ -35,7 +36,7 @@ class ReportText:
             'img': '../assets/images/FIT.png',
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
-            'version': "Versione 1.4 beta",
+            'version': "Versione {}".format(self.__get_version()),
             'index': "Indice",
 
             'description': "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti "
@@ -134,3 +135,13 @@ class ReportText:
         }
         self.CASE = ["Cliente / Caso", "Avvocato", "Tipo di procedimento",
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
+        
+    def __get_version(self):
+        version = ''
+
+        file_toml = 'pyproject.toml'
+        if (os.path.isfile(file_toml)):
+            file_toml = toml.load(file_toml)
+            version = file_toml['tool']['poetry']['version']
+        
+        return version

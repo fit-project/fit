@@ -32,6 +32,7 @@ import rfc3161ng
 
 import common.utility as utility
 from view.error import Error as ErrorView
+from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
@@ -56,12 +57,21 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-    def init(self, case_info, acquisition_directory=None):
+    def init(self, case_info, wizard, options=None):
+        self.__init__()
+        self.wizard = wizard
         self.width = 690
         self.height = 250
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
-        self.acquisition_directory = acquisition_directory
+
+        self.acquisition_directory = None
+        if options:
+            if "acquisition_directory" in options:
+                self.acquisition_directory = options['acquisition_directory']
+
+        self.case_view = CaseView(self.case_info, self)
+        self.case_view.hide()
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
         self.setObjectName("verify_timestamp_window")
@@ -70,6 +80,28 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.setCentralWidget(self.centralwidget)
+
+        # MENU BAR
+        self.setCentralWidget(self.centralwidget)
+        self.menuBar().setNativeMenuBar(False)
+
+        # CONF BUTTON
+        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+        self.menuConfiguration.setObjectName("menuConfiguration")
+        self.menuConfiguration.triggered.connect(self.configuration)
+        self.menuBar().addAction(self.menuConfiguration)
+
+        # CASE BUTTON
+        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action.setStatusTip("Show case info")
+        self.case_action.triggered.connect(self.case)
+        self.menuBar().addAction(self.case_action)
+
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back to wizard", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.__back_to_wizard)
+        self.menuBar().addAction(back_action)
 
         # set font
         font = QtGui.QFont()
@@ -182,7 +214,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         try:
             verified = rt.check(timestamp, data=open(data, 'rb').read())
 
-            report, info_file_path = self.generate_report_verification(data, rt, server_name, timestamp, True)
+            report, info_file_path = self.generate_report_verification(data, server_name, timestamp, True)
             if verified:  # it's called ErrorView but it's an informative message :(
 
                 report.generate_pdf(True, info_file_path)
@@ -197,7 +229,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         except Exception:
             # timestamp not validated
 
-            report, info_file_path = self.generate_report_verification(data, rt, server_name, timestamp, False)
+            report, info_file_path = self.generate_report_verification(data, server_name, timestamp, False)
             report.generate_pdf(False, info_file_path)
 
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
@@ -235,13 +267,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             if check:
                 self.input_crt.setText(file)
 
-    def generate_report_verification(self, data, rt, server_name, timestamp, check):
+    def generate_report_verification(self, data, server_name, timestamp, check):
         folder = self.get_current_dir()
 
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
+        configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        configuration_network = configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
-        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+        ntp = utility.get_ntp_date_and_time(configuration_network.configuration["ntp_server"])
 
         if check:
             verification = 'Il report ha un timestamp valido'
@@ -256,7 +288,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # get date from tsr file
         timestamp_datetime = rfc3161ng.get_timestamp(timestamp)
 
-        info_file_path = f'{folder}/timestamp_info.txt'
+        info_file_path = os.path.join(folder, 'timestamp_info.txt')
         if not os.path.isdir(folder):
             os.makedirs(folder)
         with open(info_file_path, 'w') as file:
@@ -295,3 +327,14 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             return open_folder
         else:
             return self.acquisition_directory
+
+    def case(self):
+        self.case_view.exec_()
+
+    def configuration(self):
+        self.configuration_view.exec_()
+
+    def __back_to_wizard(self):
+        self.deleteLater()
+        self.wizard.reload_case_info()
+        self.wizard.show()

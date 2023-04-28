@@ -38,14 +38,14 @@ class ErrorMessage:
             'screen_recoder': 'Screen Recoder error',
             'save_web_page': 'Save Web Page',
             'save_mail': 'Save Messages',
-            'mrsign_configuration_options': 'MRSign configuration options error',
             'login_error': 'Login error',
             'server_error': 'Server error',
             'verification_failed': 'Verification failed',
             'verification_ok': 'Verification success',
             'pec_verified': 'Verification success',
             'pec_not_verified': 'Verification failed',
-            'pec_error': 'Login failed'
+            'pec_error': 'Login failed',
+            'timestamp': 'Timestamp failed'
 
         }
 
@@ -61,17 +61,14 @@ class ErrorMessage:
             'save_web_page': 'An error occurred during the execution of save_webpage pywebcopy API',
             'save_mail': 'An error occurred during the execution of save_mailmessages',
             'delete_project_folder': 'An error occurred during the execution of shutil.rmtree method',
-            'mrsign_path': 'MRSign seem don\'t installed on this path "{}"\nPlease check the configuration.',
-            'mrsign_executable': 'MRSign seem not be an executable file "{}"\nPlease check the installation.',
-            'mrsign_hostname_or_port': 'Hostname or port appear not to be configured\nPlease check the configuration.',
-            'mrsign_username_or_password': 'Username or password appear not to be configured\nPlease check the configuration.',
             'login_error': 'Wrong login credentials.',
             'server_error': 'Wrong server or IMAP port.',
             'verification_failed': 'Timestamp verification failed.',
             'verification_ok': 'Timestamp has been verified successfully.',
             'pec_verified': 'Verification success',
             'pec_not_verified': 'Verification failed',
-            'pec_error': 'Login failed'
+            'pec_error': 'Login failed',
+            'timestamp_timeout': 'Unable to send the timestamp request. Read time out.'
 
 
         }

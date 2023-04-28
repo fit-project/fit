@@ -41,9 +41,9 @@ class Case(Base):
     id = Column(Integer, primary_key = True)
     name = Column(String, unique=True)
     lawyer_name = Column(String)
-    types_proceedings_id = Column(Integer)
+    proceeding_type = Column(Integer)
     courthouse = Column(String)
-    proceedings_number = Column(Integer)
+    proceeding_number = Column(Integer)
 
     def __init__(self) -> None:
         super().__init__()
@@ -59,8 +59,8 @@ class Case(Base):
         self.db.session.commit()
     
     def add(self, case_info):
-        self.types_proceedings_id = case_info['types_proceedings_id']
-        self.proceedings_number = case_info['proceedings_number']
+        self.proceeding_type = case_info['proceeding_type']
+        self.proceeding_number = case_info['proceeding_number']
         self.lawyer_name = case_info['lawyer_name']
         self.courthouse = case_info['courthouse']
         self.name = case_info['name']

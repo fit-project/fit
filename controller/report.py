@@ -80,9 +80,9 @@ class Report:
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
-                data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+                data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
-                data4=str(self.case_info['proceedings_number'] or 'N/A'),
+                data4=str(self.case_info['proceeding_number'] or 'N/A'),
                 typed=phrases.TEXT['typed'], type=type,
                 date=phrases.TEXT['date'], ntp=ntp,
                 t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
@@ -96,8 +96,6 @@ class Report:
                 pcap=acquisition_files['acquisition.pcap'], pcapd=phrases.TEXT['pcapd'],
                 zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
                 whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
-                png=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.png')[0]], pngd=phrases.TEXT['pngd'],
-                dump=acquisition_files['flow_dump.txt'], dumpd=phrases.TEXT['dumpd'],
                 headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
                 nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
                 cer=acquisition_files['server.cer'], cerd=phrases.TEXT['cerd'],
@@ -135,9 +133,9 @@ class Report:
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
-                data2=str(self.case_info['types_proceedings_id'] or 'N/A'),
+                data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
-                data4=str(self.case_info['proceedings_number'] or 'N/A'),
+                data4=str(self.case_info['proceeding_number'] or 'N/A'),
                 typed=phrases.TEXT['typed'], type=type,
                 date=phrases.TEXT['date'], ntp=ntp,
                 t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
@@ -170,16 +168,26 @@ class Report:
             os.remove(self.output_content)
 
     def _get_screenshot(self):
-        acquisition_files = {}
-        files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
-        for file in files:
-            acquisition_files[file] = file
-        if not any(value.endswith('.png') for value in acquisition_files.values()):
-            return "<p> File non prodotto </p>"
+        screenshot_enum = ''
+        screenshot_dir = os.path.join(self.cases_folder_path, 'screenshot')
+        files = [f.name for f in os.scandir(screenshot_dir) if f.is_file()]
+        if len(files) == 0:
+            try:
+                screenshot_file = os.path.join(self.cases_folder_path, 'screenshot.png')
+                screenshot_enum += '<p>' + os.path.join(self.cases_folder_path, 'screenshot.png') + "</p>"
+                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
+                screenshot_enum += '<hr>'
+                return screenshot_enum
+            except:
+                return "<p> File non prodotto </p>"
         else:
-            file_path = os.path.join(self.cases_folder_path, 'screenshot.png')
-            return "<img src="+file_path+ " class='center'>"
-            
+            for file in files:
+                screenshot_file = os.path.join(screenshot_dir, file)
+                screenshot_enum += '<p>' + file + "</p>"
+                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
+                screenshot_enum += '<hr>'
+        return screenshot_enum
+
     def _acquisition_files_names(self):
         acquisition_files = {}
         files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
@@ -188,8 +196,6 @@ class Report:
 
         if not any(value.endswith('.avi') for value in acquisition_files.values()):
             acquisition_files['acquisition.avi'] = "File non prodotto"
-        if not any(value.endswith('.png') for value in acquisition_files.values()):
-            acquisition_files['screenshot.png'] = "File non prodotto"
         if not 'acquisition.hash' in acquisition_files.values():
             acquisition_files['acquisition.hash'] = "File non prodotto"
         if not 'acquisition.log' in acquisition_files.values():
@@ -200,8 +206,6 @@ class Report:
             acquisition_files['acquisition.zip'] = "File non prodotto"
         if not 'whois.txt' in acquisition_files.values():
             acquisition_files['whois.txt'] = "File non prodotto"
-        if not 'flow_dump.txt' in acquisition_files.values():
-            acquisition_files['flow_dump.txt'] = "File non prodotto"
         if not 'headers.txt' in acquisition_files.values():
             acquisition_files['headers.txt'] = "File non prodotto"
         if not 'nslookup.txt' in acquisition_files.values():

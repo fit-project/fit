@@ -36,13 +36,11 @@ import pyzmail
 class Mail:
     def __init__(self):
         self.email_address = None
-        # TODO: implement secure password handling
         self.password = None
         self.mailbox = None
 
     def check_server(self, server, port):
         # Connect and log to the mailbox using IMAP server
-
         self.mailbox = imaplib.IMAP4_SSL(server, int(port))  # imap ssl port
         return
 
@@ -93,10 +91,10 @@ class Mail:
                         scraped_emails[folder].append(dict_value)
                     else:
                         scraped_emails[folder] = [dict_value]
-
-            except Exception as e:  # handle exception
+            except: # no e-mails in the current folder
                 pass
-
+        if len(scraped_emails) == 0:
+            return None
         return scraped_emails
 
     def set_criteria(self, sender, recipient, subject, from_date, to_date):
@@ -122,19 +120,7 @@ class Mail:
 
                 # Create acquisition folder
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
-                acquisition_dir = os.path.join(project_folder, 'acquisition', folder_stripped)
-                if not os.path.exists(acquisition_dir):
-                    os.makedirs(acquisition_dir)
-
-                status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
-
-                message_mail = raw_email[0][1]
-
-                message = pyzmail.PyzMessage.factory(message_mail)
-
-                filename = f"{message.get('message-id')[1:-8]}.eml"
-                with open(project_folder + '//acquisition//' + folder_stripped + '/' + filename, 'wb') as f:
-                    f.write(message.as_bytes())
+                self.write_emails(email_id, project_folder, folder_stripped)
 
         return
 
@@ -156,24 +142,28 @@ class Mail:
             try:
                 self.mailbox.select(folder)
                 type, data = self.mailbox.search(None, 'ALL')
-                # Create acquisition folder
-                acquisition_dir = os.path.join(project_folder, 'acquisition', folder_stripped)
-                if not os.path.exists(acquisition_dir):
-                    os.makedirs(acquisition_dir)
-                # Fetch every message in specified folder
 
+                # Fetch every message in specified folder
                 messages = data[0].split()
                 for email_id in messages:
-                    status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
-
-                    message_mail = raw_email[0][1]
-
-                    message = pyzmail.PyzMessage.factory(message_mail)
-
-                    filename = f"{message.get('message-id')[1:-8]}.eml"
-                    with open(project_folder + '//acquisition//' + folder_stripped + '/' + filename, 'wb') as f:
-                        f.write(message.as_bytes())
-
-
+                    self.write_emails(email_id, project_folder, folder_stripped)
             except Exception as e:  # handle exception
                 pass
+
+    def write_emails(self, email_id, project_folder, folder_stripped):
+
+        # Create acquisition folder
+        acquisition_dir = os.path.join(project_folder, 'acquisition', folder_stripped)
+        if not os.path.exists(acquisition_dir):
+            os.makedirs(acquisition_dir)
+        status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
+
+        message_mail = raw_email[0][1]
+
+        message = pyzmail.PyzMessage.factory(message_mail)
+
+        filename = f"{message.get('message-id')[1:-8]}.eml"
+        email_path = os.path.join(project_folder, 'acquisition', folder_stripped, filename)
+        with open(email_path, 'wb') as f:
+            f.write(message.as_bytes())
+        return

@@ -29,10 +29,15 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
-from common import utility
-from controller.integrityPec.verifyPec import verifyPec as verifyPecController
-from common.error import ErrorMessage
+from common.utility import get_ntp_date_and_time
+from controller.verify_pec.verify_pec import verifyPec as verifyPecController
+from view.error import Error as ErrorView
+
+from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
+
+from common.constants.view import verify_pec, general 
+from common.utility import get_platform
 
 
 class VerifyPec(QtWidgets.QMainWindow):
@@ -40,15 +45,19 @@ class VerifyPec(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(VerifyPec, self).__init__(*args, **kwargs)
-        self.data = None  # file .eml
-        self.error_msg = ErrorMessage()
         self.configuration_view = ConfigurationView(self)
+        self.acquisition_directory = None
 
-    def init(self, case_info):
+    def init(self, case_info, wizard, options=None):
+        self.__init__()
+        self.wizard = wizard
         self.width = 600
         self.height = 230
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
+
+        self.case_view = CaseView(self.case_info, self)
+        self.case_view.hide()
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
         self.setObjectName("verify_pec_window")
@@ -57,6 +66,28 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.setCentralWidget(self.centralwidget)
+
+        # MENU BAR
+        self.setCentralWidget(self.centralwidget)
+        self.menuBar().setNativeMenuBar(False)
+
+        # CONF BUTTON
+        self.menu_configuration = QtWidgets.QAction("Configuration", self)
+        self.menu_configuration.setObjectName("menuConfiguration")
+        self.menu_configuration.triggered.connect(self.__configuration)
+        self.menuBar().addAction(self.menu_configuration)
+
+        # CASE BUTTON
+        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action.setStatusTip("Show case info")
+        self.case_action.triggered.connect(self.__case)
+        self.menuBar().addAction(self.case_action)
+
+        # BACK ACTION
+        back_action = QtWidgets.QAction("Back to wizard", self)
+        back_action.setStatusTip("Go back to the main menu")
+        back_action.triggered.connect(self.__back_to_wizard)
+        self.menuBar().addAction(back_action)
 
         self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.eml_group_box.setEnabled(True)
@@ -70,7 +101,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.input_eml.setEnabled(False)
         self.input_eml_button = QtWidgets.QPushButton(self.centralwidget)
         self.input_eml_button.setGeometry(QtCore.QRect(450, 60, 75, 20))
-        self.input_eml_button.clicked.connect(lambda extension: self.dialog('eml'))
+        self.input_eml_button.clicked.connect(self.__dialog)
 
         # EML LABEL
         self.label_eml = QtWidgets.QLabel(self.centralwidget)
@@ -81,7 +112,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         # VERIFICATION BUTTON
         self.verification_button = QtWidgets.QPushButton(self.centralwidget)
         self.verification_button.setGeometry(QtCore.QRect(450, 140, 75, 30))
-        self.verification_button.clicked.connect(self.verify)
+        self.verification_button.clicked.connect(self.__verify)
         self.verification_button.setObjectName("StartAction")
         self.verification_button.setEnabled(False)
 
@@ -91,37 +122,65 @@ class VerifyPec(QtWidgets.QMainWindow):
         # DISABLE SCRAPE BUTTON IF FIELDS ARE EMPTY
         self.input_fields = [self.input_eml]
         for input_field in self.input_fields:
-            input_field.textChanged.connect(self.onTextChanged)
+            input_field.textChanged.connect(self.__onTextChanged)
 
     def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("verify_eml_window", "Freezing Internet Tool"))
-        self.eml_group_box.setTitle(_translate("verify_eml_window", "Impostazioni eml"))
-        self.label_eml.setText(_translate("verify_eml_window", "EML File (.eml)"))
-        self.verification_button.setText(_translate("verify_eml_window", "Verify"))
-        self.input_eml_button.setText(_translate("verify_timestamp_window", "Browse..."))
+        self.setWindowTitle(general.MAIN_WINDOW_TITLE)
+        self.eml_group_box.setTitle(verify_pec.EML_SETTINGS)
+        self.label_eml.setText(verify_pec.EML_FILE)
+        self.verification_button.setText(verify_pec.BUTTON_VERIFY)
+        self.input_eml_button.setText(general.BROWSE)
 
-    def onTextChanged(self):
+    def __onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
         self.verification_button.setEnabled(all_fields_filled)
 
-    def verify(self):
+    def __verify(self):
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        # Get network parameters for check (NTP, nslookup)
+        # Get network parameters for (NTP)
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
-        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+        ntp = get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
         pec = verifyPecController()
-        pec.verifyPec(self.input_eml.text(), self.case_info, ntp)
+        try:
+            pec.verify(self.input_eml.text(), self.case_info, ntp)
+        except Exception as e:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                    verify_pec.VERIFY_PEC_FAILED,
+                                    verify_pec.VERIFY_PEC_FAILED_MGS,
+                                    str(e))
+            error_dlg.exec_()
+        
         path = os.path.dirname(str(self.input_eml.text()))
-        os.startfile(path)
-        self.close()
+        if get_platform() == 'win':
+            os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
 
-    def dialog(self, extension):
-        # open the correct file picker based on extension
-        if extension == 'eml':
-            file, check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
-                                                      "", "EML Files (*.eml)")
-            if check:
-                self.input_eml.setText(file)
 
+    def __dialog(self):
+
+        file, check = QFileDialog.getOpenFileName(None, verify_pec.OPEN_EML_FILE, 
+                                                    self.__get_acquisition_directory(), verify_pec.EML_FILES)
+        if check:
+            self.input_eml.setText(file)
+
+    def __case(self):
+        self.case_view.exec_()
+
+    def __configuration(self):
+        self.configuration_view.exec_()
+    
+
+    def __get_acquisition_directory(self):
+        if not self.acquisition_directory:
+            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            open_folder = os.path.expanduser(
+                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+            return open_folder
+        else:
+            return self.acquisition_directory
+        
+
+    def __back_to_wizard(self):
+        self.deleteLater()
+        self.wizard.reload_case_info()
+        self.wizard.show()

@@ -27,11 +27,10 @@
 ###### 
 
 from importlib import util
+import distutils.spawn
 import os
 import sys
 import hashlib
-import platform
-import subprocess
 import ntplib
 import urllib.request
 from   urllib.parse import urlparse
@@ -247,10 +246,9 @@ def import_modules(start_path, start_module_name = ""):
             sys.modules[module_name] = module
             spec.loader.exec_module(module)
 
-#search for the first free port to bind the proxy
-def find_free_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    return sock.getsockname()[1]
+def screenshot_filename(path, basename, extention = '.png'):
+    return os.path.join(path, basename + '_' +datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f') + extention)
 
+def is_cmd(name):
+  return distutils.spawn.find_executable(name) is not None
 
