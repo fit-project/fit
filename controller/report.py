@@ -59,7 +59,6 @@ class Report:
         acquisition_files = self._acquisition_files_names()
 
         zip_enum = self._zip_files_enum()
-        screenshot = self._get_screenshot()
 
         # FILLING FRONT PAGE WITH DATA
         front_index = open(os.getcwd() + '/assets/templates/front.html').read().format(
@@ -105,8 +104,6 @@ class Report:
                 t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
                 t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
                 t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-                t8=phrases.TEXT['t8'], t8descr=phrases.TEXT['t8descr'],
-                screenshot=screenshot,
                 titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
                 titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
             )
@@ -167,26 +164,6 @@ class Report:
         if os.path.exists(self.output_content):
             os.remove(self.output_content)
 
-    def _get_screenshot(self):
-        screenshot_enum = ''
-        screenshot_dir = os.path.join(self.cases_folder_path, 'screenshot')
-        files = [f.name for f in os.scandir(screenshot_dir) if f.is_file()]
-        if len(files) == 0:
-            try:
-                screenshot_file = os.path.join(self.cases_folder_path, 'screenshot.png')
-                screenshot_enum += '<p>' + os.path.join(self.cases_folder_path, 'screenshot.png') + "</p>"
-                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
-                screenshot_enum += '<hr>'
-                return screenshot_enum
-            except:
-                return "<p> File non prodotto </p>"
-        else:
-            for file in files:
-                screenshot_file = os.path.join(screenshot_dir, file)
-                screenshot_enum += '<p>' + file + "</p>"
-                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
-                screenshot_enum += '<hr>'
-        return screenshot_enum
 
     def _acquisition_files_names(self):
         acquisition_files = {}
