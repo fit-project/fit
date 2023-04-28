@@ -6,9 +6,8 @@ For the implementation:
 * MVC Pattern
 * Python Language
 * Qt as graphical user interface
-* Pyshark (wrapper for Tshark) which a sniffer (similar to Sun's snoop or tcpdump)
+* Scapy for packet capture
 * OpenVC and Pyautogui for screen capture
-* Pywebcopy for save all resource (html, css, js, image, etc.)
 
 
 ## Prerequisites
