@@ -48,9 +48,9 @@ class PostAcquisition(QtCore.QObject):
         super().__init__(parent)
     
 
-    def execute(self, folder, case_info):
+    def execute(self, folder, case_info, type):
        self.calculate_acquisition_file_hash(folder)
-       self.generate_pdf_report(folder, case_info)
+       self.generate_pdf_report(folder, case_info, type)
        self.generate_timestamp_report(folder)
        self.send_report_from_pec(folder, case_info)
         
@@ -76,10 +76,10 @@ class PostAcquisition(QtCore.QObject):
         self.parent().upadate_progress_bar()
 
         
-    def generate_pdf_report(self, folder, case_info):
+    def generate_pdf_report(self, folder, case_info,type):
         self.parent().set_message_on_the_statusbar(tasks.REPORTFILE)
         report = ReportController(folder, case_info)
-        report.generate_pdf('web', self.parent().get_time())
+        report.generate_pdf(type, self.parent().get_time())
         self.parent().upadate_progress_bar()
 
     #TODO is async?

@@ -280,7 +280,7 @@ class Web(QtWidgets.QMainWindow):
         status = list(set(status))
         if len(status) == 1 and status[0] == Status.COMPLETED:
             # start post acquisition external tasks
-            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info)
+            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'web')
             self.__stop_acquisition_is_finished()
 
 

@@ -30,7 +30,8 @@ import logging
 import logging.config
 import shutil
 from datetime import timedelta
-from view.pec.pec import Pec as PecView
+
+from common.constants import logger
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QRegExp, QDate, Qt
@@ -40,7 +41,6 @@ from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem
 from controller.mail import Mail as MailController
 from controller.report import Report as ReportController
 
-from view.acquisitionstatus import AcquisitionStatus as AcquisitionStatusView
 from view.timestamp import Timestamp as TimestampView
 
 from view.case import Case as CaseView
@@ -52,6 +52,8 @@ from common.error import ErrorMessage
 from common.settings import DEBUG
 from common.config import LogConfigTools
 import common.utility as utility
+
+from view.acquisition.acquisition import Acquisition
 
 logger_acquisition = logging.getLogger(__name__)
 logger_hashreport = logging.getLogger('hashreport')
@@ -77,8 +79,6 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_directory = None
         self.acquisition_is_started = False
         self.is_enabled_timestamp = False
-        self.acquisition_status = AcquisitionStatusView(self)
-        self.acquisition_status.setupUi()
         self.log_confing = LogConfigTools()
         self.case_info = None
 
@@ -311,15 +311,6 @@ class Mail(QtWidgets.QMainWindow):
         self.case_action.triggered.connect(self.case)
         self.menuBar().addAction(self.case_action)
 
-        # ACQUISITION BUTTON
-        self.acquisition_menu = self.menuBar().addMenu("&Acquisition")
-        self.acquisition_status_action = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/images', 'info.png')),
-                                                           "Status",
-                                                           self)
-        self.acquisition_status_action.triggered.connect(self._acquisition_status)
-        self.acquisition_status_action.setObjectName("StatusAcquisitionAction")
-        self.acquisition_menu.addAction(self.acquisition_status_action)
-
         # BACK ACTION
         back_action = QtWidgets.QAction("Back to wizard", self)
         back_action.setStatusTip("Go back to the main menu")
@@ -342,6 +333,9 @@ class Mail(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(self)
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+
+        # ACQUISITION
+        self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
 
         # Enable/Disable other modules logger
         if not DEBUG:
@@ -416,9 +410,6 @@ class Mail(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(False)
             self.progress_bar.setValue(10)
             self.acquisition_is_started = True
-            self.acquisition_status.set_title('Acquisition in progress:')
-            self.acquisition_status.add_task('Case Folder')
-            self.acquisition_status.set_status('Case Folder', self.acquisition_directory, 'done')
             self.status.showMessage(self.acquisition_directory)
             self.progress_bar.setValue(25)
 
@@ -431,12 +422,9 @@ class Mail(QtWidgets.QMainWindow):
                 f'NTP start acquisition time: {utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
             self.progress_bar.setValue(75)
 
-            self.acquisition_status.add_task('Logger')
-            self.acquisition_status.set_status('Logger', 'Started', 'done')
             self.status.showMessage('Logging handler and login information have been started')
             self.progress_bar.setValue(90)
 
-            self.acquisition_status.set_title('Login started success:')
 
         # remove items from tree to clear the acquisition
         if self.email_folder is not None:
@@ -452,8 +440,6 @@ class Mail(QtWidgets.QMainWindow):
         self.progress_bar.setValue(50)
         if action is not None:
             action.setEnabled(False)
-        self.acquisition_status.clear()
-        self.acquisition_status.set_title('Fetching e-mails...')
         self.status.showMessage('Fetching e-mails, please wait')
         self.progress_bar.setValue(100)
 
@@ -462,19 +448,13 @@ class Mail(QtWidgets.QMainWindow):
 
         if self.acquisition_is_started:
             self.setEnabled(False)
-            self.acquisition_status.clear()
             self.progress_bar.setValue(100)
-            self.acquisition_status.set_title('Login success:')
-            self.acquisition_status.add_task('Login')
-            self.acquisition_status.set_status('Login', 'Completed', 'done')
             logger_acquisition.info('Login completed')
             self.status.showMessage('Login completed')
             self.progress_bar.setHidden(True)
             self.get_messages()
             self.setEnabled(True)
 
-    def _acquisition_status(self):
-        self.acquisition_status.show()
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
@@ -495,9 +475,6 @@ class Mail(QtWidgets.QMainWindow):
             from_date=selected_from_date,
             to_date=selected_to_date)
 
-        self.acquisition_status.set_title('Params acquisition:')
-        self.acquisition_status.add_task('Params')
-        self.acquisition_status.set_status('Params', 'acquisition completed', 'done')
         logger_acquisition.info('Params acquisition completed')
         self.status.showMessage('Params acquisition completed')
         emails = self.mail_controller.get_mails_from_every_folder(self.params)
@@ -574,9 +551,6 @@ class Mail(QtWidgets.QMainWindow):
 
     def save_info(self):
         self.progress_bar.setValue(70)
-        self.acquisition_status.set_title('Save emails:')
-        self.acquisition_status.add_task('Save emails')
-        self.acquisition_status.set_status('Save emails', 'completed', 'done')
         logger_acquisition.info('Save emails completed')
         self.status.showMessage('Save emails completed')
 
@@ -587,7 +561,6 @@ class Mail(QtWidgets.QMainWindow):
         # zipping email acquisition folder
         acquisition_emails_folder = os.path.join(self.acquisition_directory, project_name)
         zip_folder = shutil.make_archive(acquisition_emails_folder, 'zip', acquisition_emails_folder)
-        self.acquisition_status.set_status('Save email', zip_folder, 'done')
         self.progress_bar.setValue(90)
         try:
             # removing unused acquisition folder
@@ -647,11 +620,7 @@ class Mail(QtWidgets.QMainWindow):
 
         self.progress_bar.setValue(100)
 
-        self.pec = PecView()
-        self.pec.hide()
-        self.acquisition_window = self.pec
-        self.acquisition_window.init(self.case_info, "Mail", self.acquisition_directory)
-        self.acquisition_window.show()
+        self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'email')
 
         #### Enable all action ####
         self.setEnabled(True)
