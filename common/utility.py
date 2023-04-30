@@ -32,11 +32,13 @@ import os
 import sys
 import hashlib
 import ntplib
+
 import urllib.request
 from   urllib.parse import urlparse
 from datetime import datetime, timezone
+from configparser import SafeConfigParser
 
-from whois import NICClient, WhoisEntry, extract_domain, IPV4_OR_V6
+from whois import NICClient, extract_domain, IPV4_OR_V6
 import socket
 import requests
 requests.urllib3.disable_warnings()
@@ -61,57 +63,36 @@ def get_platform():
 
     return platforms[sys.platform]
 
-if get_platform() == 'win':
+def check_internet_connection():
+    try:
+        parser = SafeConfigParser()
+        parser.read('assets/config.ini')
+        url = parser.get('fit_properties', 'check_connection_url')
+        urllib.request.urlopen(url)
+        return True
+    except:
+        return False
 
-    import winreg
+def is_npcap_installed():
+    #reference https://npcap.com/guide/npcap-devguide.html section (Install-time detection)
+    return os.path.exists("C:\\Program Files\\Npcap\\NPFInstall.exe")
 
-    def get_list_of_programs_installed_on_windows(hive, flag):
-        aReg = winreg.ConnectRegistry(None, hive)
-        aKey = winreg.OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
-                            0, winreg.KEY_READ | flag)
+def get_npcap_installer_url():
 
-        count_subkey = winreg.QueryInfoKey(aKey)[0]
-
-        software_list = []
-
-        for i in range(count_subkey):
-            software = {}
-            try:
-                asubkey_name = winreg.EnumKey(aKey, i)
-                asubkey = winreg.OpenKey(aKey, asubkey_name)
-                software['name'] = winreg.QueryValueEx(asubkey, "DisplayName")[0]
-
-                try:
-                    software['version'] = winreg.QueryValueEx(asubkey, "DisplayVersion")[0]
-                except EnvironmentError:
-                    software['version'] = 'undefined'
-                try:
-                    software['publisher'] = winreg.QueryValueEx(asubkey, "Publisher")[0]
-                except EnvironmentError:
-                    software['publisher'] = 'undefined'
-                software_list.append(software)
-            except EnvironmentError:
-                continue
-
-        return software_list
-
-    def program_is_installed(name):
-        program = None
-        is_istalled = False
-        software_list = None
-        if get_platform() == 'win':
-            software_list = get_list_of_programs_installed_on_windows(winreg.HKEY_LOCAL_MACHINE, winreg.KEY_WOW64_32KEY) + \
-                            get_list_of_programs_installed_on_windows(winreg.HKEY_LOCAL_MACHINE, winreg.KEY_WOW64_64KEY) + \
-                            get_list_of_programs_installed_on_windows(winreg.HKEY_CURRENT_USER, 0)
+    parser = SafeConfigParser()
+    parser.read('assets/config.ini')
+    url = parser.get('fit_properties', 'npcap_latest_version_url')
+    installer_url = None
+    with requests.get(url, stream=True, timeout=10, verify=False) as response:
+        try:
+            version = response.json()["name"]
+            version = version.lower()
+            version = version.replace(' ', '-')
+            installer_url = parser.get('fit_properties', 'npcap_installer_url')
+            return installer_url + version + '.exe'
+        except Exception as e:
+            raise Exception(e)
         
-        if software_list is not None:
-            for software in software_list:
-                if name in software['name']:
-                    program = {'name':software['name'], 'version':software['version'], 'publisher':software['publisher']}
-                    is_istalled = True
-                    break
-
-        return is_istalled
 
 def calculate_hash(filename, algorithm):
     with open(filename, "rb") as f:
@@ -180,15 +161,6 @@ def get_headers_information(url):
     response = requests.get(url)
     
     return response.headers
-
-
-def check_internet_connection(host='http://google.com'):
-    try:
-        urllib.request.urlopen(host)
-        return True
-    except:
-        return False
-        
 
 def check_if_peer_certificate_exist(url):
     with requests.get(url, stream=True, timeout=10, verify=False) as response:

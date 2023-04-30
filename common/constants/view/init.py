@@ -4,7 +4,7 @@
 # -----
 # MIT License
 # 
-# Copyright (c) 2022 FIT-Project and others
+# Copyright (c) 2023 FIT-Project and others
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -25,18 +25,10 @@
 # SOFTWARE.
 # -----
 ###### 
-import os
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtCore, QtGui
 
-class Error(QMessageBox):
-    def __init__(self, severity, title, message, details,parent=None):
-        super(Error, self).__init__(parent)
-        # enable custom window hint
-        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
-
-        self.setIcon(severity)
-        self.setWindowTitle(title)
-        self.setText(message)
-        self.setInformativeText(details)
-        
+CHECK_CONNETION="Check internet connection"
+ERR_INTERNET_DISCONNECTED="<strong>No internet</strong><br><br>Try:<br>- Checking the network cables, modem, and router<br>- Reconnecting to Wi-Fi"
+NPCAP="Npcap"
+NPCAP_DOWNLOAD="Npcap download"
+ERR_NPCAP_RELEASE_VERSION="I can't get the latest version of Npcap! Please below for more details"
+WAR_NPCAP_NOT_INSTALLED="Seems <strong>Npcap</strong> it's not installed in your PC.<br><br><strong style=\"color:red\">Without Npcap fit's functionality is very limited.</strong><br><br>Do you want install it?"

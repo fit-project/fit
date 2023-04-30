@@ -217,7 +217,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)

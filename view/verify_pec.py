@@ -59,7 +59,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
         self.setObjectName("verify_pec_window")
 
         self.centralwidget = QtWidgets.QWidget(self)

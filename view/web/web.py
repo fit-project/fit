@@ -34,10 +34,7 @@ from urllib.parse import urlparse
 import numpy as np
 from PIL import Image
 
-# from scapy.all import *
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEventLoop, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineDownloadItem
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
@@ -65,7 +62,7 @@ class WebEnginePage(QWebEnginePage):
 
 class MainWindow(QWebEngineView):
 
-    saveResourcesFinished = pyqtSignal()
+    saveResourcesFinished = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -190,7 +187,7 @@ class Web(QtWidgets.QMainWindow):
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # Enable/Disable other modules logger
         if not DEBUG:
