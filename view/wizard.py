@@ -25,9 +25,9 @@
 # SOFTWARE.
 # -----
 ######
+import os
 
 from configparser import SafeConfigParser
-import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -259,7 +259,7 @@ class Wizard(QtWidgets.QWizard):
         self.setTitleFormat(QtCore.Qt.RichText)
         self.setSubTitleFormat(QtCore.Qt.RichText)
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
-        self.setWindowIcon(QtGui.QIcon('assets/images/icon.png'))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
 
         self.case_info_page = CaseInfoPage(self)
