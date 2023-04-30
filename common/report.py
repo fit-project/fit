@@ -31,7 +31,7 @@ class ReportText:
     def __init__(self):
         self.TEXT = {
             'report_pec': "Report di verifica della PEC",
-            'img': '../assets/svg/FIT.svg',
+            'img': '../assets/images/FIT.png',
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
             'version': "Versione {}".format(self.__get_version()),
