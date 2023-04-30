@@ -759,18 +759,6 @@ files = [
 asn1crypto = ">=1.5.1"
 
 [[package]]
-name = "packaging"
-version = "23.1"
-description = "Core utilities for Python packages"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "packaging-23.1-py3-none-any.whl", hash = "sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61"},
-    {file = "packaging-23.1.tar.gz", hash = "sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f"},
-]
-
-[[package]]
 name = "pillow"
 version = "9.5.0"
 description = "Python Imaging Library (Fork)"
@@ -4202,39 +4190,6 @@ pil = ["pillow (>=9.1.0)"]
 test = ["coverage", "pytest"]
 
 [[package]]
-name = "qtawesome"
-version = "1.2.3"
-description = "FontAwesome icons in PyQt and PySide applications"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "QtAwesome-1.2.3-py3-none-any.whl", hash = "sha256:0e8402af52f99f7f7a9d97adfdd715483028202ce8cb00216d9fa14fa8cbfcef"},
-    {file = "QtAwesome-1.2.3.tar.gz", hash = "sha256:0db96484f3ac7a53c88279736b39b6f881a3f6bbd2163d4f0d043b74b1ef9131"},
-]
-
-[package.dependencies]
-qtpy = "*"
-
-[[package]]
-name = "qtpy"
-version = "2.3.1"
-description = "Provides an abstraction layer on top of the various Qt bindings (PyQt5/6 and PySide2/6)."
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "QtPy-2.3.1-py3-none-any.whl", hash = "sha256:5193d20e0b16e4d9d3bc2c642d04d9f4e2c892590bd1b9c92bfe38a95d5a2e12"},
-    {file = "QtPy-2.3.1.tar.gz", hash = "sha256:a8c74982d6d172ce124d80cafd39653df78989683f760f2281ba91a6e7b9de8b"},
-]
-
-[package.dependencies]
-packaging = "*"
-
-[package.extras]
-test = ["pytest (>=6,!=7.0.0,!=7.0.1)", "pytest-cov (>=3.0.0)", "pytest-qt"]
-
-[[package]]
 name = "reportlab"
 version = "3.6.12"
 description = "The Reportlab Toolkit"
@@ -4630,4 +4585,4 @@ svglib = ">=1.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "6a69801e31a08e911fc6fcc366e9ba92767334737e8b487e41953863171a2454"
+content-hash = "809187a1dfd553c78986f3e0c1cc3a3e5656bf84466683c2170e9425d6cbc374"
