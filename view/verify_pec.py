@@ -36,7 +36,7 @@ from view.error import Error as ErrorView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
-from common.constants.view import verify_pec, general 
+from common.constants.view import verify_pec, general, verify_pdf_timestamp
 from common.utility import get_platform
 
 
@@ -128,7 +128,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
         self.eml_group_box.setTitle(verify_pec.EML_SETTINGS)
         self.label_eml.setText(verify_pec.EML_FILE)
-        self.verification_button.setText(verify_pec.BUTTON_VERIFY)
+        self.verification_button.setText(general.BUTTON_VERIFY)
         self.input_eml_button.setText(general.BROWSE)
 
     def __onTextChanged(self):
@@ -144,16 +144,23 @@ class VerifyPec(QtWidgets.QMainWindow):
         pec = verifyPecController()
         try:
             pec.verify(self.input_eml.text(), self.case_info, ntp)
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+            msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
+            msg.setText(verify_pec.VERIFY_PEC_SUCCESS_MSG)
+            msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            return_value = msg.exec()
+            if return_value == QtWidgets.QMessageBox.Yes:
+                path = os.path.dirname(str(self.input_eml.text()))
+                if get_platform() == 'win':
+                    os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
         except Exception as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                    verify_pec.VERIFY_PEC_FAILED,
-                                    verify_pec.VERIFY_PEC_FAILED_MGS,
+                                    verify_pec.VERIFY_PEC_FAIL,
+                                    verify_pec.VERIFY_PEC_FAIL_MGS,
                                     str(e))
             error_dlg.exec_()
-        
-        path = os.path.dirname(str(self.input_eml.text()))
-        if get_platform() == 'win':
-            os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
 
 
     def __dialog(self):

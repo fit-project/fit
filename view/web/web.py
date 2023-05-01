@@ -69,7 +69,7 @@ class MainWindow(QWebEngineView):
         page = WebEnginePage(self)
 
         self.setPage(page)
-        self.page().profile().downloadRequested.connect(lambda download_item:self.__retrieve_download_item(download_item))
+        self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
 
     def save_resources(self, acquisition_page_folder):
         hostname = urlparse(self.url().toString()).hostname

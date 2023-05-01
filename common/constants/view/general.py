@@ -28,3 +28,4 @@
 
 MAIN_WINDOW_TITLE="Freezing Internet Tool"
 BROWSE="Browse..."
+BUTTON_VERIFY="Verify"

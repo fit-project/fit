@@ -27,12 +27,15 @@
 ######
 
 import requests
+from configparser import SafeConfigParser
 from bs4 import BeautifulSoup
 
 class Authority():
     def __init__(self, temp_x509):
         self.x509_file_path = temp_x509
-        self.url = 'https://www.agid.gov.it/it/piattaforme/posta-elettronica-certificata/elenco-gestori-pec'
+        parser = SafeConfigParser()
+        parser.read('assets/config.ini')
+        self.url = parser.get('fit_properties', 'pec_providers_url')
     
     def get_authority(self):
         authority = None
