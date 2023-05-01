@@ -28,30 +28,27 @@
 import logging
 from PyQt5 import QtCore
 
-from common.utility import nslookup
+from common.utility import whois
 from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
-logger = logging.getLogger('nslookup')
+logger = logging.getLogger('whois')
 
-class AcquisitionNslookup(AcquisitionTask):
+class AcquisitionWhois(AcquisitionTask):
 
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
-    def start(self, url, configuration):
-
-        logger.info(nslookup(url,
-                configuration["nslookup_dns_server"],
-                configuration["nslookup_enable_tcp"],
-                configuration["nslookup_enable_verbose_mode"]
-                ))
+    def start(self, url):
         
-        self.parent().logger.info(Logger.NSLOOKUP_GET)
+        logger.info(whois(url))
+        
+        self.parent().logger.info(Logger.WHOIS_GET)
         self.parent().task_is_completed({
-                                'name' : tasks.NSLOOKUP,
+                                'name' : tasks.WHOIS,
                                 'state' : state.FINISHED,
                                 'status' : status.COMPLETED
                             })
+                            

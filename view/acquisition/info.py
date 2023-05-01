@@ -65,6 +65,10 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(state))
         self.table.setItem(row, 2, status)
     
+    def clear_info(self):
+        self.table.clearContents()
+        self.table.setRowCount(0)
+    
     def update_task(self, row, state, status, details):
         self.__update_task_state(row, state)
         self.__update_task_status(row, status, details)

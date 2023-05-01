@@ -45,7 +45,7 @@ from common.config import LogConfigTools
 import common.utility as utility
 from common.constants import logger
 
-from view.timestamp import Timestamp as TimestampView
+from view.post_acquisition.timestamp import Timestamp as TimestampView
 
 import logging
 import logging.config

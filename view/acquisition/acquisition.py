@@ -33,10 +33,10 @@ from common.constants import logger, state as State, status as Status, tasks as 
 
 
 from view.acquisition.base import Base, logging
-from view.acquisition.packetcapture import AcquisitionPacketCapture
-from view.acquisition.screenrecorder import AcquisitionScreenRecorder
-from view.acquisition.nettools import *
-from view.acquisition.post import PostAcquisition
+from view.acquisition.tasks.packetcapture import AcquisitionPacketCapture
+from view.acquisition.tasks.screenrecorder import AcquisitionScreenRecorder
+from view.acquisition.tasks.nettools import *
+from view.post_acquisition.post import PostAcquisition
 
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture as PacketCaptureCotroller
@@ -62,6 +62,11 @@ class Acquisition(Base):
 
         if self.is_started:
             return
+        
+        #reset All
+        self.info.clear_info()
+        self.clear_tasks()
+
         
         self.total_tasks = len(tasks)
         self.folder = folder

@@ -31,9 +31,9 @@ import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from view.pec.pec_form import PecForm as PecFormView
+from view.post_acquisition.pec.pec_form import PecForm as PecFormView
 from view.error import Error as ErrorView
-from view.pec.eml_not_found import EmlNotFound as EmlNotFoundView
+from view.post_acquisition.pec.eml_not_found import EmlNotFound as EmlNotFoundView
 
 from controller.pec import Pec as PecController
 from controller.configurations.tabs.pec.pec import Pec as PecConfigController

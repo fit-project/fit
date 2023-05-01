@@ -40,7 +40,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineD
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
 from view.acquisition.acquisition import Acquisition
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -90,6 +90,7 @@ class Web(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Web, self).__init__(*args, **kwargs)
         self.acquisition_directory = None
+        self.acquisition_page_folder = None
         self.screenshot_directory = None
         self.current_page_load_is_finished = False
         self.log_confing = LogConfigTools()
@@ -313,6 +314,11 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().page().profile().clearHttpCache()
 
         self.acquisition_is_running = False
+        self.start_acquisition_is_finished = False
+        self.start_acquisition_is_started = False
+        self.stop_acquisition_is_started = False
+        self.browser.saveResourcesFinished.disconnect()
+        self.__tasks.clear()
 
         self.__enable_all()
 
@@ -349,22 +355,19 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition.logger.info(Logger.SAVE_PAGE)
         self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
 
-        acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
-        if not os.path.isdir(acquisition_page_folder):
-            os.makedirs(acquisition_page_folder)
+        self.acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
+        if not os.path.isdir(self.acquisition_page_folder):
+            os.makedirs(self.acquisition_page_folder)
         
-
-        self.browser.saveResourcesFinished.connect(lambda folder=acquisition_page_folder: 
-                                                   self.__zip_and_remove(folder))
+        self.browser.saveResourcesFinished.connect(self.__zip_and_remove)
         
-        self.browser.save_resources(acquisition_page_folder)
+        self.browser.save_resources(self.acquisition_page_folder)
     
-    def __zip_and_remove(self, acquisition_page_folder):
-
-        shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+    def __zip_and_remove(self):
+        shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
         
         try:
-            shutil.rmtree(acquisition_page_folder)
+            shutil.rmtree(self.acquisition_page_folder)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   Tasks.SAVE_PAGE,

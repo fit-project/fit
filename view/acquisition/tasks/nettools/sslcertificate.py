@@ -32,7 +32,7 @@ from PyQt5 import QtCore
 from common.utility import check_if_peer_certificate_exist, get_peer_PEM_cert, save_PEM_cert_to_CER_cert
 from common.constants import logger as Logger, state, status as Status, tasks, details as Details
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
 class AcquisitionSSLCertificate(AcquisitionTask):

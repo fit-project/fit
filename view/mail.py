@@ -42,7 +42,7 @@ from common.constants.view import mail
 from controller.mail import Mail as MailController
 from controller.report import Report as ReportController
 
-from view.timestamp import Timestamp as TimestampView
+from view.post_acquisition.timestamp import Timestamp as TimestampView
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView

@@ -24,28 +24,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-######
-import sslkeylog
+###### 
 import os
 from PyQt5 import QtCore
 
+from common.utility import traceroute
 from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
-class AcquisitionSSLKeyLog(AcquisitionTask):
+class AcquisitionTraceroute(AcquisitionTask):
 
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
-    def start(self, folder):
+    def start(self, url, folder):
 
-        sslkeylog.set_keylog(os.path.join(folder, 'sslkey.log'))
+        traceroute(url, os.path.join(folder, 'traceroute.txt'))
         
-        self.parent().logger.info(Logger.SSLKEYLOG_GET)
+        self.parent().logger.info(Logger.TRACEROUTE_GET)
         self.parent().task_is_completed({
-                                'name' : tasks.SSLKEYLOG,
+                                'name' : tasks.TRACEROUTE,
                                 'state' : state.FINISHED,
                                 'status' : status.COMPLETED
                             })

@@ -25,30 +25,31 @@
 # SOFTWARE.
 # -----
 ###### 
+
 import logging
 from PyQt5 import QtCore
 
-from common.utility import whois
+from common.utility import get_headers_information
 from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
-logger = logging.getLogger('whois')
 
-class AcquisitionWhois(AcquisitionTask):
+logger = logging.getLogger('headers')
+
+class AcquisitionHeaders(AcquisitionTask):
 
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
     def start(self, url):
-        
-        logger.info(whois(url))
-        
-        self.parent().logger.info(Logger.WHOIS_GET)
+
+        logger.info(get_headers_information(url))
+        self.parent().logger.info(Logger.HEADERS_GET)
         self.parent().task_is_completed({
-                                'name' : tasks.WHOIS,
+                                'name' : tasks.HEADERS,
                                 'state' : state.FINISHED,
                                 'status' : status.COMPLETED
-                            })
+                                })
                             
