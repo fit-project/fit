@@ -44,9 +44,10 @@ class GenerateReport:
         if report_info.get('is_integrity') == True:
             integrity = INTEGRITY_SUCCESS
 
-        is_on_agid_list = PROVIDER_IS_NOT_ON_AGID_LIST
+        provider_name = report_info.get('provider_name')
+        is_on_agid_list = PROVIDER_IS_NOT_ON_AGID_LIST.format(provider_name)
         if report_info.get('is_on_agid_list') == True:
-            is_on_agid_list = PROVIDER_IS_ON_AGID_LIST
+            is_on_agid_list = PROVIDER_IS_ON_AGID_LIST.format(provider_name)
 
         revoked = PEC_ADDRESS_IS_NOT_REVOKED
         if report_info.get('is_revoked') == True:
@@ -61,7 +62,7 @@ class GenerateReport:
             integrity,
             revoked,
             signature,
-            report_info.get('authority_name'),
+            provider_name,
             is_on_agid_list,
             report_info.get('case_info'),
             report_info.get('ntp'),
@@ -69,7 +70,7 @@ class GenerateReport:
         )
 
     def __generate(self, to, replay_to, subject, send_date, expiration_date,
-                                     integrità, revoked, signature, authority_name, is_on_agid_list, case_info,
+                                     integrità, revoked, signature, provider_name, is_on_agid_list, case_info,
                                      ntp, eml_file_path):
 
 
@@ -112,10 +113,10 @@ class GenerateReport:
             file.write(f'{REPORT_LABEL_REVOKED}\n')
             file.write(f'{revoked}\n')
             file.write('======================================================================\n')
-            file.write(f'{REPORT_LABEL_AUTHORITY_NAME}\n')
-            file.write(f'{authority_name}\n')
+            file.write(f'{REPORT_LABEL_PROVIDER_NAME}\n')
+            file.write(f'{provider_name}\n')
             file.write('======================================================================\n')
-            file.write(f'{REPORT_LABEL_IS_ON_AGID_LIST}\n')
+            file.write(f'{REPORT_LABEL_PROVIDER_CHECK}\n')
             file.write(f'{is_on_agid_list}\n')
             file.write('======================================================================\n')
 
