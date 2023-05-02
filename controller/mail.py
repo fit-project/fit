@@ -112,7 +112,7 @@ class Mail:
         params = ' '.join(criteria)
         return params
 
-    def download_single_messages(self, project_folder, emails_dict):
+    def download_single_messages(self, mail_dir, emails_dict):
         for folder, emails_list in emails_dict.items():
 
             for emails in emails_list:
@@ -120,7 +120,7 @@ class Mail:
 
                 # Create acquisition folder
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
-                self.write_emails(email_id, project_folder, folder_stripped)
+                self.write_emails(email_id, mail_dir, folder_stripped)
 
     def download_everything(self, project_folder):
 
@@ -150,12 +150,12 @@ class Mail:
             except Exception as e:  # handle exception
                 raise Exception(e)
 
-    def write_emails(self, email_id, project_folder, folder_stripped):
+    def write_emails(self, email_id, mail_dir, folder_stripped):
 
-        # Create acquisition folder
-        acquisition_dir = os.path.join(project_folder, 'acquisition', folder_stripped)
-        if not os.path.exists(acquisition_dir):
-            os.makedirs(acquisition_dir)
+        # Create mail folder
+        folder_dir = os.path.join(mail_dir, folder_stripped)
+        if not os.path.exists(folder_dir):
+            os.makedirs(folder_dir)
         status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
 
         message_mail = raw_email[0][1]
@@ -163,7 +163,7 @@ class Mail:
         message = pyzmail.PyzMessage.factory(message_mail)
 
         filename = f"{message.get('message-id')[1:-8]}.eml"
-        email_path = os.path.join(project_folder, 'acquisition', folder_stripped, filename)
+        email_path = os.path.join(folder_dir, filename)
 
         with open(email_path, 'wb') as f:
             f.write(message.as_bytes())
