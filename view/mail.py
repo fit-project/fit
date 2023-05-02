@@ -39,6 +39,7 @@ from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator
 from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem
 
 from common.constants.view import mail
+from common.constants.view.mail import *
 from controller.mail import Mail as MailController
 from controller.report import Report as ReportController
 
@@ -332,6 +333,7 @@ class Mail(QtWidgets.QMainWindow):
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
 
+
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
 
@@ -344,21 +346,20 @@ class Mail(QtWidgets.QMainWindow):
             self.log_confing.disable_loggers(loggers)
 
     def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("email_scrape_window", "Freezing Internet Tool"))
-        self.imap_group_box.setTitle(_translate("email_scrape_window", "Impostazioni server IMAP"))
-        self.criteria_group_box.setTitle(_translate("email_scrape_window", "Criteri di ricerca"))
-        self.label_email.setText(_translate("email_scrape_window", "E-mail*"))
-        self.label_password.setText(_translate("email_scrape_window", "Password*"))
-        self.label_server.setText(_translate("email_scrape_window", "Server IMAP*"))
-        self.label_port.setText(_translate("email_scrape_window", "Port*"))
-        self.label_sender.setText(_translate("email_scrape_window", "Mittente"))
-        self.label_recipient.setText(_translate("email_scrape_window", "Destinatario"))
-        self.label_subject.setText(_translate("email_scrape_window", "Oggetto"))
-        self.label_from_date.setText(_translate("email_scrape_window", "Data di inizio"))
-        self.label_to_date.setText(_translate("email_scrape_window", "Data di fine"))
-        self.login_button.setText(_translate("email_scrape_window", "Fetch"))
-        self.scrape_button.setText(_translate("email_scrape_window", "Download"))
+        self.setWindowTitle(TITLE)
+        self.imap_group_box.setTitle(IMAP)
+        self.criteria_group_box.setTitle(CRITERIA)
+        self.label_email.setText(EMAIL)
+        self.label_password.setText(PASSWORD)
+        self.label_server.setText(IMAP_SERVER)
+        self.label_port.setText("Port*")
+        self.label_sender.setText("Mittente")
+        self.label_recipient.setText("Destinatario")
+        self.label_subject.setText("Oggetto")
+        self.label_from_date.setText("Data di inizio")
+        self.label_to_date.setText("Data di fine")
+        self.login_button.setText("Fetch")
+        self.scrape_button.setText("Download")
 
     def login(self):
         email = self.input_email.text()
@@ -402,10 +403,13 @@ class Mail(QtWidgets.QMainWindow):
             self.input_email.text()
         )
         if self.acquisition_directory is not None:
+            self.start_acquisition_is_started = True
             if not os.path.exists(os.path.join(self.acquisition_directory, 'acquisition')):
                 os.makedirs(os.path.join(self.acquisition_directory, 'acquisition'))
             # show progress bar
             self.progress_bar.setHidden(False)
+            self.acquisition_is_running = True
+
             self.progress_bar.setValue(10)
             self.acquisition_is_started = True
             self.status.showMessage(self.acquisition_directory)
