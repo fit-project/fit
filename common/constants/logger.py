@@ -56,3 +56,8 @@ GENERATE_PDF_REPORT_STOP="Generate PDF Report stop"
 SCREENSHOT="Save screenshot of current page"
 SAVE_PAGE="Save all resource of current page"
 
+FETCH_EMAILS="Fetching e-mails"
+SEARCH_CRITERIA = "Search criteria: {}"
+SAVE_EMAILS="Save all selected emails"
+
+

@@ -34,16 +34,13 @@ from urllib.parse import urlparse
 import numpy as np
 from PIL import Image
 
-# from scapy.all import *
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEventLoop, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineDownloadItem
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
 from view.acquisition.acquisition import Acquisition
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -65,14 +62,14 @@ class WebEnginePage(QWebEnginePage):
 
 class MainWindow(QWebEngineView):
 
-    saveResourcesFinished = pyqtSignal()
+    saveResourcesFinished = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
 
         self.setPage(page)
-        self.page().profile().downloadRequested.connect(lambda download_item:self.__retrieve_download_item(download_item))
+        self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
 
     def save_resources(self, acquisition_page_folder):
         hostname = urlparse(self.url().toString()).hostname
@@ -93,6 +90,7 @@ class Web(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Web, self).__init__(*args, **kwargs)
         self.acquisition_directory = None
+        self.acquisition_page_folder = None
         self.screenshot_directory = None
         self.current_page_load_is_finished = False
         self.log_confing = LogConfigTools()
@@ -190,7 +188,7 @@ class Web(QtWidgets.QMainWindow):
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # Enable/Disable other modules logger
         if not DEBUG:
@@ -202,7 +200,6 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        # Step 2: Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],
@@ -316,6 +313,11 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().page().profile().clearHttpCache()
 
         self.acquisition_is_running = False
+        self.start_acquisition_is_finished = False
+        self.start_acquisition_is_started = False
+        self.stop_acquisition_is_started = False
+        self.browser.saveResourcesFinished.disconnect()
+        self.__tasks.clear()
 
         self.__enable_all()
 
@@ -352,22 +354,21 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition.logger.info(Logger.SAVE_PAGE)
         self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
 
-        acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
-        if not os.path.isdir(acquisition_page_folder):
-            os.makedirs(acquisition_page_folder)
-        
+        self.status.showMessage(Logger.SAVE_PAGE)
 
-        self.browser.saveResourcesFinished.connect(lambda folder=acquisition_page_folder: 
-                                                   self.__zip_and_remove(folder))
+        self.acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
+        if not os.path.isdir(self.acquisition_page_folder):
+            os.makedirs(self.acquisition_page_folder)
         
-        self.browser.save_resources(acquisition_page_folder)
+        self.browser.saveResourcesFinished.connect(self.__zip_and_remove)
+        
+        self.browser.save_resources(self.acquisition_page_folder)
     
-    def __zip_and_remove(self, acquisition_page_folder):
-
-        shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+    def __zip_and_remove(self):
+        shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
         
         try:
-            shutil.rmtree(acquisition_page_folder)
+            shutil.rmtree(self.acquisition_page_folder)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   Tasks.SAVE_PAGE,
@@ -376,9 +377,10 @@ class Web(QtWidgets.QMainWindow):
                                   )
 
             error_dlg.buttonClicked.connect(quit)
-        
-        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.FINISHED, Status.COMPLETED)
+        row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
+        self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
         task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]
+        self.acquisition.upadate_progress_bar()
         task.state = state.FINISHED
         task.status = Status.COMPLETED
         self.__are_internal_tasks_completed()
@@ -476,7 +478,8 @@ class Web(QtWidgets.QMainWindow):
             imgs_comb.save(whole_img_filename)
 
             if last:
-                self.acquisition.info.add_task(Tasks.SCREENSHOT, state.FINISHED, Status.COMPLETED)
+                row = self.acquisition.info.get_row(Tasks.SCREENSHOT)
+                self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
                 task = list(filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks))[0]
                 task.state = state.FINISHED
                 task.status = Status.COMPLETED

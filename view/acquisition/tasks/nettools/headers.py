@@ -24,38 +24,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-######
+###### 
 
-import os
+import logging
 from PyQt5 import QtCore
 
-from common.utility import check_if_peer_certificate_exist, get_peer_PEM_cert, save_PEM_cert_to_CER_cert
-from common.constants import logger as Logger, state, status as Status, tasks, details as Details
+from common.utility import get_headers_information
+from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
-class AcquisitionSSLCertificate(AcquisitionTask):
+
+logger = logging.getLogger('headers')
+
+class AcquisitionHeaders(AcquisitionTask):
 
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
-    def start(self, url, folder):
-        
-        details = ''
+    def start(self, url):
 
-        if check_if_peer_certificate_exist(url):
-            certificate = get_peer_PEM_cert(url)
-            save_PEM_cert_to_CER_cert(os.path.join(folder, 'server.cer'), certificate)
-        else:
-            details = Details.SSLCERTIFICATE_NOT_EXIST
-
-        self.parent().logger.info(Logger.SSLCERTIFICATE_GET)
+        logger.info(get_headers_information(url))
+        self.parent().logger.info(Logger.HEADERS_GET)
         self.parent().task_is_completed({
-                                'name' : tasks.SSLCERTIFICATE,
+                                'name' : tasks.HEADERS,
                                 'state' : state.FINISHED,
-                                'status' : Status.COMPLETED,
-                                'details' : details
-                            })
-        self.deleteLater()
+                                'status' : status.COMPLETED
+                                })
                             

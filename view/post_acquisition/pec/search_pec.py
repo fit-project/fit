@@ -238,7 +238,7 @@ class SearchPec(QDialog):
         self.label_password.setText(search_pec.LABEL_PASSWORD)
         self.label_imap_server.setText(search_pec.LABEL_IMAP_SERVER)
         self.label_imap_port.setText(search_pec.LABEL_IMAP_PORT)
-        self.label_to.setText(search_pec.LABEL_TO)
+        self.label_to.setText(search_pec.LABEL_RECIPIENT)
         self.label_case.setText(search_pec.LABEL_CASE)
         self.label_from_date.setText(search_pec.LABEL_FROM_DATE)
         self.label_to_date.setText(search_pec.LABEL_TO_DATE)

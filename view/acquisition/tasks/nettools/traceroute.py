@@ -25,31 +25,28 @@
 # SOFTWARE.
 # -----
 ###### 
-
-import logging
+import os
 from PyQt5 import QtCore
 
-from common.utility import get_headers_information
+from common.utility import traceroute
 from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
-
-logger = logging.getLogger('headers')
-
-class AcquisitionHeaders(AcquisitionTask):
+class AcquisitionTraceroute(AcquisitionTask):
 
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
-    def start(self, url):
+    def start(self, url, folder):
 
-        logger.info(get_headers_information(url))
-        self.parent().logger.info(Logger.HEADERS_GET)
+        traceroute(url, os.path.join(folder, 'traceroute.txt'))
+        
+        self.parent().logger.info(Logger.TRACEROUTE_GET)
         self.parent().task_is_completed({
-                                'name' : tasks.HEADERS,
+                                'name' : tasks.TRACEROUTE,
                                 'state' : state.FINISHED,
                                 'status' : status.COMPLETED
-                                })
+                            })
                             

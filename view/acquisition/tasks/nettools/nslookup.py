@@ -31,7 +31,7 @@ from PyQt5 import QtCore
 from common.utility import nslookup
 from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
 logger = logging.getLogger('nslookup')

@@ -30,8 +30,6 @@ import os
 
 import rfc3161ng
 
-import common.utility as utility
-from common.constants.view import verify_pdf_timestamp
 from view.error import Error as ErrorView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -41,6 +39,9 @@ from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimes
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QFileDialog
+
+from common.utility import get_ntp_date_and_time, get_platform
+from common.constants.view import verify_pdf_timestamp, general
 
 
 class VerifyPDFTimestamp(QtWidgets.QMainWindow):
@@ -71,7 +72,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
         self.setObjectName("verify_timestamp_window")
 
         self.centralwidget = QtWidgets.QWidget(self)
@@ -184,15 +185,15 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("verify_timestamp_window", "Freezing Internet Tool"))
-        self.timestamp_group_box.setTitle(_translate("verify_timestamp_window", "Impostazioni timestamp"))
-        self.label_pdf.setText(_translate("verify_timestamp_window", "Report (.pdf)"))
-        self.label_tsr.setText(_translate("verify_timestamp_window", "Timestamp (.tsr)"))
-        self.label_crt.setText(_translate("verify_timestamp_window", "TSA Certificate (.crt)"))
-        self.verification_button.setText(_translate("verify_timestamp_window", "Verify"))
-        self.input_pdf_button.setText(_translate("verify_timestamp_window", "Browse..."))
-        self.input_tsr_button.setText(_translate("verify_timestamp_window", "Browse..."))
-        self.input_crt_button.setText(_translate("verify_timestamp_window", "Browse..."))
+        self.setWindowTitle(general.MAIN_WINDOW_TITLE)
+        self.timestamp_group_box.setTitle(verify_pdf_timestamp.TIMESTAMP_SETTINGS)
+        self.label_pdf.setText(verify_pdf_timestamp.PDF_LABEL)
+        self.label_tsr.setText(verify_pdf_timestamp.TSR_LABEL)
+        self.label_crt.setText(verify_pdf_timestamp.CRT_LABEL)
+        self.verification_button.setText(general.BUTTON_VERIFY)
+        self.input_pdf_button.setText(general.BROWSE)
+        self.input_tsr_button.setText(general.BROWSE)
+        self.input_crt_button.setText(general.BROWSE)
 
     def verify(self):
 
@@ -216,11 +217,18 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             if verified:
                 report.generate_pdf(True, info_file_path)
 
-                error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                      verify_pdf_timestamp.VERIFICATION_COMPLETED,
-                                      verify_pdf_timestamp.VERIFICATION_SUCCESS,
-                                      verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
-                error_dlg.exec_()
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+                msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
+                msg.setText(verify_pdf_timestamp.VERIFICATION_SUCCESS)
+                msg.setInformativeText(verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
+                msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                msg.setIcon(QtWidgets.QMessageBox.Information)                      
+                return_value = msg.exec()
+                if return_value == QtWidgets.QMessageBox.Yes:
+                    path = self.get_current_dir()
+                    if get_platform() == 'win':
+                        os.startfile(os.path.join(path,"report_timestamp_verification.pdf"))
 
 
         except Exception:
@@ -235,9 +243,8 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                                   verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
             error_dlg.exec_()
 
-        folder = self.get_current_dir()
-        os.startfile(folder)
-        return
+      
+    
 
     def onTextChanged(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
@@ -248,20 +255,20 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         open_folder = self.get_current_dir()
 
         if extension == 'pdf':
-            file, check = QFileDialog.getOpenFileName(None, "Open PDF",
-                                                      open_folder, "PDF Files (*.pdf)")
+            file, check = QFileDialog.getOpenFileName(None, verify_pdf_timestamp.OPEN_PDF_FILE,
+                                                      open_folder, verify_pdf_timestamp.PDF_FILE)
             if check:
                 self.input_pdf.setText(file)
                 self.acquisition_directory = os.path.dirname(file)
         elif extension == 'tsr':
-            file, check = QFileDialog.getOpenFileName(None, "Open timestamp",
-                                                      open_folder, "TSR Files (*.tsr)")
+            file, check = QFileDialog.getOpenFileName(None, verify_pdf_timestamp.OPEN_TSR_FILE,
+                                                      open_folder, verify_pdf_timestamp.TSR_FILE)
             if check:
                 self.input_tsr.setText(file)
 
         elif extension == 'crt':
-            file, check = QFileDialog.getOpenFileName(None, "Open certificate",
-                                                      open_folder, "CERT Files (*.crt)")
+            file, check = QFileDialog.getOpenFileName(None, verify_pdf_timestamp.OPEN_CRT_FILE,
+                                                      open_folder, verify_pdf_timestamp.CRT_FILE)
             if check:
                 self.input_crt.setText(file)
 
@@ -271,7 +278,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
         configuration_network = configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
-        ntp = utility.get_ntp_date_and_time(configuration_network.configuration["ntp_server"])
+        ntp = get_ntp_date_and_time(configuration_network.configuration["ntp_server"])
 
         if check:
             verification = verify_pdf_timestamp.VALID_TIMESTAMP
@@ -290,25 +297,25 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         with open(info_file_path, 'w') as file:
 
             file.write('======================================================================\n')
-            file.write(f'ESITO\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_RESULT}\n')
             file.write(f'{verification}\n')
             file.write('======================================================================\n')
-            file.write(f'NOME DEL FILE\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_FILENAME}\n')
             file.write(f'{os.path.basename(self.input_pdf.text())}\n')
             file.write('======================================================================\n')
-            file.write(f'DIMENSIONE\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_SIZE}\n')
             file.write(f'{os.path.getsize(self.input_pdf.text())} bytes\n')
             file.write('======================================================================\n')
-            file.write(f'ALGORITMO DI HASHING\n')
-            file.write('sha-256\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_HASH_ALGORITHM}\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_SHA256}\n')
             file.write('======================================================================\n')
-            file.write(f'DIGEST\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_DIGEST}\n')
             file.write(f'{digest}\n')
             file.write('======================================================================\n')
-            file.write(f'TIMESTAMP\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_TIMESTAMP}\n')
             file.write(f'{str(timestamp_datetime)}\n')
             file.write('======================================================================\n')
-            file.write(f'SERVER\n')
+            file.write(f'{verify_pdf_timestamp.REPORT_LABEL_SERVER}\n')
             file.write(f'{server_name}\n')
             file.write('======================================================================\n')
 

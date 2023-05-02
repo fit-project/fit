@@ -37,8 +37,8 @@ from controller.report import Report as ReportController
 from controller.configurations.tabs.timestamp.timestamp import Timestamp as TimestampController
 from controller.configurations.tabs.pec.pec import Pec as PecController
 
-from view.timestamp import Timestamp as TimestampView
-from view.pec.pec import Pec as PecView
+from view.post_acquisition.timestamp import Timestamp as TimestampView
+from view.post_acquisition.pec.pec import Pec as PecView
 from view.error import Error as ErrorView
 
 logger = logging.getLogger('hashreport')

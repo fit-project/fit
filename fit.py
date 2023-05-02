@@ -28,7 +28,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-
+from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
 from view.web.web import Web as WebView
 from view.mail import Mail as MailView
@@ -41,6 +41,9 @@ from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampVi
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
+    init = InitView()
+
     wizard = WizardView()
     wizard.init_wizard()
 
@@ -78,6 +81,7 @@ if __name__ == '__main__':
 
     # Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
-
+    
+    init.init_check()
     wizard.show()
     sys.exit(app.exec_())

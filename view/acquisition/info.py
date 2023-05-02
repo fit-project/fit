@@ -26,7 +26,6 @@
 # -----
 ###### 
 
-import qtawesome as qta
 import os
 from PyQt5 import QtGui, QtCore, QtWidgets
 
@@ -39,7 +38,7 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
         self.setObjectName("AcquisitionStatusView")
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.icon =  qta.icon('fa5s.info-circle', color="blue")
+        self.icon =  QtGui.QIcon(os.path.join('assets/svg/acquisition', 'info-circle.svg'))
 
         self.table = QtWidgets.QTableWidget(self)
         
@@ -65,6 +64,10 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.table.setItem(row, 0, QtWidgets.QTableWidgetItem(task))
         self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(state))
         self.table.setItem(row, 2, status)
+    
+    def clear_info(self):
+        self.table.clearContents()
+        self.table.setRowCount(0)
     
     def update_task(self, row, state, status, details):
         self.__update_task_state(row, state)

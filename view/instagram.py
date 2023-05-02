@@ -45,7 +45,7 @@ from common.config import LogConfigTools
 import common.utility as utility
 from common.constants import logger
 
-from view.timestamp import Timestamp as TimestampView
+from view.post_acquisition.timestamp import Timestamp as TimestampView
 
 import logging
 import logging.config
@@ -217,7 +217,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)

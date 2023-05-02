@@ -123,6 +123,9 @@ class Base(QObject):
     def get_tasks(self):
         return self.__tasks
     
+    def clear_tasks(self):
+        self.__tasks.clear()
+    
     def get_task(self, task_name):
         return list(filter(lambda task: task.name == task_name, self.__tasks))
     

@@ -28,7 +28,7 @@
 import os
 
 import requests
-import rfc3161ng
+from rfc3161ng.api import RemoteTimestamper
 from PyQt5.QtCore import QObject, pyqtSignal
 
 
@@ -57,7 +57,7 @@ class Timestamp(QObject):
         certificate = open(cert_path, 'rb').read()
 
         # create the object
-        rt = rfc3161ng.RemoteTimestamper(self.server_name, certificate=certificate, hashname='sha256')
+        rt = RemoteTimestamper(self.server_name, certificate=certificate, hashname='sha256')
 
         # file to be certificated
         with open(pdf_path, 'rb') as f:

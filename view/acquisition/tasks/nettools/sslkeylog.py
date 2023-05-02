@@ -24,30 +24,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-###### 
-import logging
+######
+import sslkeylog
+import os
 from PyQt5 import QtCore
 
-from common.utility import whois
 from common.constants import logger as Logger, state, status, tasks
 
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 
-logger = logging.getLogger('whois')
-
-class AcquisitionWhois(AcquisitionTask):
+class AcquisitionSSLKeyLog(AcquisitionTask):
 
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
-    def start(self, url):
+    def start(self, folder):
+
+        sslkeylog.set_keylog(os.path.join(folder, 'sslkey.log'))
         
-        logger.info(whois(url))
-        
-        self.parent().logger.info(Logger.WHOIS_GET)
+        self.parent().logger.info(Logger.SSLKEYLOG_GET)
         self.parent().task_is_completed({
-                                'name' : tasks.WHOIS,
+                                'name' : tasks.SSLKEYLOG,
                                 'state' : state.FINISHED,
                                 'status' : status.COMPLETED
                             })
