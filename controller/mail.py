@@ -122,8 +122,6 @@ class Mail:
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
                 self.write_emails(email_id, project_folder, folder_stripped)
 
-        return
-
     def download_everything(self, project_folder):
 
         # Retrieve every folder from the mailbox
@@ -133,8 +131,10 @@ class Mail:
             folders.append(name[1])
 
         # Scrape every message from the folders
-        self.download_messages(folders, project_folder)
-        return
+        try:
+            self.download_messages(folders, project_folder)
+        except Exception as e:  # handle exception
+                raise Exception(e)
 
     def download_messages(self, folders, project_folder):
         for folder in folders:
@@ -148,7 +148,7 @@ class Mail:
                 for email_id in messages:
                     self.write_emails(email_id, project_folder, folder_stripped)
             except Exception as e:  # handle exception
-                pass
+                raise Exception(e)
 
     def write_emails(self, email_id, project_folder, folder_stripped):
 
@@ -164,6 +164,6 @@ class Mail:
 
         filename = f"{message.get('message-id')[1:-8]}.eml"
         email_path = os.path.join(project_folder, 'acquisition', folder_stripped, filename)
+
         with open(email_path, 'wb') as f:
             f.write(message.as_bytes())
-        return

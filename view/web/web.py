@@ -200,7 +200,6 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        # Step 2: Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],
@@ -355,6 +354,8 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition.logger.info(Logger.SAVE_PAGE)
         self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
 
+        self.status.showMessage(Logger.SAVE_PAGE)
+
         self.acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
         if not os.path.isdir(self.acquisition_page_folder):
             os.makedirs(self.acquisition_page_folder)
@@ -376,9 +377,10 @@ class Web(QtWidgets.QMainWindow):
                                   )
 
             error_dlg.buttonClicked.connect(quit)
-        
-        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.FINISHED, Status.COMPLETED)
+        row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
+        self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
         task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]
+        self.acquisition.upadate_progress_bar()
         task.state = state.FINISHED
         task.status = Status.COMPLETED
         self.__are_internal_tasks_completed()
@@ -476,7 +478,8 @@ class Web(QtWidgets.QMainWindow):
             imgs_comb.save(whole_img_filename)
 
             if last:
-                self.acquisition.info.add_task(Tasks.SCREENSHOT, state.FINISHED, Status.COMPLETED)
+                row = self.acquisition.info.get_row(Tasks.SCREENSHOT)
+                self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
                 task = list(filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks))[0]
                 task.state = state.FINISHED
                 task.status = Status.COMPLETED
