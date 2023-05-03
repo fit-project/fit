@@ -51,13 +51,13 @@ class Html2Pdf:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
 
-        front_index = open(os.getcwd() + '/assets/templates/front.html').read().format(
+        front_index = open('assets/templates/front.html').read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report_pec'], version=phrases.TEXT['version']
         )
 
 
-        content_index = open(os.getcwd() + '/assets/templates/template_pec.html').read().format(
+        content_index = open('assets/templates/template_pec.html').read().format(
 
             title=phrases.TEXT['title'],
             index=phrases.TEXT['index'],

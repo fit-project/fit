@@ -138,15 +138,12 @@ class ReportText:
         
     def __get_version(self):
         parser = SafeConfigParser()
-        common_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(os.path.dirname(common_dir), "assets","config.ini")
-        parser.read(config_path)
+        parser.read('assets/config.ini')
         version = parser.get('fit_properties', 'version')
         
         return version
 
     def __get_logo(self):
-        common_dir = os.path.dirname(os.path.abspath(__file__))
-        logo_path = os.path.join(os.path.dirname(common_dir), "assets", "images", "FIT.png")
+        logo_path = os.path.join("assets", "images", "FIT.png")
 
         return logo_path
