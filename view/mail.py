@@ -525,8 +525,8 @@ class Mail(QtWidgets.QMainWindow):
             shutil.rmtree(mail_dir)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  mail.SAVE_MAIL,
-                                  error.SAVE_MAIL,
+                                  tasks.INSTAGRAM,
+                                  error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 

@@ -53,7 +53,6 @@ import logging.config
 from view.acquisition.acquisition import Acquisition
 
 logger_acquisition = logging.getLogger(__name__)
-logger_hashreport = logging.getLogger('hashreport')
 
 class Instagram(QtWidgets.QMainWindow):
 
@@ -216,13 +215,6 @@ class Instagram(QtWidgets.QMainWindow):
         # ACQUISITION
         self.acquisition = Acquisition(logger_acquisition, self.progress_bar, self.status, self)
 
-        # Enable/Disable other modules logger
-        if not DEBUG:
-            loggers = [logging.getLogger()]  # get the root logger
-            loggers = loggers + [logging.getLogger(name) for name in logging.root.manager.loggerDict if
-                                 name not in [__name__, 'hashreport']]
-
-            self.log_confing.disable_loggers(loggers)
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
@@ -304,66 +296,37 @@ class Instagram(QtWidgets.QMainWindow):
         if not err:
             self.setEnabled(False)
             if(self.checkBox_post.isChecked()):
-                self.status.showMessage(Logger.SCRAPING_POSTS)
-                self.acquisition.logger.info(Logger.SCRAPING_POSTS)
-                self.acquisition.info.add_task(tasks.SCRAPING_POSTS, state.STARTED, status.PENDING)
                 insta.scrape_post()
 
             if(self.checkBox_2_followee.isChecked()):
-                self.status.showMessage(Logger.SCRAPING_FOLLOWING)
-                self.acquisition.logger.info(Logger.SCRAPING_FOLLOWING)
-                self.acquisition.info.add_task(tasks.SCRAPING_FOLLOWING, state.STARTED, status.PENDING)
                 insta.scrape_followees()
 
             if(self.checkBox_3_highlight.isChecked()):
-                self.status.showMessage(Logger.SCRAPING_HIGHLIGHTS)
-                self.acquisition.logger.info(Logger.SCRAPING_HIGHLIGHTS)
-                self.acquisition.info.add_task(tasks.SCRAPING_HIGHLIGHTS, state.STARTED, status.PENDING)
                 insta.scrape_highlights()
 
             if(self.checkBox_4_story.isChecked()):
-                self.status.showMessage(Logger.SCRAPING_STORIES)
-                self.acquisition.logger.info(Logger.SCRAPING_STORIES)
-                self.acquisition.info.add_task(tasks.SCRAPING_STORIES, state.STARTED, status.PENDING)
                 insta.scrape_stories()
 
             if(self.checkBox_5_taggedPost.isChecked()):
-                self.status.showMessage(Logger.SCRAPING_TAGGED)
-                self.acquisition.logger.info(Logger.SCRAPING_TAGGED)
-                self.acquisition.info.add_task(tasks.SCRAPING_TAGGED, state.STARTED, status.PENDING)
                 insta.scrape_taggedPosts()
 
             if(self.checkBox_6_savedPost.isChecked()):
-                self.status.showMessage(Logger.SCRAPING_SAVED)
-                self.acquisition.logger.info(Logger.SCRAPING_SAVED)
-                self.acquisition.info.add_task(tasks.SCRAPING_SAVED, state.STARTED, status.PENDING)
                 insta.scrape_savedPosts()
 
             if(self.checkBox_7_follower.isChecked()):
                 insta.scrape_followers()
-                self.status.showMessage(Logger.SCRAPING_FOLLOWING)
-                self.acquisition.logger.info(Logger.SCRAPING_FOLLOWING)
-                self.acquisition.info.add_task(tasks.SCRAPING_FOLLOWING, state.STARTED, status.PENDING)
 
-            self.status.showMessage(Logger.SCRAPING_PROPIC)
-            self.acquisition.logger.info(Logger.SCRAPING_PROPIC)
-            self.acquisition.info.add_task(tasks.SCRAPING_PROPIC, state.STARTED, status.PENDING)
             insta.scrape_profilePicture()
-
-            self.status.showMessage(Logger.SCRAPING_INFO)
-            self.acquisition.logger.info(Logger.SCRAPING_INFO)
-            self.acquisition.info.add_task(tasks.SCRAPING_INFO, state.STARTED, status.PENDING)
             insta.scrape_info()
 
 
-            instaZip = InstragramController(self.input_username.text(), self.input_password.text(),
-                                            self.input_profile.text(), self.acquisition_directory)
-            logger_acquisition.info('Creating zip files')
-            instaZip.createZip(self.acquisition_directory)
+            #instaZip = InstragramController(self.input_username.text(), self.input_password.text(),
+                                            #self.input_profile.text(), self.acquisition_directory)
 
-            logger_acquisition.info('Creating main zip file')
+            #instaZip.createZip(self.acquisition_directory)
 
-            final_zip_name = ""+self.input_profile.text()+".zip"
+
+            '''final_zip_name = ""+self.input_profile.text()+".zip"
             folder_path = self.acquisition_directory
             temp_zip_path = os.path.join(folder_path, "temp_zip.zip")
             with zipfile.ZipFile(final_zip_name, mode="w") as final_zip:
@@ -376,7 +339,7 @@ class Instagram(QtWidgets.QMainWindow):
                             shutil.copy(os.path.join(folder_path, filename), temp_zip_path)
                             final_zip.write(temp_zip_path, arcname=filename)
                             os.remove(temp_zip_path)
-                            os.remove(folderToDelete)
+                            os.remove(folderToDelete)'''
 
             row = self.acquisition.info.get_row(tasks.FETCH_PROFILE)
             self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')

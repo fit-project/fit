@@ -65,7 +65,7 @@ class Instagram:
         id.append(self.profile.userid)
         os.makedirs(self.profileName + "_stories")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_stories")
-        self.loader.download_stories(id, None)
+        self.loader.download_stories(id, None,filename_target='test')
         return
 
     def scrape_followers(self):
