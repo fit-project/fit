@@ -36,7 +36,7 @@ from instaloader import InvalidArgumentException, BadCredentialsException, Conne
 
 from common.constants.view import general, instagram
 from controller.instagram import Instagram as InstragramController
-from controller.report import Report as ReportController
+from view.error import Error as ErrorView
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -44,9 +44,8 @@ from view.configuration import Configuration as ConfigurationView
 from common.settings import DEBUG
 from common.config import LogConfigTools
 import common.utility as utility
-from common.constants import logger
+from common.constants import logger, tasks, state, status, error as Error
 
-from view.post_acquisition.timestamp import Timestamp as TimestampView
 from common.constants import details as Details, logger as Logger
 
 import logging
@@ -206,13 +205,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.progress_bar.setObjectName("progress_bar")
         self.status.addPermanentWidget(self.progress_bar)
         self.setStatusBar(self.status)
-
-        self.labelStatus = QtWidgets.QLabel(self.centralwidget)
-        self.labelStatus.setGeometry(QtCore.QRect(80, 280, 120, 24))
-        self.labelStatus.setObjectName("labelStatus")
-        self.labelStatus.resize(300, 80)
-        self.labelStatus.show()
-
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
 
@@ -254,12 +246,8 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_accountType.setText(instagram.VERIFIED)
 
     def button_clicked(self):
-        originalPath = os.getcwd()
-        #Disable start_acquisition_action and clear current threads and acquisition information on dialog
-        action = self.findChild(QtWidgets.QAction, 'StartAcquisitionAction')
-        if action is not None:
-            action.setEnabled(False)
 
+        # Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'instagram',
             self.configuration_general.configuration['cases_folder_path'],
@@ -267,85 +255,107 @@ class Instagram(QtWidgets.QMainWindow):
             self.input_profile.text()
         )
 
-        self.log_confing.change_filehandlers_path(self.acquisition_directory)
-        logging.config.dictConfig(self.log_confing.config)
+        if self.acquisition_directory is not None:
+            self.start_acquisition_is_started = True
 
-        logger_acquisition.info('Acquisition started')
-        logger_acquisition.info(f'NTP start acquisition time: '
-                                f'{utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])}')
+            # show progress bar
+            self.progress_bar.setHidden(False)
+            self.acquisition.start([], self.acquisition_directory, self.case_info, 1)
 
+        self.status.showMessage(Logger.FETCH_PROFILE)
+        self.acquisition.logger.info(Logger.FETCH_PROFILE)
+        self.acquisition.info.add_task(tasks.FETCH_PROFILE, state.STARTED, status.PENDING)
 
-        error = False
-        self.labelStatus.setText("")
-        self.progress_bar.setValue(0)
+        err = False
         insta = InstragramController(self.input_username.text(), self.input_password.text(),
                                      self.input_profile.text(), self.acquisition_directory)
         try:
-            logger_acquisition.info('Login into Instagram account')
             insta.login()
-        except InvalidArgumentException:
-            error = True
-            self.labelStatus.setText("Errore:\nL'username fornito non esiste...")
-            logger_acquisition.info('Errore: l''username fornito non esiste')
-            logger_acquisition.info('Acquisition stopped')
-            return
-        except BadCredentialsException:
-            error = True
-            self.labelStatus.setText("Errore:\nLa password inserita è errata...")
-            logger_acquisition.info('Errore: la password inserita è errata')
-            logger_acquisition.info('Acquisition stopped')
-            return
-        except ConnectionException:
-            error = True
-            self.labelStatus.setText("Errore:\nL'username o la password inseriti sono errati...")
-            logger_acquisition.info('Errore: l''username o la password inseriti sono errati')
-            logger_acquisition.info('Acquisition stopped')
-            return
-        except ProfileNotExistsException:
-            error = True
-            self.labelStatus.setText("Errore:\nIl nome del profilo inserito non esiste...")
-            logger_acquisition.info('Errore: il nome del profilo inserito non esiste')
-            logger_acquisition.info('Acquisition stopped')
-            return
 
-        if error:
-            pass
-        else:
+        except InvalidArgumentException as e:
+            err = True
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  instagram.INVALID_USER,
+                                  Error.INVALID_USER,
+                                  str(e))
+            error_dlg.exec_()
+        except BadCredentialsException as e:
+            err = True
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  instagram.LOGIN_ERROR,
+                                  Error.PASSWORD_ERROR,
+                                  str(e))
+            error_dlg.exec_()
+        except ConnectionException as e:
+            err = True
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  instagram.CONNECTION_ERROR,
+                                  Error.LOGIN_ERROR,
+                                  str(e))
+            error_dlg.exec_()
+        except ProfileNotExistsException as e:
+            err = True
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+                                  instagram.INVALID_PROFILE,
+                                  Error.INVALID_PROFILE,
+                                  str(e))
+            error_dlg.exec_()
+
+        if not err:
+            self.setEnabled(False)
             if(self.checkBox_post.isChecked()):
-                logger_acquisition.info('Scraping user''s posts')
+                self.status.showMessage(Logger.SCRAPING_POSTS)
+                self.acquisition.logger.info(Logger.SCRAPING_POSTS)
+                self.acquisition.info.add_task(tasks.SCRAPING_POSTS, state.STARTED, status.PENDING)
                 insta.scrape_post()
-            self.progress_bar.setValue(10)
+
             if(self.checkBox_2_followee.isChecked()):
-                logger_acquisition.info('Scraping user''s followees')
+                self.status.showMessage(Logger.SCRAPING_FOLLOWING)
+                self.acquisition.logger.info(Logger.SCRAPING_FOLLOWING)
+                self.acquisition.info.add_task(tasks.SCRAPING_FOLLOWING, state.STARTED, status.PENDING)
                 insta.scrape_followees()
-            self.progress_bar.setValue(20)
+
             if(self.checkBox_3_highlight.isChecked()):
-                logger_acquisition.info('Scraping user''s highlights')
+                self.status.showMessage(Logger.SCRAPING_HIGHLIGHTS)
+                self.acquisition.logger.info(Logger.SCRAPING_HIGHLIGHTS)
+                self.acquisition.info.add_task(tasks.SCRAPING_HIGHLIGHTS, state.STARTED, status.PENDING)
                 insta.scrape_highlights()
-            self.progress_bar.setValue(30)
+
             if(self.checkBox_4_story.isChecked()):
-                logger_acquisition.info('Scraping user''s stories')
+                self.status.showMessage(Logger.SCRAPING_STORIES)
+                self.acquisition.logger.info(Logger.SCRAPING_STORIES)
+                self.acquisition.info.add_task(tasks.SCRAPING_STORIES, state.STARTED, status.PENDING)
                 insta.scrape_stories()
-            self.progress_bar.setValue(40)
+
             if(self.checkBox_5_taggedPost.isChecked()):
-                logger_acquisition.info('Scraping user''s tagged posts')
+                self.status.showMessage(Logger.SCRAPING_TAGGED)
+                self.acquisition.logger.info(Logger.SCRAPING_TAGGED)
+                self.acquisition.info.add_task(tasks.SCRAPING_TAGGED, state.STARTED, status.PENDING)
                 insta.scrape_taggedPosts()
-            self.progress_bar.setValue(50)
+
             if(self.checkBox_6_savedPost.isChecked()):
-                logger_acquisition.info('Scraping user''s saved posts')
+                self.status.showMessage(Logger.SCRAPING_SAVED)
+                self.acquisition.logger.info(Logger.SCRAPING_SAVED)
+                self.acquisition.info.add_task(tasks.SCRAPING_SAVED, state.STARTED, status.PENDING)
                 insta.scrape_savedPosts()
-            self.progress_bar.setValue(60)
+
             if(self.checkBox_7_follower.isChecked()):
-                logger_acquisition.info('Scraping user''s followers')
                 insta.scrape_followers()
-            self.progress_bar.setValue(70)
-            logger_acquisition.info('Scraping user''s profile picture')
+                self.status.showMessage(Logger.SCRAPING_FOLLOWING)
+                self.acquisition.logger.info(Logger.SCRAPING_FOLLOWING)
+                self.acquisition.info.add_task(tasks.SCRAPING_FOLLOWING, state.STARTED, status.PENDING)
+
+            self.status.showMessage(Logger.SCRAPING_PROPIC)
+            self.acquisition.logger.info(Logger.SCRAPING_PROPIC)
+            self.acquisition.info.add_task(tasks.SCRAPING_PROPIC, state.STARTED, status.PENDING)
             insta.scrape_profilePicture()
-            logger_acquisition.info('Scraping user''s info')
+
+            self.status.showMessage(Logger.SCRAPING_INFO)
+            self.acquisition.logger.info(Logger.SCRAPING_INFO)
+            self.acquisition.info.add_task(tasks.SCRAPING_INFO, state.STARTED, status.PENDING)
             insta.scrape_info()
-            logger_acquisition.info('Acquisition end')
-            ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
-            logger_acquisition.info(f'NTP end acquisition time: {ntp}')
+
+
             instaZip = InstragramController(self.input_username.text(), self.input_password.text(),
                                             self.input_profile.text(), self.acquisition_directory)
             logger_acquisition.info('Creating zip files')
@@ -368,9 +378,17 @@ class Instagram(QtWidgets.QMainWindow):
                             os.remove(temp_zip_path)
                             os.remove(folderToDelete)
 
-        self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
+            row = self.acquisition.info.get_row(tasks.FETCH_PROFILE)
+            self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+            self.acquisition.upadate_progress_bar()
 
-        self.__show_finish_acquisition_dialog()
+            self.acquisition.stop([], '', 1)
+            self.acquisition.log_end_message()
+
+            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
+            self.setEnabled(True)
+
+            self.__show_finish_acquisition_dialog()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
