@@ -50,7 +50,7 @@ class VerifyPDFTimestamp:
         with open(info_file_path, "r") as f:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
-        front_html = os.path.join(os.getcwd(),'assets/templates/front.html')
+        front_html = os.path.join('assets/templates/front.html')
         front_index = open(front_html).read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['verification'], version=phrases.TEXT['version']
@@ -61,7 +61,7 @@ class VerifyPDFTimestamp:
         else:
             t3descr = phrases.TEXT['verifi_ko']
 
-        content_html = os.path.join(os.getcwd(), 'assets/templates/template_verification.html')
+        content_html = os.path.join('assets/templates/template_verification.html')
         content_index = open(content_html).read().format(
 
             title=phrases.TEXT['title'],
