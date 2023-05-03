@@ -25,13 +25,15 @@
 # SOFTWARE.
 # -----
 ######
+import os
+import pathlib
 from configparser import SafeConfigParser
 
 class ReportText:
     def __init__(self):
         self.TEXT = {
             'report_pec': "Report di verifica della PEC",
-            'img': '../assets/images/FIT.png',
+            'img': self.__get_logo(),
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
             'version': "Versione {}".format(self.__get_version()),
@@ -136,7 +138,15 @@ class ReportText:
         
     def __get_version(self):
         parser = SafeConfigParser()
-        parser.read('assets/config.ini')
+        common_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(os.path.dirname(common_dir), "assets","config.ini")
+        parser.read(config_path)
         version = parser.get('fit_properties', 'version')
         
         return version
+
+    def __get_logo(self):
+        common_dir = os.path.dirname(os.path.abspath(__file__))
+        logo_path = os.path.join(os.path.dirname(common_dir), "assets", "images", "FIT.png")
+
+        return logo_path

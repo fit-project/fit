@@ -33,10 +33,8 @@ import zipfile
 from PyQt5 import QtCore, QtGui, QtWidgets
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
-from numpy import insert
 
 from common.constants.view import general, instagram
-from controller import search_pec
 from controller.instagram import Instagram as InstragramController
 from controller.report import Report as ReportController
 
@@ -218,13 +216,13 @@ class Instagram(QtWidgets.QMainWindow):
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
                                                                           'group_box_network_check')
 
-        self.retranslateUi(self)
+        self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # ACQUISITION
-        self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
+        self.acquisition = Acquisition(logger_acquisition, self.progress_bar, self.status, self)
 
         # Enable/Disable other modules logger
         if not DEBUG:
@@ -370,42 +368,9 @@ class Instagram(QtWidgets.QMainWindow):
                             os.remove(temp_zip_path)
                             os.remove(folderToDelete)
 
-
-            logger_acquisition.info('Calculate hash file')
-            files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
-
-            for file in files:
-                filename = os.path.join(self.acquisition_directory, file)
-                if file != 'acquisition.hash':
-                    file_stats = os.stat(filename)
-                    logger_hashreport.info(file)
-                    logger_hashreport.info('=========================================================')
-                    logger_hashreport.info(f'Size: {file_stats.st_size}')
-                    algorithm = 'md5'
-                    logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
-                    algorithm = 'sha1'
-                    logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
-                    algorithm = 'sha256'
-                    logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}\n')
-
-            os.chdir(originalPath)
-            logger_acquisition.info('PDF generation start')
-            report = ReportController(self.acquisition_directory, self.case_info)
-            report.generate_pdf('instagram', ntp)
-            logger_acquisition.info('PDF generation end')
-
-            ### generate timestamp for the report ###
-            options = self.configuration_timestamp.options
-            self.is_enabled_timestamp = options['enabled']
-            if self.is_enabled_timestamp:
-                self.timestamp = TimestampView()
-                self.timestamp.set_options(options)
-                self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
-
-
-        self.progress_bar.setValue(100)
-
         self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
+
+        self.__show_finish_acquisition_dialog()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
@@ -417,9 +382,13 @@ class Instagram(QtWidgets.QMainWindow):
         if return_value == QtWidgets.QMessageBox.Yes:
             self.__open_acquisition_directory()
 
+    def __open_acquisition_directory(self):
+        os.startfile(self.acquisition_directory)
+
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrapeButton.setEnabled(all_field_filled)
+
     def __case(self):
         self.case_view.exec_()
 
