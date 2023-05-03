@@ -33,7 +33,10 @@ import zipfile
 from PyQt5 import QtCore, QtGui, QtWidgets
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
+from numpy import insert
 
+from common.constants.view import general, instagram
+from controller import search_pec
 from controller.instagram import Instagram as InstragramController
 from controller.report import Report as ReportController
 
@@ -46,6 +49,7 @@ import common.utility as utility
 from common.constants import logger
 
 from view.post_acquisition.timestamp import Timestamp as TimestampView
+from common.constants import details as Details, logger as Logger
 
 import logging
 import logging.config
@@ -85,13 +89,13 @@ class Instagram(QtWidgets.QMainWindow):
         # CONF BUTTON
         self.menuConfiguration = QtWidgets.QAction("Configuration", self)
         self.menuConfiguration.setObjectName("menuConfiguration")
-        self.menuConfiguration.triggered.connect(self.configuration)
+        self.menuConfiguration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menuConfiguration)
 
         # CASE BUTTON
         self.case_action = QtWidgets.QAction("Case", self)
         self.case_action.setStatusTip("Show case info")
-        self.case_action.triggered.connect(self.case)
+        self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
 
         # BACK TO WIZARD
@@ -136,7 +140,7 @@ class Instagram(QtWidgets.QMainWindow):
         # Verify if input fields are empty
         self.input_fields = [self.input_username, self.input_password, self.input_profile]
         for input_field in self.input_fields:
-            input_field.textChanged.connect(self.onTextChanged)
+            input_field.textChanged.connect(self.__on_text_changed)
 
         self.label_profile = QtWidgets.QLabel(self.centralwidget)
         self.label_profile.setGeometry(QtCore.QRect(80, 90, 141, 20))
@@ -230,27 +234,26 @@ class Instagram(QtWidgets.QMainWindow):
 
             self.log_confing.disable_loggers(loggers)
 
-    def retranslateUi(self, mainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("mainWindow", "Freezing Internet Tool"))
-        self.label_username.setText(_translate("mainWindow", "Inserisci l\'username"))
-        self.label_password.setText(_translate("mainWindow", "Inserisci la password"))
-        self.scrapeButton.setText(_translate("mainWindow", "Scrape"))
-        self.label_profile.setText(_translate("mainWindow", "Inserisci il nome del profilo"))
-        self.label_baseInfo.setText(_translate("mainWindow", "Informazioni di base:"))
-        self.checkBox_post.setText(_translate("mainWindow", "Post"))
-        self.checkBox_2_followee.setText(_translate("mainWindow", "Seguiti"))
-        self.checkBox_3_highlight.setText(_translate("mainWindow", "Storie in evidenza"))
-        self.checkBox_4_story.setText(_translate("mainWindow", "Storie"))
-        self.checkBox_5_taggedPost.setText(_translate("mainWindow", "Post taggati"))
-        self.checkBox_6_savedPost.setText(_translate("mainWindow", "Post salvati"))
-        self.checkBox_7_follower.setText(_translate("mainWindow", "Seguaci"))
-        self.label_optionalInfo.setText(_translate("mainWindow", "Informazioni aggiuntive:"))
-        self.label_completeName.setText(_translate("mainWindow", "- Nome completo"))
-        self.label_biography.setText(_translate("mainWindow", "- Biografia"))
-        self.label_numberOfPost.setText(_translate("mainWindow", "- Numero di post"))
-        self.label_profileImage.setText(_translate("mainWindow", "- Immagine profilo"))
-        self.label_accountType.setText(_translate("mainWindow", "- Account verificato (si/no) e tipo di account"))
+    def retranslateUi(self):
+        self.setWindowTitle(general.MAIN_WINDOW_TITLE)
+        self.label_username.setText(instagram.LABEL_USERNAME)
+        self.label_password.setText(instagram.LABEL_PASSWORD)
+        self.scrapeButton.setText(instagram.SCRAPE_BUTTON)
+        self.label_profile.setText(instagram.PROFILE_NAME)
+        self.label_baseInfo.setText(instagram.BASIC_INFORMATION)
+        self.checkBox_post.setText(instagram.POST)
+        self.checkBox_2_followee.setText(instagram.FOLLOWING)
+        self.checkBox_3_highlight.setText(instagram.HIGHLIGHTS)
+        self.checkBox_4_story.setText(instagram.STORIES)
+        self.checkBox_5_taggedPost.setText(instagram.TAGGED)
+        self.checkBox_6_savedPost.setText(instagram.SAVED)
+        self.checkBox_7_follower.setText(instagram.FOLLOWERS)
+        self.label_optionalInfo.setText(instagram.ADDITIONAL)
+        self.label_completeName.setText(instagram.FULL_NAME)
+        self.label_biography.setText(instagram.BIO)
+        self.label_numberOfPost.setText(instagram.POST_NUMBER)
+        self.label_profileImage.setText(instagram.PROFILE_PIC)
+        self.label_accountType.setText(instagram.VERIFIED)
 
     def button_clicked(self):
         originalPath = os.getcwd()
@@ -404,13 +407,23 @@ class Instagram(QtWidgets.QMainWindow):
 
         self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
 
-    def onTextChanged(self):
+    def __show_finish_acquisition_dialog(self):
+        msg = QtWidgets.QMessageBox(self)
+        msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
+        msg.setText(Details.ACQUISITION_FINISHED)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+
+        return_value = msg.exec()
+        if return_value == QtWidgets.QMessageBox.Yes:
+            self.__open_acquisition_directory()
+
+    def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
         self.scrapeButton.setEnabled(all_field_filled)
-    def case(self):
+    def __case(self):
         self.case_view.exec_()
 
-    def configuration(self):
+    def __configuration(self):
         self.configuration_view.exec_()
 
     def __back_to_wizard(self):
