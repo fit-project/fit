@@ -52,7 +52,7 @@ class PostAcquisition(QtCore.QObject):
        self.calculate_acquisition_file_hash(folder)
        self.generate_pdf_report(folder, case_info, type)
        self.generate_timestamp_report(folder)
-       self.send_report_from_pec(folder, case_info)
+       self.send_report_from_pec(folder, case_info, type)
         
     def calculate_acquisition_file_hash(self, folder):
 
@@ -100,7 +100,7 @@ class PostAcquisition(QtCore.QObject):
                 error_dlg.buttonClicked.connect(quit)
         self.parent().upadate_progress_bar()
 
-    def send_report_from_pec(self, folder, case_info):
+    def send_report_from_pec(self, folder, case_info, type):
 
         self.parent().set_message_on_the_statusbar(tasks.PEC)
 
@@ -110,7 +110,7 @@ class PostAcquisition(QtCore.QObject):
             self.pec.sentpec.connect(lambda status: self.__is_pec_sent(status))
             self.pec.downloadedeml.connect(lambda status: self.__is_eml_downloaded(status))
             view_form=True
-            self.pec.init(case_info, "Web", folder, view_form)
+            self.pec.init(case_info, type, folder, view_form)
             if view_form is False:
                 self.pec.send()
                 

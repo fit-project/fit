@@ -49,9 +49,12 @@ class Report:
         # PREPARING DATA TO FILL THE PDF
         phrases = ReportText()
         if type == 'web':
-            with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
-                whois_text = f.read()
-                f.close()
+            try:
+                with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
+                    whois_text = f.read()
+                    f.close()
+            except:
+                whois_text = 'Not produced'
         with open(os.path.join(self.cases_folder_path, 'acquisition.hash'), "r", encoding='utf-8') as f:
             user_files = f.read()
             f.close()
@@ -61,14 +64,18 @@ class Report:
         zip_enum = self._zip_files_enum()
 
         # FILLING FRONT PAGE WITH DATA
-        front_index = open(os.getcwd() + '/assets/templates/front.html').read().format(
+        controller_dir = os.path.dirname(os.path.abspath(__file__))
+        front_index_path = os.path.join(os.path.dirname(controller_dir), "assets", "templates","front.html")
+        front_index = open(front_index_path).read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
         )
 
         # FILLING TEMPLATE WITH DATA
         if type == 'web':
-            content_index = open(os.getcwd() + '/assets/templates/template_web.html').read().format(
+            controller_dir = os.path.dirname(os.path.abspath(__file__))
+            content_index_path = os.path.join(os.path.dirname(controller_dir), "assets", "templates", "template_web.html")
+            content_index = open(content_index_path).read().format(
 
                 title=phrases.TEXT['title'],
                 index=phrases.TEXT['index'],
@@ -119,7 +126,10 @@ class Report:
             pisa.CreatePDF(content_index, dest=self.output_content_result, options=pdf_options)
 
         if type == 'email' or type == 'instagram':
-            content_index = open(os.getcwd() + '/assets/templates/template_email.html').read().format(
+            controller_dir = os.path.dirname(os.path.abspath(__file__))
+            content_index_path = os.path.join(os.path.dirname(controller_dir), "assets", "templates",
+                                              "template_email.html")
+            content_index = open(content_index_path).read().format(
 
                 title=phrases.TEXT['title'],
                 index=phrases.TEXT['index'],
