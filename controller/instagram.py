@@ -25,9 +25,7 @@
 # SOFTWARE.
 # -----
 ######
-import shutil
-import zipfile
-
+from pathlib import Path
 from instaloader import Instaloader, Profile
 import os
 
@@ -39,106 +37,78 @@ class Instagram:
         self.loader = Instaloader()
         self.profile = None
         self.path = path
-        os.chdir(self.path)
-        return
 
     def login(self):
         self.loader.login(self.username, self.password)
         self.profile = Profile.from_username(self.loader.context, self.profileName)
-        return
 
     def scrape_post(self):
-        os.chdir(self.path)
-        if (self.profile.is_private == True):
+        if self.profile.is_private:
             self.login()
         posts = self.profile.get_posts()
-        os.makedirs(self.profileName + "_posts")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_posts")
         for post in posts:
-            self.loader.download_post(post, self.profileName)
-        return
+            self.loader.download_post(post, Path(os.path.join(self.path, self.profileName)))
 
     def scrape_stories(self):
-        os.chdir(self.path)
         self.login()
         id = []
         id.append(self.profile.userid)
-        os.makedirs(self.profileName + "_stories")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_stories")
-        self.loader.download_stories(id, None,filename_target='test')
-        return
+        self.loader.download_stories(id, Path(os.path.join(self.path, self.profileName)))
 
     def scrape_followers(self):
-        os.chdir(self.path)
         self.login()
         nFollowers = self.profile.followers
         followers = self.profile.get_followers()
-        os.makedirs(self.profileName + "_profileFollowers")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_profileFollowers")
-        file = open(self.profile.username + "_followers.txt", "w")
+        file = open(os.path.join(self.path,"followers.txt"), "w")
         file.write("Numero di followers: " + str(nFollowers) + "\n")
         file.write("\n")
         file.write("Followers:\n")
         for follower in followers:
             file.write(follower.username + "\n")
         file.close()
-        return
 
     def scrape_followees(self):
-        os.chdir(self.path)
         self.login()
         nFollowees = self.profile.followees
         followees = self.profile.get_followees()
-        os.makedirs(self.profileName + "_profileFollowees")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_profileFollowees")
-        file = open(self.profile.username + "_followees.txt", "w")
+
+        file = open(os.path.join(self.path,"followees.txt"), "w")
         file.write("Numero di followees: " + str(nFollowees) + "\n")
         file.write("\n")
         file.write("Followees:\n")
         for followee in followees:
             file.write(followee.username + "\n")
         file.close()
-        return
 
     def scrape_savedPosts(self):
-        os.chdir(self.path)
         self.login()
         savedPosts = self.profile.get_saved_posts()
-        os.makedirs(self.profileName + "_savedPosts")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_savedPosts")
         for savedPost in savedPosts:
-            self.loader.download_post(savedPost, self.profileName)
+            self.loader.download_post(savedPost, Path(os.path.join(self.path, self.profileName)))
         return
 
     def scrape_profilePicture(self):
-        os.chdir(self.path)
-        os.makedirs(self.profileName + "_profilePic")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_profilePic")
+
         self.loader.download_profilepic(self.profile)
         return
 
     def scrape_taggedPosts(self):
-        os.chdir(self.path)
-        if (self.profile.is_private == True):
+        if self.profile.is_private:
             self.login()
         taggedPosts = self.profile.get_tagged_posts()
-        os.makedirs(self.profileName + "_taggedPosts")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_taggedPosts")
+
         for taggedPost in taggedPosts:
-            self.loader.download_post(taggedPost, self.profileName)
+            self.loader.download_post(taggedPost, Path(os.path.join(self.path, self.profileName)))
         return
 
     def scrape_info(self):
-        os.chdir(self.path)
         verified = self.profile.is_verified
         fullName = self.profile.full_name
         businessCategory = self.profile.business_category_name
         biography = self.profile.biography
         nMedia = self.profile.mediacount
-        os.makedirs(self.profileName + "_profileInfo")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_profileInfo")
-        file = open(self.profile.username + "_profileInfo.txt", "w")
-        if (verified == True):
+        file = open(os.path.join(self.path,"profileInfo.txt"), "w")
+        if verified:
             file.write("Tipo di profilo: verificato" + "\n")
         else:
             file.write("Tipo di profilo: non verificato" + "\n")
@@ -154,18 +124,8 @@ class Instagram:
         return
 
     def scrape_highlights(self):
-        os.chdir(self.path)
         self.login()
         os.makedirs(self.profileName + "_highlights")
         os.chdir(os.getcwd() + "\\" + self.profileName + "_highlights")
         self.loader.download_highlights(self.profile.userid)
         return
-
-    def createZip(self, path):
-        for folder in os.listdir(path):
-            folder_path = os.path.join(path, folder)
-            if os.path.isdir(folder_path):
-                zip_file = folder + '.zip'
-                zip_file_path = os.path.join(path, zip_file)
-                shutil.make_archive(zip_file_path, 'zip', folder_path)
-                shutil.rmtree(folder_path)

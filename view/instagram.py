@@ -41,18 +41,16 @@ from view.error import Error as ErrorView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
-from common.settings import DEBUG
 from common.config import LogConfigTools
-import common.utility as utility
 from common.constants import logger, tasks, state, status, error as Error
 
 from common.constants import details as Details, logger as Logger
 
-import logging
 import logging.config
 from view.acquisition.acquisition import Acquisition
 
 logger_acquisition = logging.getLogger(__name__)
+
 
 class Instagram(QtWidgets.QMainWindow):
 
@@ -61,7 +59,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_directory = None
         self.acquisition_is_started = False
         self.is_enabled_timestamp = False
-
 
     def init(self, case_info, wizard, options=None):
         self.__init__()
@@ -202,6 +199,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.progress_bar.setGeometry(QtCore.QRect(517, 340, 131, 23))
         self.progress_bar.setValue(0)
         self.progress_bar.setObjectName("progress_bar")
+        self.progress_bar.setHidden(True)
         self.status.addPermanentWidget(self.progress_bar)
         self.setStatusBar(self.status)
         self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
@@ -214,7 +212,6 @@ class Instagram(QtWidgets.QMainWindow):
 
         # ACQUISITION
         self.acquisition = Acquisition(logger_acquisition, self.progress_bar, self.status, self)
-
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
@@ -248,8 +245,6 @@ class Instagram(QtWidgets.QMainWindow):
         )
 
         if self.acquisition_directory is not None:
-            self.start_acquisition_is_started = True
-
             # show progress bar
             self.progress_bar.setHidden(False)
             self.acquisition.start([], self.acquisition_directory, self.case_info, 1)
@@ -259,89 +254,65 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition.info.add_task(tasks.FETCH_PROFILE, state.STARTED, status.PENDING)
 
         err = False
+        # Create acquisition folder
+        self.profile_dir = os.path.join(self.acquisition_directory, self.input_profile.text())
+        if not os.path.exists(self.profile_dir):
+            os.makedirs(self.profile_dir)
+
         insta = InstragramController(self.input_username.text(), self.input_password.text(),
-                                     self.input_profile.text(), self.acquisition_directory)
+                                     self.input_profile.text(), self.profile_dir)
         try:
             insta.login()
+        except (InvalidArgumentException, BadCredentialsException, ConnectionException, ProfileNotExistsException) as e:
+            err = True
+            error_message = str(e)
+            error_title = ""
+            error_type = ""
+            if isinstance(e, InvalidArgumentException):
+                error_title = instagram.INVALID_USER
+                error_type = Error.INVALID_USER
+            elif isinstance(e, BadCredentialsException):
+                error_title = instagram.LOGIN_ERROR
+                error_type = Error.PASSWORD_ERROR
+            elif isinstance(e, ConnectionException):
+                error_title = instagram.CONNECTION_ERROR
+                error_type = Error.LOGIN_ERROR
+            elif isinstance(e, ProfileNotExistsException):
+                error_title = instagram.INVALID_PROFILE
+                error_type = Error.INVALID_PROFILE
 
-        except InvalidArgumentException as e:
-            err = True
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  instagram.INVALID_USER,
-                                  Error.INVALID_USER,
-                                  str(e))
-            error_dlg.exec_()
-        except BadCredentialsException as e:
-            err = True
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  instagram.LOGIN_ERROR,
-                                  Error.PASSWORD_ERROR,
-                                  str(e))
-            error_dlg.exec_()
-        except ConnectionException as e:
-            err = True
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  instagram.CONNECTION_ERROR,
-                                  Error.LOGIN_ERROR,
-                                  str(e))
-            error_dlg.exec_()
-        except ProfileNotExistsException as e:
-            err = True
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
-                                  instagram.INVALID_PROFILE,
-                                  Error.INVALID_PROFILE,
-                                  str(e))
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Information, error_title, error_type, error_message)
             error_dlg.exec_()
 
         if not err:
+
+            row = self.acquisition.info.get_row(tasks.FETCH_PROFILE)
+            self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+            self.acquisition.upadate_progress_bar()
+
+            self.status.showMessage(Logger.SCRAPING_INSTAGRAM)
+            self.acquisition.logger.info(Logger.SCRAPING_INSTAGRAM)
+            self.acquisition.info.add_task(tasks.SCRAPING_INSTAGRAM, state.STARTED, status.PENDING)
+
             self.setEnabled(False)
-            if(self.checkBox_post.isChecked()):
-                insta.scrape_post()
-
-            if(self.checkBox_2_followee.isChecked()):
-                insta.scrape_followees()
-
-            if(self.checkBox_3_highlight.isChecked()):
-                insta.scrape_highlights()
-
-            if(self.checkBox_4_story.isChecked()):
-                insta.scrape_stories()
-
-            if(self.checkBox_5_taggedPost.isChecked()):
-                insta.scrape_taggedPosts()
-
-            if(self.checkBox_6_savedPost.isChecked()):
-                insta.scrape_savedPosts()
-
-            if(self.checkBox_7_follower.isChecked()):
-                insta.scrape_followers()
-
+            methods_to_execute = [
+                (self.checkBox_post.isChecked, insta.scrape_post),
+                (self.checkBox_2_followee.isChecked, insta.scrape_followees),
+                (self.checkBox_3_highlight.isChecked, insta.scrape_highlights),
+                (self.checkBox_4_story.isChecked, insta.scrape_stories),
+                (self.checkBox_5_taggedPost.isChecked, insta.scrape_taggedPosts),
+                (self.checkBox_6_savedPost.isChecked, insta.scrape_savedPosts),
+                (self.checkBox_7_follower.isChecked, insta.scrape_followers)
+            ]
+            for checkbox, method in methods_to_execute:
+                if checkbox():
+                    method()
             insta.scrape_profilePicture()
             insta.scrape_info()
 
+            self.__zip_and_remove(self.profile_dir)
 
-            #instaZip = InstragramController(self.input_username.text(), self.input_password.text(),
-                                            #self.input_profile.text(), self.acquisition_directory)
-
-            #instaZip.createZip(self.acquisition_directory)
-
-
-            '''final_zip_name = ""+self.input_profile.text()+".zip"
-            folder_path = self.acquisition_directory
-            temp_zip_path = os.path.join(folder_path, "temp_zip.zip")
-            with zipfile.ZipFile(final_zip_name, mode="w") as final_zip:
-                for filename in os.listdir(folder_path):
-                    folderToDelete = os.path.join(folder_path, filename)
-                    if filename.endswith(".zip"):
-                        if filename == final_zip_name:
-                            pass
-                        else:
-                            shutil.copy(os.path.join(folder_path, filename), temp_zip_path)
-                            final_zip.write(temp_zip_path, arcname=filename)
-                            os.remove(temp_zip_path)
-                            os.remove(folderToDelete)'''
-
-            row = self.acquisition.info.get_row(tasks.FETCH_PROFILE)
+            row = self.acquisition.info.get_row(tasks.SCRAPING_INSTAGRAM)
             self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
             self.acquisition.upadate_progress_bar()
 
@@ -362,6 +333,21 @@ class Instagram(QtWidgets.QMainWindow):
         return_value = msg.exec()
         if return_value == QtWidgets.QMessageBox.Yes:
             self.__open_acquisition_directory()
+
+    def __zip_and_remove(self, mail_dir):
+
+        shutil.make_archive(mail_dir, 'zip', mail_dir)
+
+        try:
+            shutil.rmtree(mail_dir)
+        except OSError as e:
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                                  tasks.INSTAGRAM,
+                                  Error.DELETE_PROJECT_FOLDER,
+                                  "Error: %s - %s." % (e.filename, e.strerror)
+                                  )
+
+            error_dlg.buttonClicked.connect(quit)
 
     def __open_acquisition_directory(self):
         os.startfile(self.acquisition_directory)
