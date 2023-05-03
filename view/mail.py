@@ -383,11 +383,11 @@ class Mail(QtWidgets.QMainWindow):
 
         else:
             self.download_button.setEnabled(False)
-            self.start_dump_email()
+            self.__start_dump_email()
             self.download_button.setEnabled(True)
             self.emails_tree.expandAll()
 
-    def start_dump_email(self):
+    def __start_dump_email(self):
 
         # Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
@@ -470,6 +470,10 @@ class Mail(QtWidgets.QMainWindow):
             error_dlg.buttonClicked.connect(quit)
         
         self.setEnabled(True)
+
+        # hidden progress bar
+        self.progress_bar.setHidden(True)
+        self.status.showMessage('')
         
     def __on_item_changed(self, item, column):
         child_count = item.childCount()
@@ -482,10 +486,10 @@ class Mail(QtWidgets.QMainWindow):
         self.login_button.setEnabled(all_fields_filled)
 
     def __save_emails(self):
-
         emails_to_save = {}
 
         self.setEnabled(False)
+        self.progress_bar.setHidden(False)
         self.status.showMessage(Logger.SAVE_EMAILS)
         self.acquisition.logger.info(Logger.SAVE_EMAILS)
         self.acquisition.info.add_task(tasks.SAVE_EMAILS, state.STARTED, status.PENDING)
