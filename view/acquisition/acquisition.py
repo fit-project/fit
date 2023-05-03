@@ -68,12 +68,14 @@ class Acquisition(Base):
         self.clear_tasks()
 
         
-        self.total_tasks = len(tasks)
+        self.total_internal_tasks = len(tasks)
         self.folder = folder
         self.case_info = case_info
 
+        self.total_tasks = self.total_internal_tasks + external_tasks
+
         if self.total_tasks > 0:
-            self.increment = percent/(self.total_tasks + external_tasks)
+            self.increment = percent/self.total_tasks
 
         self.log_confing.change_filehandlers_path(self.folder)
         logging.config.dictConfig(self.log_confing.config)
@@ -91,7 +93,7 @@ class Acquisition(Base):
                 packetcapture.start(options)
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             options = ScreenRecorderController().options
@@ -102,7 +104,7 @@ class Acquisition(Base):
                 screenrecorder.start(options)
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_STARTED)
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
 
     
     def stop(self, tasks, url, external_tasks=0, percent=100):
@@ -115,9 +117,14 @@ class Acquisition(Base):
             self.log_stop_message(url)
 
         net_configuration = NetworkController().configuration
-        self.total_tasks = len(tasks)
+        self.total_internal_tasks = len(tasks)
+
+
+        self.total_tasks = self.total_internal_tasks + len(self.post_acquisition_method_list) + external_tasks
+
         if self.total_tasks > 0:
-            self.increment = percent/(self.total_tasks + len(self.post_acquisition_method_list) + external_tasks)
+            self.increment = percent/self.total_tasks
+
         
         self.set_state_and_status_tasks(State.STOPPED, Status.PENDING)
 
@@ -166,7 +173,7 @@ class Acquisition(Base):
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STOPPED)
                 task[0].stop()
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             task = self.get_task(Tasks.SCREEN_RECORDER)
@@ -174,7 +181,7 @@ class Acquisition(Base):
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_COMPLETED)
                 task[0].stop()
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
       
     def task_is_completed(self, options):
         

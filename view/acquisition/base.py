@@ -42,12 +42,13 @@ class Base(QObject):
         super().__init__(parent)
         self.logger = logger
         self.log_confing = LogConfigTools()
-        if self.logger.name == 'view.web':
+        if self.logger.name == 'view.web.web':
             self.log_confing.set_web_loggers()
         self.is_started = False
         self.is_completed = False
         self.send_pyqt_signal = False
         self.increment = 0
+        self.total_internal_tasks = 0
         self.total_tasks = 0
         self.info = AcquisitionInfo(parent)
         
@@ -99,7 +100,7 @@ class Base(QObject):
         
         same_state = False
 
-        if len(self.__tasks) == self.total_tasks:
+        if len(self.__tasks) == self.total_internal_tasks:
             state = [task.state for task in self.__tasks]
             state = list(set(state))
             if len(state) == 1 and state[0] == state_to_check:
@@ -113,7 +114,7 @@ class Base(QObject):
 
         is_completed = False
 
-        if len(self.__tasks) == self.total_tasks:
+        if len(self.__tasks) == self.total_internal_tasks:
             status = [task.status for task in self.__tasks]
             status = list(set(status))
             if len(status) == 1 and status[0] == Status.COMPLETED:

@@ -45,7 +45,6 @@ from view.error import Error as ErrorView
 
 from controller.mail import Mail as MailController
 
-from common.settings import DEBUG
 from common.config import LogConfigTools
 
 from common.constants.view import mail, general
@@ -326,19 +325,6 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
 
 
-        self.acquisition_is_running = False
-        self.start_acquisition_is_finished = False
-        self.start_acquisition_is_started = False
-        self.stop_acquisition_is_started = False
-
-
-        # Enable/Disable other modules logger
-        if not DEBUG:
-            loggers = [logging.getLogger()]  # get the root logger
-            loggers = loggers + [logging.getLogger(name) for name in logging.root.manager.loggerDict if
-                                 name not in [__name__, 'hashreport']]
-
-            self.log_confing.disable_loggers(loggers)
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
@@ -383,11 +369,11 @@ class Mail(QtWidgets.QMainWindow):
 
         else:
             self.download_button.setEnabled(False)
-            self.start_dump_email()
+            self.__start_dump_email()
             self.download_button.setEnabled(True)
             self.emails_tree.expandAll()
 
-    def start_dump_email(self):
+    def __start_dump_email(self):
 
         # Create acquisition directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
@@ -397,30 +383,28 @@ class Mail(QtWidgets.QMainWindow):
             self.input_email.text()
         )
         if self.acquisition_directory is not None:
-            self.start_acquisition_is_started = True
 
-            
             # show progress bar
             self.progress_bar.setHidden(False)
             self.acquisition.start([], self.acquisition_directory, self.case_info, 1)
 
 
-        # remove items from tree to clear the acquisition
-        if self.email_folder is not None:
-            while self.emails_tree.topLevelItemCount() > 0:
-                item = self.emails_tree.takeTopLevelItem(0)
-                del item
-            self.root = QTreeWidgetItem([mail.IMAP_FOLDERS])
-            self.emails_tree.setHeaderLabel(mail.IMAP_FOUND_EMAILS)
-            self.emails_tree.addTopLevelItem(self.root)
+            # remove items from tree to clear the acquisition
+            if self.email_folder is not None:
+                while self.emails_tree.topLevelItemCount() > 0:
+                    item = self.emails_tree.takeTopLevelItem(0)
+                    del item
+                self.root = QTreeWidgetItem([mail.IMAP_FOLDERS])
+                self.emails_tree.setHeaderLabel(mail.IMAP_FOUND_EMAILS)
+                self.emails_tree.addTopLevelItem(self.root)
 
-        self.login_button.setEnabled(False)
-        self.status.showMessage(Logger.FETCH_EMAILS)
-        self.acquisition.logger.info(Logger.FETCH_EMAILS)
-        self.acquisition.info.add_task(tasks.FETCH_EMAILS, state.STARTED, status.PENDING)
+            self.login_button.setEnabled(False)
+            self.status.showMessage(Logger.FETCH_EMAILS)
+            self.acquisition.logger.info(Logger.FETCH_EMAILS)
+            self.acquisition.info.add_task(tasks.FETCH_EMAILS, state.STARTED, status.PENDING)
 
-        self.setEnabled(False)
-        self.__fetch_emails()
+            self.setEnabled(False)
+            self.__fetch_emails()
 
 
     def __fetch_emails(self):
@@ -470,6 +454,10 @@ class Mail(QtWidgets.QMainWindow):
             error_dlg.buttonClicked.connect(quit)
         
         self.setEnabled(True)
+
+        # hidden progress bar
+        self.progress_bar.setHidden(True)
+        self.status.showMessage('')
         
     def __on_item_changed(self, item, column):
         child_count = item.childCount()
@@ -482,10 +470,10 @@ class Mail(QtWidgets.QMainWindow):
         self.login_button.setEnabled(all_fields_filled)
 
     def __save_emails(self):
-
         emails_to_save = {}
 
         self.setEnabled(False)
+        self.progress_bar.setHidden(False)
         self.status.showMessage(Logger.SAVE_EMAILS)
         self.acquisition.logger.info(Logger.SAVE_EMAILS)
         self.acquisition.info.add_task(tasks.SAVE_EMAILS, state.STARTED, status.PENDING)

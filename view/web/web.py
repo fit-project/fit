@@ -344,6 +344,8 @@ class Web(QtWidgets.QMainWindow):
     def __enable_all(self):
         self.setEnabled(True)
         self.navtb.setEnabled(True)
+        #Add information button to re-enable buttons list
+        self.navtb.navigation_actions.append('info')
         self.navtb.enable_actions(filter=self.navtb.navigation_actions)
         self.navtb.enable_screenshot_buttons()
         self.navtb.enable_start_acquisition_button()
