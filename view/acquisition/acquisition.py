@@ -111,7 +111,8 @@ class Acquisition(Base):
         if self.is_started is False:
             return
         
-        self.log_stop_message(url)
+        if url:
+            self.log_stop_message(url)
 
         net_configuration = NetworkController().configuration
         self.total_tasks = len(tasks)

@@ -39,31 +39,22 @@ from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator, QIcon
 from PyQt5.QtWidgets import QVBoxLayout, QTreeWidget, QTreeWidgetItem
 
 from view.acquisition.acquisition import Acquisition
-from view.acquisition.tasks.task import AcquisitionTask
-
-from view.post_acquisition.timestamp import Timestamp as TimestampView
-
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from controller.mail import Mail as MailController
-from controller.report import Report as ReportController
-
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-import common.utility as utility
 
 from common.constants.view import mail, general
 from common.constants.view.pec import search_pec
 
 from common.constants import tasks, state, status, error, details as Details, logger as Logger
 
-logger_acquisition = logging.getLogger(__name__)
-logger_hashreport = logging.getLogger('hashreport')
-
 logger = logging.getLogger(__name__)
+
 
 class Mail(QtWidgets.QMainWindow):
     stop_signal = pyqtSignal()
@@ -288,7 +279,7 @@ class Mail(QtWidgets.QMainWindow):
         # LOGIN BUTTON
         self.login_button = QtWidgets.QPushButton(self.centralwidget)
         self.login_button.setGeometry(QRect(405, 505, 75, 25))
-        self.login_button.clicked.connect(self.login)
+        self.login_button.clicked.connect(self.__login)
         self.login_button.setFont(font)
         self.login_button.setObjectName("LoginAction")
         self.login_button.setEnabled(True)
@@ -308,13 +299,13 @@ class Mail(QtWidgets.QMainWindow):
         # CONF BUTTON
         self.menu_configuration = QtWidgets.QAction("Configuration", self)
         self.menu_configuration.setObjectName("menuConfiguration")
-        self.menu_configuration.triggered.connect(self.configuration)
+        self.menu_configuration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menu_configuration)
 
         # CASE BUTTON
         self.case_action = QtWidgets.QAction("Case", self)
         self.case_action.setStatusTip("Show case info")
-        self.case_action.triggered.connect(self.case)
+        self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
 
         # BACK ACTION
@@ -325,15 +316,6 @@ class Mail(QtWidgets.QMainWindow):
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
-        # Get timestamp parameters
-        self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
-
-        # Get network parameters for check (NTP, nslookup)
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
-        # Get network parameters for check (NTP, nslookup)
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
 
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
@@ -342,7 +324,6 @@ class Mail(QtWidgets.QMainWindow):
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
-        self.acquisition.completed.connect(self.__are_external_tasks_completed)
 
 
         self.acquisition_is_running = False
@@ -375,7 +356,7 @@ class Mail(QtWidgets.QMainWindow):
         self.login_button.setText(search_pec.LOGIN_BUTTON)
         self.download_button.setText(search_pec.DOWNLOAD_BUTTON)
 
-    def login(self):
+    def __login(self):
         email = self.input_email.text()
         password = self.input_password.text()
         server = self.input_server.text()
@@ -401,6 +382,7 @@ class Mail(QtWidgets.QMainWindow):
             error_dlg.exec_()
 
         else:
+            self.download_button.setEnabled(False)
             self.start_dump_email()
             self.download_button.setEnabled(True)
             self.emails_tree.expandAll()
@@ -415,15 +397,12 @@ class Mail(QtWidgets.QMainWindow):
             self.input_email.text()
         )
         if self.acquisition_directory is not None:
-            if not os.path.exists(os.path.join(self.acquisition_directory, 'acquisition')):
-                os.makedirs(os.path.join(self.acquisition_directory, 'acquisition'))
-            
             self.start_acquisition_is_started = True
 
+            
             # show progress bar
             self.progress_bar.setHidden(False)
-            external_tasks = [tasks.SCREEN_RECORDER]
-            self.acquisition.start(external_tasks, self.acquisition_directory, self.case_info, 2)
+            self.acquisition.start([], self.acquisition_directory, self.case_info, 1)
 
 
         # remove items from tree to clear the acquisition
@@ -438,7 +417,6 @@ class Mail(QtWidgets.QMainWindow):
         self.login_button.setEnabled(False)
         self.status.showMessage(Logger.FETCH_EMAILS)
         self.acquisition.logger.info(Logger.FETCH_EMAILS)
-        self.fetch_emails_task = AcquisitionTask(tasks.FETCH_EMAILS, state.STARTED, status.PENDING)
         self.acquisition.info.add_task(tasks.FETCH_EMAILS, state.STARTED, status.PENDING)
 
         self.setEnabled(False)
@@ -460,11 +438,9 @@ class Mail(QtWidgets.QMainWindow):
             from_date=selected_from_date,
             to_date=selected_to_date)
         
-        logger_acquisition.info(Logger.SEARCH_CRITERIA.format(self.params))
+        self.acquisition.logger.info(Logger.SEARCH_CRITERIA.format(self.params))
         emails = self.mail_controller.get_mails_from_every_folder(self.params)
 
-        self.fetch_emails_task.state = state.FINISHED
-        self.fetch_emails_task.status = status.COMPLETED
 
         row = self.acquisition.info.get_row(tasks.FETCH_EMAILS)
         self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
@@ -510,10 +486,10 @@ class Mail(QtWidgets.QMainWindow):
         emails_to_save = {}
 
         self.setEnabled(False)
-        self.save_mail_task= AcquisitionTask(tasks.SAVE_EMAILS, state.STARTED, status.PENDING)
         self.status.showMessage(Logger.SAVE_EMAILS)
         self.acquisition.logger.info(Logger.SAVE_EMAILS)
         self.acquisition.info.add_task(tasks.SAVE_EMAILS, state.STARTED, status.PENDING)
+        
 
         for i in range(self.root.childCount()):
             folder = self.root.child(i)
@@ -528,79 +504,24 @@ class Mail(QtWidgets.QMainWindow):
                         emails_to_save[folder_name] = [email.text(0)]
         
         if len(emails_to_save) > 0:
-            self.mail_controller.download_single_messages(self.acquisition_directory, emails_to_save)
+            # Create acquisition folder
+            mail_dir = os.path.join(self.acquisition_directory, 'acquisition_mail')
+            if not os.path.exists(mail_dir):
+                os.makedirs(mail_dir)
+            
+            self.mail_controller.download_single_messages(mail_dir, emails_to_save)
+            self.__zip_and_remove(mail_dir)
         
-        # external_tasks = [tasks.SCREEN_RECORDER]
-        # self.acquisition.start(external_tasks, self.acquisition_directory, self.case_info, 2)
-        self.save_info()
+        row = self.acquisition.info.get_row(tasks.SAVE_EMAILS)
+        self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+        self.acquisition.upadate_progress_bar()
 
-    def save_info(self):
-        self.progress_bar.setValue(70)
-        logger_acquisition.info('Save emails completed')
-        self.status.showMessage('Save emails completed')
-
-        project_name = "acquisition"
-        acquisition_folder = os.path.join(self.acquisition_directory, project_name)
-        if not os.path.exists(acquisition_folder):
-            os.makedirs(acquisition_folder)
-
-        acquisition_emails_folder = os.path.join(self.acquisition_directory, project_name)
-
-        self.__zip_and_remove(acquisition_emails_folder)
-
-
-        # Calculate acquisition hash
-        self.status.showMessage('Calculate acquisition file hash')
-        self.progress_bar.setValue(100)
-        logger_acquisition.info('Calculate acquisition file hash')
-        files = [f.name for f in os.scandir(self.acquisition_directory) if f.is_file()]
-
-        for file in files:
-            filename = os.path.join(self.acquisition_directory, file)
-            if file != 'acquisition.hash':
-                file_stats = os.stat(filename)
-                logger_hashreport.info(file)
-                logger_hashreport.info('=========================================================')
-                logger_hashreport.info(f'Size: {file_stats.st_size}')
-                algorithm = 'md5'
-                logger_hashreport.info(f'MD5: {utility.calculate_hash(filename, algorithm)}')
-                algorithm = 'sha1'
-                logger_hashreport.info(f'SHA-1: {utility.calculate_hash(filename, algorithm)}')
-                algorithm = 'sha256'
-                logger_hashreport.info(f'SHA-256: {utility.calculate_hash(filename, algorithm)}\n')
-        logger_acquisition.info('Acquisition end')
-
-        ntp = utility.get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
-        logger_acquisition.info(f'NTP end acquisition time: {ntp}')
-
-        logger_acquisition.info('PDF generation start')
-        ### generate pdf report ###
-        report = ReportController(self.acquisition_directory, self.case_info)
-        report.generate_pdf('email', ntp)
-        logger_acquisition.info('PDF generation end')
-
-        ### generate timestamp for the report ###
-        options = self.configuration_timestamp.options
-        self.is_enabled_timestamp = options['enabled']
-        if self.is_enabled_timestamp:
-            self.timestamp = TimestampView()
-            self.timestamp.set_options(options)
-            self.timestamp.apply_timestamp(self.acquisition_directory, 'acquisition_report.pdf')
-
-        self.progress_bar.setValue(100)
-
+        self.acquisition.stop([], '', 1)
+        self.acquisition.log_end_message()
+      
         self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'email')
-
-        #### Enable all action ####
         self.setEnabled(True)
-        action = self.findChild(QtWidgets.QAction, 'LoginAction')
-
-
-        # Enable start_acquisition_action
-        if action is not None:
-            action.setEnabled(True)
-
-        self.acquisition_is_started = False
+        self.login_button.setEnabled(True)
 
         # hidden progress bar
         self.progress_bar.setHidden(True)
@@ -608,13 +529,12 @@ class Mail(QtWidgets.QMainWindow):
 
         self.__show_finish_acquisition_dialog()
 
+    def __zip_and_remove(self, mail_dir):
 
-    def __zip_and_remove(self, acquisition_page_folder):
-
-        shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+        shutil.make_archive(mail_dir, 'zip', mail_dir)
 
         try:
-            shutil.rmtree(acquisition_page_folder)
+            shutil.rmtree(mail_dir)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   mail.SAVE_MAIL,
@@ -637,14 +557,10 @@ class Mail(QtWidgets.QMainWindow):
     def __open_acquisition_directory(self):
         os.startfile(self.acquisition_directory)
 
-    
-    def __are_external_tasks_completed(self):
-        pass
-
-    def case(self):
+    def __case(self):
         self.case_view.exec_()
 
-    def configuration(self):
+    def __configuration(self):
         self.configuration_view.exec_()
 
     def __back_to_wizard(self):
