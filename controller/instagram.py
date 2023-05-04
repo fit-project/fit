@@ -28,104 +28,106 @@
 from pathlib import Path
 from instaloader import Instaloader, Profile
 import os
+from common.constants.controller import instagram
 
 class Instagram:
-    def __init__(self, username, password, profileName, path):
+    def __init__(self, username, password, profile_name):
         self.username = username
         self.password = password
-        self.profileName = profileName
+        self.profile_name = profile_name
         self.loader = Instaloader()
         self.profile = None
-        self.path = path
 
     def login(self):
         self.loader.login(self.username, self.password)
-        self.profile = Profile.from_username(self.loader.context, self.profileName)
+        self.profile = Profile.from_username(self.loader.context, self.profile_name)
+
+    def set_dir(self, path):
+        self.path = path
 
     def scrape_post(self):
         if self.profile.is_private:
             self.login()
         posts = self.profile.get_posts()
         for post in posts:
-            self.loader.download_post(post, Path(os.path.join(self.path, self.profileName)))
+            self.loader.download_post(post, Path(os.path.join(self.path, self.profile_name)))
 
     def scrape_stories(self):
         self.login()
         id = []
         id.append(self.profile.userid)
-        self.loader.download_stories(id, Path(os.path.join(self.path, self.profileName)))
+        self.loader.download_stories(id, Path(os.path.join(self.path, self.profile_name)))
 
     def scrape_followers(self):
         self.login()
-        nFollowers = self.profile.followers
+        n_followers = self.profile.followers
         followers = self.profile.get_followers()
-        file = open(os.path.join(self.path,"followers.txt"), "w")
-        file.write("Numero di followers: " + str(nFollowers) + "\n")
+        file = open(os.path.join(self.path, "followers.txt"), "w")
+        file.write(instagram.N_FOLLOWERS + str(n_followers) + "\n")
         file.write("\n")
-        file.write("Followers:\n")
+        file.write(instagram.FOLLOWERS)
         for follower in followers:
             file.write(follower.username + "\n")
         file.close()
 
     def scrape_followees(self):
         self.login()
-        nFollowees = self.profile.followees
+        n_followees = self.profile.followees
         followees = self.profile.get_followees()
 
-        file = open(os.path.join(self.path,"followees.txt"), "w")
-        file.write("Numero di followees: " + str(nFollowees) + "\n")
+        file = open(os.path.join(self.path, "followees.txt"), "w")
+        file.write(instagram.N_FOLLOWEES + str(n_followees) + "\n")
         file.write("\n")
-        file.write("Followees:\n")
+        file.write(instagram.FOLLOWEES)
         for followee in followees:
             file.write(followee.username + "\n")
         file.close()
 
-    def scrape_savedPosts(self):
+    def scrape_saved_posts(self):
         self.login()
-        savedPosts = self.profile.get_saved_posts()
-        for savedPost in savedPosts:
-            self.loader.download_post(savedPost, Path(os.path.join(self.path, self.profileName)))
+        saved_posts = self.profile.get_saved_posts()
+        for saved_post in saved_posts:
+            self.loader.download_post(saved_post, Path(os.path.join(self.path, self.profile_name)))
         return
 
-    def scrape_profilePicture(self):
-
+    def scrape_profile_picture(self):
         self.loader.download_profilepic(self.profile)
         return
 
-    def scrape_taggedPosts(self):
+    def scrape_tagged_posts(self):
         if self.profile.is_private:
             self.login()
-        taggedPosts = self.profile.get_tagged_posts()
+        tagged_posts = self.profile.get_tagged_posts()
 
-        for taggedPost in taggedPosts:
-            self.loader.download_post(taggedPost, Path(os.path.join(self.path, self.profileName)))
+        for tagged_post in tagged_posts:
+            self.loader.download_post(tagged_post, Path(os.path.join(self.path, self.profile_name)))
         return
 
     def scrape_info(self):
         verified = self.profile.is_verified
-        fullName = self.profile.full_name
-        businessCategory = self.profile.business_category_name
+        full_name = self.profile.full_name
+        business_category = self.profile.business_category_name
         biography = self.profile.biography
-        nMedia = self.profile.mediacount
-        file = open(os.path.join(self.path,"profileInfo.txt"), "w")
+        n_media = self.profile.mediacount
+        file = open(os.path.join(self.path, "profile_info.txt"), "w")
         if verified:
-            file.write("Tipo di profilo: verificato" + "\n")
+            file.write(instagram.VERIFIED + "\n")
         else:
-            file.write("Tipo di profilo: non verificato" + "\n")
-        file.write("Nome completo: " + fullName + "\n")
-        if (businessCategory is None):
-            file.write("Tipo di account: " + "personale" + "\n")
+            file.write(instagram.NO_VERIFIED + "\n")
+        file.write(instagram.FULL_NAME + full_name + "\n")
+        if not business_category:
+            file.write(instagram.PERSONAL + "\n")
         else:
-            file.write("Tipo di account: " + str(businessCategory) + "\n")
-        file.write("Biografia account: " + biography + "\n")
-        file.write("Numero di post: " + str(nMedia))
+            file.write(instagram.TYPE + str(business_category) + "\n")
+        file.write(instagram.BIO + biography + "\n")
+        file.write(instagram.N_POSTS + str(n_media))
         file.flush()
         file.close()
         return
 
     def scrape_highlights(self):
         self.login()
-        os.makedirs(self.profileName + "_highlights")
-        os.chdir(os.getcwd() + "\\" + self.profileName + "_highlights")
+        os.makedirs(self.profile_name + "_highlights")
+        os.chdir(os.getcwd() + "\\" + self.profile_name + "_highlights")
         self.loader.download_highlights(self.profile.userid)
         return
