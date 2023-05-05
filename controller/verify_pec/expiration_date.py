@@ -33,7 +33,7 @@ import subprocess
 import os
 
 
-class ExpirationDate():        
+class ExpirationDate:        
     
     def verify(self, eml_file_path, pem_file_path, x509_file_path, textdata_file_path):
         result = {}

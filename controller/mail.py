@@ -93,7 +93,8 @@ class Mail:
                         scraped_emails[folder] = [dict_value]
             except: # no e-mails in the current folder
                 pass
-            
+        if len(scraped_emails) == 0:
+            return None
         return scraped_emails
 
     def set_criteria(self, sender, recipient, subject, from_date, to_date):
