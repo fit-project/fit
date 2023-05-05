@@ -64,7 +64,7 @@ class Instagram:
         self.login()
         n_followers = self.profile.followers
         followers = self.profile.get_followers()
-        file = open(os.path.join(self.path, "followers.txt"), "w")
+        file = open(os.path.join(self.path, "followers.txt"), "w", encoding="utf-8")
         file.write(instagram.N_FOLLOWERS + str(n_followers) + "\n")
         file.write("\n")
         file.write(instagram.FOLLOWERS)
@@ -77,7 +77,7 @@ class Instagram:
         n_followees = self.profile.followees
         followees = self.profile.get_followees()
 
-        file = open(os.path.join(self.path, "followees.txt"), "w")
+        file = open(os.path.join(self.path, "followees.txt"), "w", encoding="utf-8")
         file.write(instagram.N_FOLLOWEES + str(n_followees) + "\n")
         file.write("\n")
         file.write(instagram.FOLLOWEES)
@@ -111,7 +111,7 @@ class Instagram:
         business_category = self.profile.business_category_name
         biography = self.profile.biography
         n_media = self.profile.mediacount
-        file = open(os.path.join(self.path, "profile_info.txt"), "w")
+        file = open(os.path.join(self.path, "profile_info.txt"), "w", encoding="utf-8")
         if verified:
             file.write(instagram.VERIFIED + "\n")
         else:
