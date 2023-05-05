@@ -33,7 +33,7 @@ import re
 import pyzmail
 
 
-class Mail:
+class Mail():
     def __init__(self):
         self.email_address = None
         self.password = None
@@ -58,8 +58,16 @@ class Mail:
         # Retrieve every folder from the mailbox
         folders = []
         for folder in self.mailbox.list()[1]:
-            name = folder.decode().split(' "/" ')
-            folders.append(name[1])
+            name = folder.decode()
+            if ' "/" ' in name: #tested by zitelog on imapmail.libero.it
+                name = folder.decode().split(' "/" ')[1]
+            elif ' "." ' in name: #tested by zitelog on imaps.pec.aruba.it
+                name = folder.decode().split(' "." ')[1]
+            else:
+                name = None
+          
+            if name is not None:
+                folders.append(name)
 
         # Scrape every message from the folders
         scraped_emails = self.fetch_messages(folders, params)

@@ -69,7 +69,7 @@ class Case(QtWidgets.QDialog):
         self.form.lawyer_name.setText(self.case_info['lawyer_name'])
         self.form.set_index_from_type_proceedings_id(self.case_info['proceeding_type'])
         self.form.courthouse.setText(self.case_info['courthouse'])
-        self.form.proceeding_number.setText(self.case_info['proceeding_number'])
+        self.form.proceeding_number.setText(str(self.case_info['proceeding_number']))
 
 
     def accept(self) -> None:

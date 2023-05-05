@@ -185,10 +185,10 @@ class Mail(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
 
         # IMAP GROUP
-        self.imap_group_box = QtWidgets.QGroupBox(self.centralwidget)
-        self.imap_group_box.setEnabled(True)
-        self.imap_group_box.setGeometry(QRect(50, 20, 430, 200))
-        self.imap_group_box.setObjectName("imap_group_box")
+        self.configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
+        self.configuration_group_box.setEnabled(True)
+        self.configuration_group_box.setGeometry(QRect(50, 20, 430, 200))
+        self.configuration_group_box.setObjectName("imap_group_box")
 
         # SCRAPED EMAILS TREE
         layout = QtWidgets.QVBoxLayout()
@@ -206,8 +206,8 @@ class Mail(QtWidgets.QMainWindow):
         layout.addWidget(self.emails_tree)
 
         # EMAIL FIELD
-        self.input_email = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_email.setGeometry(QRect(180, 60, 240, 20))
+        self.input_email = QtWidgets.QLineEdit(self.configuration_group_box)
+        self.input_email.setGeometry(QRect(130, 60, 240, 20))
         self.input_email.setFont(QFont('Arial', 10))
         self.input_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         email_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
@@ -216,8 +216,8 @@ class Mail(QtWidgets.QMainWindow):
         self.input_email.setObjectName("input_email")
 
         # PASSWORD FIELD
-        self.input_password = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_password.setGeometry(QRect(180, 95, 240, 20))
+        self.input_password = QtWidgets.QLineEdit(self.configuration_group_box)
+        self.input_password.setGeometry(QRect(130, 95, 240, 20))
         self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.input_password.setFont(QFont('Arial', 10))
         self.input_password.setPlaceholderText(search_pec.PLACEHOLDER_PASSWORD)
@@ -225,15 +225,15 @@ class Mail(QtWidgets.QMainWindow):
         self.input_password.setObjectName("input_password")
 
         # SERVER FIELD
-        self.input_server = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_server.setGeometry(QRect(180, 130, 240, 20))
+        self.input_server = QtWidgets.QLineEdit(self.configuration_group_box)
+        self.input_server.setGeometry(QRect(130, 130, 240, 20))
         self.input_server.setFont(QFont('Arial', 10))
         self.input_server.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_SERVER)
         self.input_server.setObjectName("input_server")
 
         # PORT FIELD
-        self.input_port = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_port.setGeometry(QRect(180, 165, 240, 20))
+        self.input_port = QtWidgets.QLineEdit(self.configuration_group_box)
+        self.input_port.setGeometry(QRect(130, 165, 240, 20))
         self.input_port.setFont(QFont('Arial', 10))
         self.input_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
         validator = QDoubleValidator()
@@ -246,29 +246,29 @@ class Mail(QtWidgets.QMainWindow):
             input_field.textChanged.connect(self.__on_text_changed)
 
         # EMAIL LABEL
-        self.label_email = QtWidgets.QLabel(self.centralwidget)
-        self.label_email.setGeometry(QRect(90, 60, 80, 20))
+        self.label_email = QtWidgets.QLabel(self.configuration_group_box)
+        self.label_email.setGeometry(QRect(40, 60, 80, 20))
         self.label_email.setFont(font)
         self.label_email.setAlignment(Qt.AlignRight)
         self.label_email.setObjectName("label_email")
 
         # PASSWORD LABEL
-        self.label_password = QtWidgets.QLabel(self.centralwidget)
-        self.label_password.setGeometry(QRect(90, 95, 80, 20))
+        self.label_password = QtWidgets.QLabel(self.configuration_group_box)
+        self.label_password.setGeometry(QRect(40, 95, 80, 20))
         self.label_password.setFont(font)
         self.label_password.setAlignment(Qt.AlignRight)
         self.label_password.setObjectName("label_password")
 
         # SERVER LABEL
-        self.label_server = QtWidgets.QLabel(self.centralwidget)
-        self.label_server.setGeometry(QRect(90, 130, 80, 20))
+        self.label_server = QtWidgets.QLabel(self.configuration_group_box)
+        self.label_server.setGeometry(QRect(40, 130, 80, 20))
         self.label_server.setFont(font)
         self.label_server.setAlignment(Qt.AlignRight)
         self.label_server.setObjectName("label_server")
 
         # PORT LABEL
-        self.label_port = QtWidgets.QLabel(self.centralwidget)
-        self.label_port.setGeometry(QRect(90, 165, 80, 20))
+        self.label_port = QtWidgets.QLabel(self.configuration_group_box)
+        self.label_port.setGeometry(QRect(40, 165, 80, 20))
         self.label_port.setFont(font)
         self.label_port.setAlignment(Qt.AlignRight)
         self.label_port.setObjectName("label_port")
@@ -412,7 +412,7 @@ class Mail(QtWidgets.QMainWindow):
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
-        self.imap_group_box.setTitle(search_pec.SETTINGS)
+        self.configuration_group_box.setTitle(search_pec.SETTINGS)
         self.criteria_group_box.setTitle(search_pec.CRITERIA)
         self.label_email.setText(search_pec.LABEL_USERNAME)
         self.label_password.setText(search_pec.LABEL_PASSWORD)
@@ -472,6 +472,7 @@ class Mail(QtWidgets.QMainWindow):
            self.spinner.stop()
            self.search_button.setEnabled(True)
        else:
+        self.configuration_group_box.setDisabled(True)
         self.is_logged_in = True
         self.__start()
         
