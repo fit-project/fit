@@ -30,6 +30,7 @@ from instaloader import Instaloader, Profile
 import os
 from common.constants.controller import instagram
 
+
 class Instagram:
     def __init__(self, username, password, profile_name):
         self.username = username
@@ -44,6 +45,7 @@ class Instagram:
 
     def set_dir(self, path):
         self.path = path
+        self.loader.dirname_pattern = self.path
 
     def scrape_post(self):
         if self.profile.is_private:
@@ -127,7 +129,5 @@ class Instagram:
 
     def scrape_highlights(self):
         self.login()
-        os.makedirs(self.profile_name + "_highlights")
-        os.chdir(os.getcwd() + "\\" + self.profile_name + "_highlights")
         self.loader.download_highlights(self.profile.userid)
         return

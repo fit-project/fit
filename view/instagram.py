@@ -299,8 +299,8 @@ class Instagram(QtWidgets.QMainWindow):
                 (self.checkBox_2_followee.isChecked, insta.scrape_followees),
                 (self.checkBox_3_highlight.isChecked, insta.scrape_highlights),
                 (self.checkBox_4_story.isChecked, insta.scrape_stories),
-                (self.checkBox_5_taggedPost.isChecked, insta.scrape_tagged_posts()),
-                (self.checkBox_6_savedPost.isChecked, insta.scrape_saved_posts()),
+                (self.checkBox_5_taggedPost.isChecked, insta.scrape_tagged_posts),
+                (self.checkBox_6_savedPost.isChecked, insta.scrape_saved_posts),
                 (self.checkBox_7_follower.isChecked, insta.scrape_followers)
             ]
 
