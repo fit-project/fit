@@ -27,29 +27,25 @@
 ######
 import os
 import shutil
+import logging
 
-import zipfile
-
+from instaloader import (InvalidArgumentException, BadCredentialsException, 
+                         ConnectionException, ProfileNotExistsException)
 from PyQt5 import QtCore, QtGui, QtWidgets
-from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
-    ProfileNotExistsException
 
-from common.constants.view import general, instagram
-from controller.instagram import Instagram as InstragramController
 from view.error import Error as ErrorView
-
+from view.acquisition.acquisition import Acquisition
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
-from common.config import LogConfigTools
-from common.constants import logger, tasks, state, status, error as Error
+from controller.instagram import Instagram as InstragramController
 
-from common.constants import details as Details, logger as Logger
+from common.constants import (tasks, state, status, error as Error, 
+                              details as Details, logger as Logger)
+from common.constants.view import general, instagram
 
-import logging.config
-from view.acquisition.acquisition import Acquisition
 
-logger_acquisition = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Instagram(QtWidgets.QMainWindow):
@@ -68,7 +64,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.configuration_view.hide()
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
-        self.log_confing = LogConfigTools()
 
         self.setObjectName("mainWindow")
         self.resize(653, 392)
@@ -119,11 +114,11 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_password.setGeometry(QtCore.QRect(80, 60, 100, 20))
         self.label_password.setObjectName("label_password")
 
-        self.scrapeButton = QtWidgets.QPushButton(self.centralwidget)
-        self.scrapeButton.setGeometry(QtCore.QRect(520, 270, 75, 25))
-        self.scrapeButton.setObjectName("scrapeButton")
-        self.scrapeButton.clicked.connect(self.button_clicked)
-        self.scrapeButton.setEnabled(False)
+        self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
+        self.scrape_button.setGeometry(QtCore.QRect(520, 270, 75, 25))
+        self.scrape_button.setObjectName("scrapeButton")
+        self.scrape_button.clicked.connect(self.button_clicked)
+        self.scrape_button.setEnabled(False)
 
         self.input_profile = QtWidgets.QLineEdit(self.centralwidget)
         self.input_profile.setGeometry(QtCore.QRect(240, 90, 240, 20))
@@ -158,41 +153,41 @@ class Instagram(QtWidgets.QMainWindow):
         self.checkBox_4_story.setGeometry(QtCore.QRect(360, 230, 70, 17))
         self.checkBox_4_story.setObjectName("checkBox_4_story")
 
-        self.checkBox_5_taggedPost = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox_5_taggedPost.setGeometry(QtCore.QRect(430, 210, 91, 17))
-        self.checkBox_5_taggedPost.setObjectName("checkBox_5_taggedPost")
+        self.checkBox_5_tagged_post = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox_5_tagged_post.setGeometry(QtCore.QRect(430, 210, 91, 17))
+        self.checkBox_5_tagged_post.setObjectName("checkBox_5_taggedPost")
 
-        self.checkBox_6_savedPost = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox_6_savedPost.setGeometry(QtCore.QRect(430, 170, 91, 17))
-        self.checkBox_6_savedPost.setObjectName("checkBox_6_savedPost")
+        self.checkBox_6_saved_post = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox_6_saved_post.setGeometry(QtCore.QRect(430, 170, 91, 17))
+        self.checkBox_6_saved_post.setObjectName("checkBox_6_savedPost")
 
         self.checkBox_7_follower = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_7_follower.setGeometry(QtCore.QRect(360, 210, 70, 17))
         self.checkBox_7_follower.setObjectName("checkBox_7_follower")
 
-        self.label_optionalInfo = QtWidgets.QLabel(self.centralwidget)
-        self.label_optionalInfo.setGeometry(QtCore.QRect(360, 140, 121, 20))
-        self.label_optionalInfo.setObjectName("label_optionalInfo")
+        self.label_optional_info = QtWidgets.QLabel(self.centralwidget)
+        self.label_optional_info.setGeometry(QtCore.QRect(360, 140, 121, 20))
+        self.label_optional_info.setObjectName("label_optionalInfo")
 
-        self.label_completeName = QtWidgets.QLabel(self.centralwidget)
-        self.label_completeName.setGeometry(QtCore.QRect(80, 170, 111, 20))
-        self.label_completeName.setObjectName("label_completeName")
+        self.label_complete_name = QtWidgets.QLabel(self.centralwidget)
+        self.label_complete_name.setGeometry(QtCore.QRect(80, 170, 111, 20))
+        self.label_complete_name.setObjectName("label_completeName")
 
         self.label_biography = QtWidgets.QLabel(self.centralwidget)
         self.label_biography.setGeometry(QtCore.QRect(80, 190, 111, 20))
         self.label_biography.setObjectName("label_biography")
 
-        self.label_numberOfPost = QtWidgets.QLabel(self.centralwidget)
-        self.label_numberOfPost.setGeometry(QtCore.QRect(80, 210, 111, 20))
-        self.label_numberOfPost.setObjectName("label_numberOfPost")
+        self.label_number_of_post = QtWidgets.QLabel(self.centralwidget)
+        self.label_number_of_post.setGeometry(QtCore.QRect(80, 210, 111, 20))
+        self.label_number_of_post.setObjectName("label_numberOfPost")
 
-        self.label_profileImage = QtWidgets.QLabel(self.centralwidget)
-        self.label_profileImage.setGeometry(QtCore.QRect(80, 230, 111, 20))
-        self.label_profileImage.setObjectName("label_profileImage")
+        self.label_profile_image = QtWidgets.QLabel(self.centralwidget)
+        self.label_profile_image.setGeometry(QtCore.QRect(80, 230, 111, 20))
+        self.label_profile_image.setObjectName("label_profileImage")
 
-        self.label_accountType = QtWidgets.QLabel(self.centralwidget)
-        self.label_accountType.setGeometry(QtCore.QRect(80, 250, 221, 20))
-        self.label_accountType.setObjectName("label_accountType")
+        self.label_account_type = QtWidgets.QLabel(self.centralwidget)
+        self.label_account_type.setGeometry(QtCore.QRect(80, 250, 221, 20))
+        self.label_account_type.setObjectName("label_accountType")
 
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
@@ -202,8 +197,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.addPermanentWidget(self.progress_bar)
         self.setStatusBar(self.status)
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -211,28 +204,28 @@ class Instagram(QtWidgets.QMainWindow):
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # ACQUISITION
-        self.acquisition = Acquisition(logger_acquisition, self.progress_bar, self.status, self)
+        self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
         self.label_username.setText(instagram.LABEL_USERNAME)
         self.label_password.setText(instagram.LABEL_PASSWORD)
-        self.scrapeButton.setText(instagram.SCRAPE_BUTTON)
+        self.scrape_button.setText(instagram.SCRAPE_BUTTON)
         self.label_profile.setText(instagram.PROFILE_NAME)
         self.label_baseInfo.setText(instagram.BASIC_INFORMATION)
         self.checkBox_post.setText(instagram.POST)
         self.checkBox_2_followee.setText(instagram.FOLLOWING)
         self.checkBox_3_highlight.setText(instagram.HIGHLIGHTS)
         self.checkBox_4_story.setText(instagram.STORIES)
-        self.checkBox_5_taggedPost.setText(instagram.TAGGED)
-        self.checkBox_6_savedPost.setText(instagram.SAVED)
+        self.checkBox_5_tagged_post.setText(instagram.TAGGED)
+        self.checkBox_6_saved_post.setText(instagram.SAVED)
         self.checkBox_7_follower.setText(instagram.FOLLOWERS)
-        self.label_optionalInfo.setText(instagram.ADDITIONAL)
-        self.label_completeName.setText(instagram.FULL_NAME)
+        self.label_optional_info.setText(instagram.ADDITIONAL)
+        self.label_complete_name.setText(instagram.FULL_NAME)
         self.label_biography.setText(instagram.BIO)
-        self.label_numberOfPost.setText(instagram.POST_NUMBER)
-        self.label_profileImage.setText(instagram.PROFILE_PIC)
-        self.label_accountType.setText(instagram.VERIFIED)
+        self.label_number_of_post.setText(instagram.POST_NUMBER)
+        self.label_profile_image.setText(instagram.PROFILE_PIC)
+        self.label_account_type.setText(instagram.VERIFIED)
 
     def button_clicked(self):
 
@@ -249,80 +242,80 @@ class Instagram(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(False)
             self.acquisition.start([], self.acquisition_directory, self.case_info, 1)
 
-        self.status.showMessage(Logger.FETCH_PROFILE)
-        self.acquisition.logger.info(Logger.FETCH_PROFILE)
-        self.acquisition.info.add_task(tasks.FETCH_PROFILE, state.STARTED, status.PENDING)
+            self.status.showMessage(Logger.FETCH_PROFILE)
+            self.acquisition.logger.info(Logger.FETCH_PROFILE)
+            self.acquisition.info.add_task(tasks.FETCH_PROFILE, state.STARTED, status.PENDING)
 
-        err = False
-        # Create acquisition folder
-        self.profile_dir = os.path.join(self.acquisition_directory, self.input_profile.text())
-        if not os.path.exists(self.profile_dir):
-            os.makedirs(self.profile_dir)
+            err = False
+            # Create acquisition folder
+            self.profile_dir = os.path.join(self.acquisition_directory, self.input_profile.text())
+            if not os.path.exists(self.profile_dir):
+                os.makedirs(self.profile_dir)
 
-        insta = InstragramController(self.input_username.text(), self.input_password.text(),
+            insta = InstragramController(self.input_username.text(), self.input_password.text(),
                                      self.input_profile.text(), self.profile_dir)
-        try:
-            insta.login()
-        except (InvalidArgumentException, BadCredentialsException, ConnectionException, ProfileNotExistsException) as e:
-            err = True
-            error_message = str(e)
-            error_title = ""
-            error_type = ""
-            if isinstance(e, InvalidArgumentException):
-                error_title = instagram.INVALID_USER
-                error_type = Error.INVALID_USER
-            elif isinstance(e, BadCredentialsException):
-                error_title = instagram.LOGIN_ERROR
-                error_type = Error.PASSWORD_ERROR
-            elif isinstance(e, ConnectionException):
-                error_title = instagram.CONNECTION_ERROR
-                error_type = Error.LOGIN_ERROR
-            elif isinstance(e, ProfileNotExistsException):
-                error_title = instagram.INVALID_PROFILE
-                error_type = Error.INVALID_PROFILE
+            try:
+                insta.login()
+            except (InvalidArgumentException, BadCredentialsException, ConnectionException, ProfileNotExistsException) as e:
+                err = True
+                error_message = str(e)
+                error_title = ""
+                error_type = ""
+                if isinstance(e, InvalidArgumentException):
+                    error_title = instagram.INVALID_USER
+                    error_type = Error.INVALID_USER
+                elif isinstance(e, BadCredentialsException):
+                    error_title = instagram.LOGIN_ERROR
+                    error_type = Error.PASSWORD_ERROR
+                elif isinstance(e, ConnectionException):
+                    error_title = instagram.CONNECTION_ERROR
+                    error_type = Error.LOGIN_ERROR
+                elif isinstance(e, ProfileNotExistsException):
+                    error_title = instagram.INVALID_PROFILE
+                    error_type = Error.INVALID_PROFILE
 
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information, error_title, error_type, error_message)
-            error_dlg.exec_()
+                error_dlg = ErrorView(QtWidgets.QMessageBox.Information, error_title, error_type, error_message)
+                error_dlg.exec_()
 
-        if not err:
+            if not err:
 
-            row = self.acquisition.info.get_row(tasks.FETCH_PROFILE)
-            self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
-            self.acquisition.upadate_progress_bar()
+                row = self.acquisition.info.get_row(tasks.FETCH_PROFILE)
+                self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+                self.acquisition.upadate_progress_bar()
 
-            self.status.showMessage(Logger.SCRAPING_INSTAGRAM)
-            self.acquisition.logger.info(Logger.SCRAPING_INSTAGRAM)
-            self.acquisition.info.add_task(tasks.SCRAPING_INSTAGRAM, state.STARTED, status.PENDING)
+                self.status.showMessage(Logger.SCRAPING_INSTAGRAM)
+                self.acquisition.logger.info(Logger.SCRAPING_INSTAGRAM)
+                self.acquisition.info.add_task(tasks.SCRAPING_INSTAGRAM, state.STARTED, status.PENDING)
 
-            self.setEnabled(False)
-            methods_to_execute = [
-                (self.checkBox_post.isChecked, insta.scrape_post),
-                (self.checkBox_2_followee.isChecked, insta.scrape_followees),
-                (self.checkBox_3_highlight.isChecked, insta.scrape_highlights),
-                (self.checkBox_4_story.isChecked, insta.scrape_stories),
-                (self.checkBox_5_taggedPost.isChecked, insta.scrape_taggedPosts),
-                (self.checkBox_6_savedPost.isChecked, insta.scrape_savedPosts),
-                (self.checkBox_7_follower.isChecked, insta.scrape_followers)
-            ]
-            for checkbox, method in methods_to_execute:
-                if checkbox():
-                    method()
-            insta.scrape_profilePicture()
-            insta.scrape_info()
+                self.setEnabled(False)
+                methods_to_execute = [
+                    (self.checkBox_post.isChecked, insta.scrape_post),
+                    (self.checkBox_2_followee.isChecked, insta.scrape_followees),
+                    (self.checkBox_3_highlight.isChecked, insta.scrape_highlights),
+                    (self.checkBox_4_story.isChecked, insta.scrape_stories),
+                    (self.checkBox_5_tagged_post.isChecked, insta.scrape_taggedPosts),
+                    (self.checkBox_6_saved_post.isChecked, insta.scrape_savedPosts),
+                    (self.checkBox_7_follower.isChecked, insta.scrape_followers)
+                ]
+                for checkbox, method in methods_to_execute:
+                    if checkbox():
+                        method()
+                insta.scrape_profilePicture()
+                insta.scrape_info()
 
-            self.__zip_and_remove(self.profile_dir)
+                self.__zip_and_remove(self.profile_dir)
 
-            row = self.acquisition.info.get_row(tasks.SCRAPING_INSTAGRAM)
-            self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
-            self.acquisition.upadate_progress_bar()
+                row = self.acquisition.info.get_row(tasks.SCRAPING_INSTAGRAM)
+                self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+                self.acquisition.upadate_progress_bar()
 
-            self.acquisition.stop([], '', 1)
-            self.acquisition.log_end_message()
+                self.acquisition.stop([], '', 1)
+                self.acquisition.log_end_message()
 
-            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
-            self.setEnabled(True)
+                self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
+                self.setEnabled(True)
 
-            self.__show_finish_acquisition_dialog()
+                self.__show_finish_acquisition_dialog()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
@@ -354,7 +347,7 @@ class Instagram(QtWidgets.QMainWindow):
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
-        self.scrapeButton.setEnabled(all_field_filled)
+        self.scrape_button.setEnabled(all_field_filled)
 
     def __case(self):
         self.case_view.exec_()
