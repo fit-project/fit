@@ -41,7 +41,7 @@ class Case(Base):
     id = Column(Integer, primary_key = True)
     name = Column(String, unique=True)
     lawyer_name = Column(String)
-    proceeding_type = Column(String)
+    proceeding_type = Column(Integer)
     courthouse = Column(String)
     proceeding_number = Column(Integer)
 
