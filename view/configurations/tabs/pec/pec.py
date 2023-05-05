@@ -160,7 +160,7 @@ class Pec(QtWidgets.QWidget):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.smtp_port.sizePolicy().hasHeightForWidth())
         self.smtp_port.setSizePolicy(sizePolicy)
-        self.smtp_port.setObjectName("line_edit_port_SMTP")
+        self.smtp_port.setObjectName("smtp_port")
         self.horizontal_layout_SMTP.addWidget(self.smtp_port)
         
 
@@ -200,7 +200,7 @@ class Pec(QtWidgets.QWidget):
             item = self.findChild(QtCore.QObject, keyword)
             value = ""
             if item is not None:
-                if isinstance(item, QtWidgets.QLineEdit) is not False and item.text():
+                if isinstance(item, QtWidgets.QLineEdit):
                     value = item.text()
                 elif isinstance(item, QtWidgets.QCheckBox):
                     value = item.isChecked()
