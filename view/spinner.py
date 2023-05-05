@@ -24,29 +24,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # -----
-######
-WINDOW_TITLE="Search PEC"
-SETTINGS="Server configuration"
-CRITERIA="Search criteria"
-LABEL_USERNAME="Email*"
-LABEL_PASSWORD="Password*"
-LABEL_IMAP_SERVER="IMAP server*"
-LABEL_IMAP_PORT="IMAP port*"
-LABEL_FROM="From"
-LABEL_TO="To"
-LABEL_SUBJECT="Subject"
-LABEL_CASE="Case"
-LABEL_FROM_DATE="From date"
-LABEL_TO_DATE="To date"
-LOGIN_BUTTON="Login"
-SEARCH_BUTTON="Search"
-DOWNLOAD_BUTTON="Download"
+###### 
+import os
+from PyQt5.QtGui import QMovie
+from PyQt5.QtCore import QRect, Qt, QObject
+from PyQt5.QtWidgets import QWidget, QDialog, QLabel
 
-PLACEHOLDER_USERNAME="example@example.com"
-PLACEHOLDER_PASSWORD="password"
-PLACEHOLDER_IMAP_SERVER="imap.server.com"
-PLACEHOLDER_IMAP_PORT="993"
-PLACEHOLDER_TO="to@example.com"
-PLACEHOLDER_FROM="from@example.com"
-PLACEHOLDER_SUBJECT="Some subject"
 
+class Spinner(QObject):
+	
+    def __init__(self):
+        super().__init__()
+       
+        self.initUI()
+
+    def initUI(self):
+        self.widget = QWidget()
+        self.widget.resize(200, 200)
+        self.widget.setWindowFlags(Qt.FramelessWindowHint)
+        self.widget.setAttribute(Qt.WA_TranslucentBackground)
+        self.centralwidget = QWidget(self.widget)       
+        self.label = QLabel(self.centralwidget)
+        self.label.setGeometry(QRect(0, 0, 200, 200))
+        self.movie = QMovie(os.path.join('assets/images/', 'loader.gif'))
+        self.label.setMovie(self.movie)
+
+    def start(self):
+        self.movie.start()
+        self.widget.show()
+
+    def stop(self):
+        self.movie.stop()
+        self.widget.hide()
