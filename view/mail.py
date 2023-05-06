@@ -30,9 +30,6 @@ import re
 import logging
 import shutil
 from datetime import timedelta
-import typing
-
-
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import (QObject, QThread, QRegExp, QDate, Qt, QRect, QMetaObject,
