@@ -279,18 +279,21 @@ class Mail(QtWidgets.QMainWindow):
         self.input_from.setGeometry(QRect(180, 300, 240, 20))
         self.input_from.setFont(QFont('Arial', 10))
         self.input_from.setObjectName("input_sender")
-        self.input_from.textChanged.connect(self.__on_text_changed)
-        self.emails_to_validate.append(self.input_from.objectName())
         self.input_from.setPlaceholderText(search_pec.PLACEHOLDER_FROM)
+
+        self.input_from.textChanged.connect(self.__on_text_changed)
+        self.input_from.editingFinished.connect(self.__on_editing_finished)
+        self.emails_to_validate.append(self.input_from.objectName())
 
         # RECIPIENT FIELD
         self.input_to = QtWidgets.QLineEdit(self.centralwidget)
         self.input_to.setGeometry(QRect(180, 335, 240, 20))
         self.input_to.setFont(QFont('Arial', 10))
         self.input_to.setObjectName("input_recipient")
+        self.input_to.setPlaceholderText(search_pec.PLACEHOLDER_TO)
+        self.input_to.editingFinished.connect(self.__on_editing_finished)
         self.input_to.textChanged.connect(self.__on_text_changed)
         self.emails_to_validate.append(self.input_to.objectName())
-        self.input_to.setPlaceholderText(search_pec.PLACEHOLDER_TO)
 
         # SUBJECT FIELD
         self.input_subject = QtWidgets.QLineEdit(self.centralwidget)
@@ -591,6 +594,13 @@ class Mail(QtWidgets.QMainWindow):
 
         self.download_button.setEnabled(False)
         self.__is_checked()
+    
+    def __on_editing_finished(self):
+         if isinstance(self.sender(), QtWidgets.QLineEdit) and \
+            self.sender().objectName() in self.emails_to_validate and \
+            self.sender().text() == '' and  self.search_button.isEnabled() is False:
+                self.sender().setStyleSheet('')
+                self.search_button.setEnabled(True)
 
     def __on_text_changed(self, text):
         
