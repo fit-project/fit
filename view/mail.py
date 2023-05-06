@@ -138,6 +138,9 @@ class Mail(QtWidgets.QMainWindow):
         self.spinner = Spinner()
         self.acquisition_directory = None
         self.case_info = None
+        self.email_validator = QRegExpValidator(QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}"))
+        self.is_valid_email = False
+        self.emails_to_validate = []
         
           
 
@@ -203,10 +206,9 @@ class Mail(QtWidgets.QMainWindow):
         self.input_email.setGeometry(QRect(130, 60, 240, 20))
         self.input_email.setFont(QFont('Arial', 10))
         self.input_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
-        email_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
-        validator = QRegExpValidator(email_regex)
-        self.input_email.setValidator(validator)
         self.input_email.setObjectName("input_email")
+        self.emails_to_validate.append(self.input_email.objectName())
+        
 
         # PASSWORD FIELD
         self.input_password = QtWidgets.QLineEdit(self.configuration_group_box)
@@ -277,6 +279,8 @@ class Mail(QtWidgets.QMainWindow):
         self.input_from.setGeometry(QRect(180, 300, 240, 20))
         self.input_from.setFont(QFont('Arial', 10))
         self.input_from.setObjectName("input_sender")
+        self.input_from.textChanged.connect(self.__on_text_changed)
+        self.emails_to_validate.append(self.input_from.objectName())
         self.input_from.setPlaceholderText(search_pec.PLACEHOLDER_FROM)
 
         # RECIPIENT FIELD
@@ -284,6 +288,8 @@ class Mail(QtWidgets.QMainWindow):
         self.input_to.setGeometry(QRect(180, 335, 240, 20))
         self.input_to.setFont(QFont('Arial', 10))
         self.input_to.setObjectName("input_recipient")
+        self.input_to.textChanged.connect(self.__on_text_changed)
+        self.emails_to_validate.append(self.input_to.objectName())
         self.input_to.setPlaceholderText(search_pec.PLACEHOLDER_TO)
 
         # SUBJECT FIELD
@@ -392,7 +398,7 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
         self.is_first_acquisition_completed = False
         self.is_acquisition_running = False
-
+      
 
 
     def retranslateUi(self):
@@ -586,9 +592,20 @@ class Mail(QtWidgets.QMainWindow):
         self.download_button.setEnabled(False)
         self.__is_checked()
 
-    def __on_text_changed(self):
+    def __on_text_changed(self, text):
+        
+        if isinstance(self.sender(), QtWidgets.QLineEdit) and \
+            self.sender().objectName() in self.emails_to_validate:
+            state = self.email_validator.validate(text, 0)
+            if state[0] != QRegExpValidator.Acceptable:
+                self.is_valid_email = False
+                self.sender().setStyleSheet('border: 1px solid red;')
+            else:
+                self.is_valid_email = True
+                self.sender().setStyleSheet('')
+
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
-        self.search_button.setEnabled(all_fields_filled)
+        self.search_button.setEnabled(all_fields_filled and self.is_valid_email)
 
     def __download(self):
 
