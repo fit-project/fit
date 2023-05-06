@@ -32,26 +32,33 @@ import email.message
 import re
 import pyzmail
 
-
 class Mail():
     def __init__(self):
         self.email_address = None
         self.password = None
         self.mailbox = None
+        self.is_logged_in = False
 
     def check_server(self, server, port):
         # Connect and log to the mailbox using IMAP server
-        self.mailbox = imaplib.IMAP4_SSL(server, int(port))  # imap ssl port
-        return
+        try:
+            self.mailbox = imaplib.IMAP4_SSL(server, int(port))  # imap ssl port
+        except Exception as e:
+            raise Exception(e)
 
     def check_login(self, email_address, password):
         self.email_address = email_address
         self.password = password
-        self.mailbox.login(self.email_address, self.password)
-        self.mailbox.select()
+        try:
+            self.mailbox.login(self.email_address, self.password)
+            self.mailbox.select()
+            self.is_logged_in = True
+        except Exception as e:
+            raise Exception(e)
+        
         # Clear password after usage
         self.password = ''
-        return
+
 
     def get_mails_from_every_folder(self, params):
 
