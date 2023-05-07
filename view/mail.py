@@ -599,6 +599,7 @@ class Mail(QtWidgets.QMainWindow):
          if isinstance(self.sender(), QtWidgets.QLineEdit) and \
             self.sender().objectName() in self.emails_to_validate and \
             self.sender().text() == '' and  self.search_button.isEnabled() is False:
+                self.is_valid_email = True
                 self.sender().setStyleSheet('')
                 self.search_button.setEnabled(True)
 
