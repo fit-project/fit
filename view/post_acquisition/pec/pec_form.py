@@ -46,6 +46,7 @@ class PecForm(QtWidgets.QDialog):
         self.resize(452, 400)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
         
         #PEC USER AND PASSWORD
         self.label_pec_email = QtWidgets.QLabel(self.centralwidget)
