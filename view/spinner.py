@@ -31,7 +31,7 @@ from PyQt5.QtCore import QRect, Qt, QObject
 from PyQt5.QtWidgets import QWidget, QDialog, QLabel
 
 
-class Spinner(QObject):
+class Spinner(QDialog):
 	
     def __init__(self):
         super().__init__()
@@ -39,20 +39,20 @@ class Spinner(QObject):
         self.initUI()
 
     def initUI(self):
-        self.widget = QWidget()
-        self.widget.resize(200, 200)
-        self.widget.setWindowFlags(Qt.FramelessWindowHint)
-        self.widget.setAttribute(Qt.WA_TranslucentBackground)
-        self.centralwidget = QWidget(self.widget)       
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.resize(200, 200)
+        self.centralwidget = QWidget(self)       
         self.label = QLabel(self.centralwidget)
         self.label.setGeometry(QRect(0, 0, 200, 200))
         self.movie = QMovie(os.path.join('assets/images/', 'loader.gif'))
         self.label.setMovie(self.movie)
+        self.setModal(True)
 
     def start(self):
         self.movie.start()
-        self.widget.show()
+        self.show()
 
     def stop(self):
         self.movie.stop()
-        self.widget.hide()
+        self.hide()
