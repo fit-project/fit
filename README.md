@@ -10,9 +10,8 @@ For the implementation:
 * OpenVC and Pyautogui for screen capture
 
 
-## Prerequisites
-Make sure you have installed all of the following prerequisites on your development machine:
-* Wireshark - [Download & Install Wireshark](https://www.wireshark.org/download/). Network traffic analyzer, or "sniffer", for Linux, macOS, *BSD and other Unix and Unix-like operating systems and for Windows.
+## Suggestions
+On PCs with Windows OS it is strongly recommended to install [*NPCAP] (https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceoute.
 
 ## Downloading FIT
 There are two ways you can get the FIT:
