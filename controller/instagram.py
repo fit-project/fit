@@ -38,10 +38,17 @@ class Instagram:
         self.profile_name = profile_name
         self.loader = Instaloader()
         self.profile = None
+        self.is_logged_in = False
 
     def login(self):
         self.loader.login(self.username, self.password)
-        self.profile = Profile.from_username(self.loader.context, self.profile_name)
+        try:
+            self.profile = Profile.from_username(self.loader.context, self.profile_name)
+            self.is_logged_in = True
+
+        except Exception as e:
+            raise Exception(e)
+
 
     def set_dir(self, path):
         self.path = path
