@@ -342,8 +342,7 @@ class Wizard(QtWidgets.QWizard):
     
     def __get_version(self):
         parser = SafeConfigParser()
-        print(os.path.dirname(__file__))
-        parser.read(os.path.join(os.path.dirname(__file__), 'assets/config.ini'))
+        parser.read('assets/config.ini')
         version = parser.get('fit_properties', 'version')
         
         return version
