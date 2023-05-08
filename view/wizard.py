@@ -32,7 +32,7 @@ from configparser import SafeConfigParser
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from common.constants import error
-from common.constants.view import wizard
+from common.constants.view import wizard, general
 from view.configuration import Configuration as ConfigurationView
 from view.case_form import CaseForm as CaseFormView
 from view.error import Error as ErrorView
@@ -276,6 +276,7 @@ class Wizard(QtWidgets.QWizard):
 
         self.button(QtWidgets.QWizard.FinishButton).setDisabled(True)
 
+        self.setButtonText(QtWidgets.QWizard.FinishButton, general.BUTTON_START)
 
         self.retranslateUi()
     
