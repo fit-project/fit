@@ -11,7 +11,7 @@ For the implementation:
 
 
 ## Suggestions
-On PCs with Windows OS it is strongly recommended to install [*NPCAP] (https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceoute.
+On PCs with Windows OS it is strongly recommended to install [NPCAP](https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceroute.
 
 ## Downloading FIT
 There are two ways you can get the FIT:
