@@ -25,6 +25,7 @@
 # SOFTWARE.
 # -----
 ######
+import __main__
 import os
 
 from configparser import SafeConfigParser
@@ -250,6 +251,7 @@ class Wizard(QtWidgets.QWizard):
         self.height = 600
         self.setObjectName("WizardView")
         self.temp_case_info = None
+       
         
 
     def init_wizard(self):
@@ -342,7 +344,8 @@ class Wizard(QtWidgets.QWizard):
     
     def __get_version(self):
         parser = SafeConfigParser()
-        parser.read('assets/config.ini')
+        print(os.path.dirname(__main__.__file__))
+        parser.read(os.path.join(os.path.dirname(__main__.__file__), 'assets/config.ini'))
         version = parser.get('fit_properties', 'version')
         
         return version
