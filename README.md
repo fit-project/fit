@@ -5,7 +5,7 @@ It's based on Fabio Zito (**@zitelog**) [final exam](https://github.com/zitelog/
 For the implementation: 
 * MVC Pattern
 * Python Language
-* Qt as graphical user interface
+* [Qt](https://www.qt.io/download-open-source) as graphical user interface and Web Engine 
 * Scapy for packet capture
 * OpenVC and Pyautogui for screen capture
 
