@@ -55,13 +55,18 @@ class Instagram():
 
     def scrape_post(self):
         posts = self.profile.get_posts()
+        self.__set_loader_dirname_pattern("posts")
         for post in posts:
-            self.loader.download_post(post, self.profile_name)
+            self.loader.download_post(post, self.profile)
+
+        self.__set_loader_dirname_pattern()
 
     def scrape_stories(self):
         id = []
         id.append(self.profile.userid)
-        self.loader.download_stories(id, Path(self.__make_scraped_type_directory("stories")))
+        self.__set_loader_dirname_pattern("stories")
+        self.loader.download_stories(id)
+        self.__set_loader_dirname_pattern()
 
     def scrape_followers(self):
         n_followers = self.profile.followers
@@ -99,19 +104,24 @@ class Instagram():
         if tmp_context_username is not None:
             self.profile._context.username = tmp_context_username
 
+        self.__set_loader_dirname_pattern("saved_posts")
         for saved_post in saved_posts:
-            self.loader.download_post(saved_post, Path(self.__make_scraped_type_directory("saved_posts")))
+            self.loader.download_post(saved_post, self.profile_name)
+        self.__set_loader_dirname_pattern()
         
 
     def scrape_profile_picture(self):
+        self.__set_loader_dirname_pattern("profile_pic")
         self.loader.download_profilepic(self.profile)
+        self.__set_loader_dirname_pattern()
         
 
     def scrape_tagged_posts(self):
         tagged_posts = self.profile.get_tagged_posts()
-
+        self.__set_loader_dirname_pattern("tagged_posts")
         for tagged_post in tagged_posts:
-            self.loader.download_post(tagged_post, Path(self.__make_scraped_type_directory("tagged_posts")))
+            self.loader.download_post(tagged_post, self.profile_name)
+        self.__set_loader_dirname_pattern()
         
 
     def scrape_info(self):
@@ -120,7 +130,7 @@ class Instagram():
         business_category = self.profile.business_category_name
         biography = self.profile.biography
         n_media = self.profile.mediacount
-        file = open(os.path.join(self.path, "profile_info.txt"), "w", encoding="utf-8")
+        file = open(os.path.join(self.__make_scraped_type_directory("profile_info"), "profile_info.txt"), "w", encoding="utf-8")
         if verified:
             file.write(instagram.VERIFIED + "\n")
         else:
@@ -137,22 +147,28 @@ class Instagram():
         
 
     def scrape_highlights(self):
+        self.__set_loader_dirname_pattern("highlights")
         self.loader.download_highlights(self.profile.userid)
+        self.__set_loader_dirname_pattern()
     
     def __make_scraped_type_directory(self, directory_name):
 
-        scraped_type_directory = os.path.join(self.path, self.profile_name, directory_name)
+        scraped_type_directory = os.path.join(self.path, directory_name)
         if not os.path.exists(scraped_type_directory):
             os.makedirs(scraped_type_directory)
-
+        
         return scraped_type_directory
+
+    def __set_loader_dirname_pattern(self, directory_name=None):
+        if directory_name is None:
+            self.loader.dirname_pattern = self.path
+        else:
+            self.loader.dirname_pattern = self.__make_scraped_type_directory(directory_name)
 
     def create_zip(self, path):
         for folder in os.listdir(path):
             folder_path = os.path.join(path, folder)
             if os.path.isdir(folder_path):
-                zip_file = folder + '.zip'
-                zip_file_path = os.path.join(path, zip_file)
-                shutil.make_archive(zip_file_path, 'zip', folder_path)
+                shutil.make_archive(folder_path, 'zip', folder_path)
                 shutil.rmtree(folder_path)
         
