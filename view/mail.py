@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######  
+
 import os
 import re
 import logging
@@ -70,7 +71,7 @@ class MailWorker(QObject):
                 self.__download_emails()
 
         except Exception as e: #Check Server
-            self.error.emit({'title':mail.SERVER_ERROR, 'msg':error.SERVER_ERROR, 'details':e})
+            self.error.emit({'title':mail.SERVER_ERROR, 'msg':error.MAIL_SERVER_ERROR, 'details':e})
         except Exception as e: #Check Login
             self.error.emit({'title':mail.LOGIN_ERROR, 'msg':error.LOGIN_ERROR, 'details':e})
         except Exception as e: #Get mails
@@ -161,11 +162,11 @@ class Mail(QtWidgets.QMainWindow):
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 
-        # IMAP GROUP
+        # CONFIGURATION GROUP BOX
         self.configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.configuration_group_box.setEnabled(True)
         self.configuration_group_box.setGeometry(QRect(50, 20, 430, 200))
-        self.configuration_group_box.setObjectName("imap_group_box")
+        self.configuration_group_box.setObjectName("configuration_group_box")
 
         # SCRAPED EMAILS TREE
         layout = QtWidgets.QVBoxLayout()
@@ -189,6 +190,13 @@ class Mail(QtWidgets.QMainWindow):
         self.input_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         self.input_email.setObjectName("input_email")
         self.emails_to_validate.append(self.input_email.objectName())
+
+        # EMAIL LABEL
+        self.label_email = QtWidgets.QLabel(self.configuration_group_box)
+        self.label_email.setGeometry(QRect(40, 60, 80, 20))
+        self.label_email.setFont(font)
+        self.label_email.setAlignment(Qt.AlignRight)
+        self.label_email.setObjectName("label_email")
         
 
         # PASSWORD FIELD
@@ -221,12 +229,7 @@ class Mail(QtWidgets.QMainWindow):
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.__on_text_changed)
 
-        # EMAIL LABEL
-        self.label_email = QtWidgets.QLabel(self.configuration_group_box)
-        self.label_email.setGeometry(QRect(40, 60, 80, 20))
-        self.label_email.setFont(font)
-        self.label_email.setAlignment(Qt.AlignRight)
-        self.label_email.setObjectName("label_email")
+        
 
         # PASSWORD LABEL
         self.label_password = QtWidgets.QLabel(self.configuration_group_box)
@@ -433,7 +436,7 @@ class Mail(QtWidgets.QMainWindow):
         self.setEnabled(True)
 
         title = mail.SERVER_ERROR
-        msg = error.SERVER_ERROR
+        msg = error.MAIL_SERVER_ERROR
         details = e
         
         if isinstance(e, dict):

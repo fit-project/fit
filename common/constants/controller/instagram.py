@@ -18,3 +18,6 @@ PERSONAL="Tipo di profilo: personale"
 TYPE="Tipo di account: "
 BIO="Biografia account: "
 N_POSTS="Numero di post: "
+HANDLE_429="Instagram responded with HTTP error \"429 - Too Many Requests\".<br>\
+            Please wait a few minutes (5/6) and do not run FIT multiple times in parallel or within short sequence.<br>\
+            Also, do not use any Instagram App while FIT is running."
