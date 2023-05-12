@@ -28,9 +28,8 @@
 import os
 import shutil
 
-import zipfile
-
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 
@@ -50,7 +49,6 @@ import logging.config
 from view.acquisition.acquisition import Acquisition
 
 logger_acquisition = logging.getLogger(__name__)
-
 
 class Instagram(QtWidgets.QMainWindow):
 
