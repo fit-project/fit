@@ -145,12 +145,14 @@ class Mail():
             except Exception as e:  # handle exception
                 raise Exception(e)
 
-    def write_emails(self, email_id, mail_dir, folder_stripped):
+    def write_emails(self, email_id, mail_dir, folder_stripped, folder):
 
         # Create mail folder
         folder_dir = os.path.join(mail_dir, folder_stripped)
         if not os.path.exists(folder_dir):
             os.makedirs(folder_dir)
+        self.mailbox.select(folder)
+
         status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
 
         message_mail = raw_email[0][1]

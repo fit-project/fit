@@ -92,7 +92,7 @@ class MailWorker(QObject):
                 email_id = emails.partition('UID: ')[2]
                 # Create acquisition folder
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
-                self.mail_controller.write_emails(email_id, self.acquisition_mail_dir, folder_stripped)
+                self.mail_controller.write_emails(email_id, self.acquisition_mail_dir, folder_stripped, folder)
                 self.progress.emit()
 
 
