@@ -35,8 +35,8 @@ class PostAcquisition(QtCore.QObject):
     def execute(self, folder, case_info, type):
        self.calculate_acquisition_file_hash(folder)
        self.generate_pdf_report(folder, case_info, type)
-       self.generate_timestamp_report(folder)
-       self.send_report_from_pec(folder, case_info, type)
+       self.generate_timestamp_report(folder, case_info, type)
+
         
     def calculate_acquisition_file_hash(self, folder):
 
@@ -66,7 +66,7 @@ class PostAcquisition(QtCore.QObject):
         report.generate_pdf(type, self.parent().get_time())
         self.parent().upadate_progress_bar()
 
-    def generate_timestamp_report(self, folder):
+    def generate_timestamp_report(self, folder, case_info, type):
         self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
         options = TimestampController().options
         if options['enabled']:
@@ -79,11 +79,14 @@ class PostAcquisition(QtCore.QObject):
             timestamp.finished.connect(timestamp.deleteLater)
             timestamp.finished.connect(self.thread_timestamp.quit)
             
-            self.thread_timestamp.finished.connect(self.__thread_timestamp_is_finished)
+            self.thread_timestamp.finished.connect(lambda:self.__thread_timestamp_is_finished(folder, case_info, type))
 
             self.thread_timestamp.start()
     
-    def __thread_timestamp_is_finished(self):
+    def __thread_timestamp_is_finished(self,folder, case_info, type):
+        options = PecController().options
+        if options['enabled']:
+            self.send_report_from_pec(folder, case_info, type)
         self.parent().upadate_progress_bar()
         self.is_finished_timestamp = True
         self.__async_task_are_finished()
@@ -92,15 +95,14 @@ class PostAcquisition(QtCore.QObject):
 
         self.parent().set_message_on_the_statusbar(tasks.PEC)
 
-        options = PecController().options
-        if options['enabled']:
-            self.pec = PecView(self)
-            self.pec.sentpec.connect(lambda status: self.__is_pec_sent(status))
-            self.pec.downloadedeml.connect(lambda status: self.__is_eml_downloaded(status))
-            view_form=True
-            self.pec.init(case_info, type, folder, view_form)
-            if view_form is False:
-                self.pec.send()
+        self.pec = PecView(self)
+        self.pec.sentpec.connect(lambda status: self.__is_pec_sent(status))
+        self.pec.downloadedeml.connect(lambda status: self.__is_eml_downloaded(status))
+        view_form = False
+        self.pec.init(case_info, type, folder, view_form)
+        if view_form is False:
+            self.pec.send()
+
                 
     def __is_pec_sent(self, status):
         if status == Status.SUCCESS:
