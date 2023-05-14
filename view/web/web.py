@@ -220,16 +220,16 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(False)
             url = self.tabs.currentWidget().url().toString()
             self.__disable_all()
-
             #external tasks
-            tasks = [Tasks.SCREEN_RECORDER,
+            tasks = [
                      Tasks.PACKET_CAPTURE,
                      Tasks.WHOIS,
                      Tasks.NSLOOKUP,
                      Tasks.HEADERS,
                      Tasks.TRACEROUTE,
                      Tasks.SSLKEYLOG,
-                     Tasks.SSLCERTIFICATE
+                     Tasks.SSLCERTIFICATE,
+                     Tasks.SCREEN_RECORDER
                      ]
             
             #internal tasks
@@ -297,7 +297,7 @@ class Web(QtWidgets.QMainWindow):
         self.start_acquisition_is_started = False
         self.stop_acquisition_is_started = False
         try:
-            self.browser.saveResourcesFinished.disconnect()
+            self.tabs.currentWidget().saveResourcesFinished.disconnect()
         except TypeError:
             pass
 
@@ -346,9 +346,11 @@ class Web(QtWidgets.QMainWindow):
         if not os.path.isdir(self.acquisition_page_folder):
             os.makedirs(self.acquisition_page_folder)
         
-        self.browser.saveResourcesFinished.connect(self.__zip_and_remove)
+        self.tabs.currentWidget().saveResourcesFinished.connect(self.__zip_and_remove)
         
-        self.browser.save_resources(self.acquisition_page_folder)
+        self.tabs.currentWidget().save_resources(self.acquisition_page_folder)
+
+        
     
     def __zip_and_remove(self):
         shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
@@ -381,7 +383,7 @@ class Web(QtWidgets.QMainWindow):
         if self.screenshot_directory is not None:
             self.__disable_all()
             filename = screenshot_filename(self.screenshot_directory, self.tabs.currentWidget().url().host())
-            self.browser.grab().save(filename)
+            self.tabs.currentWidget().grab().save(filename)
             self.__enable_all()
 
     def take_screenshot_selected_area(self):
@@ -415,7 +417,7 @@ class Web(QtWidgets.QMainWindow):
 
             next = 0
             part = 0
-            step = self.browser.height()
+            step = self.tabs.currentWidget().height()
             end = self.tabs.currentWidget().page().contentsSize().toSize().height()
             parts = end / step
 
@@ -431,14 +433,14 @@ class Web(QtWidgets.QMainWindow):
             while next < end:
                 filename = screenshot_filename(full_page_folder, "part_" + str(part))
                 if next == 0:
-                    self.browser.grab().save(filename)
+                    self.tabs.currentWidget().grab().save(filename)
                 else:
                     self.tabs.currentWidget().page().runJavaScript("window.scrollTo({}, {});".format(0, next))
                     ### Waiting everything is synchronized
                     loop = QtCore.QEventLoop()
                     QtCore.QTimer.singleShot(500, loop.quit)
                     loop.exec_()
-                    self.browser.grab().save(filename)
+                    self.tabs.currentWidget().grab().save(filename)
 
                 progress += increment
                 self.progress_bar.setValue(progress)
