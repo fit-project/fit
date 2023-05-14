@@ -12,6 +12,7 @@ import os
 from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
 
 from view.error import Error as ErrorView
+from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 
 from common.utility import *
 from common.constants.view.init import *
@@ -113,6 +114,10 @@ class Init(QtCore.QObject):
                     if return_value == QtWidgets.QMessageBox.Yes:
                         donwload_and_install = DownloadAndInstallNpcap(url)
                         donwload_and_install.exec_()
+                    else:
+                        options = PacketCapture().options
+                        options["enabled"] =False
+                        PacketCapture().options = options
 
                 except Exception as e:
                     error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
