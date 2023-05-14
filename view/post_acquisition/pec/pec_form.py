@@ -12,6 +12,7 @@ import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from common.constants.view.pec import pec
+from common.constants.status import FAIL
 
 class PecForm(QtWidgets.QDialog):
     
@@ -100,7 +101,7 @@ class PecForm(QtWidgets.QDialog):
         self.skip_button.setObjectName("skip_button")
         font.setBold(False)
         self.skip_button.setFont(font)
-        self.skip_button.clicked.connect(self.reject)
+        self.skip_button.clicked.connect(self.parent.reject)
         self.skip_button.setEnabled(True)
 
         self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
@@ -168,3 +169,5 @@ class PecForm(QtWidgets.QDialog):
 
         self.output_message.setText(pec.SEND_MESSAGE)
         self.parent.send()
+    
+ 

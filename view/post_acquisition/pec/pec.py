@@ -46,7 +46,10 @@ class Pec(QtCore.QObject):
             self.pec_form = PecFormView(self)
             self.pec_form.exec_()
 
-    
+    def reject(self):
+        self.sentpec.emit(FAIL)
+        self.pec_form.reject()
+
     def send(self):
         status = SUCCESS
         if len(self.options) == 0:

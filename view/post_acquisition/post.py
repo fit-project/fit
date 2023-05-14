@@ -25,9 +25,12 @@ from view.error import Error as ErrorView
 logger = logging.getLogger('hashreport')
 
 class PostAcquisition(QtCore.QObject):
+    finished = QtCore.pyqtSignal()
+
     def __init__(self, parent: None):
         super().__init__(parent)
-    
+        self.is_finished_timestamp = False
+        self.is_finished_pec = False
 
     def execute(self, folder, case_info, type):
        self.calculate_acquisition_file_hash(folder)
@@ -67,19 +70,23 @@ class PostAcquisition(QtCore.QObject):
         self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
         options = TimestampController().options
         if options['enabled']:
+            self.thread_timestamp = QtCore.QThread()
             timestamp = TimestampView()
             timestamp.set_options(options)
-            try:
-                timestamp.apply_timestamp(folder, 'acquisition_report.pdf')
-            except Exception as e:
-                error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                        tasks.TIMESTAMP,
-                                        error.TIMESTAMP_TIMEOUT,
-                                        "Error: %s - %s." % (e.filename, e.strerror)
-                                        )
+            timestamp.moveToThread(self.thread_timestamp)
+            self.thread_timestamp.started.connect(lambda: timestamp.apply_timestamp(folder, 'acquisition_report.pdf'))
 
-                error_dlg.buttonClicked.connect(quit)
+            timestamp.finished.connect(timestamp.deleteLater)
+            timestamp.finished.connect(self.thread_timestamp.quit)
+            
+            self.thread_timestamp.finished.connect(self.__thread_timestamp_is_finished)
+
+            self.thread_timestamp.start()
+    
+    def __thread_timestamp_is_finished(self):
         self.parent().upadate_progress_bar()
+        self.is_finished_timestamp = True
+        self.__async_task_are_finished()
 
     def send_report_from_pec(self, folder, case_info, type):
 
@@ -99,7 +106,16 @@ class PostAcquisition(QtCore.QObject):
         if status == Status.SUCCESS:
             self.pec.download_eml()
             self.parent().set_message_on_the_statusbar(tasks.EML)
+        else:
+            self.is_finished_pec = True
+            self.__async_task_are_finished()
     
     def __is_eml_downloaded(self, status):
        self.parent().upadate_progress_bar()
+       self.is_finished_pec = True
+       self.__async_task_are_finished()
+
+    def __async_task_are_finished(self):
+        if self.is_finished_timestamp and self.is_finished_pec:
+            self.finished.emit()
     
