@@ -258,6 +258,7 @@ class Wizard(QtWidgets.QWizard):
         self.button(QtWidgets.QWizard.FinishButton).setDisabled(True)
 
         self.setButtonText(QtWidgets.QWizard.FinishButton, general.BUTTON_START)
+        self.setButtonText(QtWidgets.QWizard.CancelButton, general.BUTTON_EXIT)
 
         self.retranslateUi()
     
