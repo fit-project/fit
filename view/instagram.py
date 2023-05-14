@@ -507,6 +507,5 @@ class Instagram(QtWidgets.QMainWindow):
             self.wizard.show()
 
     def closeEvent(self, event):
-        print("CLOSE")
         event.ignore()
         self.__back_to_wizard()

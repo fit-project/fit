@@ -172,3 +172,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.deleteLater()
         self.wizard.reload_case_info()
         self.wizard.show()
+    
+    def closeEvent(self, event):
+        event.ignore()
+        self.__back_to_wizard()
