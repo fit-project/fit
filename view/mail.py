@@ -702,6 +702,11 @@ class Mail(QtWidgets.QMainWindow):
         self.configuration_view.exec_()
 
     def __back_to_wizard(self):
-        self.deleteLater()
-        self.wizard.reload_case_info()
-        self.wizard.show()
+        if self.is_acquisition_running is False:
+            self.deleteLater()
+            self.wizard.reload_case_info()
+            self.wizard.show()
+
+    def closeEvent(self, event):
+        event.ignore()
+        self.__back_to_wizard()
