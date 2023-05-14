@@ -100,7 +100,7 @@ class Pec(QtCore.QObject):
 
         for i in range(self.options.get('retries')):
             if self.is_form_enable:
-                self.pec_form.output_message.setText(pec.TRY_DOWNLOAD_EML.format(str(i + 1)))
+                self.pec_form.output_message.setText(pec.TRY_DOWNLOAD_EML.format(str(i + 1), retries))
                 self.pec_form.progress_bar.setValue(self.pec_form.progress_bar.value() + increment)
             
             #whait for 8 seconds
