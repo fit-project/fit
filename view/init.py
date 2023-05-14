@@ -82,7 +82,7 @@ class Init(QtCore.QObject):
         super().__init__(parent)
     
     def __quit(self):
-        quit()
+        sys.exit(1)
 
     def init_check(self):
         #Check internet connection
