@@ -142,6 +142,8 @@ class Acquisition(Base):
                 self.add_task(_traceroute)
                 self.set_message_on_the_statusbar(logger.TRACEROUTE_GET)
                 _traceroute.start(url, self.folder)
+            else:
+              self.total_internal_tasks -= 1  
         
         if Tasks.SSLKEYLOG in tasks and self.folder is not None:
             _sslkeylog = sslkeylog.AcquisitionSSLKeyLog(Tasks.SSLKEYLOG, State.STARTED, Status.PENDING, self)
