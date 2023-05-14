@@ -2,29 +2,10 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-# 
-# Copyright (c) 2023 FIT-Project and others
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 
 import os
 from types import FunctionType
@@ -33,10 +14,10 @@ from common.constants import logger, state as State, status as Status, tasks as 
 
 
 from view.acquisition.base import Base, logging
-from view.acquisition.packetcapture import AcquisitionPacketCapture
-from view.acquisition.screenrecorder import AcquisitionScreenRecorder
-from view.acquisition.nettools import *
-from view.acquisition.post import PostAcquisition
+from view.acquisition.tasks.packetcapture import AcquisitionPacketCapture
+from view.acquisition.tasks.screenrecorder import AcquisitionScreenRecorder
+from view.acquisition.tasks.nettools import *
+from view.post_acquisition.post import PostAcquisition
 
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture as PacketCaptureCotroller
@@ -63,12 +44,19 @@ class Acquisition(Base):
         if self.is_started:
             return
         
-        self.total_tasks = len(tasks)
+        #reset All
+        self.info.clear_info()
+        self.clear_tasks()
+
+        
+        self.total_internal_tasks = len(tasks)
         self.folder = folder
         self.case_info = case_info
 
+        self.total_tasks = self.total_internal_tasks + external_tasks
+
         if self.total_tasks > 0:
-            self.increment = percent/(self.total_tasks + external_tasks)
+            self.increment = percent/self.total_tasks
 
         self.log_confing.change_filehandlers_path(self.folder)
         logging.config.dictConfig(self.log_confing.config)
@@ -86,7 +74,7 @@ class Acquisition(Base):
                 packetcapture.start(options)
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             options = ScreenRecorderController().options
@@ -97,7 +85,7 @@ class Acquisition(Base):
                 screenrecorder.start(options)
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_STARTED)
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
 
     
     def stop(self, tasks, url, external_tasks=0, percent=100):
@@ -106,12 +94,18 @@ class Acquisition(Base):
         if self.is_started is False:
             return
         
-        self.log_stop_message(url)
+        if url:
+            self.log_stop_message(url)
 
         net_configuration = NetworkController().configuration
-        self.total_tasks = len(tasks)
+        self.total_internal_tasks = len(tasks)
+
+
+        self.total_tasks = self.total_internal_tasks + len(self.post_acquisition_method_list) + external_tasks
+
         if self.total_tasks > 0:
-            self.increment = percent/(self.total_tasks + len(self.post_acquisition_method_list) + external_tasks)
+            self.increment = percent/self.total_tasks
+
         
         self.set_state_and_status_tasks(State.STOPPED, Status.PENDING)
 
@@ -160,7 +154,7 @@ class Acquisition(Base):
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STOPPED)
                 task[0].stop()
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             task = self.get_task(Tasks.SCREEN_RECORDER)
@@ -168,7 +162,7 @@ class Acquisition(Base):
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_COMPLETED)
                 task[0].stop()
             else:
-                self.total_tasks -= 1
+                self.total_internal_tasks -= 1
       
     def task_is_completed(self, options):
         

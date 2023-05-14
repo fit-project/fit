@@ -2,29 +2,10 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 
 import os
 
@@ -87,14 +68,14 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         self.addSeparator()
 
-        # START ACQUISITON ACTION
+        # START ACQUISITION ACTION
         self.start_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'start.svg')), "Start Acquisition", self)
         self.start_acquisition_btn.setStatusTip("Start acquisition")
         self.start_acquisition_btn.triggered.connect(parent.start_acquisition)
         self.start_acquisition_btn.setObjectName('start')
         self.addAction(self.start_acquisition_btn)
 
-        # STOP ACQUISITON ACTION
+        # STOP ACQUISITION ACTION
         self.stop_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'stop-disabled.svg')), "Stop Acquisition", self)
         self.stop_acquisition_btn.setStatusTip("Stop acquisition")
         self.stop_acquisition_btn.triggered.connect(parent.stop_acquisition)
@@ -102,12 +83,11 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.stop_acquisition_btn.setEnabled(False)
         self.addAction(self.stop_acquisition_btn)
 
-        # INFO ACQUISITON STATUS ACTION
-        self.info_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'info-disabled.svg')), "info Acquisition", self)
+        # INFO ACQUISITION STATUS ACTION
+        self.info_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'info.svg')), "info Acquisition", self)
         self.info_acquisition_btn.setStatusTip("info acquisition")
         self.info_acquisition_btn.triggered.connect(parent.acquisition_info)
         self.info_acquisition_btn.setObjectName('info')
-        self.info_acquisition_btn.setEnabled(False)
         self.addAction(self.info_acquisition_btn)
 
         self.addSeparator()
@@ -141,6 +121,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         self.addSeparator()
 
+
     def enable_actions(self, filter=['all'], enabled=True):
         for action in self.actions():
             if action.objectName():
@@ -161,9 +142,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
     
     def enable_stop_and_info_acquisition_button(self, enabled=True):
         if enabled and self.parent().acquisition_is_running is True:
-             self.enable_actions(filter=['stop', 'info'])
+             self.enable_actions(filter=['stop'])
         else:
-            self.enable_actions(filter=['stop', 'info'], enabled=False)
+            self.enable_actions(filter=['stop'], enabled=False)
              
     def enable_screenshot_buttons(self, enabled=True):
         if enabled and self.parent().current_page_load_is_finished and self.parent().acquisition_is_running is True:

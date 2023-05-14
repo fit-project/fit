@@ -2,32 +2,14 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-# 
-# Copyright (c) 2022 FIT-Project and others
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-###### 
+######  
 
 from PyQt5 import QtCore, QtWidgets
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture as PacketCaptureController
+from common.utility import is_npcap_installed, get_platform
 
 __is_tab__ = True
 
@@ -51,7 +33,11 @@ class PacketCapture(QtWidgets.QWidget):
         self.enabled_checkbox = QtWidgets.QCheckBox("Packet Capture Recorder", self)
         self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
         self.enabled_checkbox.stateChanged.connect(self._is_enabled_packet_capture)
+        if get_platform() == 'win' :
+            self.enabled_checkbox.setEnabled(is_npcap_installed())
+
         self.enabled_checkbox.setObjectName("enabled")
+
 
         #FILE NAME
         self.group_box_filename = QtWidgets.QGroupBox(self)
@@ -73,7 +59,12 @@ class PacketCapture(QtWidgets.QWidget):
         self.group_box_filename.setEnabled(self.enabled_checkbox.isChecked())
 
    def __set_current_config_values(self):
-        self.enabled_checkbox.setChecked(self.controller.options['enabled'])
+        enabled = self.controller.options['enabled']
+        if get_platform() == 'win' :
+          if is_npcap_installed() is False and enabled== True:
+                    enabled = False
+
+        self.enabled_checkbox.setChecked(enabled)
         self.filename.setText(self.controller.options['filename'])
         self._is_enabled_packet_capture()
 

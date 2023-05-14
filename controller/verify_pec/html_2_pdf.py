@@ -2,29 +2,10 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 import os
 
 from xhtml2pdf import pisa
@@ -51,13 +32,13 @@ class Html2Pdf:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
 
-        front_index = open(os.getcwd() + '/assets/templates/front.html').read().format(
+        front_index = open('assets/templates/front.html').read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report_pec'], version=phrases.TEXT['version']
         )
 
 
-        content_index = open(os.getcwd() + '/assets/templates/template_pec.html').read().format(
+        content_index = open('assets/templates/template_pec.html').read().format(
 
             title=phrases.TEXT['title'],
             index=phrases.TEXT['index'],

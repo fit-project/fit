@@ -2,33 +2,14 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-# 
-# Copyright (c) 2023 FIT-Project and others
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 from common.constants import logger, status as Status, state as  State
 
 import logging.config
-from common.config import LogConfig
+from common.config import LogConfigTools
 import common.utility
 
 from PyQt5.QtCore import QObject
@@ -41,11 +22,14 @@ class Base(QObject):
     def __init__(self, logger, progress_bar=None, status_bar=None, parent=None) -> None:
         super().__init__(parent)
         self.logger = logger
-        self.log_confing = LogConfig()
+        self.log_confing = LogConfigTools()
+        if self.logger.name == 'view.web.web':
+            self.log_confing.set_web_loggers()
         self.is_started = False
         self.is_completed = False
         self.send_pyqt_signal = False
         self.increment = 0
+        self.total_internal_tasks = 0
         self.total_tasks = 0
         self.info = AcquisitionInfo(parent)
         
@@ -97,7 +81,7 @@ class Base(QObject):
         
         same_state = False
 
-        if len(self.__tasks) == self.total_tasks:
+        if len(self.__tasks) == self.total_internal_tasks:
             state = [task.state for task in self.__tasks]
             state = list(set(state))
             if len(state) == 1 and state[0] == state_to_check:
@@ -111,7 +95,7 @@ class Base(QObject):
 
         is_completed = False
 
-        if len(self.__tasks) == self.total_tasks:
+        if len(self.__tasks) == self.total_internal_tasks:
             status = [task.status for task in self.__tasks]
             status = list(set(status))
             if len(status) == 1 and status[0] == Status.COMPLETED:
@@ -121,6 +105,9 @@ class Base(QObject):
   
     def get_tasks(self):
         return self.__tasks
+    
+    def clear_tasks(self):
+        self.__tasks.clear()
     
     def get_task(self, task_name):
         return list(filter(lambda task: task.name == task_name, self.__tasks))

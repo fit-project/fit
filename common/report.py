@@ -2,38 +2,19 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
-
-import toml
-import os.path
+######  
+import os
+import pathlib
+from configparser import SafeConfigParser
 
 class ReportText:
     def __init__(self):
         self.TEXT = {
             'report_pec': "Report di verifica della PEC",
-            'img': '../assets/images/FIT.png',
+            'img': self.__get_logo(),
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
             'version': "Versione {}".format(self.__get_version()),
@@ -137,11 +118,13 @@ class ReportText:
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
         
     def __get_version(self):
-        version = ''
-
-        file_toml = 'pyproject.toml'
-        if (os.path.isfile(file_toml)):
-            file_toml = toml.load(file_toml)
-            version = file_toml['tool']['poetry']['version']
+        parser = SafeConfigParser()
+        parser.read('assets/config.ini')
+        version = parser.get('fit_properties', 'version')
         
         return version
+
+    def __get_logo(self):
+        logo_path = os.path.join("assets", "images", "FIT.png")
+
+        return logo_path

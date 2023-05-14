@@ -2,51 +2,29 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-# 
-# Copyright (c) 2022 FIT-Project and others
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
+import os
 
-import toml
-import os.path
+from configparser import SafeConfigParser
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from common.constants import error
+from common.constants.view import wizard, general
 from view.configuration import Configuration as ConfigurationView
 from view.case_form import CaseForm as CaseFormView
 from view.error import Error as ErrorView
 
 from common.constants.view.wizard import *
-
-from common.error import ErrorMessage
-
 class CaseInfoPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(CaseInfoPage, self).__init__(parent)
         self.setObjectName("CaseInfoPage")
    
         self.case_info = {}
-
-        self.error_msg = ErrorMessage()
 
         self.configuration_view = ConfigurationView(self)
 
@@ -262,7 +240,7 @@ class Wizard(QtWidgets.QWizard):
         self.setTitleFormat(QtCore.Qt.RichText)
         self.setSubTitleFormat(QtCore.Qt.RichText)
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
-        self.setWindowIcon(QtGui.QIcon('assets/images/icon.png'))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
 
         self.case_info_page = CaseInfoPage(self)
@@ -279,6 +257,7 @@ class Wizard(QtWidgets.QWizard):
 
         self.button(QtWidgets.QWizard.FinishButton).setDisabled(True)
 
+        self.setButtonText(QtWidgets.QWizard.FinishButton, general.BUTTON_START)
 
         self.retranslateUi()
     
@@ -320,14 +299,12 @@ class Wizard(QtWidgets.QWizard):
                 self.case_info_page.form.controller.cases = self.case_info_page.case_info
             else:
                 case_info =  self.case_info_page.form.controller.add(self.case_info_page.case_info)
-        except Exception as error:
+        except Exception as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Warning,
-                            self.case_info_page.error_msg.TITLES['insert_update_case_info'],
-                            self.case_info_page.error_msg.MESSAGES['insert_update_case_info'],
-                            str(error)
+                            wizard.INSERT_UPDATE_CASE_INFO,
+                            error.INSERT_UPDATE_CASE_INFO,
+                            str(e)
                             )
-
-            error_dlg.buttonClicked.connect(self.close)
             error_dlg.exec_()
 
         #Send signal to main loop to start the acquisition window
@@ -343,15 +320,11 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.pec.setText(TASK_VERIFY_PEC)
     
     def __get_version(self):
-        version = PROJECT_NAME
-        file_toml = 'pyproject.toml'
-        if (os.path.isfile(file_toml)):
-            file_toml = toml.load(file_toml)
-            version += " " + file_toml['tool']['poetry']['version']
+        parser = SafeConfigParser()
+        parser.read('assets/config.ini')
+        version = parser.get('fit_properties', 'version')
         
         return version
-
-
 
 
     def _get_recap_case_info_HTML(self):

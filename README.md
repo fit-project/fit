@@ -5,15 +5,13 @@ It's based on Fabio Zito (**@zitelog**) [final exam](https://github.com/zitelog/
 For the implementation: 
 * MVC Pattern
 * Python Language
-* Qt as graphical user interface
-* Pyshark (wrapper for Tshark) which a sniffer (similar to Sun's snoop or tcpdump)
+* [Qt](https://www.qt.io/download-open-source) as graphical user interface and Web Engine 
+* Scapy for packet capture
 * OpenVC and Pyautogui for screen capture
-* Pywebcopy for save all resource (html, css, js, image, etc.)
 
 
-## Prerequisites
-Make sure you have installed all of the following prerequisites on your development machine:
-* Wireshark - [Download & Install Wireshark](https://www.wireshark.org/download/). Network traffic analyzer, or "sniffer", for Linux, macOS, *BSD and other Unix and Unix-like operating systems and for Windows.
+## Suggestions
+On PCs with Windows OS it is strongly recommended to install [NPCAP](https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceroute.
 
 ## Downloading FIT
 There are two ways you can get the FIT:
