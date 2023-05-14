@@ -2,29 +2,10 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 import os
 
 from xhtml2pdf import pisa
@@ -50,7 +31,7 @@ class VerifyPDFTimestamp:
         with open(info_file_path, "r") as f:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
-        front_html = os.path.join(os.getcwd(),'assets/templates/front.html')
+        front_html = os.path.join('assets/templates/front.html')
         front_index = open(front_html).read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['verification'], version=phrases.TEXT['version']
@@ -61,7 +42,7 @@ class VerifyPDFTimestamp:
         else:
             t3descr = phrases.TEXT['verifi_ko']
 
-        content_html = os.path.join(os.getcwd(), 'assets/templates/template_verification.html')
+        content_html = os.path.join('assets/templates/template_verification.html')
         content_index = open(content_html).read().format(
 
             title=phrases.TEXT['title'],

@@ -2,29 +2,10 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 import fnmatch
 import os
 
@@ -49,9 +30,12 @@ class Report:
         # PREPARING DATA TO FILL THE PDF
         phrases = ReportText()
         if type == 'web':
-            with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
-                whois_text = f.read()
-                f.close()
+            try:
+                with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
+                    whois_text = f.read()
+                    f.close()
+            except:
+                whois_text = 'Not produced'
         with open(os.path.join(self.cases_folder_path, 'acquisition.hash'), "r", encoding='utf-8') as f:
             user_files = f.read()
             f.close()
@@ -59,17 +43,18 @@ class Report:
         acquisition_files = self._acquisition_files_names()
 
         zip_enum = self._zip_files_enum()
-        screenshot = self._get_screenshot()
 
         # FILLING FRONT PAGE WITH DATA
-        front_index = open(os.getcwd() + '/assets/templates/front.html').read().format(
+        front_index_path = os.path.join("assets", "templates","front.html")
+        front_index = open(front_index_path).read().format(
             img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
             title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
         )
 
         # FILLING TEMPLATE WITH DATA
         if type == 'web':
-            content_index = open(os.getcwd() + '/assets/templates/template_web.html').read().format(
+            content_index_path = os.path.join("assets", "templates", "template_web.html")
+            content_index = open(content_index_path).read().format(
 
                 title=phrases.TEXT['title'],
                 index=phrases.TEXT['index'],
@@ -105,8 +90,6 @@ class Report:
                 t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
                 t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
                 t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-                t8=phrases.TEXT['t8'], t8descr=phrases.TEXT['t8descr'],
-                screenshot=screenshot,
                 titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
                 titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
             )
@@ -122,7 +105,9 @@ class Report:
             pisa.CreatePDF(content_index, dest=self.output_content_result, options=pdf_options)
 
         if type == 'email' or type == 'instagram':
-            content_index = open(os.getcwd() + '/assets/templates/template_email.html').read().format(
+            content_index_path = os.path.join("assets", "templates",
+                                              "template_email.html")
+            content_index = open(content_index_path).read().format(
 
                 title=phrases.TEXT['title'],
                 index=phrases.TEXT['index'],
@@ -167,26 +152,6 @@ class Report:
         if os.path.exists(self.output_content):
             os.remove(self.output_content)
 
-    def _get_screenshot(self):
-        screenshot_enum = ''
-        screenshot_dir = os.path.join(self.cases_folder_path, 'screenshot')
-        files = [f.name for f in os.scandir(screenshot_dir) if f.is_file()]
-        if len(files) == 0:
-            try:
-                screenshot_file = os.path.join(self.cases_folder_path, 'screenshot.png')
-                screenshot_enum += '<p>' + os.path.join(self.cases_folder_path, 'screenshot.png') + "</p>"
-                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
-                screenshot_enum += '<hr>'
-                return screenshot_enum
-            except:
-                return "<p> File non prodotto </p>"
-        else:
-            for file in files:
-                screenshot_file = os.path.join(screenshot_dir, file)
-                screenshot_enum += '<p>' + file + "</p>"
-                screenshot_enum += "<img src='" + screenshot_file + "' width='100%' height='500px'> </img>"
-                screenshot_enum += '<hr>'
-        return screenshot_enum
 
     def _acquisition_files_names(self):
         acquisition_files = {}

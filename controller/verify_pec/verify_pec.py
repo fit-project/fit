@@ -2,36 +2,17 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 import email
 import tempfile
 import os
 
 from controller.verify_pec.expiration_date import ExpirationDate
 from controller.verify_pec.revoke import Revoke
-from controller.verify_pec.authority import Authority
+from controller.verify_pec.provider import Provider
 from controller.verify_pec.generate_report import GenerateReport
 
 class verifyPec():
@@ -58,14 +39,14 @@ class verifyPec():
             is_revoked = revoke.check_is_revoked()
 
             #Check autority
-            authority = Authority(self.temp_x509)
-            authority_name = authority.get_authority()
-            is_on_agid_list = authority.check_if_authority_is_on_agid_list(authority_name)
+            provider = Provider(self.temp_x509)
+            provider_name = provider.get_provider_name()
+            is_on_agid_list = provider.check_if_provider_is_on_agid_list(provider_name)
 
             report_info.update(email_info)
             report_info.update(signature)
             report_info.update({'is_integrity' : True, 'is_revoked':is_revoked, 
-                                'authority_name':authority_name, 'is_on_agid_list': is_on_agid_list})
+                                'provider_name':provider_name, 'is_on_agid_list': is_on_agid_list})
         else:
             with open(eml_file_path, 'rb') as f:
                 msg = email.message_from_binary_file(f)
@@ -79,7 +60,7 @@ class verifyPec():
             report_info.update(email_info)
             report_info.update(signature)
             report_info.update({'is_integrity' : False, 'is_revoked': False, 
-                                'authority_name':'', 'is_on_agid_list': False})
+                                'provider_name':'', 'is_on_agid_list': False})
             
 
         GenerateReport().pdf_creator(report_info)

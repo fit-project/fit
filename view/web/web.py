@@ -2,29 +2,10 @@
 # -*- coding:utf-8 -*-
 ######
 # -----
-# MIT License
-#
-# Copyright (c) 2022 FIT-Project and others
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2023 FIT-Project
+# SPDX-License-Identifier: GPL-3.0-only
 # -----
-######
+######  
 
 import logging
 import os.path
@@ -34,26 +15,22 @@ from urllib.parse import urlparse
 import numpy as np
 from PIL import Image
 
-# from scapy.all import *
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEventLoop, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineDownloadItem
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
 from view.acquisition.acquisition import Acquisition
-from view.acquisition.task import AcquisitionTask
+from view.acquisition.tasks.task import AcquisitionTask
 
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
-from common.error import ErrorMessage
 
 from common.settings import DEBUG
-from common.config import LogConfig
+from common.config import LogConfigTools
 from common.utility import screenshot_filename
 
 logger = logging.getLogger(__name__)
@@ -66,14 +43,14 @@ class WebEnginePage(QWebEnginePage):
 
 class MainWindow(QWebEngineView):
 
-    saveResourcesFinished = pyqtSignal()
+    saveResourcesFinished = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
 
         self.setPage(page)
-        self.page().profile().downloadRequested.connect(lambda download_item:self.__retrieve_download_item(download_item))
+        self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
 
     def save_resources(self, acquisition_page_folder):
         hostname = urlparse(self.url().toString()).hostname
@@ -93,11 +70,12 @@ class Web(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(Web, self).__init__(*args, **kwargs)
-        self.error_msg = ErrorMessage()
         self.acquisition_directory = None
+        self.acquisition_page_folder = None
         self.screenshot_directory = None
         self.current_page_load_is_finished = False
-        self.log_confing = LogConfig()
+        self.log_confing = LogConfigTools()
+        self.log_confing.set_web_loggers()
         self.case_info = None
         self.__tasks = []
 
@@ -139,6 +117,7 @@ class Web(QtWidgets.QMainWindow):
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
         self.acquisition.completed.connect(self.__are_external_tasks_completed)
+        self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
 
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
@@ -191,7 +170,7 @@ class Web(QtWidgets.QMainWindow):
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/images/', 'icon.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
         # Enable/Disable other modules logger
         if not DEBUG:
@@ -203,7 +182,6 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        # Step 2: Create acquisiton directory
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],
@@ -242,16 +220,16 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(False)
             url = self.tabs.currentWidget().url().toString()
             self.__disable_all()
-
             #external tasks
-            tasks = [Tasks.SCREEN_RECORDER,
+            tasks = [
                      Tasks.PACKET_CAPTURE,
                      Tasks.WHOIS,
                      Tasks.NSLOOKUP,
                      Tasks.HEADERS,
                      Tasks.TRACEROUTE,
                      Tasks.SSLKEYLOG,
-                     Tasks.SSLCERTIFICATE
+                     Tasks.SSLCERTIFICATE,
+                     Tasks.SCREEN_RECORDER
                      ]
             
             #internal tasks
@@ -280,12 +258,14 @@ class Web(QtWidgets.QMainWindow):
         status = list(set(status))
         if len(status) == 1 and status[0] == Status.COMPLETED:
             # start post acquisition external tasks
-            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info)
-            self.__stop_acquisition_is_finished()
-
+            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'web')
+            
+    def __are_post_acquisition_finished(self):
+        self.__stop_acquisition_is_finished()
 
     def __start_acquisition_is_finished(self):
         self.acquisition.set_completed_progress_bar()
+        self.status.showMessage('')
         # show progress bar for 2 seconds
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
@@ -293,7 +273,7 @@ class Web(QtWidgets.QMainWindow):
 
         self.progress_bar.setHidden(True)
         self.progress_bar.setValue(0)
-        self.status.showMessage('')
+        
         self.start_acquisition_is_finished = True
         self.start_acquisition_is_started = False
 
@@ -301,10 +281,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.acquisition.log_end_message()
         self.acquisition.set_completed_progress_bar()
-        # show progress bar for 2 seconds
-        loop = QtCore.QEventLoop()
-        QtCore.QTimer.singleShot(2000, loop.quit)
-        loop.exec_()
 
         # hidden progress bar
         self.progress_bar.setHidden(True)
@@ -317,6 +293,15 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().page().profile().clearHttpCache()
 
         self.acquisition_is_running = False
+        self.start_acquisition_is_finished = False
+        self.start_acquisition_is_started = False
+        self.stop_acquisition_is_started = False
+        try:
+            self.tabs.currentWidget().saveResourcesFinished.disconnect()
+        except TypeError:
+            pass
+
+        self.__tasks.clear()
 
         self.__enable_all()
 
@@ -343,6 +328,8 @@ class Web(QtWidgets.QMainWindow):
     def __enable_all(self):
         self.setEnabled(True)
         self.navtb.setEnabled(True)
+        #Add information button to re-enable buttons list
+        self.navtb.navigation_actions.append('info')
         self.navtb.enable_actions(filter=self.navtb.navigation_actions)
         self.navtb.enable_screenshot_buttons()
         self.navtb.enable_start_acquisition_button()
@@ -353,22 +340,23 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition.logger.info(Logger.SAVE_PAGE)
         self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
 
-        acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
-        if not os.path.isdir(acquisition_page_folder):
-            os.makedirs(acquisition_page_folder)
-        
+        self.status.showMessage(Logger.SAVE_PAGE)
 
-        self.browser.saveResourcesFinished.connect(lambda folder=acquisition_page_folder: 
-                                                   self.__zip_and_remove(folder))
+        self.acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
+        if not os.path.isdir(self.acquisition_page_folder):
+            os.makedirs(self.acquisition_page_folder)
         
-        self.browser.save_resources(acquisition_page_folder)
+        self.tabs.currentWidget().saveResourcesFinished.connect(self.__zip_and_remove)
+        
+        self.tabs.currentWidget().save_resources(self.acquisition_page_folder)
+
+        
     
-    def __zip_and_remove(self, acquisition_page_folder):
-
-        shutil.make_archive(acquisition_page_folder, 'zip', acquisition_page_folder)
+    def __zip_and_remove(self):
+        shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
         
         try:
-            shutil.rmtree(acquisition_page_folder)
+            shutil.rmtree(self.acquisition_page_folder)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
                                   Tasks.SAVE_PAGE,
@@ -376,10 +364,12 @@ class Web(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.buttonClicked.connect(quit)
-        
-        self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.FINISHED, Status.COMPLETED)
+            error_dlg.exec_()
+            
+        row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
+        self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
         task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]
+        self.acquisition.upadate_progress_bar()
         task.state = state.FINISHED
         task.status = Status.COMPLETED
         self.__are_internal_tasks_completed()
@@ -394,7 +384,7 @@ class Web(QtWidgets.QMainWindow):
         if self.screenshot_directory is not None:
             self.__disable_all()
             filename = screenshot_filename(self.screenshot_directory, self.tabs.currentWidget().url().host())
-            self.browser.grab().save(filename)
+            self.tabs.currentWidget().grab().save(filename)
             self.__enable_all()
 
     def take_screenshot_selected_area(self):
@@ -428,7 +418,7 @@ class Web(QtWidgets.QMainWindow):
 
             next = 0
             part = 0
-            step = self.browser.height()
+            step = self.tabs.currentWidget().height()
             end = self.tabs.currentWidget().page().contentsSize().toSize().height()
             parts = end / step
 
@@ -444,14 +434,14 @@ class Web(QtWidgets.QMainWindow):
             while next < end:
                 filename = screenshot_filename(full_page_folder, "part_" + str(part))
                 if next == 0:
-                    self.browser.grab().save(filename)
+                    self.tabs.currentWidget().grab().save(filename)
                 else:
                     self.tabs.currentWidget().page().runJavaScript("window.scrollTo({}, {});".format(0, next))
                     ### Waiting everything is synchronized
                     loop = QtCore.QEventLoop()
                     QtCore.QTimer.singleShot(500, loop.quit)
                     loop.exec_()
-                    self.browser.grab().save(filename)
+                    self.tabs.currentWidget().grab().save(filename)
 
                 progress += increment
                 self.progress_bar.setValue(progress)
@@ -477,7 +467,8 @@ class Web(QtWidgets.QMainWindow):
             imgs_comb.save(whole_img_filename)
 
             if last:
-                self.acquisition.info.add_task(Tasks.SCREENSHOT, state.FINISHED, Status.COMPLETED)
+                row = self.acquisition.info.get_row(Tasks.SCREENSHOT)
+                self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
                 task = list(filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks))[0]
                 task.state = state.FINISHED
                 task.status = Status.COMPLETED
