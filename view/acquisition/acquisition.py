@@ -24,6 +24,8 @@ from controller.configurations.tabs.packetcapture.packetcapture import PacketCap
 from controller.configurations.tabs.screenrecorder.screenrecorder import ScreenRecorder as ScreenRecorderController
 from controller.configurations.tabs.general.network import Network as NetworkController
 
+from common.utility import is_npcap_installed, get_platform
+
 from PyQt5.QtCore import pyqtSignal
 
 class Acquisition(Base):
@@ -131,10 +133,15 @@ class Acquisition(Base):
             _headers.start(url)
         
         if Tasks.TRACEROUTE in tasks and url is not None and self.folder is not None:
-            _traceroute = traceroute.AcquisitionTraceroute(Tasks.TRACEROUTE, State.STARTED, Status.PENDING, self)
-            self.add_task(_traceroute)
-            self.set_message_on_the_statusbar(logger.TRACEROUTE_GET)
-            _traceroute.start(url, self.folder)
+            enabled = True
+            if get_platform() == 'win' and is_npcap_installed() is False:
+                enabled = False
+            
+            if enabled:
+                _traceroute = traceroute.AcquisitionTraceroute(Tasks.TRACEROUTE, State.STARTED, Status.PENDING, self)
+                self.add_task(_traceroute)
+                self.set_message_on_the_statusbar(logger.TRACEROUTE_GET)
+                _traceroute.start(url, self.folder)
         
         if Tasks.SSLKEYLOG in tasks and self.folder is not None:
             _sslkeylog = sslkeylog.AcquisitionSSLKeyLog(Tasks.SSLKEYLOG, State.STARTED, Status.PENDING, self)
