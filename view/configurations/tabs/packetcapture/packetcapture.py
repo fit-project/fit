@@ -9,6 +9,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture as PacketCaptureController
+from common.utility import is_npcap_installed, get_platform
 
 __is_tab__ = True
 
@@ -32,7 +33,11 @@ class PacketCapture(QtWidgets.QWidget):
         self.enabled_checkbox = QtWidgets.QCheckBox("Packet Capture Recorder", self)
         self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
         self.enabled_checkbox.stateChanged.connect(self._is_enabled_packet_capture)
+        if get_platform() == 'win' :
+            self.enabled_checkbox.setEnabled(is_npcap_installed())
+
         self.enabled_checkbox.setObjectName("enabled")
+
 
         #FILE NAME
         self.group_box_filename = QtWidgets.QGroupBox(self)
@@ -54,7 +59,12 @@ class PacketCapture(QtWidgets.QWidget):
         self.group_box_filename.setEnabled(self.enabled_checkbox.isChecked())
 
    def __set_current_config_values(self):
-        self.enabled_checkbox.setChecked(self.controller.options['enabled'])
+        enabled = self.controller.options['enabled']
+        if get_platform() == 'win' :
+          if is_npcap_installed() is False and enabled== True:
+                    enabled = False
+
+        self.enabled_checkbox.setChecked(enabled)
         self.filename.setText(self.controller.options['filename'])
         self._is_enabled_packet_capture()
 
