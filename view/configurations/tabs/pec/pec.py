@@ -5,10 +5,16 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
+import imaplib
+import smtplib
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
+
+from common.constants import error
 from controller.configurations.tabs.pec.pec import Pec as PecController
+from view.error import Error as ErrorView
 from common.constants.view.pec import pec
 
 __is_tab__ = True
@@ -143,11 +149,11 @@ class Pec(QtWidgets.QWidget):
         self.smtp_port.setSizePolicy(sizePolicy)
         self.smtp_port.setObjectName("smtp_port")
         self.horizontal_layout_SMTP.addWidget(self.smtp_port)
-        
+
 
     def retranslateUi(self):
         self.setWindowTitle(pec.WINDOW_TITLE)
-        self.enabled_checkbox.setText(pec.ENABLE) 
+        self.enabled_checkbox.setText(pec.ENABLE)
         self.group_box_credential.setTitle(pec.CREDENTIAL_CONFIGURATION)
         self.label_pec_email.setText(pec.LABEL_EMAIL)
         self.label_password.setText(pec.LABEL_PASSWORD)
@@ -157,7 +163,7 @@ class Pec(QtWidgets.QWidget):
         self.label_imap_port.setText(pec.LABEL_IMAP_PORT)
         self.label_smtp_server.setText(pec.LABEL_SMPT_SERVER)
         self.label_smtp_port.setText(pec.LABEL_SMPT_PORT)
-                                     
+
     def __is_enabled_pec(self):
         self.group_box_credential.setEnabled(self.enabled_checkbox.isChecked())
         self.group_box_retries.setEnabled(self.enabled_checkbox.isChecked())
@@ -190,9 +196,38 @@ class Pec(QtWidgets.QWidget):
 
                 self.options[keyword] = value
 
+    def __check_server(self):
+        try:
+            server = imaplib.IMAP4_SSL(self.imap_server.text(), int(self.imap_port.text()))
+            server.login(self.pec_email.text(), self.password.text())
+            server.logout()
+        except Exception as e:
+            print(e)
+            raise Exception(e)
+        try:
+            server = smtplib.SMTP_SSL(self.smtp_server.text(), int(self.smtp_port.text()))
+            server.login(self.pec_email.text(), self.password.text())
+            server.quit()
+        except Exception as e:
+            print(e)
+            raise Exception(e)
+
     def accept(self) -> None:
-        self.__get_current_values()
-        self.controller.options = self.options
+        try:
+            self.__check_server()
+        except Exception as e:
+            error_dlg = ErrorView(QMessageBox.Critical,
+                                  pec.LOGIN_FAILED,
+                                  error.LOGIN_ERROR,
+                                  str(e)
+                                  )
+            error_dlg.exec_()
+
+
+        else:
+
+            self.__get_current_values()
+            self.controller.options = self.options
 
     def reject(self) -> None:
         pass
