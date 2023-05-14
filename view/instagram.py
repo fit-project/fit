@@ -485,7 +485,7 @@ class Instagram(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.buttonClicked.connect(quit)
+            error_dlg.exec_()
 
     def __open_acquisition_directory(self):
         os.startfile(self.acquisition_directory)

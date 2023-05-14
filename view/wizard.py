@@ -305,8 +305,6 @@ class Wizard(QtWidgets.QWizard):
                             error.INSERT_UPDATE_CASE_INFO,
                             str(e)
                             )
-
-            error_dlg.buttonClicked.connect(self.close)
             error_dlg.exec_()
 
         #Send signal to main loop to start the acquisition window

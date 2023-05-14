@@ -364,7 +364,8 @@ class Web(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.buttonClicked.connect(quit)
+            error_dlg.exec_()
+            
         row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
         self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
         task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]

@@ -682,7 +682,7 @@ class Mail(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.buttonClicked.connect(quit)
+            error_dlg.exec_()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)

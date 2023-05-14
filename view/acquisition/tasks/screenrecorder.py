@@ -74,8 +74,7 @@ class ScreenRecorder(QObject):
                             error.SCREEN_RECODER,
                             str(sys.exc_info()[0])
                             )
-
-                error_dlg.buttonClicked.connect(quit)
+                
                 error_dlg.exec_()
 
         #Release the Video writer

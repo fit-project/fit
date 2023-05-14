@@ -80,6 +80,9 @@ class Init(QtCore.QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+    
+    def __quit(self):
+        quit()
 
     def init_check(self):
         #Check internet connection
@@ -89,8 +92,9 @@ class Init(QtCore.QObject):
                             ERR_INTERNET_DISCONNECTED,
                             ''
                             )
-
-            error_dlg.buttonClicked.connect(quit)
+            
+            error_dlg.buttonClicked.connect(self.__quit)
+            
             error_dlg.exec_()
         
         # If os is win check 
