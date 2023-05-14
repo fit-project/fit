@@ -48,3 +48,5 @@ class Timestamp(QObject):
         timestamp_path = os.path.join(ts_path)
         with open(timestamp_path, 'wb') as f:
             f.write(timestamp)
+        
+        self.finished.emit()

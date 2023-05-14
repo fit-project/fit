@@ -117,6 +117,7 @@ class Web(QtWidgets.QMainWindow):
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
         self.acquisition.completed.connect(self.__are_external_tasks_completed)
+        self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
 
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
@@ -258,11 +259,13 @@ class Web(QtWidgets.QMainWindow):
         if len(status) == 1 and status[0] == Status.COMPLETED:
             # start post acquisition external tasks
             self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'web')
-            self.__stop_acquisition_is_finished()
-
+            
+    def __are_post_acquisition_finished(self):
+        self.__stop_acquisition_is_finished()
 
     def __start_acquisition_is_finished(self):
         self.acquisition.set_completed_progress_bar()
+        self.status.showMessage('')
         # show progress bar for 2 seconds
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
@@ -270,7 +273,7 @@ class Web(QtWidgets.QMainWindow):
 
         self.progress_bar.setHidden(True)
         self.progress_bar.setValue(0)
-        self.status.showMessage('')
+        
         self.start_acquisition_is_finished = True
         self.start_acquisition_is_started = False
 
@@ -278,10 +281,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.acquisition.log_end_message()
         self.acquisition.set_completed_progress_bar()
-        # show progress bar for 2 seconds
-        loop = QtCore.QEventLoop()
-        QtCore.QTimer.singleShot(2000, loop.quit)
-        loop.exec_()
 
         # hidden progress bar
         self.progress_bar.setHidden(True)
@@ -297,7 +296,11 @@ class Web(QtWidgets.QMainWindow):
         self.start_acquisition_is_finished = False
         self.start_acquisition_is_started = False
         self.stop_acquisition_is_started = False
-        self.browser.saveResourcesFinished.disconnect()
+        try:
+            self.browser.saveResourcesFinished.disconnect()
+        except TypeError:
+            pass
+
         self.__tasks.clear()
 
         self.__enable_all()

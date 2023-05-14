@@ -383,6 +383,7 @@ class Mail(QtWidgets.QMainWindow):
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
+        self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
         self.is_first_acquisition_completed = False
         self.is_acquisition_running = False
       
@@ -653,6 +654,8 @@ class Mail(QtWidgets.QMainWindow):
         
             self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'email')
 
+
+    def __are_post_acquisition_finished(self):
             self.setEnabled(True)
 
             self.progress_bar.setHidden(True)

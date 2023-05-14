@@ -284,6 +284,7 @@ class Instagram(QtWidgets.QMainWindow):
         # ACQUISITION
         self.is_acquisition_running = False
         self.acquisition = Acquisition(logger_acquisition, self.progress_bar, self.status, self)
+        self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
@@ -446,6 +447,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.spinner.stop()
 
         self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'instagram')
+       
+    
+    def __are_post_acquisition_finished(self):
         self.acquisition.set_completed_progress_bar()
 
         self.progress_bar.setHidden(True)
