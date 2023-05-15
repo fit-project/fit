@@ -79,7 +79,7 @@ class Web(QtWidgets.QMainWindow):
         self.case_info = None
         self.__tasks = []
 
-        self.setWindowFlag(QtCore.Qt.WindowMinMaxButtonsHint, False)
+        self.setWindowFlag(QtCore.Qt.WindowMinMaxButtonsHint, True)
         self.setObjectName('FITWeb')
 
     def init(self, case_info, wizard, options=None):
@@ -150,11 +150,6 @@ class Web(QtWidgets.QMainWindow):
         case_action.triggered.connect(self.case)
         self.menuBar().addAction(case_action)
 
-        # BACK ACTION
-        back_action = QtWidgets.QAction("Back to wizard", self)
-        back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.__back_to_wizard)
-        self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
@@ -509,15 +504,15 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
                                           self.__page_on_loaded(i, browser))
+        
+       
 
         if i == 0:
             self.showMaximized()
 
+
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
-
-        self.current_page_load_is_finished = True
-        self.navtb.enable_screenshot_buttons()
 
     def tab_open_doubleclick(self, i):
         if i == -1 and self.isEnabled():  # No tab under the click
@@ -553,11 +548,13 @@ class Web(QtWidgets.QMainWindow):
 
         self.tabs.currentWidget().setUrl(q)
 
-    def load_progress(self, prog):
-        pass
+    def load_progress(self, progress):
+        if progress == 100:
+            self.current_page_load_is_finished = True
+            self.navtb.enable_screenshot_buttons()
+
 
     def __update_urlbar(self, q, browser=None):
-
         self.current_page_load_is_finished = False
         self.navtb.enable_screenshot_buttons()
 

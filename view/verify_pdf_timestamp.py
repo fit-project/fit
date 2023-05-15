@@ -77,12 +77,6 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.case_action.triggered.connect(self.case)
         self.menuBar().addAction(self.case_action)
 
-        # BACK ACTION
-        back_action = QtWidgets.QAction("Back to wizard", self)
-        back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.__back_to_wizard)
-        self.menuBar().addAction(back_action)
-
         # set font
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -322,3 +316,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.deleteLater()
         self.wizard.reload_case_info()
         self.wizard.show()
+
+    def closeEvent(self, event):
+        event.ignore()
+        self.__back_to_wizard()

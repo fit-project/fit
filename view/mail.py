@@ -367,12 +367,6 @@ class Mail(QtWidgets.QMainWindow):
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
 
-        # BACK ACTION
-        back_action = QtWidgets.QAction("Back to wizard", self)
-        back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.__back_to_wizard)
-        self.menuBar().addAction(back_action)
-
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
 
@@ -702,6 +696,11 @@ class Mail(QtWidgets.QMainWindow):
         self.configuration_view.exec_()
 
     def __back_to_wizard(self):
-        self.deleteLater()
-        self.wizard.reload_case_info()
-        self.wizard.show()
+        if self.is_acquisition_running is False:
+            self.deleteLater()
+            self.wizard.reload_case_info()
+            self.wizard.show()
+
+    def closeEvent(self, event):
+        event.ignore()
+        self.__back_to_wizard()
