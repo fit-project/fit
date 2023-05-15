@@ -8,7 +8,7 @@ For the implementation:
 * [Qt](https://www.qt.io/download-open-source) as graphical user interface and Web Engine 
 * Scapy for packet capture
 * OpenVC and Pyautogui for screen capture
-
+* SQLite and SQLAlchemy for persistence
 
 ## Suggestions
 On PCs with Windows OS it is strongly recommended to install [NPCAP](https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceroute.
