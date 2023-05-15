@@ -150,11 +150,6 @@ class Web(QtWidgets.QMainWindow):
         case_action.triggered.connect(self.case)
         self.menuBar().addAction(case_action)
 
-        # BACK ACTION
-        back_action = QtWidgets.QAction("Back to wizard", self)
-        back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.__back_to_wizard)
-        self.menuBar().addAction(back_action)
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 

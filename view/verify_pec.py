@@ -64,12 +64,6 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
 
-        # BACK ACTION
-        back_action = QtWidgets.QAction("Back to wizard", self)
-        back_action.setStatusTip("Go back to the main menu")
-        back_action.triggered.connect(self.__back_to_wizard)
-        self.menuBar().addAction(back_action)
-
         self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.eml_group_box.setEnabled(True)
         self.eml_group_box.setGeometry(QtCore.QRect(50, 20, 500, 180))
