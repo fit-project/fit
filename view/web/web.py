@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineDownloadItem
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineDownloadItem, QWebEngineProfile
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
@@ -84,10 +84,10 @@ class Web(QtWidgets.QMainWindow):
 
     def init(self, case_info, wizard, options=None):
 
+
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info
-
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
@@ -102,6 +102,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_current_tab)
 
         self.setCentralWidget(self.tabs)
+
 
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar()
@@ -124,7 +125,7 @@ class Web(QtWidgets.QMainWindow):
         self.start_acquisition_is_started = False
         self.stop_acquisition_is_started = False
 
-
+        self.__clear_cache()
         self.navtb = NavigationToolBarView(self)
         self.addToolBar(self.navtb)
 
@@ -159,7 +160,6 @@ class Web(QtWidgets.QMainWindow):
 
         # Get timestamp parameters
         self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
-
         self.add_new_tab(QtCore.QUrl(self.configuration_general.configuration['home_page_url']), 'Homepage')
 
         self.show()
@@ -176,6 +176,9 @@ class Web(QtWidgets.QMainWindow):
             self.log_confing.disable_loggers(loggers)
 
     def start_acquisition(self):
+
+        profile = QWebEngineProfile.defaultProfile()
+        profile.clearHttpCache()
 
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
@@ -281,11 +284,9 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.showMessage('')
 
-        # delete cookies from the store and clean the cache
-        cookie_store = self.tabs.currentWidget().page().profile().cookieStore()
-        cookie_store.deleteAllCookies()
-        self.tabs.currentWidget().page().profile().clearAllVisitedLinks()
-        self.tabs.currentWidget().page().profile().clearHttpCache()
+        self.__clear_cache()
+        profile = QWebEngineProfile.defaultProfile()
+        profile.clearHttpCache()
 
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
@@ -552,6 +553,13 @@ class Web(QtWidgets.QMainWindow):
         if progress == 100:
             self.current_page_load_is_finished = True
             self.navtb.enable_screenshot_buttons()
+
+    def __clear_cache(self):
+
+        profile = QWebEngineProfile.defaultProfile()
+        profile.clearAllVisitedLinks()
+        cookie_store = profile.cookieStore()
+        cookie_store.deleteAllCookies()
 
 
     def __update_urlbar(self, q, browser=None):
