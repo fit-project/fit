@@ -27,5 +27,9 @@ TRY_DOWNLOAD_EML="Try download eml {} of {}"
 DOWNLOAD_EML_SUCCESS="EML file has been successfully downloaded."
 RETRIES_NUMBER="Retries EML download"
 SERVER_CONFIGURATION="Server configuration"
+VERIFY_IMAP="Verify IMAP server"
+VERIFY_SMTP="Verify SMTP server"
+
+
 
 

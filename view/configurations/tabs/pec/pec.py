@@ -10,7 +10,8 @@ import imaplib
 import smtplib
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
 
 from common.constants import error
 from controller.configurations.tabs.pec.pec import Pec as PecController
@@ -88,7 +89,7 @@ class Pec(QtWidgets.QWidget):
         self.group_box_server.setObjectName("group_box_server")
 
         self.form_layout_widget_IMAP = QtWidgets.QWidget(self.group_box_server)
-        self.form_layout_widget_IMAP.setGeometry(QtCore.QRect(10, 20, 511, 24))
+        self.form_layout_widget_IMAP.setGeometry(QtCore.QRect(10, 20, 600, 24))
         self.form_layout_widget_IMAP.setObjectName("form_layout_widget_server_IMAP")
         self.horizontal_layout_IMAP = QtWidgets.QHBoxLayout(self.form_layout_widget_IMAP)
         self.horizontal_layout_IMAP.setContentsMargins(0, 0, 0, 0)
@@ -116,8 +117,23 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_layout_IMAP.addWidget(self.imap_port)
 
 
+        self.verification_imap_button = QtWidgets.QPushButton(self.form_layout_widget_IMAP)
+        self.verification_imap_button.clicked.connect(self.__verify_imap)
+        self.verification_imap_button.setObjectName("verification_imap_button")
+        self.verification_imap_button.setEnabled(True)
+        self.horizontal_layout_IMAP.addWidget(self.verification_imap_button)
+
+        self.info_imap_img = QLabel(self)
+        self.info_imap_img.setEnabled(True)
+        self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+        self.info_imap_img.setScaledContents(True)
+        self.info_imap_img.setGeometry(QtCore.QRect(630, 192, 20, 20))
+        self.info_imap_img.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.info_imap_img.setVisible(False)
+
+
         self.form_layout_widget_SMTP = QtWidgets.QWidget(self.group_box_server)
-        self.form_layout_widget_SMTP.setGeometry(QtCore.QRect(10, 50, 511, 24))
+        self.form_layout_widget_SMTP.setGeometry(QtCore.QRect(10, 50, 600, 24))
         self.form_layout_widget_SMTP.setObjectName("form_layout_widget_SMTP")
 
         self.horizontal_layout_SMTP = QtWidgets.QHBoxLayout(self.form_layout_widget_SMTP)
@@ -150,6 +166,21 @@ class Pec(QtWidgets.QWidget):
         self.smtp_port.setObjectName("smtp_port")
         self.horizontal_layout_SMTP.addWidget(self.smtp_port)
 
+        self.verification_smtp_button = QtWidgets.QPushButton(self.form_layout_widget_SMTP)
+        self.verification_smtp_button.clicked.connect(self.__verify_smtp)
+        self.verification_smtp_button.setObjectName("verification_smtp_button")
+        self.verification_smtp_button.setEnabled(True)
+        self.horizontal_layout_SMTP.addWidget(self.verification_smtp_button)
+
+        self.info_smtp_img = QLabel(self)
+        self.info_smtp_img.setEnabled(True)
+        self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+        self.info_smtp_img.setScaledContents(True)
+        self.info_smtp_img.setGeometry(QtCore.QRect(630, 222, 20, 20))
+        self.info_smtp_img.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.info_smtp_img.setVisible(False)
+
+
 
     def retranslateUi(self):
         self.setWindowTitle(pec.WINDOW_TITLE)
@@ -163,6 +194,8 @@ class Pec(QtWidgets.QWidget):
         self.label_imap_port.setText(pec.LABEL_IMAP_PORT)
         self.label_smtp_server.setText(pec.LABEL_SMPT_SERVER)
         self.label_smtp_port.setText(pec.LABEL_SMPT_PORT)
+        self.verification_imap_button.setText(pec.VERIFY_IMAP)
+        self.verification_smtp_button.setText(pec.VERIFY_SMTP)
 
     def __is_enabled_pec(self):
         self.group_box_credential.setEnabled(self.enabled_checkbox.isChecked())
@@ -196,26 +229,18 @@ class Pec(QtWidgets.QWidget):
 
                 self.options[keyword] = value
 
-    def __check_server(self):
+    def __verify_imap(self):
         try:
+            self.info_imap_img.setVisible(False)
             server = imaplib.IMAP4_SSL(self.imap_server.text(), int(self.imap_port.text()))
             server.login(self.pec_email.text(), self.password.text())
             server.logout()
-        except Exception as e:
-            print(e)
-            raise Exception(e)
-        try:
-            server = smtplib.SMTP_SSL(self.smtp_server.text(), int(self.smtp_port.text()))
-            server.login(self.pec_email.text(), self.password.text())
-            server.quit()
-        except Exception as e:
-            print(e)
-            raise Exception(e)
+            self.info_imap_img.setPixmap(QPixmap("assets/images/green-mark.png").scaled(20, 20))
+            self.info_imap_img.setVisible(True)
 
-    def accept(self) -> None:
-        try:
-            self.__check_server()
         except Exception as e:
+            self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+            self.info_imap_img.setVisible(True)
             error_dlg = ErrorView(QMessageBox.Critical,
                                   pec.LOGIN_FAILED,
                                   error.LOGIN_ERROR,
@@ -224,10 +249,32 @@ class Pec(QtWidgets.QWidget):
             error_dlg.exec_()
 
 
-        else:
+    def __verify_smtp(self):
+        try:
+            self.info_smtp_img.setVisible(False)
+            server = smtplib.SMTP_SSL(self.smtp_server.text(), int(self.smtp_port.text()))
+            server.login(self.pec_email.text(), self.password.text())
+            server.quit()
+            self.info_smtp_img.setPixmap(QPixmap("assets/images/green-mark.png").scaled(20, 20))
+            self.info_smtp_img.setVisible(True)
 
-            self.__get_current_values()
-            self.controller.options = self.options
+
+        except Exception as e:
+
+            self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+            self.info_smtp_img.setVisible(True)
+
+            error_dlg = ErrorView(QMessageBox.Critical,
+                                  pec.LOGIN_FAILED,
+                                  error.LOGIN_ERROR,
+                                  str(e)
+                                  )
+            error_dlg.exec_()
+
+    def accept(self) -> None:
+
+        self.__get_current_values()
+        self.controller.options = self.options
 
     def reject(self) -> None:
         pass
