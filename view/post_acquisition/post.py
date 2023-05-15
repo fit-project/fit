@@ -87,6 +87,8 @@ class PostAcquisition(QtCore.QObject):
         options = PecController().options
         if options['enabled']:
             self.send_report_from_pec(folder, case_info, type)
+        else:
+            self.is_finished_pec = True
         self.parent().upadate_progress_bar()
         self.is_finished_timestamp = True
         self.__async_task_are_finished()

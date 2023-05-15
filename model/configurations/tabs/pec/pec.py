@@ -49,7 +49,7 @@ class Pec(Base):
         self.imap_server = ""
         self.imap_port = ""
         self.retries = 5
-        self.enabled = True
+        self.enabled = False
 
         self.db.session.add(self)
         self.db.session.commit()
