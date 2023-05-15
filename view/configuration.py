@@ -49,10 +49,10 @@ class Configuration(QtWidgets.QDialog):
 
     def load_tabs(self):
         package=view.configurations
+        class_names_modules = {}
         for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__, prefix=package.__name__+'.', onerror=lambda x: None):
 
-           
-            
+
             #import module if not loaded
             if modname not in sys.modules and not ispkg:
                 import_module(modname)
@@ -64,9 +64,15 @@ class Configuration(QtWidgets.QDialog):
                                 getattr(sys.modules[modname], '__is_tab__') and x.lower() == modname.rsplit( ".", 1 )[ 1 ]]
 
                 if class_name:
-                    tab = getattr(sys.modules[modname], class_name[0])
-                    tab = tab()
-                    self.tabs.addTab(tab, tab.windowTitle())
+
+                    class_names_modules.setdefault(class_name[0], []).append(sys.modules[modname])
+
+        ordered_keys = sorted(class_names_modules.keys())
+        for key in ordered_keys:
+            for value in class_names_modules[key]:
+                tab = getattr(value, key)
+                tab = tab()
+                self.tabs.addTab(tab, tab.windowTitle())
     
     def accept(self) -> None:
         for index in range(self.tabs.count()):

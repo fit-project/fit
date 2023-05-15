@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
 from common.constants import error
 from controller.configurations.tabs.pec.pec import Pec as PecController
 from view.error import Error as ErrorView
-from common.constants.view.pec import pec
+from common.constants.view.pec import pec, search_pec
 
 __is_tab__ = True
 
@@ -60,6 +60,7 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_Layout_credential.addWidget(self.label_pec_email)
         self.pec_email = QtWidgets.QLineEdit(self.form_layout_widget_credential)
         self.pec_email.setEnabled(True)
+        self.pec_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -72,6 +73,7 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_Layout_credential.addWidget(self.label_password)
         self.password = QtWidgets.QLineEdit(self.form_layout_widget_credential)
         self.password.setObjectName("password")
+        self.password.setPlaceholderText(search_pec.PLACEHOLDER_PASSWORD)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.horizontal_Layout_credential.addWidget(self.password)
 
@@ -101,6 +103,7 @@ class Pec(QtWidgets.QWidget):
 
         self.imap_server = QtWidgets.QLineEdit(self.form_layout_widget_IMAP)
         self.imap_server.setEnabled(True)
+        self.imap_server.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_SERVER)
         self.imap_server.setObjectName("imap_server")
         self.horizontal_layout_IMAP.addWidget(self.imap_server)
 
@@ -108,6 +111,7 @@ class Pec(QtWidgets.QWidget):
         self.label_imap_port.setObjectName("label_imap_port")
         self.horizontal_layout_IMAP.addWidget(self.label_imap_port)
         self.imap_port = QtWidgets.QLineEdit(self.form_layout_widget_IMAP)
+        self.imap_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -146,6 +150,7 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_layout_SMTP.addWidget(self.label_smtp_server)
         self.smtp_server = QtWidgets.QLineEdit(self.form_layout_widget_SMTP)
         self.smtp_server.setEnabled(True)
+        self.smtp_server.setPlaceholderText(search_pec.PLACEHOLDER_SMPT_SERVER)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -158,6 +163,7 @@ class Pec(QtWidgets.QWidget):
         self.label_smtp_port.setObjectName("label_smtp_port")
         self.horizontal_layout_SMTP.addWidget(self.label_smtp_port)
         self.smtp_port = QtWidgets.QLineEdit(self.form_layout_widget_SMTP)
+        self.smtp_port.setPlaceholderText(search_pec.PLACEHOLDER_SMPT_PORT)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
