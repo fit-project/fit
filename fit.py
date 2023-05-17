@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QApplication
 
 from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
-#from view.web.web import Web as WebView
+from view.web.web import Web as WebView
 from view.mail import Mail as MailView
 from view.instagram import Instagram as InstagramView
 
@@ -28,8 +28,8 @@ if __name__ == '__main__':
     wizard = WizardView()
     wizard.init_wizard()
 
-    #web = WebView()
-    #web.hide()
+    web = WebView()
+    web.hide()
 
     mail = MailView()
     mail.hide()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     def start_task(task, case_info):
         options = {}
         if (task == 'web'):
-            acquisition_window = False #web
+            acquisition_window = web
         elif (task == 'mail'):
             acquisition_window = mail
         elif (task == 'insta'):

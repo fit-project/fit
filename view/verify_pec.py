@@ -53,13 +53,13 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menu_configuration = QtWidgets.QWidgetAction(self)
+        self.menu_configuration = QtGui.QAction('Configuration',self)
         self.menu_configuration.setObjectName("menuConfiguration")
         self.menu_configuration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menu_configuration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QWidgetAction(self)
+        self.case_action = QtGui.QAction('Case',self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)

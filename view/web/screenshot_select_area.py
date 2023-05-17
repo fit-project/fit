@@ -22,7 +22,7 @@ class SnippingWidget(QtWidgets.QWidget):
     def __init__(self, parent=None, app=None):
         super(SnippingWidget, self).__init__()
         self.parent = parent
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint | QtCore.Qt.WindowType.FramelessWindowHint)
         self.showFullScreen()
 
         self.screen = app.primaryScreen()
@@ -35,7 +35,7 @@ class SnippingWidget(QtWidgets.QWidget):
     def start(self):
         SnippingWidget.is_snipping = True
         self.setWindowOpacity(0.3)
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CursorShape.CrossCursor))
         self.show()
 
     def paintEvent(self, event):
@@ -44,8 +44,8 @@ class SnippingWidget(QtWidgets.QWidget):
             lw = 3
             opacity = 0.3
         else:
-            self.begin = QtCore.QPoint()
-            self.end = QtCore.QPoint()
+            self.begin = QtCore.QPointF()
+            self.end = QtCore.QPointF()
             brush_color = (0, 0, 0, 0)
             lw = 0
             opacity = 0
@@ -54,7 +54,7 @@ class SnippingWidget(QtWidgets.QWidget):
         qp = QtGui.QPainter(self)
         qp.setPen(QtGui.QPen(QtGui.QColor('black'), lw))
         qp.setBrush(QtGui.QColor(*brush_color))
-        rect = QtCore.QRectF(self.begin, self.end)
+        rect = QtCore.QRectF(self.begin.x(), self.begin.x(), self.end.x(), self.end.y())
         qp.drawRect(rect)
 
     def mousePressEvent(self, event):

@@ -4679,4 +4679,4 @@ svglib = ">=1.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a5a213077a1dbf3d3c8fbfc4b258206649a4751d7685243c8a635931b6fea4aa"
+content-hash = "e4863968d974b93ac52be71b9317c41d78751b40663f034778029e4987c9d2dd"

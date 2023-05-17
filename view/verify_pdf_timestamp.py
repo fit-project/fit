@@ -67,13 +67,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
 
         # CONF BUTTON
 
-        self.menuConfiguration = QtWidgets.QWidgetAction(self)
+        self.menuConfiguration = QtGui.QAction('Configuration',self)
         self.menuConfiguration.setObjectName("menuConfiguration")
         self.menuConfiguration.triggered.connect(self.configuration)
         self.menuBar().addAction(self.menuConfiguration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QWidgetAction(self)
+        self.case_action = QtGui.QAction('Case',self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.case)
         self.menuBar().addAction(self.case_action)

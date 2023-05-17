@@ -22,25 +22,26 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.acquisition_actions = ['start', 'stop', 'info']
         self.screenshot_actions = ['camera', 'select', 'scroll']
 
-        back_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'back.svg')), "Back", self)
+        back_icon = QtGui.QIcon(os.path.join('assets/svg/toolbar', 'back.svg'))
+        back_btn = QtGui.QAction(back_icon, "Back", self)
         back_btn.setStatusTip("Back to previous page")
         back_btn.setObjectName('back')
         back_btn.triggered.connect(parent.back)
         self.addAction(back_btn)
 
-        next_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'forward.svg')), "Forward", self)
+        next_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'forward.svg')), "Forward", self)
         next_btn.setStatusTip("Forward to next page")
         next_btn.setObjectName('forward')
         next_btn.triggered.connect(parent.forward)
         self.addAction(next_btn)
 
-        reload_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'reload.svg')),"Reload", self)
+        reload_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'reload.svg')),"Reload", self)
         reload_btn.setStatusTip("Reload page")
         reload_btn.setObjectName('reload')
         reload_btn.triggered.connect(parent.reload)
         self.addAction(reload_btn)
 
-        home_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'home.svg')), "Home", self)
+        home_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'home.svg')), "Home", self)
         home_btn.setStatusTip("Go home")
         home_btn.setObjectName('home')
         home_btn.triggered.connect(parent.navigate_home)
@@ -50,7 +51,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         self.httpsicon = QtWidgets.QLabel()
         pixmap = QtGui.QPixmap(os.path.join('assets/svg/toolbar', 'lock-open.svg'))
-        self.httpsicon.setPixmap(pixmap.scaled(16, 16, QtCore.Qt.KeepAspectRatio) )
+        self.httpsicon.setPixmap(pixmap.scaled(16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio))
         self.addWidget(self.httpsicon)
 
         self.urlbar = QtWidgets.QLineEdit()
@@ -60,7 +61,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.urlbar.setMaximumWidth(QtGui.QGuiApplication.primaryScreen().geometry().width()*0.7)
         self.addWidget(self.urlbar)
 
-        stop_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'close.svg')), "Stop", self)
+        stop_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'close.svg')), "Stop", self)
         stop_btn.setStatusTip("Stop loading current page")
         stop_btn.setObjectName('close')
         stop_btn.triggered.connect(lambda: parent.tabs.currentWidget().stop())
@@ -69,14 +70,14 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addSeparator()
 
         # START ACQUISITION ACTION
-        self.start_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'start.svg')), "Start Acquisition", self)
+        self.start_acquisition_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'start.svg')), "Start Acquisition", self)
         self.start_acquisition_btn.setStatusTip("Start acquisition")
         self.start_acquisition_btn.triggered.connect(parent.start_acquisition)
         self.start_acquisition_btn.setObjectName('start')
         self.addAction(self.start_acquisition_btn)
 
         # STOP ACQUISITION ACTION
-        self.stop_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'stop-disabled.svg')), "Stop Acquisition", self)
+        self.stop_acquisition_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'stop-disabled.svg')), "Stop Acquisition", self)
         self.stop_acquisition_btn.setStatusTip("Stop acquisition")
         self.stop_acquisition_btn.triggered.connect(parent.stop_acquisition)
         self.stop_acquisition_btn.setObjectName('stop')
@@ -84,7 +85,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addAction(self.stop_acquisition_btn)
 
         # INFO ACQUISITION STATUS ACTION
-        self.info_acquisition_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'info.svg')), "info Acquisition", self)
+        self.info_acquisition_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'info.svg')), "info Acquisition", self)
         self.info_acquisition_btn.setStatusTip("info acquisition")
         self.info_acquisition_btn.triggered.connect(parent.acquisition_info)
         self.info_acquisition_btn.setObjectName('info')
@@ -93,7 +94,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addSeparator()
 
         # SCREENSHOT ACTION
-        self.screenshot_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'camera-disabled.svg')), "Take a screenshot page", self)
+        self.screenshot_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'camera-disabled.svg')), "Take a screenshot page", self)
         self.screenshot_btn.setObjectName('camera')
         self.screenshot_btn.setStatusTip("Take a full page screenshot")
         self.screenshot_btn.setEnabled(False)
@@ -102,7 +103,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addAction(self.screenshot_btn)
 
         # SCREENSHOT SELECTED AREA
-        self.screenshot_sl_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'select-disabled.svg')), "Take a screenshot on the selected area", self)
+        self.screenshot_sl_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'select-disabled.svg')), "Take a screenshot on the selected area", self)
         self.screenshot_sl_btn.setObjectName('select')
         self.screenshot_sl_btn.setStatusTip("Take a screenshot on the selected area")
         self.screenshot_sl_btn.setEnabled(False)
@@ -111,7 +112,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addAction(self.screenshot_sl_btn)
 
         # SCREENSHOT FULL PAGE
-        self.screenshot_fp_btn = QtWidgets.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'scroll-disabled.svg')), "Take a full page screenshot", self)
+        self.screenshot_fp_btn = QtGui.QAction(QtGui.QIcon(os.path.join('assets/svg/toolbar', 'scroll-disabled.svg')), "Take a full page screenshot", self)
         self.screenshot_fp_btn.setObjectName('scroll')
         self.screenshot_fp_btn.setStatusTip("Take a full page screenshot")
         self.screenshot_fp_btn.setEnabled(False)
