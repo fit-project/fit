@@ -113,7 +113,7 @@ class Web(QtWidgets.QMainWindow):
         self.status.addPermanentWidget(self.progress_bar)
 
         self.progress_bar.setTextVisible(True)
-        self.progress_bar.setAlignment(QtCore.Qt.AlignCenter)
+        self.progress_bar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 

@@ -16,9 +16,9 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.initUI()
 
     def initUI(self):
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.setObjectName("AcquisitionStatusView")
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.icon =  QtGui.QIcon(os.path.join('assets/svg/acquisition', 'info-circle.svg'))
 
         self.table = QtWidgets.QTableWidget(self)

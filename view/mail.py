@@ -17,7 +17,7 @@ from PyQt6 import QtWidgets
 from PyQt6.QtCore import (QObject, QThread, QRegularExpression , QDate, Qt, QRect, QMetaObject,
                            pyqtSignal, QEventLoop, QTimer, pyqtSlot)
 from PyQt6.QtGui import QFont, QDoubleValidator, QRegularExpressionValidator, QIcon
-
+from PyQt6 import QtCore
 
 from view.acquisition.acquisition import Acquisition
 from view.case import Case as CaseView
@@ -158,7 +158,7 @@ class Mail(QtWidgets.QMainWindow):
         self.status.addPermanentWidget(self.progress_bar)
 
         self.progress_bar.setTextVisible(True)
-        self.progress_bar.setAlignment(Qt.AlignCenter)
+        self.progress_bar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 
@@ -172,7 +172,7 @@ class Mail(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout()
         self.emails_tree = QtWidgets.QTreeWidget(self.centralwidget)
         self.emails_tree.setGeometry(QRect(510, 25, 440, 470))
-        self.emails_tree.setSelectionMode(QtWidgets.QTreeWidget.NoSelection)
+        self.emails_tree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection)
         self.emails_tree.itemChanged.connect(self.__on_item_changed)
         
         self.emails_tree.setObjectName("emails_tree")
@@ -195,14 +195,14 @@ class Mail(QtWidgets.QMainWindow):
         self.label_email = QtWidgets.QLabel(self.configuration_group_box)
         self.label_email.setGeometry(QRect(40, 60, 80, 20))
         self.label_email.setFont(font)
-        self.label_email.setAlignment(Qt.AlignRight)
+        self.label_email.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_email.setObjectName("label_email")
         
 
         # PASSWORD FIELD
         self.input_password = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_password.setGeometry(QRect(130, 95, 240, 20))
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.input_password.setFont(QFont('Arial', 10))
         self.input_password.setPlaceholderText(search_pec.PLACEHOLDER_PASSWORD)
         self.input_password.show()
@@ -235,21 +235,21 @@ class Mail(QtWidgets.QMainWindow):
         self.label_password = QtWidgets.QLabel(self.configuration_group_box)
         self.label_password.setGeometry(QRect(40, 95, 80, 20))
         self.label_password.setFont(font)
-        self.label_password.setAlignment(Qt.AlignRight)
+        self.label_password.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_password.setObjectName("label_password")
 
         # SERVER LABEL
         self.label_server = QtWidgets.QLabel(self.configuration_group_box)
         self.label_server.setGeometry(QRect(40, 130, 80, 20))
         self.label_server.setFont(font)
-        self.label_server.setAlignment(Qt.AlignRight)
+        self.label_server.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_server.setObjectName("label_server")
 
         # PORT LABEL
         self.label_port = QtWidgets.QLabel(self.configuration_group_box)
         self.label_port.setGeometry(QRect(40, 165, 80, 20))
         self.label_port.setFont(font)
-        self.label_port.setAlignment(Qt.AlignRight)
+        self.label_port.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_port.setObjectName("label_port")
 
         # SCRAPING CRITERIA
@@ -304,35 +304,35 @@ class Mail(QtWidgets.QMainWindow):
         self.label_from = QtWidgets.QLabel(self.centralwidget)
         self.label_from.setGeometry(QRect(90, 300, 80, 20))
         self.label_from.setFont(font)
-        self.label_from.setAlignment(Qt.AlignRight)
+        self.label_from.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_from.setObjectName("label_sender")
 
         # TO LABEL
         self.label_to = QtWidgets.QLabel(self.centralwidget)
         self.label_to.setGeometry(QRect(90, 335, 80, 20))
         self.label_to.setFont(font)
-        self.label_to.setAlignment(Qt.AlignRight)
+        self.label_to.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_to.setObjectName("label_recipient")
 
         # SUBJECT LABEL
         self.label_subject = QtWidgets.QLabel(self.centralwidget)
         self.label_subject.setGeometry(QRect(90, 370, 80, 20))
         self.label_subject.setFont(font)
-        self.label_subject.setAlignment(Qt.AlignRight)
+        self.label_subject.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_subject.setObjectName("label_subject")
 
         # FROM DATE LABEL
         self.label_from_date = QtWidgets.QLabel(self.centralwidget)
         self.label_from_date.setGeometry(QRect(90, 405, 80, 20))
         self.label_from_date.setFont(font)
-        self.label_from_date.setAlignment(Qt.AlignRight)
+        self.label_from_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_from_date.setObjectName("label_from_date")
 
         # TO DATE LABEL
         self.label_to_date = QtWidgets.QLabel(self.centralwidget)
         self.label_to_date.setGeometry(QRect(90, 440, 80, 20))
         self.label_to_date.setFont(font)
-        self.label_to_date.setAlignment(Qt.AlignRight)
+        self.label_to_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_to_date.setObjectName("label_to_date")
 
         # LOGIN BUTTON
@@ -356,13 +356,13 @@ class Mail(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menu_configuration = QtWidgets.QAction("Configuration", self)
+        self.menu_configuration = QtWidgets.QWidgetAction(self)
         self.menu_configuration.setObjectName("menuConfiguration")
         self.menu_configuration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menu_configuration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action = QtWidgets.QWidgetAction(self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
@@ -539,14 +539,14 @@ class Mail(QtWidgets.QMainWindow):
 
         for key in emails:
             self.folder_tree = QtWidgets.QTreeWidgetItem([key])
-            self.folder_tree.setData(0, Qt.UserRole, key)  # add identifier to the tree items
-            self.folder_tree.setCheckState(0, Qt.Unchecked)
+            self.folder_tree.setData(0, QtCore.Qt.ItemDataRole.UserRole, key)  # add identifier to the tree items
+            self.folder_tree.setCheckState(0, QtCore.Qt.CheckState.Unchecked)
             self.root.addChild(self.folder_tree)
 
             for value in emails[key]:
                 sub_item = QtWidgets.QTreeWidgetItem([value])
-                sub_item.setData(0, Qt.UserRole, key)
-                sub_item.setCheckState(0, Qt.Unchecked)
+                sub_item.setData(0, QtCore.Qt.ItemDataRole.UserRole, key)
+                sub_item.setCheckState(0, QtCore.Qt.CheckState.Unchecked)
                 self.folder_tree.addChild(sub_item)
 
         self.emails_tree.expandItem(self.root)
@@ -682,10 +682,10 @@ class Mail(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox(self)
         msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
         msg.setText(Details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
 
         return_value = msg.exec()
-        if return_value == QtWidgets.QMessageBox.Yes:
+        if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             os.startfile(self.acquisition_directory)
         
 
