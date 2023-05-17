@@ -54,7 +54,8 @@ class SnippingWidget(QtWidgets.QWidget):
         qp = QtGui.QPainter(self)
         qp.setPen(QtGui.QPen(QtGui.QColor('black'), lw))
         qp.setBrush(QtGui.QColor(*brush_color))
-        rect = QtCore.QRectF(self.begin.x(), self.begin.x(), self.end.x(), self.end.y())
+        rect = QtCore.QRectF(self.begin.x(), self.begin.y(),
+                             abs(self.end.x() - self.begin.x()), abs(self.end.y() - self.begin.y()))
         qp.drawRect(rect)
 
     def mousePressEvent(self, event):
