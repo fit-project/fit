@@ -26,7 +26,7 @@ class Configuration(QtWidgets.QDialog):
         self.setObjectName("ConfigurationView")
         self.resize(722, 480)
 
-        #self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.tabs = QtWidgets.QTabWidget(self)
         self.tabs.setGeometry(QtCore.QRect(0, 0, 721, 431))
         self.tabs.setObjectName("tabs")

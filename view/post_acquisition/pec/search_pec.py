@@ -39,7 +39,7 @@ class SearchPec(QDialog):
         self.input_to_date = None
         self.controller = PecConfigController()
         self.downloaded_status = FAIL
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
 
 
     def init(self, case_info, acquisition_directory):

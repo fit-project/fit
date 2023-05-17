@@ -19,7 +19,7 @@ class EmlNotFound(QtWidgets.QDialog):
     def __init__(self, directory, case_info, attempts):
         super().__init__()
 
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.search = SearchPecView()
         self.directory = directory
         self.case_info = case_info
@@ -28,7 +28,7 @@ class EmlNotFound(QtWidgets.QDialog):
         self.setObjectName("eml_not_found")
         self.resize(200, 100)
 
-        buttons = QtWidgets.QDialogButtonBox.Yes | QtWidgets.QDialogButtonBox.No
+        buttons = QtWidgets.QDialogButtonBox.StandardButton.Yes | QtWidgets.QDialogButtonBox.StandardButton.No
 
         self.buttonBox = QtWidgets.QDialogButtonBox(buttons)
         self.buttonBox.accepted.connect(self.accept)

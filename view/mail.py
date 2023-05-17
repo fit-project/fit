@@ -562,7 +562,7 @@ class Mail(QtWidgets.QMainWindow):
                         self.download_button.setEnabled(True)
             if parent.checkState(0) == Qt.CheckState.Checked and \
                     self.download_button.isEnabled() is False:
-                parent.setCheckState(0, False)
+                parent.setCheckState(0, Qt.CheckState.Unchecked)
         
     def __on_item_changed(self, item, column):
     

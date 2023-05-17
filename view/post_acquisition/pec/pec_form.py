@@ -19,7 +19,7 @@ class PecForm(QtWidgets.QDialog):
     def __init__(self, parent: None):
         super().__init__()
         self.parent = parent        
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.__setupUi()
     
 
@@ -46,7 +46,7 @@ class PecForm(QtWidgets.QDialog):
         self.input_password = QtWidgets.QLineEdit(self.centralwidget)
         self.input_password.setGeometry(QtCore.QRect(170, 60, 240, 20))
         self.input_password.setObjectName("input_password")
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
        
         #PEC SMTP INFO
         self.label_smpt_server = QtWidgets.QLabel(self.centralwidget)
