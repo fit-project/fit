@@ -125,6 +125,6 @@ class ReportText:
         return version
 
     def __get_logo(self):
-        logo_path = os.path.join("assets", "branding", "FIT.png")
+        logo_path = os.path.join("assets", "branding", "FIT-640.png")
 
         return logo_path
