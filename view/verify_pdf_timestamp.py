@@ -66,13 +66,14 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+
+        self.menuConfiguration = QtWidgets.QWidgetAction(self)
         self.menuConfiguration.setObjectName("menuConfiguration")
         self.menuConfiguration.triggered.connect(self.configuration)
         self.menuBar().addAction(self.menuConfiguration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action = QtWidgets.QWidgetAction(self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.case)
         self.menuBar().addAction(self.case_action)
@@ -125,21 +126,21 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.label_pdf = QtWidgets.QLabel(self.centralwidget)
         self.label_pdf.setGeometry(QtCore.QRect(90, 60, 120, 20))
         self.label_pdf.setFont(font)
-        self.label_pdf.setAlignment(QtCore.Qt.AlignRight)
+        self.label_pdf.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_pdf.setObjectName("label_pdf")
 
         # TSR LABEL
         self.label_tsr = QtWidgets.QLabel(self.centralwidget)
         self.label_tsr.setGeometry(QtCore.QRect(90, 95, 120, 20))
         self.label_tsr.setFont(font)
-        self.label_tsr.setAlignment(QtCore.Qt.AlignRight)
+        self.label_tsr.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_tsr.setObjectName("label_tsr")
 
         # CRT LABEL
         self.label_crt = QtWidgets.QLabel(self.centralwidget)
         self.label_crt.setGeometry(QtCore.QRect(90, 130, 120, 20))
         self.label_crt.setFont(font)
-        self.label_crt.setAlignment(QtCore.Qt.AlignRight)
+        self.label_crt.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_crt.setObjectName("label_crt")
 
         # VERIFICATION BUTTON

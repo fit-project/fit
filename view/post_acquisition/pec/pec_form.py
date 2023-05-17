@@ -37,8 +37,8 @@ class PecForm(QtWidgets.QDialog):
         self.input_pec_email = QtWidgets.QLineEdit(self.centralwidget)
         self.input_pec_email.setGeometry(QtCore.QRect(170, 30, 240, 20))
         self.input_pec_email.setObjectName("input_pec_email")
-        pec_regex = QtCore.QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
-        validator = QtGui.QRegExpValidator(pec_regex)
+        pec_regex = QtCore.QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
+        validator = QtGui.QRegularExpressionValidator(pec_regex)
         self.input_pec_email.setValidator(validator)
         self.label_password = QtWidgets.QLabel(self.centralwidget)
         self.label_password.setGeometry(QtCore.QRect(30, 60, 100, 20))

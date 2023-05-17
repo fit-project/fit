@@ -14,9 +14,9 @@ import shutil
 from datetime import timedelta
 
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import (QObject, QThread, QRegExp, QDate, Qt, QRect, QMetaObject,
+from PyQt6.QtCore import (QObject, QThread, QRegularExpression , QDate, Qt, QRect, QMetaObject,
                            pyqtSignal, QEventLoop, QTimer, pyqtSlot)
-from PyQt6.QtGui import QFont, QDoubleValidator, QRegExpValidator, QIcon
+from PyQt6.QtGui import QFont, QDoubleValidator, QRegularExpressionValidator, QIcon
 
 
 from view.acquisition.acquisition import Acquisition
@@ -120,7 +120,7 @@ class Mail(QtWidgets.QMainWindow):
         self.spinner = Spinner()
         self.acquisition_directory = None
         self.case_info = None
-        self.email_validator = QRegExpValidator(QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}"))
+        self.email_validator = QRegularExpressionValidator(QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}"))
         self.is_valid_email = False
         self.emails_to_validate = []
         
@@ -587,7 +587,7 @@ class Mail(QtWidgets.QMainWindow):
         if isinstance(self.sender(), QtWidgets.QLineEdit) and \
             self.sender().objectName() in self.emails_to_validate:
             state = self.email_validator.validate(text, 0)
-            if state[0] != QRegExpValidator.Acceptable:
+            if state[0] != QRegularExpressionValidator.State.Acceptable:
                 self.is_valid_email = False
                 self.sender().setStyleSheet('border: 1px solid red;')
             else:

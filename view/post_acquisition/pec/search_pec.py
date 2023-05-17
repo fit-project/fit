@@ -8,8 +8,8 @@
 ######  
 import datetime
 
-from PyQt6.QtCore import QRegExp, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
-from PyQt6.QtGui import QRegExpValidator, QDoubleValidator
+from PyQt6.QtCore import QRegularExpression, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
+from PyQt6.QtGui import QRegularExpressionValidator, QDoubleValidator
 from PyQt6.QtWidgets import (QVBoxLayout, QTreeWidget, QTreeWidgetItem, QDateEdit, QPushButton,
                              QAbstractItemView, QDialog, QWidget, QGroupBox, QLineEdit, QLabel, QMessageBox)
 
@@ -76,8 +76,8 @@ class SearchPec(QDialog):
         self.input_pec_email = QLineEdit(self.centralwidget)
         self.input_pec_email.setGeometry(QRect(180, 60, 240, 20))
         self.input_pec_email.setText('example@pec-legal.it')
-        pec_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
-        validator = QRegExpValidator(pec_regex)
+        pec_regex = QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
+        validator = QRegularExpressionValidator(pec_regex)
         self.input_pec_email.setValidator(validator)
         self.input_pec_email.setObjectName("input_pec_email")
 

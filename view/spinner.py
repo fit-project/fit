@@ -7,8 +7,10 @@
 # -----
 ######  
 import os
+
+import PyQt6
 from PyQt6.QtGui import QMovie
-from PyQt6.QtCore import QRect, Qt, QObject
+from PyQt6.QtCore import QRect
 from PyQt6.QtWidgets import QWidget, QDialog, QLabel
 
 
@@ -20,8 +22,8 @@ class Spinner(QDialog):
         self.initUI()
 
     def initUI(self):
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowFlag(PyQt6.QtCore.Qt.WindowType.FramelessWindowHint)
+        #self.setAttribute(PyQt6.QtCore.WidgetAttribute.WA_TranslucentBackground)
         self.resize(200, 200)
         self.centralwidget = QWidget(self)       
         self.label = QLabel(self.centralwidget)
