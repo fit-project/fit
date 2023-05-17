@@ -9,9 +9,9 @@
 import imaplib
 import smtplib
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QMessageBox, QLabel, QSizePolicy
 
 from common.constants import error
 from controller.configurations.tabs.pec.pec import Pec as PecController

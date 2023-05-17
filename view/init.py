@@ -9,7 +9,7 @@
 
 import os
 
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
+from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
 
 from view.error import Error as ErrorView
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
@@ -53,7 +53,7 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         hbox = QtWidgets.QHBoxLayout(self)
         hbox.addWidget(self.web_view)
 
-    @QtCore.pyqtSlot("QWebEngineDownloadItem*")
+    #@QtCore.pyqtSlot("QWebEngineDownloadItem*")
     def on_download_requested(self, download):
         old_path = download.url().path()
         suffix = QtCore.QFileInfo(old_path).suffix()

@@ -8,7 +8,7 @@
 ######  
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from view.post_acquisition.pec.search_pec import SearchPec as SearchPecView
 from common.constants.view.pec import eml_not_found

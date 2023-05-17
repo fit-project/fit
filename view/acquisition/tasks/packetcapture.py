@@ -10,8 +10,8 @@
 import scapy.all as scapy
 import os
 
-from PyQt5.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread
+from PyQt6.QtWidgets import QMessageBox
 
 from view.acquisition.base import Base
 from view.acquisition.tasks.task import AcquisitionTask

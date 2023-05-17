@@ -7,8 +7,8 @@
 # -----
 ######  
 import os
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QFileDialog
 
 from common.utility import get_ntp_date_and_time
 from controller.verify_pec.verify_pec import verifyPec as verifyPecController

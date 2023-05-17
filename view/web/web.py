@@ -14,9 +14,11 @@ from urllib.parse import urlparse
 
 import numpy as np
 from PIL import Image
+from PyQt6.QtWebEngineWidgets import QWebEngineDownloadItem
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineDownloadItem, QWebEngineProfile
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView

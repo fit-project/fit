@@ -26,7 +26,7 @@ from controller.configurations.tabs.general.network import Network as NetworkCon
 
 from common.utility import is_npcap_installed, get_platform
 
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 
 class Acquisition(Base):
 

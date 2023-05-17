@@ -10,7 +10,7 @@ import os
 import shutil
 import logging
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 

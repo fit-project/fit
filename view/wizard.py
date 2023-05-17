@@ -10,7 +10,7 @@ import os
 
 from configparser import SafeConfigParser
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from common.constants import error
 from common.constants.view import wizard, general
@@ -236,10 +236,10 @@ class Wizard(QtWidgets.QWizard):
     def init_wizard(self):
         self.setFixedSize(self.width, self.height)
         self.setSizeGripEnabled(False)
-        self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
-        self.setTitleFormat(QtCore.Qt.RichText)
-        self.setSubTitleFormat(QtCore.Qt.RichText)
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        #self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
+        #self.setTitleFormat(QtCore.Qt.RichText)
+        #self.setSubTitleFormat(QtCore.Qt.RichText)
+        #self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
 

@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 from controller.case import Case as CaseController

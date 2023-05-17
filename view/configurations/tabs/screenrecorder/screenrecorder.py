@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 
 from view.configurations.tabs.screenrecorder.codec import Codec as CodecView

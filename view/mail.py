@@ -13,10 +13,10 @@ import logging
 import shutil
 from datetime import timedelta
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import (QObject, QThread, QRegExp, QDate, Qt, QRect, QMetaObject,
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import (QObject, QThread, QRegExp, QDate, Qt, QRect, QMetaObject,
                            pyqtSignal, QEventLoop, QTimer, pyqtSlot)
-from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator, QIcon
+from PyQt6.QtGui import QFont, QDoubleValidator, QRegExpValidator, QIcon
 
 
 from view.acquisition.acquisition import Acquisition

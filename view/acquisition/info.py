@@ -8,7 +8,7 @@
 ######  
 
 import os
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt6 import QtGui, QtCore, QtWidgets
 
 class AcquisitionInfo(QtWidgets.QDialog):
     def __init__(self, parent=None):

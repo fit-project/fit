@@ -8,9 +8,9 @@
 ######  
 import datetime
 
-from PyQt5.QtCore import QRegExp, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
-from PyQt5.QtGui import QRegExpValidator, QDoubleValidator
-from PyQt5.QtWidgets import (QVBoxLayout, QTreeWidget, QTreeWidgetItem, QDateEdit, QPushButton,
+from PyQt6.QtCore import QRegExp, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
+from PyQt6.QtGui import QRegExpValidator, QDoubleValidator
+from PyQt6.QtWidgets import (QVBoxLayout, QTreeWidget, QTreeWidgetItem, QDateEdit, QPushButton,
                              QAbstractItemView, QDialog, QWidget, QGroupBox, QLineEdit, QLabel, QMessageBox)
 
 from view.error import Error as ErrorView

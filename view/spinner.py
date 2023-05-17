@@ -7,9 +7,9 @@
 # -----
 ######  
 import os
-from PyQt5.QtGui import QMovie
-from PyQt5.QtCore import QRect, Qt, QObject
-from PyQt5.QtWidgets import QWidget, QDialog, QLabel
+from PyQt6.QtGui import QMovie
+from PyQt6.QtCore import QRect, Qt, QObject
+from PyQt6.QtWidgets import QWidget, QDialog, QLabel
 
 
 class Spinner(QDialog):

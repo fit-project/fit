@@ -17,9 +17,9 @@ from view.configuration import Configuration as ConfigurationView
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QFileDialog
 
 from common.utility import get_ntp_date_and_time, get_platform
 from common.constants.view import verify_pdf_timestamp, general

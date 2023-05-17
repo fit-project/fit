@@ -7,14 +7,14 @@
 # -----
 ######  
 import os
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtCore, QtGui
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6 import QtCore
 
 class Error(QMessageBox):
     def __init__(self, severity, title, message, details,parent=None):
         super(Error, self).__init__(parent)
         # enable custom window hint
-        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        #self.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
 
         self.setIcon(severity)
         self.setWindowTitle(title)

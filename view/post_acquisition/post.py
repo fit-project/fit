@@ -9,7 +9,7 @@
 
 import os
 import logging
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from common.constants import logger as Logger, details, state, status as Status, tasks, error
 from common.utility import calculate_hash

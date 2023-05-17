@@ -10,7 +10,7 @@ import imaplib
 import os
 import time
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from view.post_acquisition.pec.pec_form import PecForm as PecFormView
 from view.error import Error as ErrorView

@@ -8,7 +8,7 @@
 ######  
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 
 from view.configurations.tabs.general.typesproceedings import TypesProceedings as TypesproceedingsView

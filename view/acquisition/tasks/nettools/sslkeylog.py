@@ -8,7 +8,7 @@
 ######  
 import sslkeylog
 import os
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from common.constants import logger as Logger, state, status, tasks
 

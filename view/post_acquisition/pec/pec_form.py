@@ -10,7 +10,7 @@ import imaplib
 import os
 import time
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from common.constants.view.pec import pec
 from common.constants.status import FAIL
 
