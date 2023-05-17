@@ -81,7 +81,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         # EML LABEL
         self.label_eml = QtWidgets.QLabel(self.centralwidget)
         self.label_eml.setGeometry(QtCore.QRect(80, 60, 50, 20))
-        self.label_eml.setAlignment(QtCore.Qt.AlignRight)
+        self.label_eml.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_eml.setObjectName("label_eml")
 
         # VERIFICATION BUTTON
@@ -120,13 +120,13 @@ class VerifyPec(QtWidgets.QMainWindow):
         try:
             pec.verify(self.input_eml.text(), self.case_info, ntp)
             msg = QtWidgets.QMessageBox()
-            msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+            msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
             msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
             msg.setText(verify_pec.VERIFY_PEC_SUCCESS_MSG)
-            msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
             msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             return_value = msg.exec()
-            if return_value == QtWidgets.QMessageBox.Yes:
+            if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                 path = os.path.dirname(str(self.input_eml.text()))
                 if get_platform() == 'win':
                     os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))

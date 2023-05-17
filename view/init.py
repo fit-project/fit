@@ -107,11 +107,11 @@ class Init(QtCore.QObject):
                     msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
                     msg.setWindowTitle(NPCAP)
                     msg.setText(WAR_NPCAP_NOT_INSTALLED)
-                    msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                    msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                     msg.setIcon(QtWidgets.QMessageBox.Warning)
                     
                     return_value = msg.exec()
-                    if return_value == QtWidgets.QMessageBox.Yes:
+                    if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                         donwload_and_install = DownloadAndInstallNpcap(url)
                         donwload_and_install.exec()
                     else:

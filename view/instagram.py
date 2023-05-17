@@ -461,10 +461,10 @@ class Instagram(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox(self)
         msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
         msg.setText(Details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
 
         return_value = msg.exec()
-        if return_value == QtWidgets.QMessageBox.Yes:
+        if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             self.__open_acquisition_directory()
 
     def __zip_and_remove(self, mail_dir):

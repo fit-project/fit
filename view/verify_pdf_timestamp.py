@@ -198,10 +198,10 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                 msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
                 msg.setText(verify_pdf_timestamp.VERIFICATION_SUCCESS)
                 msg.setInformativeText(verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
-                msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                 msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 return_value = msg.exec()
-                if return_value == QtWidgets.QMessageBox.Yes:
+                if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                     path = self.get_current_dir()
                     if get_platform() == 'win':
                         os.startfile(os.path.join(path,"report_timestamp_verification.pdf"))
