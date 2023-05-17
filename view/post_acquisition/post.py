@@ -50,12 +50,10 @@ class PostAcquisition(QtCore.QObject):
                 logger.info(file)
                 logger.info('=========================================================')
                 logger.info(f'Size: {file_stats.st_size}')
-                algorithm = 'md5'
-                logger.info(f'MD5: {calculate_hash(filename, algorithm)}')
-                algorithm = 'sha1'
-                logger.info(f'SHA-1: {calculate_hash(filename, algorithm)}')
                 algorithm = 'sha256'
                 logger.info(f'SHA-256: {calculate_hash(filename, algorithm)}\n')
+                algorithm = 'sha512'
+                logger.info(f'SHA-512: {calculate_hash(filename, algorithm)}\n')
 
         self.parent().upadate_progress_bar()
 
