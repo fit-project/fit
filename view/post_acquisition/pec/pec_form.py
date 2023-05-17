@@ -156,7 +156,7 @@ class PecForm(QtWidgets.QDialog):
         self.centralwidget.setEnabled(False)
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(500, loop.quit)
-        loop.exec_()
+        loop.exec()
         if self.parent.options:
             self.parent.options.update({
             "pec_email": self.input_pec_email.text(),

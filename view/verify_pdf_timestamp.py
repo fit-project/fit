@@ -216,7 +216,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                                   verify_pdf_timestamp.VERIFICATION_COMPLETED,
                                   verify_pdf_timestamp.VERIFICATION_FAIL,
                                   verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
-            error_dlg.exec_()
+            error_dlg.exec()
 
       
     
@@ -307,10 +307,10 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             return self.acquisition_directory
 
     def case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         self.deleteLater()

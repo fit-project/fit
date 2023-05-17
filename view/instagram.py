@@ -344,7 +344,7 @@ class Instagram(QtWidgets.QMainWindow):
                                   title,
                                   msg,
                                   str(details))
-        error_dlg.exec_()
+        error_dlg.exec()
 
     
     def __handle_progress(self):
@@ -365,7 +365,7 @@ class Instagram(QtWidgets.QMainWindow):
 
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         #If not logged in
         if self.instagram_controller.is_logged_in is False:
@@ -380,7 +380,7 @@ class Instagram(QtWidgets.QMainWindow):
 
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         self.__start_scraped()
     
@@ -480,7 +480,7 @@ class Instagram(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def __open_acquisition_directory(self):
         os.startfile(self.acquisition_directory)
@@ -490,10 +490,10 @@ class Instagram(QtWidgets.QMainWindow):
         self.scrape_button.setEnabled(all_field_filled)
 
     def __case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:

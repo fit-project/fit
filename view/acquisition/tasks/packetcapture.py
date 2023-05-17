@@ -41,13 +41,13 @@ class PacketCapture(QObject):
                                   error.PACKET_CAPTURE,
                                   str(e)
                                   )
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def stop(self):
         self.sniffer.stop()
         loop = QEventLoop()
         QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
         scapy.wrpcap(self.output_file, self.sniffer.results)
         self.finished.emit()
 

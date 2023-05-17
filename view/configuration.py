@@ -36,7 +36,8 @@ class Configuration(QtWidgets.QDialog):
 
         self.buttonBox = QtWidgets.QDialogButtonBox(self)
         self.buttonBox.setGeometry(QtCore.QRect(520, 440, 192, 28))
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Save)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel | QtWidgets.QDialogButtonBox.StandardButton.Save)
+
         self.buttonBox.setObjectName("buttonBox")
 
         self.buttonBox.accepted.connect(self.accept)

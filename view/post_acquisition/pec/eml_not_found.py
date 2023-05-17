@@ -44,7 +44,7 @@ class EmlNotFound(QtWidgets.QDialog):
     def accept(self):
         self.hide()
         self.search.init(self.case_info, self.directory)
-        self.search.exec_()
+        self.search.exec()
         
 
     def __close(self):

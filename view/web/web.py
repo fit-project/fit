@@ -269,7 +269,7 @@ class Web(QtWidgets.QMainWindow):
         # show progress bar for 2 seconds
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         self.progress_bar.setHidden(True)
         self.progress_bar.setValue(0)
@@ -362,7 +362,7 @@ class Web(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.exec_()
+            error_dlg.exec()
             
         row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
         self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
@@ -373,10 +373,10 @@ class Web(QtWidgets.QMainWindow):
         self.__are_internal_tasks_completed()
 
     def case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def take_screenshot(self):
         if self.screenshot_directory is not None:
@@ -438,7 +438,7 @@ class Web(QtWidgets.QMainWindow):
                     ### Waiting everything is synchronized
                     loop = QtCore.QEventLoop()
                     QtCore.QTimer.singleShot(500, loop.quit)
-                    loop.exec_()
+                    loop.exec()
                     self.tabs.currentWidget().grab().save(filename)
 
                 progress += increment

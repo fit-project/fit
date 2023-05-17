@@ -96,7 +96,7 @@ class Init(QtCore.QObject):
             
             error_dlg.buttonClicked.connect(self.__quit)
             
-            error_dlg.exec_()
+            error_dlg.exec()
         
         # If os is win check 
         if get_platform() == 'win' :
@@ -113,7 +113,7 @@ class Init(QtCore.QObject):
                     return_value = msg.exec()
                     if return_value == QtWidgets.QMessageBox.Yes:
                         donwload_and_install = DownloadAndInstallNpcap(url)
-                        donwload_and_install.exec_()
+                        donwload_and_install.exec()
                     else:
                         options = PacketCapture().options
                         options["enabled"] =False
@@ -125,5 +125,5 @@ class Init(QtCore.QObject):
                             ERR_NPCAP_RELEASE_VERSION,
                             str(e)
                             )
-                    error_dlg.exec_()
+                    error_dlg.exec()
         

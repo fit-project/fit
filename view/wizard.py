@@ -50,7 +50,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.name.setEditable(True)
         self.form.name.setCurrentIndex(-1)
         self.form.name.currentTextChanged.connect(self.completeChanged)
-        self.form.case_form_layout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.form.name)
+        self.form.case_form_layout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.form.name)
            
     def isComplete(self):
         if self.form.name.findText(self.form.name.currentText()) >= 0:
@@ -84,7 +84,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.proceeding_number.setText("")
     
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
     
 
 
@@ -249,16 +249,16 @@ class Wizard(QtWidgets.QWizard):
         self.addPage(self.case_info_page)
         self.addPage(self.select_task_page)
 
-        self.button(QtWidgets.QWizard.NextButton).clicked.connect(lambda: self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML()))
+        self.button(QtWidgets.QWizard.WizardButton.NextButton).clicked.connect(lambda: self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML()))
 
-        self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self._save_case)
+        self.button(QtWidgets.QWizard.WizardButton.FinishButton).clicked.connect(self._save_case)
 
-        self.button(QtWidgets.QWizard.BackButton).clicked.connect(self.__back)
+        self.button(QtWidgets.QWizard.WizardButton.BackButton).clicked.connect(self.__back)
 
-        self.button(QtWidgets.QWizard.FinishButton).setDisabled(True)
+        self.button(QtWidgets.QWizard.WizardButton.FinishButton).setDisabled(True)
 
-        self.setButtonText(QtWidgets.QWizard.FinishButton, general.BUTTON_START)
-        self.setButtonText(QtWidgets.QWizard.CancelButton, general.BUTTON_EXIT)
+        self.setButtonText(QtWidgets.QWizard.WizardButton.FinishButton, general.BUTTON_START)
+        self.setButtonText(QtWidgets.QWizard.WizardButton.CancelButton, general.BUTTON_EXIT)
 
         self.retranslateUi()
     
@@ -306,7 +306,7 @@ class Wizard(QtWidgets.QWizard):
                             error.INSERT_UPDATE_CASE_INFO,
                             str(e)
                             )
-            error_dlg.exec_()
+            error_dlg.exec()
 
         #Send signal to main loop to start the acquisition window
         self.finished.emit(task, case_info)

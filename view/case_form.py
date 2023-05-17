@@ -32,9 +32,10 @@ class CaseForm(QtWidgets.QWidget):
 
     def initUI(self):
         self.case_form_layout = QtWidgets.QFormLayout(self)
-        self.case_form_layout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
-        self.case_form_layout.setLabelAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing)
-        self.case_form_layout.setFormAlignment(QtCore.Qt.AlignCenter)
+        self.case_form_layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
+        self.case_form_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTop | QtCore.Qt.AlignmentFlag.AlignTrailing)
+
+        self.case_form_layout.setFormAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.case_form_layout.setContentsMargins(9, 13, 0, 13)
         self.case_form_layout.setVerticalSpacing(10)
         self.case_form_layout.setObjectName("case_form_layout")
@@ -47,13 +48,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setWeight(75)
         self.name_label.setFont(font)
         self.name_label.setObjectName("name_label")
-        self.case_form_layout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.name_label)
+        self.case_form_layout.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.name_label)
         self.name = QtWidgets.QComboBox(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.name.setFont(font)
         self.name.setObjectName("name")
-        self.case_form_layout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.name)
+        self.case_form_layout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.name)
 
         
 
@@ -63,13 +64,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.lawyer_name_label.setFont(font)
         self.lawyer_name_label.setObjectName("lawyer_name_label")
-        self.case_form_layout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.lawyer_name_label)
+        self.case_form_layout.setWidget(1, QtWidgets.QFormLayout.ItemRole.LabelRole, self.lawyer_name_label)
         self.lawyer_name = QtWidgets.QLineEdit(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.lawyer_name.setFont(font)
         self.lawyer_name.setObjectName("lawyer_name")
-        self.case_form_layout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.lawyer_name)
+        self.case_form_layout.setWidget(1, QtWidgets.QFormLayout.ItemRole.FieldRole, self.lawyer_name)
 
 
         #types_proceedings_COMBO
@@ -78,13 +79,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.types_proceedings_label.setFont(font)
         self.types_proceedings_label.setObjectName("proceeding_type_label")
-        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.types_proceedings_label)
+        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.ItemRole.LabelRole, self.types_proceedings_label)
         self.types_proceedings = QtWidgets.QComboBox(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.types_proceedings.setFont(font)
         self.types_proceedings.setObjectName("proceeding_type")        
-        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.types_proceedings)
+        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.types_proceedings)
 
 
         #COURTHOUSE_LINE_EDIT
@@ -93,13 +94,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.courthouse_label.setFont(font)
         self.courthouse_label.setObjectName("courthouse_label")
-        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.courthouse_label)
+        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.ItemRole.LabelRole, self.courthouse_label)
         self.courthouse = QtWidgets.QLineEdit(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.courthouse.setFont(font)
         self.courthouse.setObjectName("courthouse")
-        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.courthouse)
+        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.courthouse)
 
 
         #proceeding_number_LINE_EDIT
@@ -108,13 +109,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.proceeding_number_label.setFont(font)
         self.proceeding_number_label.setObjectName("proceeding_number_label")
-        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.proceeding_number_label)
+        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.ItemRole.LabelRole, self.proceeding_number_label)
         self.proceeding_number = QtWidgets.QLineEdit(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.proceeding_number.setFont(font)
         self.proceeding_number.setObjectName("proceeding_number")
-        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.proceeding_number)
+        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.ItemRole.FieldRole, self.proceeding_number)
 
         self.retranslateUi()
 

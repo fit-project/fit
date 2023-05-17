@@ -75,7 +75,7 @@ class ScreenRecorder(QObject):
                             str(sys.exc_info()[0])
                             )
                 
-                error_dlg.exec_()
+                error_dlg.exec()
 
         #Release the Video writer
         self.out.release()

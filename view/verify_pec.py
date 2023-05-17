@@ -135,7 +135,7 @@ class VerifyPec(QtWidgets.QMainWindow):
                                     verify_pec.VERIFY_PEC_FAIL,
                                     verify_pec.VERIFY_PEC_FAIL_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
 
 
     def __dialog(self):
@@ -146,10 +146,10 @@ class VerifyPec(QtWidgets.QMainWindow):
             self.input_eml.setText(file)
 
     def __case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
     
 
     def __get_acquisition_directory(self):

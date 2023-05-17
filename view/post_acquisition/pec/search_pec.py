@@ -230,7 +230,7 @@ class SearchPec(QDialog):
         self.centralwidget.setEnabled(False)
         loop = QEventLoop()
         QTimer.singleShot(500, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         self.pec_tree.clear()
         self.root = QTreeWidgetItem(["Inbox"])
@@ -284,7 +284,7 @@ class SearchPec(QDialog):
                                     pec.LOGIN_FAILED,
                                     pec.IMAP_FAILED_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
         
    
         for message in messages:
@@ -308,7 +308,7 @@ class SearchPec(QDialog):
         self.centralwidget.setEnabled(False)
         loop = QEventLoop()
         QTimer.singleShot(500, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         status = SUCCESS
 
@@ -339,7 +339,7 @@ class SearchPec(QDialog):
                                     pec.LOGIN_FAILED,
                                     pec.IMAP_FAILED_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
         
         self.centralwidget.setEnabled(True)
 

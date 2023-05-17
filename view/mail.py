@@ -443,7 +443,7 @@ class Mail(QtWidgets.QMainWindow):
                                   title,
                                   msg,
                                   str(details))
-        error_dlg.exec_()
+        error_dlg.exec()
         
 
     def __search(self):
@@ -456,7 +456,7 @@ class Mail(QtWidgets.QMainWindow):
 
         loop = QEventLoop()
         QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
 
         #Login params
@@ -613,7 +613,7 @@ class Mail(QtWidgets.QMainWindow):
         # wait for 1 second 
         loop = QEventLoop()
         QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
         
         emails_counter = 0
         for i in range(self.root.childCount()):
@@ -676,7 +676,7 @@ class Mail(QtWidgets.QMainWindow):
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
@@ -690,10 +690,10 @@ class Mail(QtWidgets.QMainWindow):
         
 
     def __case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:
