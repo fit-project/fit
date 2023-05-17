@@ -124,14 +124,14 @@ class VerifyPec(QtWidgets.QMainWindow):
             msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
             msg.setText(verify_pec.VERIFY_PEC_SUCCESS_MSG)
             msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             return_value = msg.exec()
             if return_value == QtWidgets.QMessageBox.Yes:
                 path = os.path.dirname(str(self.input_eml.text()))
                 if get_platform() == 'win':
                     os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
         except Exception as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                     verify_pec.VERIFY_PEC_FAIL,
                                     verify_pec.VERIFY_PEC_FAIL_MGS,
                                     str(e))

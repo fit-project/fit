@@ -69,7 +69,7 @@ class ScreenRecorder(QObject):
                 self.out.write(frame)
 
         except:
-                error_dlg = ErrorView(QMessageBox.Critical,
+                error_dlg = ErrorView(QMessageBox.Icon.Critical,
                             screenrecorder.SCREEN_RECODER,
                             error.SCREEN_RECODER,
                             str(sys.exc_info()[0])

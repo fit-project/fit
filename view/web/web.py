@@ -356,7 +356,7 @@ class Web(QtWidgets.QMainWindow):
         try:
             shutil.rmtree(self.acquisition_page_folder)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                   Tasks.SAVE_PAGE,
                                   error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)

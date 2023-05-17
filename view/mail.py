@@ -439,7 +439,7 @@ class Mail(QtWidgets.QMainWindow):
             msg = e.get('msg')
             details = e.get('details')
        
-        error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+        error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
                                   title,
                                   msg,
                                   str(details))
@@ -524,7 +524,7 @@ class Mail(QtWidgets.QMainWindow):
         self.spinner.stop()
 
         if len(emails) == 0:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
                                   mail.NO_EMAILS,
                                   error.NO_EMAILS,
                                   Details.RETRY
@@ -670,7 +670,7 @@ class Mail(QtWidgets.QMainWindow):
         try:
             shutil.rmtree(mail_dir)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                   tasks.INSTAGRAM,
                                   error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)

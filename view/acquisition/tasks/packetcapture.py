@@ -36,7 +36,7 @@ class PacketCapture(QObject):
         try:
             self.sniffer.start()
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                   tasks.PACKET_CAPTURE,
                                   error.PACKET_CAPTURE,
                                   str(e)

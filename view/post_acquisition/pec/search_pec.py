@@ -280,7 +280,7 @@ class SearchPec(QDialog):
         try:
             messages = search_pec.fetch_pec(search_criteria)
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                     pec.LOGIN_FAILED,
                                     pec.IMAP_FAILED_MGS,
                                     str(e))
@@ -335,7 +335,7 @@ class SearchPec(QDialog):
             if pec_controller.retrieve_eml(timestamp_slice):
                 self.downloaded_status = SUCCESS
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                     pec.LOGIN_FAILED,
                                     pec.IMAP_FAILED_MGS,
                                     str(e))

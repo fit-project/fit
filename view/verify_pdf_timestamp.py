@@ -198,7 +198,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                 msg.setText(verify_pdf_timestamp.VERIFICATION_SUCCESS)
                 msg.setInformativeText(verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
                 msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-                msg.setIcon(QtWidgets.QMessageBox.Information)                      
+                msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 return_value = msg.exec()
                 if return_value == QtWidgets.QMessageBox.Yes:
                     path = self.get_current_dir()
@@ -212,7 +212,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             report, info_file_path = self.generate_report_verification(data, server_name, timestamp, False)
             report.generate_pdf(False, info_file_path)
 
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                   verify_pdf_timestamp.VERIFICATION_COMPLETED,
                                   verify_pdf_timestamp.VERIFICATION_FAIL,
                                   verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)

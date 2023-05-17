@@ -247,7 +247,7 @@ class Pec(QtWidgets.QWidget):
         except Exception as e:
             self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
             self.info_imap_img.setVisible(True)
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                   pec.LOGIN_FAILED,
                                   error.LOGIN_ERROR,
                                   str(e)
@@ -270,7 +270,7 @@ class Pec(QtWidgets.QWidget):
             self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
             self.info_smtp_img.setVisible(True)
 
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                   pec.LOGIN_FAILED,
                                   error.LOGIN_ERROR,
                                   str(e)

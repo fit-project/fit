@@ -88,7 +88,7 @@ class Init(QtCore.QObject):
     def init_check(self):
         #Check internet connection
         if check_internet_connection() is False:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                             CHECK_CONNETION,
                             ERR_INTERNET_DISCONNECTED,
                             ''
@@ -120,7 +120,7 @@ class Init(QtCore.QObject):
                         PacketCapture().options = options
 
                 except Exception as e:
-                    error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                    error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                             NPCAP,
                             ERR_NPCAP_RELEASE_VERSION,
                             str(e)

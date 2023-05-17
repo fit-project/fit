@@ -69,7 +69,7 @@ class Pec(QtCore.QObject):
 
         except Exception as e:
             status = FAIL
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                     pec.LOGIN_FAILED,
                                     pec.SMTP_FAILED_MGS,
                                     str(e))
@@ -114,7 +114,7 @@ class Pec(QtCore.QObject):
                     break
             except Exception as e:
                 status = FAIL
-                error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                         pec.LOGIN_FAILED,
                                         pec.IMAP_FAILED_MGS,
                                         str(e))

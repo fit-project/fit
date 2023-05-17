@@ -340,7 +340,7 @@ class Instagram(QtWidgets.QMainWindow):
             msg = e.get('msg')
             details = e.get('details')
        
-        error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+        error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
                                   title,
                                   msg,
                                   str(details))
@@ -474,7 +474,7 @@ class Instagram(QtWidgets.QMainWindow):
         try:
             shutil.rmtree(mail_dir)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                   tasks.INSTAGRAM,
                                   Error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)
