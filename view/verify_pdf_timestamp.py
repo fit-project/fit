@@ -194,7 +194,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                 report.generate_pdf(True, info_file_path)
 
                 msg = QtWidgets.QMessageBox()
-                msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+                msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
                 msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
                 msg.setText(verify_pdf_timestamp.VERIFICATION_SUCCESS)
                 msg.setInformativeText(verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
@@ -213,11 +213,18 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             report, info_file_path = self.generate_report_verification(data, server_name, timestamp, False)
             report.generate_pdf(False, info_file_path)
 
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                                  verify_pdf_timestamp.VERIFICATION_COMPLETED,
-                                  verify_pdf_timestamp.VERIFICATION_FAIL,
-                                  verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
-            error_dlg.exec()
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
+            msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
+            msg.setText(verify_pdf_timestamp.VERIFICATION_FAIL)
+            msg.setInformativeText(verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            return_value = msg.exec()
+            if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
+                path = self.get_current_dir()
+                if get_platform() == 'win':
+                    os.startfile(os.path.join(path, "report_timestamp_verification.pdf"))
 
       
     

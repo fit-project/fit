@@ -23,9 +23,9 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         super(DownloadAndInstallNpcap, self).__init__(parent)
 
         self.path = None
-        self.setWindowModality(QtCore.Qt.WindowModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.resize(255, 77)
-        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
 
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 231, 41))
@@ -104,11 +104,11 @@ class Init(QtCore.QObject):
                 try:
                     url = get_npcap_installer_url()
                     msg = QtWidgets.QMessageBox()
-                    msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+                    msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
                     msg.setWindowTitle(NPCAP)
                     msg.setText(WAR_NPCAP_NOT_INSTALLED)
                     msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                    msg.setIcon(QtWidgets.QMessageBox.Warning)
+                    msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     
                     return_value = msg.exec()
                     if return_value == QtWidgets.QMessageBox.StandardButton.Yes:

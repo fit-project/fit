@@ -302,7 +302,7 @@ class Wizard(QtWidgets.QWizard):
             else:
                 case_info =  self.case_info_page.form.controller.add(self.case_info_page.case_info)
         except Exception as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Warning,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Warning,
                             wizard.INSERT_UPDATE_CASE_INFO,
                             error.INSERT_UPDATE_CASE_INFO,
                             str(e)
