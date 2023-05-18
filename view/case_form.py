@@ -44,8 +44,6 @@ class CaseForm(QtWidgets.QWidget):
         self.name_label = QtWidgets.QLabel(self)
         font = QtGui.QFont()
         font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
         self.name_label.setFont(font)
         self.name_label.setObjectName("name_label")
         self.case_form_layout.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.name_label)
