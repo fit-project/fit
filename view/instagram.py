@@ -96,7 +96,6 @@ class Instagram(QtWidgets.QMainWindow):
         # set font
         font = QtGui.QFont()
         font.setPointSize(10)
-        font.setFamily('Arial')
 
 
         self.setObjectName("mainWindow")

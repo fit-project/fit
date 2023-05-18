@@ -341,7 +341,7 @@ class Wizard(QtWidgets.QWizard):
         html += "p, li { white-space: pre-wrap; }\n"
         html += "</style>\n"
         html += "</head>\n"
-        html += "<body style=\" font-family:\'Arial\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+        html += "<body style=\" font-size:10pt; font-weight:400; font-style:normal;\">\n"
         for keyword, value in self.case_info_page.case_info.items():
             item = self.findChild(QtWidgets.QLabel, keyword + '_label')
             if item is not None:
@@ -354,7 +354,7 @@ class Wizard(QtWidgets.QWizard):
 
                 label = item.text()
                 html += "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:19px;\">\n"
-                html += "<span style=\" font-family:\'Arial\',\'Courier New\',\'monospace\'; font-size:14px; font-weight:300; color:#000000;\">" + label  + ": </span>\n"
+                html += "<span style=\" font-size:14px; font-weight:300; color:#000000;\">" + label  + ": </span>\n"
                 html += "<span style=\" font-size:14px; font-weight:600;  color:#000000;\">" + str(value)  + "</span>\n"
                 html += "</p>\n"
         html += "</body>\n"

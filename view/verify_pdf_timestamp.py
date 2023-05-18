@@ -81,18 +81,16 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # set font
         font = QtGui.QFont()
         font.setPointSize(10)
-        font.setFamily('Arial')
 
         # TIMESTAMP GROUP
         self.timestamp_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.timestamp_group_box.setEnabled(True)
         self.timestamp_group_box.setGeometry(QtCore.QRect(50, 20, 590, 200))
         self.timestamp_group_box.setObjectName("timestamp_group_box")
-
         # PDF FIELD
         self.input_pdf = QtWidgets.QLineEdit(self.centralwidget)
         self.input_pdf.setGeometry(QtCore.QRect(215, 60, 300, 20))
-        self.input_pdf.setFont(QFont('Arial', 10))
+        self.input_pdf.setFont(font)
         self.input_pdf.setObjectName("input_pdf")
         self.input_pdf.setEnabled(False)
         self.input_pdf_button = QtWidgets.QPushButton(self.centralwidget)
@@ -103,7 +101,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # TSR FIELD
         self.input_tsr = QtWidgets.QLineEdit(self.centralwidget)
         self.input_tsr.setGeometry(QtCore.QRect(215, 95, 300, 20))
-        self.input_tsr.setFont(QFont('Arial', 10))
+        self.input_tsr.setFont(font)
         self.input_tsr.setObjectName("input_tsr")
         self.input_tsr.setEnabled(False)
         self.input_tsr_button = QtWidgets.QPushButton(self.centralwidget)
@@ -114,7 +112,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # CRT FIELD
         self.input_crt = QtWidgets.QLineEdit(self.centralwidget)
         self.input_crt.setGeometry(QtCore.QRect(215, 130, 300, 20))
-        self.input_crt.setFont(QFont('Arial', 10))
+        self.input_crt.setFont(font)
         self.input_crt.setObjectName("input_crt")
         self.input_crt.setEnabled(False)
         self.input_crt_button = QtWidgets.QPushButton(self.centralwidget)
