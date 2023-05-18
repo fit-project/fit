@@ -10,6 +10,9 @@
 import os
 from PyQt6 import QtGui, QtCore, QtWidgets
 
+from common.constants.view import general
+
+
 class AcquisitionInfo(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(AcquisitionInfo, self).__init__(parent)
@@ -19,7 +22,8 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.setObjectName("AcquisitionStatusView")
         self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
-        self.icon =  QtGui.QIcon(os.path.join('assets/svg/acquisition', 'info-circle.svg'))
+        self.setWindowTitle(general.INFO)
+        self.icon = QtGui.QIcon(os.path.join('assets/svg/acquisition', 'info-circle.svg'))
 
         self.table = QtWidgets.QTableWidget(self)
 
