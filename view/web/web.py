@@ -485,6 +485,7 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser = MainWindow()
         self.browser.setUrl(qurl)
+        self.browser.page().featurePermissionRequested.connect(self.__show_notification_request)
         i = self.tabs.addTab(self.browser, label)
 
         self.tabs.setCurrentIndex(i)
@@ -520,6 +521,9 @@ class Web(QtWidgets.QMainWindow):
             return
 
         self.tabs.removeTab(i)
+
+    def __show_notification_request(self,url, feature):
+        self.browser.page().setFeaturePermission(url, feature, QWebEnginePage.PermissionPolicy.PermissionGrantedByUser)
 
     def update_title(self, browser):
         if browser != self.tabs.currentWidget():
