@@ -22,11 +22,12 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.icon =  QtGui.QIcon(os.path.join('assets/svg/acquisition', 'info-circle.svg'))
 
         self.table = QtWidgets.QTableWidget(self)
-        
+
         self.table.resize(500, 400)
       
         self.table.setColumnCount(3)
         self.table.setColumnWidth(0, 250)
+
 
 
         # Set the table headers
@@ -45,7 +46,11 @@ class AcquisitionInfo(QtWidgets.QDialog):
         self.table.setItem(row, 0, QtWidgets.QTableWidgetItem(task))
         self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(state))
         self.table.setItem(row, 2, status)
-    
+        for column in range(self.table.columnCount()):
+            item = self.table.item(row, column)
+            if item is not None:
+                item.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled | QtCore.Qt.ItemFlag.ItemIsSelectable)
+
     def clear_info(self):
         self.table.clearContents()
         self.table.setRowCount(0)
