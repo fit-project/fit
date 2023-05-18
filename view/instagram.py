@@ -151,7 +151,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.input_password.setFont(font)
         self.input_password.setObjectName("input_password")
         self.input_password.setPlaceholderText(instagram.PLACEHOLDER_PASSWORD)
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 
         self.label_password = QtWidgets.QLabel(self.loging_configuration_group_box)
         self.label_password.setGeometry(QtCore.QRect(40, 60, 80, 20))
