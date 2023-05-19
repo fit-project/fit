@@ -30,7 +30,7 @@ class SnippingWidget(QtWidgets.QWidget):
         self.begin = QtCore.QPoint()
         self.end = QtCore.QPoint()
         self.onSnippingCompleted = None
-
+        self.scale_factor = app.devicePixelRatio()
 
     def start(self):
         SnippingWidget.is_snipping = True
@@ -74,7 +74,8 @@ class SnippingWidget(QtWidgets.QWidget):
         y1 = min(self.begin.y(), self.end.y())
         x2 = max(self.begin.x(), self.end.x())
         y2 = max(self.begin.y(), self.end.y())
-
+        x1, y1, x2, y2 = self.apply_scaling_factor(x1, y1, x2, y2)
+        
         self.repaint()
         QtWidgets.QApplication.processEvents()
         img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
@@ -83,6 +84,14 @@ class SnippingWidget(QtWidgets.QWidget):
             self.onSnippingCompleted(img)
 
         self.close()
+
+    def apply_scaling_factor(self, x1, y1, x2, y2):
+        x1 *= self.scale_factor
+        y1 *= self.scale_factor
+        x2 *= self.scale_factor
+        y2 *= self.scale_factor
+        return int(x1), int(y1), int(x2), int(y2)
+
 
 class SelectArea(QtCore.QObject):
     finished = QtCore.pyqtSignal()  # give worker class a finished signal
