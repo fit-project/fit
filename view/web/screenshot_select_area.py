@@ -8,7 +8,9 @@
 ######  
 
 import sys
-
+import time
+import tkinter
+from common.constants.view import general
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 import numpy as np
@@ -40,15 +42,13 @@ class SnippingWidget(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         if SnippingWidget.is_snipping:
-            brush_color = (128, 128, 255, 100)
+            brush_color = (255, 0, 0, 100)
             lw = 3
             opacity = 0.3
         else:
-            self.begin = QtCore.QPointF()
-            self.end = QtCore.QPointF()
-            brush_color = (0, 0, 0, 0)
-            lw = 0
-            opacity = 0
+            brush_color = (0, 255, 0, 100)
+            lw = 3
+            opacity = 0.3
 
         self.setWindowOpacity(opacity)
         qp = QtGui.QPainter(self)
@@ -77,12 +77,17 @@ class SnippingWidget(QtWidgets.QWidget):
 
         self.repaint()
         QtWidgets.QApplication.processEvents()
-        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+
+        if x1 != x2 and y1 != y2:
+            img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        else:
+            img = None
             
         if self.onSnippingCompleted is not None:
             self.onSnippingCompleted(img)
 
         self.close()
+
 
 class SelectArea(QtCore.QObject):
     finished = QtCore.pyqtSignal()  # give worker class a finished signal
@@ -93,7 +98,6 @@ class SelectArea(QtCore.QObject):
         self.snippingWidget = SnippingWidget(app=QtWidgets.QApplication.instance())
         self.snippingWidget.onSnippingCompleted = self.__on_snipping_completed
 
-    
     def __on_snipping_completed(self, frame):
         if frame is None:
             self.__finished()
