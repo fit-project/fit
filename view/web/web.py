@@ -485,7 +485,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser = MainWindow()
         self.browser.setUrl(qurl)
-        self.browser.page().featurePermissionRequested.connect(self.__show_notification_request)
         i = self.tabs.addTab(self.browser, label)
 
         self.tabs.setCurrentIndex(i)
@@ -499,6 +498,9 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
                                           self.__page_on_loaded(i, browser))
+
+        self.browser.urlChanged.connect(lambda qurl:
+                                        self.__allow_notifications(qurl))
 
         if i == 0:
             self.showMaximized()
@@ -521,9 +523,6 @@ class Web(QtWidgets.QMainWindow):
             return
 
         self.tabs.removeTab(i)
-
-    def __show_notification_request(self,url, feature):
-        self.browser.page().setFeaturePermission(url, feature, QWebEnginePage.PermissionPolicy.PermissionGrantedByUser)
 
     def update_title(self, browser):
         if browser != self.tabs.currentWidget():
@@ -577,6 +576,11 @@ class Web(QtWidgets.QMainWindow):
 
         self.navtb.urlbar.setText(q.toString())
         self.navtb.urlbar.setCursorPosition(0)
+
+    def __allow_notifications(self, q):
+        feature = QWebEnginePage.Feature.Notifications
+        permission = QWebEnginePage.PermissionPolicy.PermissionGrantedByUser
+        self.browser.page().setFeaturePermission(q, feature, permission)
 
     def __back_to_wizard(self):
         if self.acquisition_is_running is False:
