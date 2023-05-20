@@ -20,7 +20,6 @@ from controller.configurations.tabs.pec.pec import Pec as PecController
 
 from view.post_acquisition.timestamp import Timestamp as TimestampView
 from view.post_acquisition.pec.pec import Pec as PecView
-from view.error import Error as ErrorView
 
 logger = logging.getLogger('hashreport')
 
@@ -52,8 +51,10 @@ class PostAcquisition(QtCore.QObject):
                 logger.info(f'Size: {file_stats.st_size}')
                 algorithm = 'md5'
                 logger.info(f'MD5: {calculate_hash(filename, algorithm)}\n')
-                algorithm = 'sha512'
-                logger.info(f'SHA-512: {calculate_hash(filename, algorithm)}\n')
+                algorithm = 'sha1'
+                logger.info(f'SHA-1: {calculate_hash(filename, algorithm)}\n')
+                algorithm = 'sha256'
+                logger.info(f'SHA-256: {calculate_hash(filename, algorithm)}\n')
 
         self.parent().upadate_progress_bar()
 
