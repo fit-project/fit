@@ -19,6 +19,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
+from PyQt6.QtWidgets import QFileDialog
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
@@ -43,20 +44,41 @@ class WebEnginePage(QWebEnginePage):
         super().__init__(parent)
 
 
-class MainWindow(QWebEngineView):
+class MainWindow(QWebEngineView, ):
     saveResourcesFinished = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
         page = WebEnginePage(self)
+        self.acquisition_directory = self.page().profile().downloadPath()
 
         self.setPage(page)
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
+        self.page().profile().downloadRequested.connect(self.__handle_download_request)
+
+    def set_acquisition_dir(self, directory):
+        self.acquisition_directory = directory
+        selected_directory =self.acquisition_directory
+        self.page().profile().setDownloadPath(selected_directory)
 
     def save_resources(self, acquisition_page_folder):
+        self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
         hostname = urlparse(self.url().toString()).hostname
         self.page().save(os.path.join(acquisition_page_folder, hostname + '.html'),
                          format=QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat)
+
+    def reconnect_signal(self):
+        self.page().profile().downloadRequested.connect(self.__handle_download_request)
+
+
+    def __handle_download_request(self, download):
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+        file_dialog.setDirectory(self.acquisition_directory)
+        if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
+            selected_directory = file_dialog.selectedFiles()[0]
+            self.page().profile().setDownloadPath(selected_directory)
+            download.accept()
 
     def __retrieve_download_item(self, download_item):
         download_item.isFinishedChanged.connect(self.saveResourcesFinished.emit)
@@ -184,7 +206,7 @@ class Web(QtWidgets.QMainWindow):
         )
 
         if self.acquisition_directory is not None:
-
+            self.browser.set_acquisition_dir(self.acquisition_directory)
             self.start_acquisition_is_started = True
 
             self.screenshot_directory = os.path.join(self.acquisition_directory, "screenshot")
@@ -271,7 +293,7 @@ class Web(QtWidgets.QMainWindow):
         self.start_acquisition_is_started = False
 
     def __stop_acquisition_is_finished(self):
-
+        self.browser.reconnect_signal()
         self.acquisition.log_end_message()
         self.acquisition.set_completed_progress_bar()
 
