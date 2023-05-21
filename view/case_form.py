@@ -28,7 +28,9 @@ class CaseForm(QtWidgets.QWidget):
 
         self.initUI()
         self.retranslateUi()
+        self.set_current_cases()
         self.__set_current_config_values()
+    
 
     def initUI(self):
         self.case_form_layout = QtWidgets.QFormLayout(self)
@@ -135,29 +137,59 @@ class CaseForm(QtWidgets.QWidget):
         self.name.setCurrentIndex(self.name.findData(case_id))
     
 
-    def __set_current_config_values(self):
-        for case in self.cases:
+    def set_current_cases(self):
+         self.name.clear()
+         for case in self.cases:
             self.name.addItem(case['name'], case['id'])
 
+    def __set_current_config_values(self):
         for proceedings in self.proceedings:
             self.types_proceedings.addItem(proceedings['name'], proceedings['id'])
     
+    def set_case_information(self):
+        case_info = next((item for item in self.cases if item["name"] == self.name.currentText()), None)
+        if case_info is not None:
+            for keyword, value in case_info.items():
+                item = self.findChild(QtCore.QObject, keyword)
+                if item is not None:
+                    if isinstance(item, QtWidgets.QLineEdit) is not False:
+                        if value is not None:
+                            item.setText(str(value))
+                    if isinstance(item, QtWidgets.QComboBox):
+                        if keyword in 'proceeding_type': 
+                            type_proceeding = next((proceeding for proceeding in self.proceedings if proceeding["id"] == value), None)
+                            if type_proceeding is not None:
+                                value = type_proceeding["id"]
+                            else:
+                                value = -1
+
+                            self.set_index_from_type_proceedings_id(value)
+    
+    def clear_case_information(self):
+        self.lawyer_name.setText("")
+        self.types_proceedings.setCurrentIndex(-1)
+        self.courthouse.setText("")
+        self.proceeding_number.setText("")
+    
     def get_current_case_info(self):
         case_info = next((item for item in self.cases if item["name"] == self.name.currentText()), {})
-        
         for keyword in self.controller.keys:
             item = self.findChild(QtCore.QObject, keyword)
             if item is not None:
                 if isinstance(item, QtWidgets.QComboBox):
-                    if keyword in 'proceeding_type': 
-                        item= item.currentData()
-                    else:
-                        item= item.currentText()
+                    item= item.currentText()
+                    if keyword in 'proceeding_type':
+                        type_proceeding = next((proceeding for proceeding in self.proceedings if proceeding["name"] == item), None)
+                        if type_proceeding is not None:
+                            item = type_proceeding["id"]
+                        else:
+                            item = 0
+                    
                 elif isinstance(item, QtWidgets.QLineEdit) is not False:
                     if item.text():
                         item = item.text()
                     else:
-                        item = None
+                        item = ''
 
                 case_info[keyword] = item
 

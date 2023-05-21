@@ -40,13 +40,14 @@ class Case(Base):
         self.db.session.commit()
     
     def add(self, case_info):
-        self.proceeding_type = case_info['proceeding_type']
-        self.proceeding_number = case_info['proceeding_number']
-        self.lawyer_name = case_info['lawyer_name']
-        self.courthouse = case_info['courthouse']
-        self.name = case_info['name']
+        case = Case()
+        case.name = case_info['name']
+        case.lawyer_name = case_info['lawyer_name']
+        case.proceeding_type = case_info['proceeding_type']
+        case.courthouse = case_info['courthouse']
+        case.proceeding_number = case_info['proceeding_number']
 
-        self.db.session.add(self)
+        self.db.session.add(case)
         self.db.session.commit()
         
         return self.db.session.query(Case).order_by(Case.id.desc()).first()
