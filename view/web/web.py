@@ -58,8 +58,10 @@ class MainWindow(QWebEngineView, ):
 
     def set_acquisition_dir(self, directory):
         self.acquisition_directory = directory
-        selected_directory =self.acquisition_directory
-        self.page().profile().setDownloadPath(selected_directory)
+        self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
+        if not os.path.isdir(self.selected_directory):
+            os.makedirs(self.selected_directory)
+        self.page().profile().setDownloadPath(self.selected_directory)
 
     def save_resources(self, acquisition_page_folder):
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
@@ -74,10 +76,10 @@ class MainWindow(QWebEngineView, ):
     def __handle_download_request(self, download):
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.Directory)
-        file_dialog.setDirectory(self.acquisition_directory)
+        file_dialog.setDirectory(self.selected_directory)
         if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
-            selected_directory = file_dialog.selectedFiles()[0]
-            self.page().profile().setDownloadPath(selected_directory)
+            self.selected_directory = file_dialog.selectedFiles()[0]
+            self.page().profile().setDownloadPath(self.selected_directory)
             download.accept()
 
     def __retrieve_download_item(self, download_item):
