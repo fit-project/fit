@@ -7,12 +7,8 @@
 # -----
 ######  
 
-import sys
-
+import time
 from PyQt6 import QtCore, QtGui, QtWidgets
-
-import numpy as np
-import cv2
 from PIL import ImageGrab, Image
 
 
@@ -40,18 +36,19 @@ class SnippingWidget(QtWidgets.QWidget):
         self.show()
 
     def paintEvent(self, event):
+        qp = QtGui.QPainter(self)
         if SnippingWidget.is_snipping:
-            brush_color = (255, 0, 0, 100)
+            brush_color = (128, 128, 255, 100)
             lw = 3
             opacity = 0.3
+            qp.setPen(QtGui.QPen(QtGui.QColor('red'), lw))
         else:
-            brush_color = (0, 255, 0, 100)
+            brush_color = (0, 0, 0, 0)
             lw = 3
-            opacity = 0.3
+            opacity = 0.1
+            qp.setPen(QtGui.QPen(QtGui.QColor('green'), lw))
 
         self.setWindowOpacity(opacity)
-        qp = QtGui.QPainter(self)
-        qp.setPen(QtGui.QPen(QtGui.QColor('black'), lw))
         qp.setBrush(QtGui.QColor(*brush_color))
         rect = QtCore.QRectF(self.begin.x(), self.begin.y(),
                              abs(self.end.x() - self.begin.x()), abs(self.end.y() - self.begin.y()))
@@ -108,7 +105,7 @@ class SelectArea(QtCore.QObject):
         if frame is None:
             self.__finished()
             return
-
+        time.sleep(0.5)
         frame.save(self.filename)
         self.__finished()
 
