@@ -54,13 +54,16 @@ class WebEnginePage(QWebEnginePage):
 
 class Browser(QWebEngineView):
     saveResourcesFinished = QtCore.pyqtSignal()
+    downloadRequestedIsFinished = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.selected_directory = None
         
     
     def set_page_options(self):
         self.acquisition_directory = self.page().profile().downloadPath()
+        print(self.acquisition_directory)
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
@@ -89,6 +92,7 @@ class Browser(QWebEngineView):
             self.selected_directory = file_dialog.selectedFiles()[0]
             self.page().profile().setDownloadPath(self.selected_directory)
             download.accept()
+
 
     def __retrieve_download_item(self, download_item):
         download_item.isFinishedChanged.connect(self.saveResourcesFinished.emit)
@@ -542,10 +546,11 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser.urlChanged.connect(lambda qurl:
                                         self.__allow_notifications(qurl))
+        
 
         if i == 0:
             self.showMaximized()
-
+    
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
 
