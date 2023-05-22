@@ -40,19 +40,30 @@ logger = logging.getLogger(__name__)
 
 
 class WebEnginePage(QWebEnginePage):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-
-class MainWindow(QWebEngineView, ):
-    saveResourcesFinished = QtCore.pyqtSignal()
+    new_page_after_link_with_target_blank_attribute = QtCore.pyqtSignal(QWebEnginePage)
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+    # When you click a link that has the target="_blank" attribute, QT calls the CreateWindow method in 
+    # QWebEnginePage to create a new tab/new window.
+    def createWindow(self, _type, ):
         page = WebEnginePage(self)
-        self.acquisition_directory = self.page().profile().downloadPath()
+        self.new_page_after_link_with_target_blank_attribute.emit(page)
+        return page
 
-        self.setPage(page)
+class Browser(QWebEngineView):
+    saveResourcesFinished = QtCore.pyqtSignal()
+    downloadRequestedIsFinished = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.selected_directory = None
+        
+    
+    def set_page_options(self):
+        self.acquisition_directory = self.page().profile().downloadPath()
+        print(self.acquisition_directory)
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
@@ -81,6 +92,7 @@ class MainWindow(QWebEngineView, ):
             self.selected_directory = file_dialog.selectedFiles()[0]
             self.page().profile().setDownloadPath(self.selected_directory)
             download.accept()
+
 
     def __retrieve_download_item(self, download_item):
         download_item.isFinishedChanged.connect(self.saveResourcesFinished.emit)
@@ -501,13 +513,22 @@ class Web(QtWidgets.QMainWindow):
     def reload(self):
         self.tabs.currentWidget().reload()
 
-    def add_new_tab(self, qurl=None, label="Blank"):
+    def add_new_tab(self, qurl=None, label="Blank", page=None):
         self.current_page_load_is_finished = False
 
         if qurl is None:
             qurl = QtCore.QUrl('')
 
-        self.browser = MainWindow()
+        self.browser = Browser()
+
+        if page is None:
+            page = WebEnginePage(self.browser)
+        
+        page.new_page_after_link_with_target_blank_attribute.connect(lambda page: self.add_new_tab(page=page))
+        self.browser.setPage(page)
+        
+        self.browser.set_page_options()
+
         self.browser.setUrl(qurl)
         i = self.tabs.addTab(self.browser, label)
 
@@ -525,10 +546,11 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser.urlChanged.connect(lambda qurl:
                                         self.__allow_notifications(qurl))
+        
 
         if i == 0:
             self.showMaximized()
-
+    
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
 
