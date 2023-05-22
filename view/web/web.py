@@ -31,6 +31,7 @@ from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
 
 from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
+from common.constants.view import general
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
@@ -54,16 +55,14 @@ class WebEnginePage(QWebEnginePage):
 
 class Browser(QWebEngineView):
     saveResourcesFinished = QtCore.pyqtSignal()
-    downloadRequestedIsFinished = QtCore.pyqtSignal()
+    downloadItemFinished = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.selected_directory = None
-        
     
     def set_page_options(self):
-        self.acquisition_directory = self.page().profile().downloadPath()
-        print(self.acquisition_directory)
+        self.selected_directory = self.page().profile().downloadPath()
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
@@ -88,10 +87,14 @@ class Browser(QWebEngineView):
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.Directory)
         file_dialog.setDirectory(self.selected_directory)
+        filename = download.downloadFileName()
+        download.isFinishedChanged.connect(lambda: self.downloadItemFinished.emit(filename))
         if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
             self.selected_directory = file_dialog.selectedFiles()[0]
             self.page().profile().setDownloadPath(self.selected_directory)
             download.accept()
+    
+   
 
 
     def __retrieve_download_item(self, download_item):
@@ -547,10 +550,21 @@ class Web(QtWidgets.QMainWindow):
         self.browser.urlChanged.connect(lambda qurl:
                                         self.__allow_notifications(qurl))
         
+        self.browser.downloadItemFinished.connect(self.__handle_download_item_finished)
+        
 
         if i == 0:
             self.showMaximized()
     
+    def __handle_download_item_finished(self, filename):
+        self.status.showMessage(general.DOWNLOAD + ": " + filename)
+        loop = QtCore.QEventLoop()
+        QtCore.QTimer.singleShot(2000, loop.quit)
+        loop.exec()
+        self.status.showMessage('')
+
+
+
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
 
