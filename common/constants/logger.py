@@ -45,3 +45,6 @@ FETCH_PROFILE="Fetching profile"
 LOGGED_IN="Try loggin whit username {} and profile_name {}"
 SCRAPING_INSTAGRAM="Scraping profile"
 
+
+FETCH_VIDEO="Fetching video"
+DOWNLOAD_VIDEO="Downloading video"

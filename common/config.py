@@ -63,6 +63,10 @@ class LogConfigTools:
                     'handlers': ['facquisition'],
                     'level': 'INFO'
                 },
+                'view.youtube': {
+                    'handlers': ['facquisition'],
+                    'level': 'INFO'
+                },
                 'hashreport': {
                     'handlers': ['fhashreport'],
                     'level' : 'INFO'
