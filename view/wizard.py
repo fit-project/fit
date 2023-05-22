@@ -139,6 +139,27 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
         self.radio_button_group.addButton(self.insta, 3)
 
+        # RADIO BUTTON YOUTUBE
+        '''self.youtube_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.youtube_radio_button_wrapper.setStyleSheet(
+            "QWidget#youtube_radio_button_wrapper {\n""border: 1px solid black;\n""}")
+        self.youtube_radio_button_wrapper.setObjectName("youtube_radio_button_wrapper")
+        self.youtube_vlayout = QtWidgets.QVBoxLayout(self.youtube_radio_button_wrapper)
+        self.youtube_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.youtube_vlayout.setObjectName("youtube_vlayout")
+        self.youtube_img = QtWidgets.QLabel(self.youtube_radio_button_wrapper)
+        self.youtube_img.setEnabled(True)
+        self.youtube_img.setStyleSheet("image: url(assets/images/wizard/youtube.png);")
+        self.youtube_img.setText("")
+        self.youtube_img.setObjectName("youtube_img")
+        self.youtube_vlayout.addWidget(self.youtube_img)
+        self.youtube = QtWidgets.QRadioButton(self.youtube_radio_button_wrapper)
+        self.youtube.setEnabled(True)
+        self.youtube.setObjectName("youtube")
+        self.youtube_vlayout.addWidget(self.youtube)
+        self.radio_buttons_hlayout.addWidget(self.youtube_radio_button_wrapper)
+        self.radio_button_group.addButton(self.youtube, 4)'''
+
         # RADIO BUTTON VERIFY TIMESTAMP
         self.timestamp_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
         self.timestamp_radio_button_wrapper.setStyleSheet("QWidget#timestamp_radio_button_wrapper {\n""border: 1px solid black;\n""}")
@@ -157,7 +178,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.timestamp.setObjectName("timestamp")
         self.timestamp_vlayout.addWidget(self.timestamp)
         self.radio_buttons_hlayout.addWidget(self.timestamp_radio_button_wrapper)
-        self.radio_button_group.addButton(self.timestamp, 4)
+        self.radio_button_group.addButton(self.timestamp, 5)
 
 
         # RADIO BUTTON VERIFY PEC
@@ -179,7 +200,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.pec.setObjectName("pec")
         self.pec_vlayout.addWidget(self.pec)
         self.radio_buttons_hlayout.addWidget(self.pec_radio_button_wrapper)
-        self.radio_button_group.addButton(self.pec, 5)
+        self.radio_button_group.addButton(self.pec, 6)
 
         #AREA RECAP INFO
         self.acquisition_group_box = QtWidgets.QGroupBox(self)
@@ -277,8 +298,10 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.web.setText(TASK_WEB)
         self.select_task_page.mail.setText(TASK_MAIL)
         self.select_task_page.insta.setText(TASK_INSTAGRAM)
+        #self.select_task_page.youtube.setText(TASK_YOUTUBE)
         self.select_task_page.timestamp.setText(TASK_VERIFY_TIMESTAMP)
         self.select_task_page.pec.setText(TASK_VERIFY_PEC)
+
     
     def __get_version(self):
         parser = SafeConfigParser()

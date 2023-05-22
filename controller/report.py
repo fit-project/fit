@@ -103,7 +103,7 @@ class Report:
             pisa.CreatePDF(front_index, dest=self.output_front_result, options=pdf_options)
             pisa.CreatePDF(content_index, dest=self.output_content_result, options=pdf_options)
 
-        if type == 'email' or type == 'instagram':
+        if type == 'email' or type == 'instagram' or type == 'youtube':
             content_index_path = os.path.join("assets", "templates",
                                               "template_email.html")
             content_index = open(content_index_path).read().format(
