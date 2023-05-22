@@ -399,7 +399,7 @@ class Mail(QtWidgets.QMainWindow):
         self.download_button.setText(search_pec.DOWNLOAD_BUTTON)
 
     def __init_worker(self):
-        self.thread_worker= QThread()
+        self.thread_worker = QThread()
         self.worker = MailWorker(self.mail_controller, self.email, self.password, self.server, 
                                  self.port, self.search_criteria, self.acquisition_mail_dir, 
                                  self.emails_to_save, self.is_downloading)
@@ -521,6 +521,7 @@ class Mail(QtWidgets.QMainWindow):
         self.setEnabled(True)
         self.status.showMessage('')
         self.spinner.stop()
+        self.is_acquisition_running = False
 
         if len(emails) == 0:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
@@ -549,7 +550,6 @@ class Mail(QtWidgets.QMainWindow):
                 self.folder_tree.addChild(sub_item)
 
         self.emails_tree.expandItem(self.root)
-        
         
     def __is_checked(self):
          for i in range(self.root.childCount()):
@@ -597,7 +597,7 @@ class Mail(QtWidgets.QMainWindow):
         self.search_button.setEnabled(all_fields_filled and self.is_valid_email)
 
     def __download(self):
-
+        self.is_acquisition_running = True
         self.emails_to_save = {}
         self.is_downloading = True
         self.setEnabled(False)
