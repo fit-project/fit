@@ -289,7 +289,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_from_date = QtWidgets.QDateEdit(self.centralwidget)
         self.input_from_date.setGeometry(QRect(180, 405, 240, 20))
         self.input_from_date.setFont(font)
-        self.input_from_date.setDate(QDate.currentDate())
+        self.input_from_date.setDate(QDate.currentDate().addDays(-14))
         self.input_from_date.setObjectName("input_from_date")
 
         # TO DATE FIELD
