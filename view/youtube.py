@@ -25,8 +25,7 @@ from view.spinner import Spinner
 
 from controller.youtube import Youtube as YoutubeController
 
-from common.constants.view import mail, general, youtube
-from common.constants.view.pec import search_pec
+from common.constants.view import general, youtube
 
 from common.constants import tasks, error, details as Details, logger as Logger
 

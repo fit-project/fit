@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import QMessageBox
 from view.acquisition.base import Base
 from view.acquisition.tasks.task import AcquisitionTask
 from view.error import Error as ErrorView
-
+from view.acquisition.tasks.audiocapture import RecordingThread
 
 from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 from common.constants import logger, details, state, status, tasks
@@ -33,7 +33,8 @@ class ScreenRecorder(QObject):
         self.run = True
         self.destroyed.connect(self.stop)
         self.controller = CodecController()
-        
+        self.recording_thread = RecordingThread(target_file='test_recording.wav')
+
     def set_options(self, options):
 
         
@@ -54,6 +55,7 @@ class ScreenRecorder(QObject):
     def start(self):
         #Creating a VideoWriter object
         self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, self.resolution)
+        self.recording_thread.start()
         try:
             while self.run:
                 #Take screenshot using PyAutoGUI
@@ -67,6 +69,7 @@ class ScreenRecorder(QObject):
 
                 #Write it to the output file
                 self.out.write(frame)
+
 
         except:
                 error_dlg = ErrorView(QMessageBox.Icon.Critical,
@@ -85,6 +88,7 @@ class ScreenRecorder(QObject):
         cv2.destroyAllWindows()
 
     def stop(self):
+        self.recording_thread.stop()
         self.run = False  # set the run condition to false on stop 
 
 
@@ -128,6 +132,24 @@ class AcquisitionScreenRecorder(AcquisitionTask):
                                 'status' : status.COMPLETED,
                                 'details' : details.SCREEN_RECORDER_COMPLETED
                             })
+
+    def add_audio_to_video(video_path, audio_path, output_path):
+        # Carica il video e l'audio
+        video = VideoFileClip(video_path)
+        audio = AudioFileClip(audio_path)
+
+        # Estrae l'audio dal video originale
+        video_audio = video.audio
+
+        # Sovrapponi l'audio aggiuntivo all'audio del video
+        new_audio = video_audio.set_audio(audio)
+
+        # Sostituisci l'audio nel video con il nuovo audio
+        video_with_audio = video.set_audio(new_audio)
+
+        # Salva il video risultante con l'audio aggiunto
+        video_with_audio.write_videofile(output_path, codec="libx264", audio_codec="aac")
+
         
 
         

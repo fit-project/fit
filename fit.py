@@ -56,7 +56,7 @@ if __name__ == '__main__':
         elif (task == 'insta'):
             acquisition_window = insta
         elif (task == 'timestamp'):
-            acquisition_window = timestamp
+            acquisition_window = youtube
         elif (task == 'youtube'):
             acquisition_window = youtube
         elif (task == 'pec'):
