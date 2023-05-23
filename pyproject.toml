@@ -27,7 +27,6 @@ brotlipy = "^0.7.0"
 bs4 = "^0.0.1"
 PyQt6 = "^6.5.0"
 PyQt6-WebEngine = "^6.5.0"
-youtube_dl={ git = "https://github.com/ytdl-org/youtube-dl.git" }
 
 [tool.poetry.dev-dependencies]
 

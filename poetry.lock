@@ -4676,23 +4676,7 @@ python-bidi = ">=0.4.2"
 reportlab = ">=3.5.53"
 svglib = ">=1.2.1"
 
-[[package]]
-name = "youtube-dl"
-version = "2021.12.17"
-description = "YouTube video downloader"
-category = "main"
-optional = false
-python-versions = "*"
-files = []
-develop = false
-
-[package.source]
-type = "git"
-url = "https://github.com/ytdl-org/youtube-dl.git"
-reference = "HEAD"
-resolved_reference = "d1c6c5c4d618fa950813c0c71aede34a5ac851e9"
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a19a14674a9b94c91958d44777d19a490d4314f6015a31c42e93b1e9e187da95"
+content-hash = "e4863968d974b93ac52be71b9317c41d78751b40663f034778029e4987c9d2dd"
