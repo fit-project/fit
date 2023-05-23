@@ -105,7 +105,7 @@ class SelectArea(QtCore.QObject):
         if frame is None:
             self.__finished()
             return
-        time.sleep(0.5)
+        time.sleep(1)
         frame.save(self.filename)
         self.__finished()
 
