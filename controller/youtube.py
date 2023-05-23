@@ -14,7 +14,8 @@ class Youtube():
         super().__init__()
     def download_video(self, url,acquisition_directory):
         ydl_opts = {
-            'outtmpl': acquisition_directory + '/%(title)s.%(ext)s'
+            'outtmpl': acquisition_directory + '/%(title)s.%(ext)s',
+            'quiet': True
         }
         dw = youtube_dl.YoutubeDL(ydl_opts)
         dw.download([url])

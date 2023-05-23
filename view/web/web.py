@@ -383,7 +383,9 @@ class Web(QtWidgets.QMainWindow):
     def __zip_and_remove(self):
         shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
         downloads_folder = os.path.join(self.acquisition_directory, "downloads")
-        shutil.make_archive(downloads_folder, 'zip', downloads_folder)
+        has_files = os.listdir(downloads_folder)
+        if len(has_files) > 0:
+            shutil.make_archive(downloads_folder, 'zip', downloads_folder)
         try:
             shutil.rmtree(self.acquisition_page_folder)
             shutil.rmtree(downloads_folder)
