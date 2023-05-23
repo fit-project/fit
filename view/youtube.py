@@ -195,8 +195,8 @@ class Youtube(QtWidgets.QMainWindow):
     def __handle_error(self, e):
 
         self.spinner.stop()
-        if self.configuration_group_box.isEnabled() is False:
-            self.configuration_group_box.setEnabled(True)
+        if self.url_group_box.isEnabled() is False:
+            self.url_group_box.setEnabled(True)
         self.setEnabled(True)
 
         title = youtube.SERVER_ERROR
