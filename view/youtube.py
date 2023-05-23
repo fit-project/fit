@@ -12,7 +12,7 @@ import logging
 import shutil
 
 from PyQt6 import QtWidgets, QtGui
-from PyQt6.QtCore import (QObject, QThread, QRect, QMetaObject,
+from PyQt6.QtCore import (QObject, QThread, QMetaObject,
                           pyqtSignal, QEventLoop, QTimer, pyqtSlot)
 from PyQt6.QtGui import QFont, QIcon
 from PyQt6 import QtCore
@@ -85,7 +85,7 @@ class Youtube(QtWidgets.QMainWindow):
         self.case_view = CaseView(self.case_info, self)
         self.case_view.hide()
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
-        self.setObjectName("verify_pec_window")
+        self.setObjectName("youtube_scrape_window")
 
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
@@ -194,8 +194,8 @@ class Youtube(QtWidgets.QMainWindow):
     def __handle_error(self, e):
 
         self.spinner.stop()
-        if self.configuration_group_box.isEnabled() is False:
-            self.configuration_group_box.setEnabled(True)
+        if self.url_group_box.isEnabled() is False:
+            self.url_group_box.setEnabled(True)
         self.setEnabled(True)
 
         title = youtube.SERVER_ERROR
@@ -236,7 +236,6 @@ class Youtube(QtWidgets.QMainWindow):
         self.download_button.setEnabled(all_fields_filled)
 
     def __download(self):
-        self.is_acquisition_running = True
         self.is_downloading = True
         self.setEnabled(False)
         self.url = self.input_url.text()
