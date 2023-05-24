@@ -154,7 +154,6 @@ class Web(QtWidgets.QMainWindow):
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
         self.acquisition.completed.connect(self.__are_external_tasks_completed)
-        self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
 
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
@@ -234,6 +233,8 @@ class Web(QtWidgets.QMainWindow):
             self.progress_bar.setHidden(False)
 
             self.acquisition_is_running = True
+
+            self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
 
             # disable start acquisition button
             self.navtb.enable_start_acquisition_button()
@@ -328,6 +329,8 @@ class Web(QtWidgets.QMainWindow):
         self.stop_acquisition_is_started = False
         try:
             self.tabs.currentWidget().saveResourcesFinished.disconnect()
+            self.tabs.currentWidget().downloadItemFinished.disconnect()
+
         except TypeError:
             pass
 
@@ -336,6 +339,8 @@ class Web(QtWidgets.QMainWindow):
         self.__enable_all()
 
         self.__show_finish_acquisition_dialog()
+
+        self.acquisition.post_acquisition.finished.disconnect()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
