@@ -66,9 +66,10 @@ class PostAcquisition(QtCore.QObject):
         self.parent().upadate_progress_bar()
 
     def generate_timestamp_report(self, folder, case_info, type):
-        self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
         options = TimestampController().options
         if options['enabled']:
+
+            self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
             self.thread_timestamp = QtCore.QThread()
             timestamp = TimestampView()
             timestamp.set_options(options)
@@ -81,6 +82,10 @@ class PostAcquisition(QtCore.QObject):
             self.thread_timestamp.finished.connect(lambda:self.__thread_timestamp_is_finished(folder, case_info, type))
 
             self.thread_timestamp.start()
+        else:
+            self.is_finished_pec = True
+            self.is_finished_timestamp = True
+            self.__async_task_are_finished()
     
     def __thread_timestamp_is_finished(self,folder, case_info, type):
         options = PecController().options
