@@ -61,7 +61,7 @@ class General(QtWidgets.QWidget):
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
 
-      #PROCEEDINGS TYPE LIST
+      #NETWORK TOOLS
       self.group_box_network_check = NetworkView(self)
 
 
