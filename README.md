@@ -7,7 +7,7 @@ For the implementation:
 * Python Language
 * [Qt](https://www.qt.io/download-open-source) as graphical user interface and Web Engine 
 * Scapy for packet capture
-* OpenVC and Pyautogui for screen capture
+* OpenVC and Pillow for screen capture
 * SQLite and SQLAlchemy for persistence
 
 ## Suggestions
