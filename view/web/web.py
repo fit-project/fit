@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 import logging
 import os.path
@@ -46,7 +46,7 @@ class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    # When you click a link that has the target="_blank" attribute, QT calls the CreateWindow method in 
+    # When you click a link that has the target="_blank" attribute, QT calls the CreateWindow method in
     # QWebEnginePage to create a new tab/new window.
     def createWindow(self, _type, ):
         page = WebEnginePage(self)
@@ -59,20 +59,22 @@ class Browser(QWebEngineView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.selected_directory = None
-    
-    def set_page_options(self):
-        self.selected_directory = self.page().profile().downloadPath()
+        self.selected_directory = ''
+
+        self.page().profile().setDownloadPath('')
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
+    def set_default_download_path(self):
+        self.page().profile().setDownloadPath('')
     def set_acquisition_dir(self, directory):
         self.acquisition_directory = directory
-        self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
-        if not os.path.isdir(self.selected_directory):
-            os.makedirs(self.selected_directory)
-        self.page().profile().setDownloadPath(self.selected_directory)
-
+        try:
+            self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
+            if not os.path.isdir(self.selected_directory):
+                os.makedirs(self.selected_directory)
+            self.page().profile().setDownloadPath(self.selected_directory)
+        except:pass
     def save_resources(self, acquisition_page_folder):
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
         hostname = urlparse(self.url().toString()).hostname
@@ -82,8 +84,12 @@ class Browser(QWebEngineView):
     def reconnect_signal(self):
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
-
+    def disconnect_signals(self):
+        self.page().profile().downloadRequested.disconnect(self.__retrieve_download_item)
+        self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
     def __handle_download_request(self, download):
+        if not os.path.isdir(self.selected_directory):
+            self.selected_directory= ''
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.Directory)
         file_dialog.setDirectory(self.selected_directory)
@@ -93,8 +99,8 @@ class Browser(QWebEngineView):
             self.selected_directory = file_dialog.selectedFiles()[0]
             self.page().profile().setDownloadPath(self.selected_directory)
             download.accept()
-    
-   
+
+
 
 
     def __retrieve_download_item(self, download_item):
@@ -116,6 +122,7 @@ class Web(QtWidgets.QMainWindow):
         self.log_confing.set_web_loggers()
         self.case_info = None
         self.__tasks = []
+        self.browser = None
 
         self.setWindowFlag(QtCore.Qt.WindowType.WindowMinMaxButtonsHint, True)
         self.setObjectName('FITWeb')
@@ -329,15 +336,12 @@ class Web(QtWidgets.QMainWindow):
         self.stop_acquisition_is_started = False
         try:
             self.tabs.currentWidget().saveResourcesFinished.disconnect()
-            self.tabs.currentWidget().downloadItemFinished.disconnect()
-
         except TypeError:
             pass
 
         self.__tasks.clear()
 
         self.__enable_all()
-
         self.__show_finish_acquisition_dialog()
 
         self.acquisition.post_acquisition.finished.disconnect()
@@ -530,16 +534,16 @@ class Web(QtWidgets.QMainWindow):
 
         if qurl is None:
             qurl = QtCore.QUrl('')
-
+        if self.browser is not None:
+            self.browser.disconnect_signals()
         self.browser = Browser()
 
         if page is None:
             page = WebEnginePage(self.browser)
-        
+
         page.new_page_after_link_with_target_blank_attribute.connect(lambda page: self.add_new_tab(page=page))
         self.browser.setPage(page)
-        
-        self.browser.set_page_options()
+
 
         self.browser.setUrl(qurl)
         i = self.tabs.addTab(self.browser, label)
@@ -558,13 +562,13 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser.urlChanged.connect(lambda qurl:
                                         self.__allow_notifications(qurl))
-        
+
         self.browser.downloadItemFinished.connect(self.__handle_download_item_finished)
-        
+
 
         if i == 0:
             self.showMaximized()
-    
+
     def __handle_download_item_finished(self, filename):
         self.status.showMessage(general.DOWNLOAD + ": " + filename)
         loop = QtCore.QEventLoop()
