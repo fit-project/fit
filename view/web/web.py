@@ -53,28 +53,29 @@ class WebEnginePage(QWebEnginePage):
         self.new_page_after_link_with_target_blank_attribute.emit(page)
         return page
 
+
 class Browser(QWebEngineView):
     saveResourcesFinished = QtCore.pyqtSignal()
     downloadItemFinished = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.selected_directory = ''
+        self.selected_directory = os.path.expanduser('~/Downloads')
 
-        self.page().profile().setDownloadPath('')
+        self.page().profile().setDownloadPath(self.selected_directory)
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
     def set_default_download_path(self):
         self.page().profile().setDownloadPath('')
+
     def set_acquisition_dir(self, directory):
         self.acquisition_directory = directory
-        try:
-            self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
-            if not os.path.isdir(self.selected_directory):
-                os.makedirs(self.selected_directory)
-            self.page().profile().setDownloadPath(self.selected_directory)
-        except:pass
+        self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
+        if not os.path.isdir(self.selected_directory):
+            os.makedirs(self.selected_directory)
+        self.page().profile().setDownloadPath(self.selected_directory)
+
     def save_resources(self, acquisition_page_folder):
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
         hostname = urlparse(self.url().toString()).hostname
@@ -87,9 +88,10 @@ class Browser(QWebEngineView):
     def disconnect_signals(self):
         self.page().profile().downloadRequested.disconnect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
+
     def __handle_download_request(self, download):
         if not os.path.isdir(self.selected_directory):
-            self.selected_directory= ''
+            self.selected_directory = os.path.expanduser('~/Downloads')
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.Directory)
         file_dialog.setDirectory(self.selected_directory)
@@ -97,11 +99,7 @@ class Browser(QWebEngineView):
         download.isFinishedChanged.connect(lambda: self.downloadItemFinished.emit(filename))
         if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
             self.selected_directory = file_dialog.selectedFiles()[0]
-            self.page().profile().setDownloadPath(self.selected_directory)
             download.accept()
-
-
-
 
     def __retrieve_download_item(self, download_item):
         download_item.isFinishedChanged.connect(self.saveResourcesFinished.emit)
@@ -544,7 +542,6 @@ class Web(QtWidgets.QMainWindow):
         page.new_page_after_link_with_target_blank_attribute.connect(lambda page: self.add_new_tab(page=page))
         self.browser.setPage(page)
 
-
         self.browser.setUrl(qurl)
         i = self.tabs.addTab(self.browser, label)
 
@@ -565,7 +562,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.browser.downloadItemFinished.connect(self.__handle_download_item_finished)
 
-
         if i == 0:
             self.showMaximized()
 
@@ -575,8 +571,6 @@ class Web(QtWidgets.QMainWindow):
         QtCore.QTimer.singleShot(2000, loop.quit)
         loop.exec()
         self.status.showMessage('')
-
-
 
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
