@@ -60,6 +60,9 @@ class Browser(QWebEngineView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+
+    def reconnect(self):
         self.selected_directory = os.path.expanduser('~/Downloads')
 
         self.page().profile().setDownloadPath(self.selected_directory)
@@ -85,7 +88,6 @@ class Browser(QWebEngineView):
     def disconnect_signals(self):
         self.page().profile().downloadRequested.disconnect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
-
     def __handle_download_request(self, download):
         if not os.path.isdir(self.selected_directory):
             self.selected_directory = os.path.expanduser('~/Downloads')
@@ -529,8 +531,6 @@ class Web(QtWidgets.QMainWindow):
 
         if qurl is None:
             qurl = QtCore.QUrl('')
-        if self.browser is not None:
-            self.browser.disconnect_signals()
         self.browser = Browser()
 
         if page is None:
@@ -577,6 +577,18 @@ class Web(QtWidgets.QMainWindow):
             self.add_new_tab()
 
     def current_tab_changed(self, i):
+        tab_count = self.tabs.count()
+        for index in range(tab_count):
+            tab_widget_item = self.tabs.widget(index)
+            if tab_widget_item != self.tabs.currentWidget():
+                try:
+                    tab_widget_item.disconnect_signals()
+                except Exception as e:
+                    print(e) #already disconnected
+
+            else:
+                self.tabs.currentWidget().reconnect()
+
         if self.tabs.currentWidget() is not None:
             qurl = self.tabs.currentWidget().url()
             self.__update_urlbar(qurl, self.tabs.currentWidget())
