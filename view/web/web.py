@@ -61,7 +61,6 @@ class Browser(QWebEngineView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-
     def reconnect(self):
         self.selected_directory = os.path.expanduser('~/Downloads')
 
@@ -77,6 +76,7 @@ class Browser(QWebEngineView):
         self.page().profile().setDownloadPath(self.selected_directory)
 
     def save_resources(self, acquisition_page_folder):
+
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
         hostname = urlparse(self.url().toString()).hostname
         self.page().save(os.path.join(acquisition_page_folder, hostname + '.html'),
@@ -88,6 +88,7 @@ class Browser(QWebEngineView):
     def disconnect_signals(self):
         self.page().profile().downloadRequested.disconnect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
+
     def __handle_download_request(self, download):
         if not os.path.isdir(self.selected_directory):
             self.selected_directory = os.path.expanduser('~/Downloads')
@@ -226,7 +227,7 @@ class Web(QtWidgets.QMainWindow):
         )
 
         if self.acquisition_directory is not None:
-            self.browser.set_acquisition_dir(self.acquisition_directory)
+            self.tabs.currentWidget().set_acquisition_dir(self.acquisition_directory)
             self.start_acquisition_is_started = True
 
             self.screenshot_directory = os.path.join(self.acquisition_directory, "screenshot")
@@ -577,17 +578,10 @@ class Web(QtWidgets.QMainWindow):
             self.add_new_tab()
 
     def current_tab_changed(self, i):
-        tab_count = self.tabs.count()
-        for index in range(tab_count):
-            tab_widget_item = self.tabs.widget(index)
-            if tab_widget_item != self.tabs.currentWidget():
-                try:
-                    tab_widget_item.disconnect_signals()
-                except Exception as e:
-                    print(e) #already disconnected
-
-            else:
-                self.tabs.currentWidget().reconnect()
+        self.tabs.currentWidget().page().profile().disconnect() # Disconnect the current tab
+        for index in range(self.tabs.count()):
+            if self.tabs.widget(index) == self.tabs.currentWidget():
+                self.tabs.currentWidget().reconnect() # Reconnect only the new current tab
 
         if self.tabs.currentWidget() is not None:
             qurl = self.tabs.currentWidget().url()
