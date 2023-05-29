@@ -1,3 +1,5 @@
+![](./assets/branding/banner.png)
+
 # Freezing Internet Tool
 `FIT` is a Python3 application for forensic acquisition of contents like web pages, emails, social media, etc. directly from the internet. 
 It's based on Fabio Zito (**@zitelog**) [final exam](https://github.com/zitelog/fit) for a Master named in Cybersecurity, Digital Forensics and Data Protection where the relator was Prof. Giovanni Bassetti (**@nannib**).
