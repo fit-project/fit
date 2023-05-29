@@ -66,9 +66,6 @@ class Browser(QWebEngineView):
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
-    def set_default_download_path(self):
-        self.page().profile().setDownloadPath('')
-
     def set_acquisition_dir(self, directory):
         self.acquisition_directory = directory
         self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
@@ -316,7 +313,7 @@ class Web(QtWidgets.QMainWindow):
         self.start_acquisition_is_started = False
 
     def __stop_acquisition_is_finished(self):
-        self.browser.reconnect_signal()
+        self.tabs.currentWidget().reconnect_signal()
         self.acquisition.log_end_message()
         self.acquisition.set_completed_progress_bar()
 
