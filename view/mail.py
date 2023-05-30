@@ -13,11 +13,11 @@ import logging
 import shutil
 from datetime import timedelta
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import (QObject, QThread, QRegExp, QDate, Qt, QRect, QMetaObject,
+from PyQt6 import QtWidgets, QtGui
+from PyQt6.QtCore import (QObject, QThread, QRegularExpression , QDate, Qt, QRect, QMetaObject,
                            pyqtSignal, QEventLoop, QTimer, pyqtSlot)
-from PyQt5.QtGui import QFont, QDoubleValidator, QRegExpValidator, QIcon
-
+from PyQt6.QtGui import QFont, QDoubleValidator, QRegularExpressionValidator, QIcon
+from PyQt6 import QtCore
 
 from view.acquisition.acquisition import Acquisition
 from view.case import Case as CaseView
@@ -120,7 +120,7 @@ class Mail(QtWidgets.QMainWindow):
         self.spinner = Spinner()
         self.acquisition_directory = None
         self.case_info = None
-        self.email_validator = QRegExpValidator(QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}"))
+        self.email_validator = QRegularExpressionValidator(QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}"))
         self.is_valid_email = False
         self.emails_to_validate = []
         
@@ -148,7 +148,6 @@ class Mail(QtWidgets.QMainWindow):
         # set font
         font = QFont()
         font.setPointSize(10)
-        font.setFamily('Arial')
 
         # PROGRESS BAR
         self.status = QtWidgets.QStatusBar()
@@ -158,7 +157,7 @@ class Mail(QtWidgets.QMainWindow):
         self.status.addPermanentWidget(self.progress_bar)
 
         self.progress_bar.setTextVisible(True)
-        self.progress_bar.setAlignment(Qt.AlignCenter)
+        self.progress_bar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
 
@@ -172,7 +171,7 @@ class Mail(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout()
         self.emails_tree = QtWidgets.QTreeWidget(self.centralwidget)
         self.emails_tree.setGeometry(QRect(510, 25, 440, 470))
-        self.emails_tree.setSelectionMode(QtWidgets.QTreeWidget.NoSelection)
+        self.emails_tree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection)
         self.emails_tree.itemChanged.connect(self.__on_item_changed)
         
         self.emails_tree.setObjectName("emails_tree")
@@ -186,7 +185,7 @@ class Mail(QtWidgets.QMainWindow):
         # EMAIL FIELD
         self.input_email = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_email.setGeometry(QRect(130, 60, 240, 20))
-        self.input_email.setFont(QFont('Arial', 10))
+        self.input_email.setFont(font)
         self.input_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         self.input_email.setObjectName("input_email")
         self.emails_to_validate.append(self.input_email.objectName())
@@ -195,15 +194,15 @@ class Mail(QtWidgets.QMainWindow):
         self.label_email = QtWidgets.QLabel(self.configuration_group_box)
         self.label_email.setGeometry(QRect(40, 60, 80, 20))
         self.label_email.setFont(font)
-        self.label_email.setAlignment(Qt.AlignRight)
+        self.label_email.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_email.setObjectName("label_email")
         
 
         # PASSWORD FIELD
         self.input_password = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_password.setGeometry(QRect(130, 95, 240, 20))
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
-        self.input_password.setFont(QFont('Arial', 10))
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.input_password.setFont(font)
         self.input_password.setPlaceholderText(search_pec.PLACEHOLDER_PASSWORD)
         self.input_password.show()
         self.input_password.setObjectName("input_password")
@@ -211,14 +210,14 @@ class Mail(QtWidgets.QMainWindow):
         # SERVER FIELD
         self.input_server = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_server.setGeometry(QRect(130, 130, 240, 20))
-        self.input_server.setFont(QFont('Arial', 10))
+        self.input_server.setFont(font)
         self.input_server.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_SERVER)
         self.input_server.setObjectName("input_server")
 
         # PORT FIELD
         self.input_port = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_port.setGeometry(QRect(130, 165, 240, 20))
-        self.input_port.setFont(QFont('Arial', 10))
+        self.input_port.setFont(font)
         self.input_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
         validator = QDoubleValidator()
         self.input_port.setValidator(validator)
@@ -235,21 +234,21 @@ class Mail(QtWidgets.QMainWindow):
         self.label_password = QtWidgets.QLabel(self.configuration_group_box)
         self.label_password.setGeometry(QRect(40, 95, 80, 20))
         self.label_password.setFont(font)
-        self.label_password.setAlignment(Qt.AlignRight)
+        self.label_password.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_password.setObjectName("label_password")
 
         # SERVER LABEL
         self.label_server = QtWidgets.QLabel(self.configuration_group_box)
         self.label_server.setGeometry(QRect(40, 130, 80, 20))
         self.label_server.setFont(font)
-        self.label_server.setAlignment(Qt.AlignRight)
+        self.label_server.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_server.setObjectName("label_server")
 
         # PORT LABEL
         self.label_port = QtWidgets.QLabel(self.configuration_group_box)
         self.label_port.setGeometry(QRect(40, 165, 80, 20))
         self.label_port.setFont(font)
-        self.label_port.setAlignment(Qt.AlignRight)
+        self.label_port.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_port.setObjectName("label_port")
 
         # SCRAPING CRITERIA
@@ -261,7 +260,7 @@ class Mail(QtWidgets.QMainWindow):
         # SENDER FIELD
         self.input_from = QtWidgets.QLineEdit(self.centralwidget)
         self.input_from.setGeometry(QRect(180, 300, 240, 20))
-        self.input_from.setFont(QFont('Arial', 10))
+        self.input_from.setFont(font)
         self.input_from.setObjectName("input_sender")
         self.input_from.setPlaceholderText(search_pec.PLACEHOLDER_FROM)
 
@@ -272,7 +271,7 @@ class Mail(QtWidgets.QMainWindow):
         # RECIPIENT FIELD
         self.input_to = QtWidgets.QLineEdit(self.centralwidget)
         self.input_to.setGeometry(QRect(180, 335, 240, 20))
-        self.input_to.setFont(QFont('Arial', 10))
+        self.input_to.setFont(font)
         self.input_to.setObjectName("input_recipient")
         self.input_to.setPlaceholderText(search_pec.PLACEHOLDER_TO)
         self.input_to.editingFinished.connect(self.__on_editing_finished)
@@ -282,21 +281,21 @@ class Mail(QtWidgets.QMainWindow):
         # SUBJECT FIELD
         self.input_subject = QtWidgets.QLineEdit(self.centralwidget)
         self.input_subject.setGeometry(QRect(180, 370, 240, 20))
-        self.input_subject.setFont(QFont('Arial', 10))
+        self.input_subject.setFont(font)
         self.input_subject.setObjectName("input_subject")
         self.input_subject.setPlaceholderText(search_pec.PLACEHOLDER_SUBJECT)
 
         # FROM DATE FIELD
         self.input_from_date = QtWidgets.QDateEdit(self.centralwidget)
         self.input_from_date.setGeometry(QRect(180, 405, 240, 20))
-        self.input_from_date.setFont(QFont('Arial', 10))
-        self.input_from_date.setDate(QDate.currentDate())
+        self.input_from_date.setFont(font)
+        self.input_from_date.setDate(QDate.currentDate().addDays(-14))
         self.input_from_date.setObjectName("input_from_date")
 
         # TO DATE FIELD
         self.input_to_date = QtWidgets.QDateEdit(self.centralwidget)
         self.input_to_date.setGeometry(QRect(180, 440, 240, 20))
-        self.input_to_date.setFont(QFont('Arial', 10))
+        self.input_to_date.setFont(font)
         self.input_to_date.setDate(QDate.currentDate())
         self.input_to_date.setObjectName("input_to_date")
 
@@ -304,35 +303,35 @@ class Mail(QtWidgets.QMainWindow):
         self.label_from = QtWidgets.QLabel(self.centralwidget)
         self.label_from.setGeometry(QRect(90, 300, 80, 20))
         self.label_from.setFont(font)
-        self.label_from.setAlignment(Qt.AlignRight)
+        self.label_from.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_from.setObjectName("label_sender")
 
         # TO LABEL
         self.label_to = QtWidgets.QLabel(self.centralwidget)
         self.label_to.setGeometry(QRect(90, 335, 80, 20))
         self.label_to.setFont(font)
-        self.label_to.setAlignment(Qt.AlignRight)
+        self.label_to.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_to.setObjectName("label_recipient")
 
         # SUBJECT LABEL
         self.label_subject = QtWidgets.QLabel(self.centralwidget)
         self.label_subject.setGeometry(QRect(90, 370, 80, 20))
         self.label_subject.setFont(font)
-        self.label_subject.setAlignment(Qt.AlignRight)
+        self.label_subject.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_subject.setObjectName("label_subject")
 
         # FROM DATE LABEL
         self.label_from_date = QtWidgets.QLabel(self.centralwidget)
         self.label_from_date.setGeometry(QRect(90, 405, 80, 20))
         self.label_from_date.setFont(font)
-        self.label_from_date.setAlignment(Qt.AlignRight)
+        self.label_from_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_from_date.setObjectName("label_from_date")
 
         # TO DATE LABEL
         self.label_to_date = QtWidgets.QLabel(self.centralwidget)
         self.label_to_date.setGeometry(QRect(90, 440, 80, 20))
         self.label_to_date.setFont(font)
-        self.label_to_date.setAlignment(Qt.AlignRight)
+        self.label_to_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_to_date.setObjectName("label_to_date")
 
         # LOGIN BUTTON
@@ -356,13 +355,13 @@ class Mail(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menu_configuration = QtWidgets.QAction("Configuration", self)
+        self.menu_configuration = QtGui.QAction("Configuration",self)
         self.menu_configuration.setObjectName("menuConfiguration")
         self.menu_configuration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menu_configuration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action = QtGui.QAction("Case",self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
@@ -400,7 +399,7 @@ class Mail(QtWidgets.QMainWindow):
         self.download_button.setText(search_pec.DOWNLOAD_BUTTON)
 
     def __init_worker(self):
-        self.thread_worker= QThread()
+        self.thread_worker = QThread()
         self.worker = MailWorker(self.mail_controller, self.email, self.password, self.server, 
                                  self.port, self.search_criteria, self.acquisition_mail_dir, 
                                  self.emails_to_save, self.is_downloading)
@@ -439,11 +438,11 @@ class Mail(QtWidgets.QMainWindow):
             msg = e.get('msg')
             details = e.get('details')
        
-        error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+        error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
                                   title,
                                   msg,
                                   str(details))
-        error_dlg.exec_()
+        error_dlg.exec()
         
 
     def __search(self):
@@ -456,7 +455,7 @@ class Mail(QtWidgets.QMainWindow):
 
         loop = QEventLoop()
         QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
 
         #Login params
@@ -522,9 +521,10 @@ class Mail(QtWidgets.QMainWindow):
         self.setEnabled(True)
         self.status.showMessage('')
         self.spinner.stop()
+        self.is_acquisition_running = False
 
         if len(emails) == 0:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
                                   mail.NO_EMAILS,
                                   error.NO_EMAILS,
                                   Details.RETRY
@@ -539,18 +539,17 @@ class Mail(QtWidgets.QMainWindow):
 
         for key in emails:
             self.folder_tree = QtWidgets.QTreeWidgetItem([key])
-            self.folder_tree.setData(0, Qt.UserRole, key)  # add identifier to the tree items
-            self.folder_tree.setCheckState(0, Qt.Unchecked)
+            self.folder_tree.setData(0, QtCore.Qt.ItemDataRole.UserRole, key)  # add identifier to the tree items
+            self.folder_tree.setCheckState(0, QtCore.Qt.CheckState.Unchecked)
             self.root.addChild(self.folder_tree)
 
             for value in emails[key]:
                 sub_item = QtWidgets.QTreeWidgetItem([value])
-                sub_item.setData(0, Qt.UserRole, key)
-                sub_item.setCheckState(0, Qt.Unchecked)
+                sub_item.setData(0, QtCore.Qt.ItemDataRole.UserRole, key)
+                sub_item.setCheckState(0, QtCore.Qt.CheckState.Unchecked)
                 self.folder_tree.addChild(sub_item)
 
         self.emails_tree.expandItem(self.root)
-        
         
     def __is_checked(self):
          for i in range(self.root.childCount()):
@@ -562,7 +561,7 @@ class Mail(QtWidgets.QMainWindow):
                         self.download_button.setEnabled(True)
             if parent.checkState(0) == Qt.CheckState.Checked and \
                     self.download_button.isEnabled() is False:
-                parent.setCheckState(0, False)
+                parent.setCheckState(0, Qt.CheckState.Unchecked)
         
     def __on_item_changed(self, item, column):
     
@@ -587,7 +586,7 @@ class Mail(QtWidgets.QMainWindow):
         if isinstance(self.sender(), QtWidgets.QLineEdit) and \
             self.sender().objectName() in self.emails_to_validate:
             state = self.email_validator.validate(text, 0)
-            if state[0] != QRegExpValidator.Acceptable:
+            if state[0] != QRegularExpressionValidator.State.Acceptable:
                 self.is_valid_email = False
                 self.sender().setStyleSheet('border: 1px solid red;')
             else:
@@ -598,7 +597,7 @@ class Mail(QtWidgets.QMainWindow):
         self.search_button.setEnabled(all_fields_filled and self.is_valid_email)
 
     def __download(self):
-
+        self.is_acquisition_running = True
         self.emails_to_save = {}
         self.is_downloading = True
         self.setEnabled(False)
@@ -613,7 +612,7 @@ class Mail(QtWidgets.QMainWindow):
         # wait for 1 second 
         loop = QEventLoop()
         QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
         
         emails_counter = 0
         for i in range(self.root.childCount()):
@@ -670,30 +669,30 @@ class Mail(QtWidgets.QMainWindow):
         try:
             shutil.rmtree(mail_dir)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                   tasks.INSTAGRAM,
                                   error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
         msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
         msg.setText(Details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
 
         return_value = msg.exec()
-        if return_value == QtWidgets.QMessageBox.Yes:
+        if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             os.startfile(self.acquisition_directory)
         
 
     def __case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:

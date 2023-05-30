@@ -8,9 +8,9 @@
 ######  
 import datetime
 
-from PyQt5.QtCore import QRegExp, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
-from PyQt5.QtGui import QRegExpValidator, QDoubleValidator
-from PyQt5.QtWidgets import (QVBoxLayout, QTreeWidget, QTreeWidgetItem, QDateEdit, QPushButton,
+from PyQt6.QtCore import QRegularExpression, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
+from PyQt6.QtGui import QRegularExpressionValidator, QDoubleValidator
+from PyQt6.QtWidgets import (QVBoxLayout, QTreeWidget, QTreeWidgetItem, QDateEdit, QPushButton,
                              QAbstractItemView, QDialog, QWidget, QGroupBox, QLineEdit, QLabel, QMessageBox)
 
 from view.error import Error as ErrorView
@@ -39,7 +39,7 @@ class SearchPec(QDialog):
         self.input_to_date = None
         self.controller = PecConfigController()
         self.downloaded_status = FAIL
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
 
 
     def init(self, case_info, acquisition_directory):
@@ -76,8 +76,8 @@ class SearchPec(QDialog):
         self.input_pec_email = QLineEdit(self.centralwidget)
         self.input_pec_email.setGeometry(QRect(180, 60, 240, 20))
         self.input_pec_email.setText('example@pec-legal.it')
-        pec_regex = QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
-        validator = QRegExpValidator(pec_regex)
+        pec_regex = QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
+        validator = QRegularExpressionValidator(pec_regex)
         self.input_pec_email.setValidator(validator)
         self.input_pec_email.setObjectName("input_pec_email")
 
@@ -230,7 +230,7 @@ class SearchPec(QDialog):
         self.centralwidget.setEnabled(False)
         loop = QEventLoop()
         QTimer.singleShot(500, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         self.pec_tree.clear()
         self.root = QTreeWidgetItem(["Inbox"])
@@ -280,11 +280,11 @@ class SearchPec(QDialog):
         try:
             messages = search_pec.fetch_pec(search_criteria)
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                     pec.LOGIN_FAILED,
                                     pec.IMAP_FAILED_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
         
    
         for message in messages:
@@ -308,7 +308,7 @@ class SearchPec(QDialog):
         self.centralwidget.setEnabled(False)
         loop = QEventLoop()
         QTimer.singleShot(500, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         status = SUCCESS
 
@@ -335,11 +335,11 @@ class SearchPec(QDialog):
             if pec_controller.retrieve_eml(timestamp_slice):
                 self.downloaded_status = SUCCESS
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                     pec.LOGIN_FAILED,
                                     pec.IMAP_FAILED_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
         
         self.centralwidget.setEnabled(True)
 

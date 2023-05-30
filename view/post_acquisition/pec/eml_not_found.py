@@ -8,7 +8,7 @@
 ######  
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from view.post_acquisition.pec.search_pec import SearchPec as SearchPecView
 from common.constants.view.pec import eml_not_found
@@ -19,7 +19,7 @@ class EmlNotFound(QtWidgets.QDialog):
     def __init__(self, directory, case_info, attempts):
         super().__init__()
 
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.search = SearchPecView()
         self.directory = directory
         self.case_info = case_info
@@ -28,7 +28,7 @@ class EmlNotFound(QtWidgets.QDialog):
         self.setObjectName("eml_not_found")
         self.resize(200, 100)
 
-        buttons = QtWidgets.QDialogButtonBox.Yes | QtWidgets.QDialogButtonBox.No
+        buttons = QtWidgets.QDialogButtonBox.StandardButton.Yes | QtWidgets.QDialogButtonBox.StandardButton.No
 
         self.buttonBox = QtWidgets.QDialogButtonBox(buttons)
         self.buttonBox.accepted.connect(self.accept)
@@ -44,7 +44,7 @@ class EmlNotFound(QtWidgets.QDialog):
     def accept(self):
         self.hide()
         self.search.init(self.case_info, self.directory)
-        self.search.exec_()
+        self.search.exec()
         
 
     def __close(self):

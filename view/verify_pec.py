@@ -7,8 +7,8 @@
 # -----
 ######  
 import os
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QFileDialog
 
 from common.utility import get_ntp_date_and_time
 from controller.verify_pec.verify_pec import verifyPec as verifyPecController
@@ -53,13 +53,13 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menu_configuration = QtWidgets.QAction("Configuration", self)
+        self.menu_configuration = QtGui.QAction('Configuration',self)
         self.menu_configuration.setObjectName("menuConfiguration")
         self.menu_configuration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menu_configuration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action = QtGui.QAction('Case',self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
@@ -81,7 +81,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         # EML LABEL
         self.label_eml = QtWidgets.QLabel(self.centralwidget)
         self.label_eml.setGeometry(QtCore.QRect(80, 60, 50, 20))
-        self.label_eml.setAlignment(QtCore.Qt.AlignRight)
+        self.label_eml.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_eml.setObjectName("label_eml")
 
         # VERIFICATION BUTTON
@@ -120,22 +120,22 @@ class VerifyPec(QtWidgets.QMainWindow):
         try:
             pec.verify(self.input_eml.text(), self.case_info, ntp)
             msg = QtWidgets.QMessageBox()
-            msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+            msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
             msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
             msg.setText(verify_pec.VERIFY_PEC_SUCCESS_MSG)
-            msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             return_value = msg.exec()
-            if return_value == QtWidgets.QMessageBox.Yes:
+            if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                 path = os.path.dirname(str(self.input_eml.text()))
                 if get_platform() == 'win':
                     os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
         except Exception as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                     verify_pec.VERIFY_PEC_FAIL,
                                     verify_pec.VERIFY_PEC_FAIL_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
 
 
     def __dialog(self):
@@ -146,10 +146,10 @@ class VerifyPec(QtWidgets.QMainWindow):
             self.input_eml.setText(file)
 
     def __case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
     
 
     def __get_acquisition_directory(self):

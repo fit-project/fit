@@ -9,7 +9,7 @@
 
 import os
 
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
+from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
 
 from view.error import Error as ErrorView
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
@@ -23,9 +23,9 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         super(DownloadAndInstallNpcap, self).__init__(parent)
 
         self.path = None
-        self.setWindowModality(QtCore.Qt.WindowModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.resize(255, 77)
-        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
 
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 231, 41))
@@ -53,7 +53,7 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         hbox = QtWidgets.QHBoxLayout(self)
         hbox.addWidget(self.web_view)
 
-    @QtCore.pyqtSlot("QWebEngineDownloadItem*")
+    #@QtCore.pyqtSlot("QWebEngineDownloadItem*")
     def on_download_requested(self, download):
         old_path = download.url().path()
         suffix = QtCore.QFileInfo(old_path).suffix()
@@ -88,7 +88,7 @@ class Init(QtCore.QObject):
     def init_check(self):
         #Check internet connection
         if check_internet_connection() is False:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                             CHECK_CONNETION,
                             ERR_INTERNET_DISCONNECTED,
                             ''
@@ -96,7 +96,7 @@ class Init(QtCore.QObject):
             
             error_dlg.buttonClicked.connect(self.__quit)
             
-            error_dlg.exec_()
+            error_dlg.exec()
         
         # If os is win check 
         if get_platform() == 'win' :
@@ -104,26 +104,26 @@ class Init(QtCore.QObject):
                 try:
                     url = get_npcap_installer_url()
                     msg = QtWidgets.QMessageBox()
-                    msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+                    msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
                     msg.setWindowTitle(NPCAP)
                     msg.setText(WAR_NPCAP_NOT_INSTALLED)
-                    msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-                    msg.setIcon(QtWidgets.QMessageBox.Warning)
+                    msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                    msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     
                     return_value = msg.exec()
-                    if return_value == QtWidgets.QMessageBox.Yes:
+                    if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                         donwload_and_install = DownloadAndInstallNpcap(url)
-                        donwload_and_install.exec_()
+                        donwload_and_install.exec()
                     else:
                         options = PacketCapture().options
                         options["enabled"] =False
                         PacketCapture().options = options
 
                 except Exception as e:
-                    error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                    error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                             NPCAP,
                             ERR_NPCAP_RELEASE_VERSION,
                             str(e)
                             )
-                    error_dlg.exec_()
+                    error_dlg.exec()
         

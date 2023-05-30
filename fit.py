@@ -7,7 +7,7 @@
 # -----
 ######  
 import sys
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
@@ -43,6 +43,7 @@ if __name__ == '__main__':
     pec = VerifyPecView()
     pec.hide()
 
+
     def start_task(task, case_info):
         options = {}
         if (task == 'web'):
@@ -65,4 +66,4 @@ if __name__ == '__main__':
     
     init.init_check()
     wizard.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 from controller.configurations.tabs.timestamp.timestamp import Timestamp as TimestampController
 
 __is_tab__ = True

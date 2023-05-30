@@ -26,7 +26,7 @@ from controller.configurations.tabs.general.network import Network as NetworkCon
 
 from common.utility import is_npcap_installed, get_platform
 
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 
 class Acquisition(Base):
 
@@ -41,6 +41,16 @@ class Acquisition(Base):
         self.post_acquisition_method_list = [x for x, y in PostAcquisition.__dict__.items() if not x.startswith("__") and type(y) == FunctionType]
         
 
+    def __remove_disable_tasks(self, tasks):
+        _tasks = tasks.copy()
+        for task in tasks:
+            if task == Tasks.PACKET_CAPTURE and PacketCaptureCotroller().options['enabled'] is False or\
+               task == Tasks.SCREEN_RECORDER and ScreenRecorderController().options['enabled'] is False or\
+               task == Tasks.TRACEROUTE and get_platform() == 'win' and is_npcap_installed() is False:
+                _tasks.remove(task)
+        
+        return _tasks
+    
     def start(self, tasks, folder, case_info, external_tasks=0, percent=100):
 
         if self.is_started:
@@ -50,44 +60,41 @@ class Acquisition(Base):
         self.info.clear_info()
         self.clear_tasks()
 
-        
-        self.total_internal_tasks = len(tasks)
         self.folder = folder
         self.case_info = case_info
-
-        self.total_tasks = self.total_internal_tasks + external_tasks
-
-        if self.total_tasks > 0:
-            self.increment = percent/self.total_tasks
 
         self.log_confing.change_filehandlers_path(self.folder)
         logging.config.dictConfig(self.log_confing.config)
         self.log_start_message()
 
         self.is_started = True
-       
 
+        tasks = self.__remove_disable_tasks(tasks)
+        self.total_internal_tasks = len(tasks)
+        self.total_tasks = self.total_internal_tasks + external_tasks
+
+
+        if self.total_tasks > 0:
+            self.increment = percent/self.total_tasks
+        else:
+           self.completed.emit()
+
+       
         if Tasks.PACKET_CAPTURE in tasks:
             options = PacketCaptureCotroller().options
-            if options['enabled']:
-                options['acquisition_directory'] = self.folder
-                packetcapture = AcquisitionPacketCapture(Tasks.PACKET_CAPTURE, State.STARTED, Status.PENDING, self)
-                self.add_task(packetcapture)
-                packetcapture.start(options)
-                self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
-            else:
-                self.total_internal_tasks -= 1
+            options['acquisition_directory'] = self.folder
+            packetcapture = AcquisitionPacketCapture(Tasks.PACKET_CAPTURE, State.STARTED, Status.PENDING, self)
+            self.add_task(packetcapture)
+            packetcapture.start(options)
+            self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
 
         if Tasks.SCREEN_RECORDER in tasks:
             options = ScreenRecorderController().options
-            if options['enabled']:
-                options['filename'] = os.path.join(self.folder, options['filename'])
-                screenrecorder = AcquisitionScreenRecorder(Tasks.SCREEN_RECORDER, State.STARTED, Status.PENDING, self)
-                self.add_task(screenrecorder)
-                screenrecorder.start(options)
-                self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_STARTED)
-            else:
-                self.total_internal_tasks -= 1
+            options['filename'] = os.path.join(self.folder, options['filename'])
+            screenrecorder = AcquisitionScreenRecorder(Tasks.SCREEN_RECORDER, State.STARTED, Status.PENDING, self)
+            self.add_task(screenrecorder)
+            screenrecorder.start(options)
+            self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_STARTED)
 
     
     def stop(self, tasks, url, external_tasks=0, percent=100):
@@ -100,19 +107,20 @@ class Acquisition(Base):
             self.log_stop_message(url)
 
         net_configuration = NetworkController().configuration
-        self.total_internal_tasks = len(tasks)
 
-
-        self.total_tasks = self.total_internal_tasks + len(self.post_acquisition_method_list) + external_tasks
-
-        if self.total_tasks > 0:
-            self.increment = percent/self.total_tasks
-
-        
         self.set_state_and_status_tasks(State.STOPPED, Status.PENDING)
 
         self.is_started = False
         self.send_pyqt_signal = False
+
+        tasks = self.__remove_disable_tasks(tasks)
+        self.total_internal_tasks = len(tasks)
+        self.total_tasks = self.total_internal_tasks + len(self.post_acquisition_method_list) + external_tasks
+
+        if self.total_tasks > 0:
+            self.increment = percent/self.total_tasks
+        else:
+           self.completed.emit()
 
         if Tasks.WHOIS in tasks and url is not None:
             _whois = whois.AcquisitionWhois(Tasks.WHOIS, State.STARTED, Status.PENDING, self)
@@ -133,17 +141,10 @@ class Acquisition(Base):
             _headers.start(url)
         
         if Tasks.TRACEROUTE in tasks and url is not None and self.folder is not None:
-            enabled = True
-            if get_platform() == 'win' and is_npcap_installed() is False:
-                enabled = False
-            
-            if enabled:
-                _traceroute = traceroute.AcquisitionTraceroute(Tasks.TRACEROUTE, State.STARTED, Status.PENDING, self)
-                self.add_task(_traceroute)
-                self.set_message_on_the_statusbar(logger.TRACEROUTE_GET)
-                _traceroute.start(url, self.folder)
-            else:
-              self.total_internal_tasks -= 1  
+            _traceroute = traceroute.AcquisitionTraceroute(Tasks.TRACEROUTE, State.STARTED, Status.PENDING, self)
+            self.add_task(_traceroute)
+            self.set_message_on_the_statusbar(logger.TRACEROUTE_GET)
+            _traceroute.start(url, self.folder)
         
         if Tasks.SSLKEYLOG in tasks and self.folder is not None:
             _sslkeylog = sslkeylog.AcquisitionSSLKeyLog(Tasks.SSLKEYLOG, State.STARTED, Status.PENDING, self)
@@ -162,16 +163,13 @@ class Acquisition(Base):
             if task:
                 self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STOPPED)
                 task[0].stop()
-            else:
-                self.total_internal_tasks -= 1
 
         if Tasks.SCREEN_RECORDER in tasks:
             task = self.get_task(Tasks.SCREEN_RECORDER)
             if task:
                 self.set_message_on_the_statusbar(logger.SCREEN_RECODER_PACKET_CAPTURE_COMPLETED)
                 task[0].stop()
-            else:
-                self.total_internal_tasks -= 1
+    
       
     def task_is_completed(self, options):
         

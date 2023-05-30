@@ -7,13 +7,10 @@
 # -----
 ######  
 
-import sys
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-import numpy as np
-import cv2
+import time
+from PyQt6 import QtCore, QtGui, QtWidgets
 from PIL import ImageGrab, Image
+
 
 # Refer to https://github.com/harupy/snipping-tool
 class SnippingWidget(QtWidgets.QWidget):
@@ -22,7 +19,7 @@ class SnippingWidget(QtWidgets.QWidget):
     def __init__(self, parent=None, app=None):
         super(SnippingWidget, self).__init__()
         self.parent = parent
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint | QtCore.Qt.WindowType.FramelessWindowHint)
         self.showFullScreen()
 
         self.screen = app.primaryScreen()
@@ -30,31 +27,31 @@ class SnippingWidget(QtWidgets.QWidget):
         self.begin = QtCore.QPoint()
         self.end = QtCore.QPoint()
         self.onSnippingCompleted = None
-
+        self.scale_factor = app.devicePixelRatio()
 
     def start(self):
         SnippingWidget.is_snipping = True
         self.setWindowOpacity(0.3)
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CursorShape.CrossCursor))
         self.show()
 
     def paintEvent(self, event):
+        qp = QtGui.QPainter(self)
         if SnippingWidget.is_snipping:
             brush_color = (128, 128, 255, 100)
             lw = 3
             opacity = 0.3
+            qp.setPen(QtGui.QPen(QtGui.QColor('red'), lw))
         else:
-            self.begin = QtCore.QPoint()
-            self.end = QtCore.QPoint()
             brush_color = (0, 0, 0, 0)
-            lw = 0
-            opacity = 0
+            lw = 3
+            opacity = 0.1
+            qp.setPen(QtGui.QPen(QtGui.QColor('green'), lw))
 
         self.setWindowOpacity(opacity)
-        qp = QtGui.QPainter(self)
-        qp.setPen(QtGui.QPen(QtGui.QColor('black'), lw))
         qp.setBrush(QtGui.QColor(*brush_color))
-        rect = QtCore.QRectF(self.begin, self.end)
+        rect = QtCore.QRectF(self.begin.x(), self.begin.y(),
+                             abs(self.end.x() - self.begin.x()), abs(self.end.y() - self.begin.y()))
         qp.drawRect(rect)
 
     def mousePressEvent(self, event):
@@ -73,15 +70,27 @@ class SnippingWidget(QtWidgets.QWidget):
         y1 = min(self.begin.y(), self.end.y())
         x2 = max(self.begin.x(), self.end.x())
         y2 = max(self.begin.y(), self.end.y())
+        x1, y1, x2, y2 = self.apply_scaling_factor(x1, y1, x2, y2)
 
         self.repaint()
         QtWidgets.QApplication.processEvents()
-        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-            
+        if x1 != x2 and y1 != y2:
+            img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        else:
+            img = None
+
         if self.onSnippingCompleted is not None:
             self.onSnippingCompleted(img)
 
         self.close()
+
+    def apply_scaling_factor(self, x1, y1, x2, y2):
+        x1 *= self.scale_factor
+        y1 *= self.scale_factor
+        x2 *= self.scale_factor
+        y2 *= self.scale_factor
+        return int(x1), int(y1), int(x2), int(y2)
+
 
 class SelectArea(QtCore.QObject):
     finished = QtCore.pyqtSignal()  # give worker class a finished signal
@@ -92,12 +101,11 @@ class SelectArea(QtCore.QObject):
         self.snippingWidget = SnippingWidget(app=QtWidgets.QApplication.instance())
         self.snippingWidget.onSnippingCompleted = self.__on_snipping_completed
 
-    
     def __on_snipping_completed(self, frame):
         if frame is None:
             self.__finished()
-            return 
-        
+            return
+        time.sleep(1)
         frame.save(self.filename)
         self.__finished()
 
@@ -105,5 +113,5 @@ class SelectArea(QtCore.QObject):
         self.snippingWidget.start()
 
     def __finished(self):
-          self.finished.emit()
-          self.deleteLater()
+        self.finished.emit()
+        self.deleteLater()

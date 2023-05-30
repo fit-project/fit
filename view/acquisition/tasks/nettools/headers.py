@@ -8,7 +8,7 @@
 ######  
 
 import logging
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from common.utility import get_headers_information
 from common.constants import logger as Logger, state, status, tasks

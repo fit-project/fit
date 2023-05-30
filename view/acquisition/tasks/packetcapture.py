@@ -10,8 +10,8 @@
 import scapy.all as scapy
 import os
 
-from PyQt5.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread
+from PyQt6.QtWidgets import QMessageBox
 
 from view.acquisition.base import Base
 from view.acquisition.tasks.task import AcquisitionTask
@@ -36,18 +36,18 @@ class PacketCapture(QObject):
         try:
             self.sniffer.start()
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                   tasks.PACKET_CAPTURE,
                                   error.PACKET_CAPTURE,
                                   str(e)
                                   )
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def stop(self):
         self.sniffer.stop()
         loop = QEventLoop()
         QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
         scapy.wrpcap(self.output_file, self.sniffer.results)
         self.finished.emit()
 

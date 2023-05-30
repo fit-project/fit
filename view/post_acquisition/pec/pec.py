@@ -10,7 +10,7 @@ import imaplib
 import os
 import time
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from view.post_acquisition.pec.pec_form import PecForm as PecFormView
 from view.error import Error as ErrorView
@@ -44,7 +44,7 @@ class Pec(QtCore.QObject):
 
         if self.is_form_enable:
             self.pec_form = PecFormView(self)
-            self.pec_form.exec_()
+            self.pec_form.exec()
 
     def reject(self):
         self.sentpec.emit(FAIL)
@@ -69,11 +69,11 @@ class Pec(QtCore.QObject):
 
         except Exception as e:
             status = FAIL
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                     pec.LOGIN_FAILED,
                                     pec.SMTP_FAILED_MGS,
                                     str(e))
-            error_dlg.exec_()
+            error_dlg.exec()
 
         if self.is_form_enable:
             self.pec_form.centralwidget.setDisabled(False)
@@ -89,7 +89,7 @@ class Pec(QtCore.QObject):
             self.pec_form.centralwidget.setDisabled(True)
             loop = QtCore.QEventLoop()
             QtCore.QTimer.singleShot(500, loop.quit)
-            loop.exec_()
+            loop.exec()
 
         status = SUCCESS
         retries = self.options.get('retries')
@@ -106,7 +106,7 @@ class Pec(QtCore.QObject):
             #whait for 8 seconds
             loop = QtCore.QEventLoop()
             QtCore.QTimer.singleShot(8000, loop.quit)
-            loop.exec_()
+            loop.exec()
 
             try:
                 result = self.pec_controller.retrieve_eml()
@@ -114,11 +114,11 @@ class Pec(QtCore.QObject):
                     break
             except Exception as e:
                 status = FAIL
-                error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+                error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                         pec.LOGIN_FAILED,
                                         pec.IMAP_FAILED_MGS,
                                         str(e))
-                error_dlg.exec_()
+                error_dlg.exec()
                 break
 
         if result:

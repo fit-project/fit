@@ -10,7 +10,8 @@ import os
 
 from configparser import SafeConfigParser
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QWizard
 
 from common.constants import error
 from common.constants.view import wizard, general
@@ -24,7 +25,6 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         super(CaseInfoPage, self).__init__(parent)
         self.setObjectName("CaseInfoPage")
    
-        self.case_info = {}
 
         self.configuration_view = ConfigurationView(self)
 
@@ -50,41 +50,17 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.name.setEditable(True)
         self.form.name.setCurrentIndex(-1)
         self.form.name.currentTextChanged.connect(self.completeChanged)
-        self.form.case_form_layout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.form.name)
+        self.form.case_form_layout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.form.name)
            
     def isComplete(self):
         if self.form.name.findText(self.form.name.currentText()) >= 0:
-            self.set_case_information(self.form.name.currentText())
+            self.form.set_case_information()
         else:
-            self.clear_case_information()
+            self.form.clear_case_information()
         return self.form.name.currentText() != ""
     
-    def set_case_information(self, name):
-        self.case_info = next((item for item in self.form.cases if item["name"] == name), None)
-        if self.case_info is not None:
-            for keyword, value in self.case_info.items():
-                item = self.findChild(QtCore.QObject, keyword)
-                if item is not None:
-                    if isinstance(item, QtWidgets.QLineEdit) is not False:
-                        if value is not None:
-                            item.setText(str(value))
-                    if isinstance(item, QtWidgets.QComboBox):
-                        if keyword in 'proceeding_type': 
-                            if value is not None:
-                                type_proceeding = next((proceeding for proceeding in self.form.proceedings if proceeding["id"] == value), None)
-                                value = type_proceeding["name"]
-                            
-                            item.setCurrentText(value)
-    
-    def clear_case_information(self):
-        self.case_info = {}
-        self.form.lawyer_name.setText("")
-        self.form.types_proceedings.setCurrentIndex(-1)
-        self.form.courthouse.setText("")
-        self.form.proceeding_number.setText("")
-    
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
     
 
 
@@ -163,6 +139,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
         self.radio_button_group.addButton(self.insta, 3)
 
+
         # RADIO BUTTON VERIFY TIMESTAMP
         self.timestamp_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
         self.timestamp_radio_button_wrapper.setStyleSheet("QWidget#timestamp_radio_button_wrapper {\n""border: 1px solid black;\n""}")
@@ -230,16 +207,16 @@ class Wizard(QtWidgets.QWizard):
         self.width = 800
         self.height = 600
         self.setObjectName("WizardView")
-        self.temp_case_info = None
+        self.case_info = {}
         
 
     def init_wizard(self):
         self.setFixedSize(self.width, self.height)
         self.setSizeGripEnabled(False)
-        self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
-        self.setTitleFormat(QtCore.Qt.RichText)
-        self.setSubTitleFormat(QtCore.Qt.RichText)
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
+        self.setTitleFormat(QtCore.Qt.TextFormat.RichText)
+        self.setSubTitleFormat(QtCore.Qt.TextFormat.RichText)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
 
@@ -249,38 +226,24 @@ class Wizard(QtWidgets.QWizard):
         self.addPage(self.case_info_page)
         self.addPage(self.select_task_page)
 
-        self.button(QtWidgets.QWizard.NextButton).clicked.connect(lambda: self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML()))
+        self.button(QtWidgets.QWizard.WizardButton.NextButton).clicked.connect(lambda: self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML()))
 
-        self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self._save_case)
+        self.button(QtWidgets.QWizard.WizardButton.FinishButton).clicked.connect(self._save_case)
 
-        self.button(QtWidgets.QWizard.BackButton).clicked.connect(self.__back)
+        self.button(QtWidgets.QWizard.WizardButton.BackButton).clicked.connect(self.__back)
 
-        self.button(QtWidgets.QWizard.FinishButton).setDisabled(True)
+        self.button(QtWidgets.QWizard.WizardButton.FinishButton).setDisabled(True)
 
-        self.setButtonText(QtWidgets.QWizard.FinishButton, general.BUTTON_START)
-        self.setButtonText(QtWidgets.QWizard.CancelButton, general.BUTTON_EXIT)
+        self.setButtonText(QtWidgets.QWizard.WizardButton.FinishButton, general.BUTTON_START)
+        self.setButtonText(QtWidgets.QWizard.WizardButton.CancelButton, general.BUTTON_EXIT)
 
         self.retranslateUi()
     
     def __back(self):
-
-        if len(self.case_info_page.case_info) == 0:
-            item = self.temp_case_info.get('lawyer_name')
-            if item:
-                self.case_info_page.form.lawyer_name.setText(item)
-            item = self.temp_case_info.get('proceeding_type')
-            if item:
-                self.case_info_page.form.set_index_from_type_proceedings_id(item)
-            item = self.temp_case_info.get('courthouse')
-            if item:
-                self.case_info_page.form.courthouse.setText(item)
-            item = self.temp_case_info.get('proceeding_number')
-            if item:
-                self.case_info_page.form.proceeding_number.setText(item)
-        
+        self.case_info_page.form.set_case_information()
     
     def reload_case_info(self):
-        self.case_info_page.set_case_information(self.case_info_page.form.name.currentText())
+        self.case_info_page.form.set_case_information()
         self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML())
 
     def _save_case(self):
@@ -289,27 +252,25 @@ class Wizard(QtWidgets.QWizard):
         selected_buttons_index = [buttons[x].isChecked() for x in range(len(buttons))].index(True)
         task = buttons[selected_buttons_index].objectName()
 
-        case_info = {}
-
-        if 'id' in self.case_info_page.case_info:
-            case_info = self.case_info_page.case_info
 
         #store information case on the local DB
         try:
-            if case_info:
-                self.case_info_page.form.controller.cases = self.case_info_page.case_info
+            if 'id' in self.case_info:
+                self.case_info_page.form.controller.cases = self.case_info
             else:
-                case_info =  self.case_info_page.form.controller.add(self.case_info_page.case_info)
+                self.case_info =  self.case_info_page.form.controller.add(self.case_info)
+                self.case_info_page.form.set_current_cases()
+                self.case_info_page.form.set_index_from_case_id(self.case_info['id'])
         except Exception as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Warning,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Warning,
                             wizard.INSERT_UPDATE_CASE_INFO,
                             error.INSERT_UPDATE_CASE_INFO,
                             str(e)
                             )
-            error_dlg.exec_()
+            error_dlg.exec()
 
         #Send signal to main loop to start the acquisition window
-        self.finished.emit(task, case_info)
+        self.finished.emit(task, self.case_info)
 
     def retranslateUi(self):
         self.setWindowTitle(self.__get_version())
@@ -319,6 +280,7 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.insta.setText(TASK_INSTAGRAM)
         self.select_task_page.timestamp.setText(TASK_VERIFY_TIMESTAMP)
         self.select_task_page.pec.setText(TASK_VERIFY_PEC)
+
     
     def __get_version(self):
         parser = SafeConfigParser()
@@ -329,8 +291,8 @@ class Wizard(QtWidgets.QWizard):
 
 
     def _get_recap_case_info_HTML(self):
-        self.case_info_page.case_info = self.case_info_page.form.get_current_case_info()
-        self.temp_case_info = self.case_info_page.case_info
+        self.case_info = self.case_info_page.form.get_current_case_info()
+
 
         html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
         html += "<html>\n"
@@ -340,20 +302,24 @@ class Wizard(QtWidgets.QWizard):
         html += "p, li { white-space: pre-wrap; }\n"
         html += "</style>\n"
         html += "</head>\n"
-        html += "<body style=\" font-family:\'Arial\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-        for keyword, value in self.case_info_page.case_info.items():
+        html += "<body style=\" font-size:10pt; font-weight:400; font-style:normal;\">\n"
+        for keyword in self.case_info_page.form.controller.keys:
+            
             item = self.findChild(QtWidgets.QLabel, keyword + '_label')
             if item is not None:
-                if value is None:
+                value = self.case_info[keyword]
+                if value is None or value == '':
                     value = "N/A"
                 if keyword in 'proceeding_type':
                     type_proceeding = next((proceeding for proceeding in self.case_info_page.form.proceedings if proceeding["id"] == value), None)
                     if type_proceeding is not None:
                         value = type_proceeding["name"]
+                    else:
+                       value = "N/A" 
 
                 label = item.text()
                 html += "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:19px;\">\n"
-                html += "<span style=\" font-family:\'Arial\',\'Courier New\',\'monospace\'; font-size:14px; font-weight:300; color:#000000;\">" + label  + ": </span>\n"
+                html += "<span style=\" font-size:14px; font-weight:300; color:#000000;\">" + label  + ": </span>\n"
                 html += "<span style=\" font-size:14px; font-weight:600;  color:#000000;\">" + str(value)  + "</span>\n"
                 html += "</p>\n"
         html += "</body>\n"

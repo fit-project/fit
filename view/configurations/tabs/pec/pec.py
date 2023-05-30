@@ -9,9 +9,9 @@
 import imaplib
 import smtplib
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QMessageBox, QLabel
 
 from common.constants import error
 from controller.configurations.tabs.pec.pec import Pec as PecController
@@ -61,11 +61,6 @@ class Pec(QtWidgets.QWidget):
         self.pec_email = QtWidgets.QLineEdit(self.form_layout_widget_credential)
         self.pec_email.setEnabled(True)
         self.pec_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pec_email.sizePolicy().hasHeightForWidth())
-        self.pec_email.setSizePolicy(sizePolicy)
         self.pec_email.setObjectName("pec_email")
         self.horizontal_Layout_credential.addWidget(self.pec_email)
         self.label_password = QtWidgets.QLabel(self.form_layout_widget_credential)
@@ -74,7 +69,7 @@ class Pec(QtWidgets.QWidget):
         self.password = QtWidgets.QLineEdit(self.form_layout_widget_credential)
         self.password.setObjectName("password")
         self.password.setPlaceholderText(search_pec.PLACEHOLDER_PASSWORD)
-        self.password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.horizontal_Layout_credential.addWidget(self.password)
 
         #RETRIES GROUPBOX
@@ -112,11 +107,6 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_layout_IMAP.addWidget(self.label_imap_port)
         self.imap_port = QtWidgets.QLineEdit(self.form_layout_widget_IMAP)
         self.imap_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.imap_port.sizePolicy().hasHeightForWidth())
-        self.imap_port.setSizePolicy(sizePolicy)
         self.imap_port.setObjectName("imap_port")
         self.horizontal_layout_IMAP.addWidget(self.imap_port)
 
@@ -132,7 +122,6 @@ class Pec(QtWidgets.QWidget):
         self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
         self.info_imap_img.setScaledContents(True)
         self.info_imap_img.setGeometry(QtCore.QRect(630, 192, 20, 20))
-        self.info_imap_img.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.info_imap_img.setVisible(False)
 
 
@@ -151,11 +140,6 @@ class Pec(QtWidgets.QWidget):
         self.smtp_server = QtWidgets.QLineEdit(self.form_layout_widget_SMTP)
         self.smtp_server.setEnabled(True)
         self.smtp_server.setPlaceholderText(search_pec.PLACEHOLDER_SMPT_SERVER)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.smtp_server.sizePolicy().hasHeightForWidth())
-        self.smtp_server.setSizePolicy(sizePolicy)
         self.smtp_server.setObjectName("smtp_server")
         self.horizontal_layout_SMTP.addWidget(self.smtp_server)
 
@@ -164,11 +148,6 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_layout_SMTP.addWidget(self.label_smtp_port)
         self.smtp_port = QtWidgets.QLineEdit(self.form_layout_widget_SMTP)
         self.smtp_port.setPlaceholderText(search_pec.PLACEHOLDER_SMPT_PORT)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.smtp_port.sizePolicy().hasHeightForWidth())
-        self.smtp_port.setSizePolicy(sizePolicy)
         self.smtp_port.setObjectName("smtp_port")
         self.horizontal_layout_SMTP.addWidget(self.smtp_port)
 
@@ -183,7 +162,6 @@ class Pec(QtWidgets.QWidget):
         self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
         self.info_smtp_img.setScaledContents(True)
         self.info_smtp_img.setGeometry(QtCore.QRect(630, 222, 20, 20))
-        self.info_smtp_img.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.info_smtp_img.setVisible(False)
 
 
@@ -247,12 +225,12 @@ class Pec(QtWidgets.QWidget):
         except Exception as e:
             self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
             self.info_imap_img.setVisible(True)
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                   pec.LOGIN_FAILED,
                                   error.LOGIN_ERROR,
                                   str(e)
                                   )
-            error_dlg.exec_()
+            error_dlg.exec()
 
 
     def __verify_smtp(self):
@@ -270,12 +248,12 @@ class Pec(QtWidgets.QWidget):
             self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
             self.info_smtp_img.setVisible(True)
 
-            error_dlg = ErrorView(QMessageBox.Critical,
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
                                   pec.LOGIN_FAILED,
                                   error.LOGIN_ERROR,
                                   str(e)
                                   )
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def accept(self) -> None:
 

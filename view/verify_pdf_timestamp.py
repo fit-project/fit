@@ -17,9 +17,9 @@ from view.configuration import Configuration as ConfigurationView
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QFileDialog
 
 from common.utility import get_ntp_date_and_time, get_platform
 from common.constants.view import verify_pdf_timestamp, general
@@ -66,13 +66,14 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menuConfiguration = QtWidgets.QAction("Configuration", self)
+
+        self.menuConfiguration = QtGui.QAction('Configuration',self)
         self.menuConfiguration.setObjectName("menuConfiguration")
         self.menuConfiguration.triggered.connect(self.configuration)
         self.menuBar().addAction(self.menuConfiguration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action = QtGui.QAction('Case',self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.case)
         self.menuBar().addAction(self.case_action)
@@ -80,18 +81,16 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # set font
         font = QtGui.QFont()
         font.setPointSize(10)
-        font.setFamily('Arial')
 
         # TIMESTAMP GROUP
         self.timestamp_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.timestamp_group_box.setEnabled(True)
         self.timestamp_group_box.setGeometry(QtCore.QRect(50, 20, 590, 200))
         self.timestamp_group_box.setObjectName("timestamp_group_box")
-
         # PDF FIELD
         self.input_pdf = QtWidgets.QLineEdit(self.centralwidget)
         self.input_pdf.setGeometry(QtCore.QRect(215, 60, 300, 20))
-        self.input_pdf.setFont(QFont('Arial', 10))
+        self.input_pdf.setFont(font)
         self.input_pdf.setObjectName("input_pdf")
         self.input_pdf.setEnabled(False)
         self.input_pdf_button = QtWidgets.QPushButton(self.centralwidget)
@@ -102,7 +101,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # TSR FIELD
         self.input_tsr = QtWidgets.QLineEdit(self.centralwidget)
         self.input_tsr.setGeometry(QtCore.QRect(215, 95, 300, 20))
-        self.input_tsr.setFont(QFont('Arial', 10))
+        self.input_tsr.setFont(font)
         self.input_tsr.setObjectName("input_tsr")
         self.input_tsr.setEnabled(False)
         self.input_tsr_button = QtWidgets.QPushButton(self.centralwidget)
@@ -113,7 +112,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         # CRT FIELD
         self.input_crt = QtWidgets.QLineEdit(self.centralwidget)
         self.input_crt.setGeometry(QtCore.QRect(215, 130, 300, 20))
-        self.input_crt.setFont(QFont('Arial', 10))
+        self.input_crt.setFont(font)
         self.input_crt.setObjectName("input_crt")
         self.input_crt.setEnabled(False)
         self.input_crt_button = QtWidgets.QPushButton(self.centralwidget)
@@ -125,21 +124,21 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.label_pdf = QtWidgets.QLabel(self.centralwidget)
         self.label_pdf.setGeometry(QtCore.QRect(90, 60, 120, 20))
         self.label_pdf.setFont(font)
-        self.label_pdf.setAlignment(QtCore.Qt.AlignRight)
+        self.label_pdf.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_pdf.setObjectName("label_pdf")
 
         # TSR LABEL
         self.label_tsr = QtWidgets.QLabel(self.centralwidget)
         self.label_tsr.setGeometry(QtCore.QRect(90, 95, 120, 20))
         self.label_tsr.setFont(font)
-        self.label_tsr.setAlignment(QtCore.Qt.AlignRight)
+        self.label_tsr.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_tsr.setObjectName("label_tsr")
 
         # CRT LABEL
         self.label_crt = QtWidgets.QLabel(self.centralwidget)
         self.label_crt.setGeometry(QtCore.QRect(90, 130, 120, 20))
         self.label_crt.setFont(font)
-        self.label_crt.setAlignment(QtCore.Qt.AlignRight)
+        self.label_crt.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_crt.setObjectName("label_crt")
 
         # VERIFICATION BUTTON
@@ -193,14 +192,14 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                 report.generate_pdf(True, info_file_path)
 
                 msg = QtWidgets.QMessageBox()
-                msg.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowTitleHint)
+                msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
                 msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
                 msg.setText(verify_pdf_timestamp.VERIFICATION_SUCCESS)
                 msg.setInformativeText(verify_pdf_timestamp.VALID_TIMESTAMP_REPORT)
-                msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-                msg.setIcon(QtWidgets.QMessageBox.Information)                      
+                msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 return_value = msg.exec()
-                if return_value == QtWidgets.QMessageBox.Yes:
+                if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                     path = self.get_current_dir()
                     if get_platform() == 'win':
                         os.startfile(os.path.join(path,"report_timestamp_verification.pdf"))
@@ -212,11 +211,18 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             report, info_file_path = self.generate_report_verification(data, server_name, timestamp, False)
             report.generate_pdf(False, info_file_path)
 
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
-                                  verify_pdf_timestamp.VERIFICATION_COMPLETED,
-                                  verify_pdf_timestamp.VERIFICATION_FAIL,
-                                  verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
-            error_dlg.exec_()
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
+            msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
+            msg.setText(verify_pdf_timestamp.VERIFICATION_FAIL)
+            msg.setInformativeText(verify_pdf_timestamp.INVALID_TIMESTAMP_REPORT)
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            return_value = msg.exec()
+            if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
+                path = self.get_current_dir()
+                if get_platform() == 'win':
+                    os.startfile(os.path.join(path, "report_timestamp_verification.pdf"))
 
       
     
@@ -307,10 +313,10 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             return self.acquisition_directory
 
     def case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         self.deleteLater()

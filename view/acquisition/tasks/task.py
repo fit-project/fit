@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5.QtCore import QObject
+from PyQt6.QtCore import QObject
 
 class AcquisitionTask(QObject):
     def __init__(self, name, state, status, parent=None):

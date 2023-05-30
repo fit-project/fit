@@ -8,8 +8,8 @@
 ######  
 
 
-from PyQt5 import QtCore, QtWidgets
-
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtWidgets import QFileDialog
 
 from view.configurations.tabs.general.typesproceedings import TypesProceedings as TypesproceedingsView
 from view.configurations.tabs.general.network import Network as NetworkView
@@ -61,7 +61,7 @@ class General(QtWidgets.QWidget):
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
 
-      #PROCEEDINGS TYPE LIST
+      #NETWORK TOOLS
       self.group_box_network_check = NetworkView(self)
 
 
@@ -77,7 +77,7 @@ class General(QtWidgets.QWidget):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(self,
                        'Select Cases Folder', 
                        os.path.expanduser(self.cases_folder.text()),
-                       QtWidgets.QFileDialog.ShowDirsOnly)
+                       QFileDialog.Option.ShowDirsOnly)
         self.cases_folder.setText(cases_folder)
 
    def __set_current_config_values(self):

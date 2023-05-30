@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from view.case_form import CaseForm
 
@@ -25,7 +25,8 @@ class Case(QtWidgets.QDialog):
         self.setObjectName("Case")
         self.resize(479, 311)
         self.setWindowTitle(DIALOG_TITLE.format(self.case_info['name'], str(self.case_info['id'])))
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
+
 
         self.initUI()
         self.__set_current_config_values()
@@ -37,8 +38,9 @@ class Case(QtWidgets.QDialog):
     def initUI(self):
         self.button_box = QtWidgets.QDialogButtonBox(self)
         self.button_box.setGeometry(QtCore.QRect(10, 270, 441, 32))
-        self.button_box.setOrientation(QtCore.Qt.Horizontal)
-        self.button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Save)
+        self.button_box.setOrientation(QtCore.Qt.Orientation.Horizontal)
+        self.button_box.setStandardButtons(
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel | QtWidgets.QDialogButtonBox.StandardButton.Save)
         self.button_box.setCenterButtons(False)
         self.button_box.setObjectName("save")
         self.form = CaseForm(self)
@@ -47,10 +49,7 @@ class Case(QtWidgets.QDialog):
     def __set_current_config_values(self):
         self.form.set_index_from_case_id(self.case_info['id'])
         self.form.name.setEnabled(False)
-        self.form.lawyer_name.setText(self.case_info['lawyer_name'])
-        self.form.set_index_from_type_proceedings_id(self.case_info['proceeding_type'])
-        self.form.courthouse.setText(self.case_info['courthouse'])
-        self.form.proceeding_number.setText(str(self.case_info['proceeding_number']))
+        self.form.set_case_information()
 
 
     def accept(self) -> None:

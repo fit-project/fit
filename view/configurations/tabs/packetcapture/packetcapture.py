@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture as PacketCaptureController
 from common.utility import is_npcap_installed, get_platform
 

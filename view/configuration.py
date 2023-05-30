@@ -7,7 +7,7 @@
 # -----
 ######  
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 import sys
 import re
@@ -26,7 +26,7 @@ class Configuration(QtWidgets.QDialog):
         self.setObjectName("ConfigurationView")
         self.resize(722, 480)
 
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.tabs = QtWidgets.QTabWidget(self)
         self.tabs.setGeometry(QtCore.QRect(0, 0, 721, 431))
         self.tabs.setObjectName("tabs")
@@ -36,7 +36,8 @@ class Configuration(QtWidgets.QDialog):
 
         self.buttonBox = QtWidgets.QDialogButtonBox(self)
         self.buttonBox.setGeometry(QtCore.QRect(520, 440, 192, 28))
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Save)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel | QtWidgets.QDialogButtonBox.StandardButton.Save)
+
         self.buttonBox.setObjectName("buttonBox")
 
         self.buttonBox.accepted.connect(self.accept)

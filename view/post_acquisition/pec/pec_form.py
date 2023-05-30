@@ -10,7 +10,7 @@ import imaplib
 import os
 import time
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from common.constants.view.pec import pec
 from common.constants.status import FAIL
 
@@ -19,7 +19,7 @@ class PecForm(QtWidgets.QDialog):
     def __init__(self, parent: None):
         super().__init__()
         self.parent = parent        
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
         self.__setupUi()
     
 
@@ -37,8 +37,8 @@ class PecForm(QtWidgets.QDialog):
         self.input_pec_email = QtWidgets.QLineEdit(self.centralwidget)
         self.input_pec_email.setGeometry(QtCore.QRect(170, 30, 240, 20))
         self.input_pec_email.setObjectName("input_pec_email")
-        pec_regex = QtCore.QRegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
-        validator = QtGui.QRegExpValidator(pec_regex)
+        pec_regex = QtCore.QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
+        validator = QtGui.QRegularExpressionValidator(pec_regex)
         self.input_pec_email.setValidator(validator)
         self.label_password = QtWidgets.QLabel(self.centralwidget)
         self.label_password.setGeometry(QtCore.QRect(30, 60, 100, 20))
@@ -46,7 +46,7 @@ class PecForm(QtWidgets.QDialog):
         self.input_password = QtWidgets.QLineEdit(self.centralwidget)
         self.input_password.setGeometry(QtCore.QRect(170, 60, 240, 20))
         self.input_password.setObjectName("input_password")
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
        
         #PEC SMTP INFO
         self.label_smpt_server = QtWidgets.QLabel(self.centralwidget)
@@ -91,7 +91,8 @@ class PecForm(QtWidgets.QDialog):
         self.send_button.setGeometry(QtCore.QRect(340, 297, 75, 25))
         self.send_button.setObjectName("scrapeButton")
         self.send_button.clicked.connect(self.send)
-        font = QtGui.QFont('Arial', 10)
+        font = QtGui.QFont()
+        font.setPointSize(10)
         font.setBold(True)
         self.send_button.setFont(font)
         self.send_button.setEnabled(False)
@@ -156,7 +157,7 @@ class PecForm(QtWidgets.QDialog):
         self.centralwidget.setEnabled(False)
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(500, loop.quit)
-        loop.exec_()
+        loop.exec()
         if self.parent.options:
             self.parent.options.update({
             "pec_email": self.input_pec_email.text(),

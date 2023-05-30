@@ -12,7 +12,7 @@ import logging.config
 from common.config import LogConfigTools
 import common.utility
 
-from PyQt5.QtCore import QObject
+from PyQt6.QtCore import QObject
 
 from view.acquisition.info import AcquisitionInfo
 from controller.configurations.tabs.general import network

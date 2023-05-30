@@ -9,7 +9,7 @@
 
 import os
 import logging
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from common.constants import logger as Logger, details, state, status as Status, tasks, error
 from common.utility import calculate_hash
@@ -20,7 +20,6 @@ from controller.configurations.tabs.pec.pec import Pec as PecController
 
 from view.post_acquisition.timestamp import Timestamp as TimestampView
 from view.post_acquisition.pec.pec import Pec as PecView
-from view.error import Error as ErrorView
 
 logger = logging.getLogger('hashreport')
 
@@ -51,9 +50,9 @@ class PostAcquisition(QtCore.QObject):
                 logger.info('=========================================================')
                 logger.info(f'Size: {file_stats.st_size}')
                 algorithm = 'md5'
-                logger.info(f'MD5: {calculate_hash(filename, algorithm)}')
+                logger.info(f'MD5: {calculate_hash(filename, algorithm)}\n')
                 algorithm = 'sha1'
-                logger.info(f'SHA-1: {calculate_hash(filename, algorithm)}')
+                logger.info(f'SHA-1: {calculate_hash(filename, algorithm)}\n')
                 algorithm = 'sha256'
                 logger.info(f'SHA-256: {calculate_hash(filename, algorithm)}\n')
 
@@ -67,9 +66,10 @@ class PostAcquisition(QtCore.QObject):
         self.parent().upadate_progress_bar()
 
     def generate_timestamp_report(self, folder, case_info, type):
-        self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
         options = TimestampController().options
         if options['enabled']:
+
+            self.parent().set_message_on_the_statusbar(tasks.TIMESTAMP)
             self.thread_timestamp = QtCore.QThread()
             timestamp = TimestampView()
             timestamp.set_options(options)
@@ -82,6 +82,10 @@ class PostAcquisition(QtCore.QObject):
             self.thread_timestamp.finished.connect(lambda:self.__thread_timestamp_is_finished(folder, case_info, type))
 
             self.thread_timestamp.start()
+        else:
+            self.is_finished_pec = True
+            self.is_finished_timestamp = True
+            self.__async_task_are_finished()
     
     def __thread_timestamp_is_finished(self,folder, case_info, type):
         options = PecController().options

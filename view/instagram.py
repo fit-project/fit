@@ -10,7 +10,7 @@ import os
 import shutil
 import logging
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 
@@ -96,7 +96,6 @@ class Instagram(QtWidgets.QMainWindow):
         # set font
         font = QtGui.QFont()
         font.setPointSize(10)
-        font.setFamily('Arial')
 
 
         self.setObjectName("mainWindow")
@@ -110,13 +109,13 @@ class Instagram(QtWidgets.QMainWindow):
         self.menuBar().setNativeMenuBar(False)
 
         # CONF BUTTON
-        self.menu_configuration = QtWidgets.QAction("Configuration", self)
+        self.menu_configuration = QtGui.QAction('Configuration',self)
         self.menu_configuration.setObjectName("menu_configuration")
         self.menu_configuration.triggered.connect(self.__configuration)
         self.menuBar().addAction(self.menu_configuration)
 
         # CASE BUTTON
-        self.case_action = QtWidgets.QAction("Case", self)
+        self.case_action = QtGui.QAction('Case',self)
         self.case_action.setStatusTip("Show case info")
         self.case_action.triggered.connect(self.__case)
         self.menuBar().addAction(self.case_action)
@@ -151,7 +150,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.input_password.setFont(font)
         self.input_password.setObjectName("input_password")
         self.input_password.setPlaceholderText(instagram.PLACEHOLDER_PASSWORD)
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 
         self.label_password = QtWidgets.QLabel(self.loging_configuration_group_box)
         self.label_password.setGeometry(QtCore.QRect(40, 60, 80, 20))
@@ -340,11 +339,11 @@ class Instagram(QtWidgets.QMainWindow):
             msg = e.get('msg')
             details = e.get('details')
        
-        error_dlg = ErrorView(QtWidgets.QMessageBox.Information,
+        error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
                                   title,
                                   msg,
                                   str(details))
-        error_dlg.exec_()
+        error_dlg.exec()
 
     
     def __handle_progress(self):
@@ -365,7 +364,7 @@ class Instagram(QtWidgets.QMainWindow):
 
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         #If not logged in
         if self.instagram_controller.is_logged_in is False:
@@ -380,7 +379,7 @@ class Instagram(QtWidgets.QMainWindow):
 
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
-        loop.exec_()
+        loop.exec()
 
         self.__start_scraped()
     
@@ -461,10 +460,10 @@ class Instagram(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox(self)
         msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
         msg.setText(Details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
 
         return_value = msg.exec()
-        if return_value == QtWidgets.QMessageBox.Yes:
+        if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             self.__open_acquisition_directory()
 
     def __zip_and_remove(self, mail_dir):
@@ -474,13 +473,13 @@ class Instagram(QtWidgets.QMainWindow):
         try:
             shutil.rmtree(mail_dir)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Critical,
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                   tasks.INSTAGRAM,
                                   Error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )
 
-            error_dlg.exec_()
+            error_dlg.exec()
 
     def __open_acquisition_directory(self):
         os.startfile(self.acquisition_directory)
@@ -490,10 +489,10 @@ class Instagram(QtWidgets.QMainWindow):
         self.scrape_button.setEnabled(all_field_filled)
 
     def __case(self):
-        self.case_view.exec_()
+        self.case_view.exec()
 
     def __configuration(self):
-        self.configuration_view.exec_()
+        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:
