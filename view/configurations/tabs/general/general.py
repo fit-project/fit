@@ -57,6 +57,14 @@ class General(QtWidgets.QWidget):
       self.home_page_url = QtWidgets.QLineEdit(self.group_box_home_page_url)
       self.home_page_url.setGeometry(QtCore.QRect(20, 20, 601, 22))
       self.home_page_url.setObjectName("home_page_url")
+
+      # USER AGENT
+      self.group_box_user_agent = QtWidgets.QGroupBox(self)
+      self.group_box_user_agent.setGeometry(QtCore.QRect(10, 150, 691, 51))
+      self.group_box_user_agent.setObjectName("group_box_user_agent")
+      self.user_agent = QtWidgets.QLineEdit(self.group_box_user_agent)
+      self.user_agent.setGeometry(QtCore.QRect(20, 20, 601, 22))
+      self.user_agent.setObjectName("user_agent")
         
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
@@ -72,6 +80,7 @@ class General(QtWidgets.QWidget):
       self.group_box_cases_folder.setTitle(_translate("General", "Cases Folder"))
       self.tool_button_cases_folder.setText(_translate("General", "..."))
       self.group_box_home_page_url.setTitle(_translate("General", "Home Page URL"))
+      self.group_box_user_agent.setTitle(_translate("General", "User Agent"))
 
    def __select_cases_folder(self):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(self,
@@ -83,6 +92,7 @@ class General(QtWidgets.QWidget):
    def __set_current_config_values(self):
       self.cases_folder.setText(self.configuration['cases_folder_path'])
       self.home_page_url.setText(self.configuration['home_page_url'])
+      self.user_agent.setText(self.configuration['user_agent'])
    
    def __get_current_values(self):
         

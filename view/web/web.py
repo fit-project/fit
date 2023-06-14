@@ -534,6 +534,9 @@ class Web(QtWidgets.QMainWindow):
             qurl = QtCore.QUrl('')
         self.browser = Browser()
 
+        user_agent = self.configuration_general.configuration['user_agent']
+        self.browser.page().profile().setHttpUserAgent(user_agent)
+
         if page is None:
             page = WebEnginePage(self.browser)
 

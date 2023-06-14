@@ -29,7 +29,7 @@ class Network(QtWidgets.QGroupBox):
 
   def initUI(self):
 
-    self.setGeometry(QtCore.QRect(10, 260, 691, 101))
+    self.setGeometry(QtCore.QRect(10, 295, 691, 101))
     self.setObjectName("group_box_network_check")
 
     #NTP GROUPBOX
