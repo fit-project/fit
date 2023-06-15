@@ -18,7 +18,7 @@ from view.instagram import Instagram as InstagramView
 from view.verify_pec import VerifyPec as VerifyPecView
 
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
-from view.youtube import Youtube as YoutubeView
+from view.video import Video as VideoView
 
 
 if __name__ == '__main__':
@@ -44,8 +44,8 @@ if __name__ == '__main__':
     pec = VerifyPecView()
     pec.hide()
 
-    youtube = YoutubeView()
-    youtube.hide()
+    video = VideoView()
+    video.hide()
 
     def start_task(task, case_info):
         options = {}
@@ -56,9 +56,9 @@ if __name__ == '__main__':
         elif (task == 'insta'):
             acquisition_window = insta
         elif (task == 'timestamp'):
-            acquisition_window = youtube
-        elif (task == 'youtube'):
-            acquisition_window = youtube
+            acquisition_window = timestamp
+        elif (task == 'video'):
+            acquisition_window = video
         elif (task == 'pec'):
             acquisition_window = pec
 

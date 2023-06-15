@@ -26,6 +26,7 @@ bs4 = "^0.0.1"
 PyQt6 = "^6.5.0"
 PyQt6-WebEngine = "^6.5.0"
 screeninfo = "^0.8.1"
+yt-dlp = "^2023.3.4"
 
 [tool.poetry.dev-dependencies]
 

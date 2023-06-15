@@ -139,6 +139,26 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
         self.radio_button_group.addButton(self.insta, 3)
 
+        # RADIO BUTTON VIDEO
+        self.video_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
+        self.video_radio_button_wrapper.setStyleSheet(
+            "QWidget#video_radio_button_wrapper {\n""border: 1px solid black;\n""}")
+        self.video_radio_button_wrapper.setObjectName("video_radio_button_wrapper")
+        self.video_vlayout = QtWidgets.QVBoxLayout(self.video_radio_button_wrapper)
+        self.video_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.video_vlayout.setObjectName("video_vlayout")
+        self.video_img = QtWidgets.QLabel(self.video_radio_button_wrapper)
+        self.video_img.setEnabled(True)
+        self.video_img.setStyleSheet("image: url(assets/images/wizard/video.png);")
+        self.video_img.setText("")
+        self.video_img.setObjectName("video_img")
+        self.video_vlayout.addWidget(self.video_img)
+        self.video = QtWidgets.QRadioButton(self.video_radio_button_wrapper)
+        self.video.setEnabled(True)
+        self.video.setObjectName("video")
+        self.video_vlayout.addWidget(self.video)
+        self.radio_buttons_hlayout.addWidget(self.video_radio_button_wrapper)
+        self.radio_button_group.addButton(self.video, 3)
 
         # RADIO BUTTON VERIFY TIMESTAMP
         self.timestamp_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -158,7 +178,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.timestamp.setObjectName("timestamp")
         self.timestamp_vlayout.addWidget(self.timestamp)
         self.radio_buttons_hlayout.addWidget(self.timestamp_radio_button_wrapper)
-        self.radio_button_group.addButton(self.timestamp, 4)
+        self.radio_button_group.addButton(self.timestamp, 5)
 
 
         # RADIO BUTTON VERIFY PEC
@@ -180,7 +200,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.pec.setObjectName("pec")
         self.pec_vlayout.addWidget(self.pec)
         self.radio_buttons_hlayout.addWidget(self.pec_radio_button_wrapper)
-        self.radio_button_group.addButton(self.pec, 5)
+        self.radio_button_group.addButton(self.pec, 6)
 
         #AREA RECAP INFO
         self.acquisition_group_box = QtWidgets.QGroupBox(self)
@@ -278,9 +298,9 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.web.setText(TASK_WEB)
         self.select_task_page.mail.setText(TASK_MAIL)
         self.select_task_page.insta.setText(TASK_INSTAGRAM)
+        self.select_task_page.video.setText(TASK_VIDEO)
         self.select_task_page.timestamp.setText(TASK_VERIFY_TIMESTAMP)
         self.select_task_page.pec.setText(TASK_VERIFY_PEC)
-
     
     def __get_version(self):
         parser = SafeConfigParser()
