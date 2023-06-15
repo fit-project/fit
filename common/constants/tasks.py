@@ -27,5 +27,5 @@ EML="Download eml file"
 INSTAGRAM="Save instagram profile"
 FETCH_PROFILE="Fetch profile"
 SCRAPING_INSTAGRAM="Scrape profile"
-YOUTUBE="Save video"
+DOWNLOAD_VIDEO="Save video"
     

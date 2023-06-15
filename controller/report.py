@@ -103,7 +103,7 @@ class Report:
             pisa.CreatePDF(front_index, dest=self.output_front_result, options=pdf_options)
             pisa.CreatePDF(content_index, dest=self.output_content_result, options=pdf_options)
 
-        if type == 'email' or type == 'instagram' or type == 'youtube':
+        if type == 'email' or type == 'instagram' or type == 'video':
             content_index_path = os.path.join("assets", "templates",
                                               "template_email.html")
             content_index = open(content_index_path).read().format(
@@ -207,7 +207,7 @@ class Report:
 
     def __hash_reader(self):
         hash_text = ''
-        with open(os.path.join(self.cases_folder_path, 'acquisition.hash'), "r", encoding='utf-8') as f:
+        with open(os.path.join(self.cases_folder_path, 'acquisition.hash', ), "r", encoding='latin-1') as f:
             for line in f:
                 hash_text += '<p>' + line + "</p>"
         return hash_text
