@@ -7,17 +7,17 @@
 # -----
 ######  
 import cv2
-import pyautogui
 import numpy as np
 import sys
 
+from PIL import ImageGrab
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QMessageBox
 
-from view.acquisition.base import Base
+from screeninfo import get_monitors
+
 from view.acquisition.tasks.task import AcquisitionTask
 from view.error import Error as ErrorView
-from view.acquisition.tasks.audiocapture import RecordingThread
 
 from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 from common.constants import logger, details, state, status, tasks
@@ -33,14 +33,12 @@ class ScreenRecorder(QObject):
         self.run = True
         self.destroyed.connect(self.stop)
         self.controller = CodecController()
-        self.recording_thread = RecordingThread(target_file='test_recording.wav')
 
     def set_options(self, options):
 
-        
         # Specify resolution
-        self.resolution = (pyautogui.size())
-
+        self.width = get_monitors()[0].width
+        self.height = get_monitors()[0].height
         # Specify video codec       
         codec = next((item for item in self.controller.codec if item["id"] == options['codec_id']))
         self.codec = cv2.VideoWriter_fourcc(*codec["name"])
@@ -51,46 +49,42 @@ class ScreenRecorder(QObject):
 
         # Specify name of Output file
         self.filename = options['filename']
-        
+
     def start(self):
-        #Creating a VideoWriter object
-        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, self.resolution)
-        self.recording_thread.start()
+        # Creating a VideoWriter object
+        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, (self.width, self.height))
         try:
             while self.run:
-                #Take screenshot using PyAutoGUI
-                img = pyautogui.screenshot()
+                # Take screenshot using PyAutoGUI
+                img = ImageGrab.grab(bbox=(0, 0, self.width, self.height))
 
-                #Convert the screenshot to a numpy array
+                # Convert the screenshot to a numpy array
                 frame = np.array(img)
 
-                #Convert it from BGR(Blue, Green, Red) to RGB(Red, Green, Blue)
+                # Convert it from BGR(Blue, Green, Red) to RGB(Red, Green, Blue)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                #Write it to the output file
+                # Write it to the output file
                 self.out.write(frame)
 
-
         except:
-                error_dlg = ErrorView(QMessageBox.Icon.Critical,
-                            screenrecorder.SCREEN_RECODER,
-                            error.SCREEN_RECODER,
-                            str(sys.exc_info()[0])
-                            )
-                
-                error_dlg.exec()
+            error_dlg = ErrorView(QMessageBox.Icon.Critical,
+                                  screenrecorder.SCREEN_RECODER,
+                                  error.SCREEN_RECODER,
+                                  str(sys.exc_info()[0])
+                                  )
 
-        #Release the Video writer
+            error_dlg.exec()
+
+        # Release the Video writer
         self.out.release()
 
         self.finished.emit()  # emit the finished signal when the loop is done
-        #Destroy all windows
+        # Destroy all windows
         cv2.destroyAllWindows()
 
     def stop(self):
-        self.recording_thread.stop()
         self.run = False  # set the run condition to false on stop 
-
 
 
 class AcquisitionScreenRecorder(AcquisitionTask):
@@ -99,7 +93,6 @@ class AcquisitionScreenRecorder(AcquisitionTask):
         super().__init__(name, state, status, parent)
 
     def start(self, options):
-        
         self.th_screenrecorder = QThread()
         self.screenrecorder = ScreenRecorder()
         self.screenrecorder.set_options(options)
@@ -116,9 +109,9 @@ class AcquisitionScreenRecorder(AcquisitionTask):
         self.th_screenrecorder.start()
 
         self.parent().task_is_completed({
-                                'name' : tasks.SCREEN_RECORDER,
-                                'details' : details.SCREEN_RECORDER_STARTED
-                            })
+            'name': tasks.SCREEN_RECORDER,
+            'details': details.SCREEN_RECORDER_STARTED
+        })
 
     def stop(self):
         self.screenrecorder.stop()
@@ -127,29 +120,8 @@ class AcquisitionScreenRecorder(AcquisitionTask):
         self.parent().logger.info(logger.SCREEN_RECODER_PACKET_CAPTURE_COMPLETED)
 
         self.parent().task_is_completed({
-                                'name' : tasks.SCREEN_RECORDER,
-                                'state' : state.FINISHED,
-                                'status' : status.COMPLETED,
-                                'details' : details.SCREEN_RECORDER_COMPLETED
-                            })
-
-    def add_audio_to_video(video_path, audio_path, output_path):
-        # Carica il video e l'audio
-        video = VideoFileClip(video_path)
-        audio = AudioFileClip(audio_path)
-
-        # Estrae l'audio dal video originale
-        video_audio = video.audio
-
-        # Sovrapponi l'audio aggiuntivo all'audio del video
-        new_audio = video_audio.set_audio(audio)
-
-        # Sostituisci l'audio nel video con il nuovo audio
-        video_with_audio = video.set_audio(new_audio)
-
-        # Salva il video risultante con l'audio aggiunto
-        video_with_audio.write_videofile(output_path, codec="libx264", audio_codec="aac")
-
-        
-
-        
+            'name': tasks.SCREEN_RECORDER,
+            'state': state.FINISHED,
+            'status': status.COMPLETED,
+            'details': details.SCREEN_RECORDER_COMPLETED
+        })
