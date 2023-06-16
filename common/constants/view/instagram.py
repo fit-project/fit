@@ -30,7 +30,7 @@ LOGIN_ERROR="Login error"
 CONNECTION_ERROR="Connection error"
 INVALID_USER="Invalid username"
 INVALID_PROFILE="Invalid profile"
-
+SERVER_ERROR = "Server error"
 PLACEHOLDER_USERNAME="Phone/account/email"
 PLACEHOLDER_PASSWORD="password"
 PLACEHOLDER_PROFILE_NAME="Profile name to acquire"

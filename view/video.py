@@ -29,21 +29,35 @@ class VideoWorker(QtCore.QObject):
     scraped = QtCore.pyqtSignal()
     progress = QtCore.pyqtSignal()
     error = QtCore.pyqtSignal(object)
+    valid_url = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, video_controller, methods_to_execute):
+    def __init__(self, video_controller, methods_to_execute, input_url):
         super().__init__()
         self.video_controller = video_controller
         self.methods_to_execute = methods_to_execute
+        self.input_url = input_url
 
     @QtCore.pyqtSlot()
     def run(self):
-        for checkbox, method in self.methods_to_execute:
-            if checkbox:
-                method()
-                self.progress.emit()
+        if self.video_controller.sanitized_name is None:
+            try:
+                self.video_controller.create_video_title_sanitized(self.input_url.text())
+            except Exception as e:
+                self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
+            else:
+                self.valid_url.emit()
+        else:
+            for checkbox, method in self.methods_to_execute:
+                if checkbox:
+                    try:
+                        method()
+                    except Exception as e:
+                        self.error.emit({'title': video.SERVER_ERROR, 'msg': Error.VIDEO_SERVER_ERROR, 'details': e})
+                    else:
+                        self.progress.emit()
 
-        self.scraped.emit()
+            self.scraped.emit()
         self.finished.emit()
 
 
@@ -107,7 +121,6 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 40, 430, 140))
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
-
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
         self.input_url.setGeometry(QtCore.QRect(130, 60, 240, 20))
         self.input_url.setFont(font)
@@ -118,7 +131,6 @@ class Video(QtWidgets.QMainWindow):
         self.label_url.setGeometry(QtCore.QRect(40, 60, 80, 20))
         self.label_url.setFont(font)
         self.label_url.setObjectName("label_url")
-
 
         # Verify if input fields are empty
         self.input_fields = [self.input_url]
@@ -153,7 +165,6 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_audio.setGeometry(QtCore.QRect(230, 50, 70, 17))
         self.checkbox_audio.setFont(font)
         self.checkbox_audio.setObjectName("checkbox_audio")
-
 
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
         self.scrape_button.setGeometry(QtCore.QRect(410, 390, 70, 25))
@@ -193,7 +204,7 @@ class Video(QtWidgets.QMainWindow):
 
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
-        self.worker = VideoWorker(self.video_controller, self.methods_to_execute)
+        self.worker = VideoWorker(self.video_controller, self.methods_to_execute, self.input_url)
 
         self.worker.moveToThread(self.thread_worker)
         self.thread_worker.started.connect(self.worker.run)
@@ -204,6 +215,7 @@ class Video(QtWidgets.QMainWindow):
         self.worker.scraped.connect(self.__hanlde_scraped)
         self.worker.progress.connect(self.__handle_progress)
         self.worker.error.connect(self.__handle_error)
+        self.worker.valid_url.connect(self.__handle_valid_url)
 
         self.thread_worker.start()
 
@@ -215,7 +227,7 @@ class Video(QtWidgets.QMainWindow):
 
         self.setEnabled(True)
 
-        title = mail.SERVER_ERROR
+        title = video.SERVER_ERROR
         msg = Error.GENERIC_ERROR
         details = e
 
@@ -246,11 +258,23 @@ class Video(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
+        if self.video_controller.sanitized_name is None:
+            self.__init_worker()
+        else:
+            self.__start_scraped()
+
+    def __handle_valid_url(self):
+
+        self.thread_worker.quit()
+
+        loop = QtCore.QEventLoop()
+        QtCore.QTimer.singleShot(1000, loop.quit)
+        loop.exec()
 
         self.__start_scraped()
 
-
     def __start_scraped(self):
+
         if self.acquisition_directory is None:
             self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
                 'video',
@@ -258,13 +282,14 @@ class Video(QtWidgets.QMainWindow):
                 self.case_info['name'],
                 self.input_url.text()
             )
-
+        self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.sanitized_name)
         self.is_acquisition_running = True
         self.video_controller.set_url(self.input_url.text())
         self.methods_to_execute = [
-            (self.checkbox_audio.isChecked(), self.video_controller.extract_audio),
+
             (True, self.video_controller.scrape_info),
             (True, self.video_controller.download_video),
+            (self.checkbox_audio.isChecked(), self.video_controller.extract_audio),
         ]
 
         internal_tasks = list(filter(lambda task: task[0] == True, self.methods_to_execute))
@@ -277,9 +302,6 @@ class Video(QtWidgets.QMainWindow):
         self.acquisition.logger.info(Logger.DOWNLOAD_VIDEO)
         self.acquisition.info.add_task(tasks.DOWNLOAD_VIDEO, state.STARTED, status.PENDING)
 
-        # Create acquisition folder
-        title = self.video_controller.get_video_title_sanitized(self.input_url.text())
-        self.url_dir = os.path.join(self.acquisition_directory, title)
         if not os.path.exists(self.url_dir):
             os.makedirs(self.url_dir)
 
@@ -332,7 +354,7 @@ class Video(QtWidgets.QMainWindow):
             shutil.rmtree(video_dir)
         except OSError as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                                  tasks.INSTAGRAM,
+                                  tasks.DOWNLOAD_VIDEO,
                                   Error.DELETE_PROJECT_FOLDER,
                                   "Error: %s - %s." % (e.filename, e.strerror)
                                   )

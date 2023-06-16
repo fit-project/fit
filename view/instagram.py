@@ -330,7 +330,7 @@ class Instagram(QtWidgets.QMainWindow):
 
         self.setEnabled(True)
 
-        title = mail.SERVER_ERROR
+        title = instagram.SERVER_ERROR
         msg = Error.GENERIC_ERROR
         details = e
         
