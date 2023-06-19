@@ -6,21 +6,23 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import hashlib
 import json
 import os
 import re
 import shutil
 
+import requests
 import yt_dlp
+from youtube_comment_downloader import YoutubeCommentDownloader
 
 
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True,}
+        self.ydl_opts = {'quiet': True}
         self.acquisition_dir = None
         self.sanitized_name = None
+        self.video_id = None
 
     def set_url(self, url):
         self.url = url
@@ -30,13 +32,14 @@ class Video():
         self.acquisition_dir = acquisition_dir
         self.ydl_opts.update({'outtmpl': acquisition_dir + '/%(title)s.%(ext)s'})
 
-    # download video in mp4 (default)
+    # download video and set video_id for further operations
     def download_video(self):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            ydl.extract_info(self.url, download=True)
+            info = ydl.extract_info(self.url, download=True)
+            self.video_id = info['id']
 
     # extract video title and sanitize it
-    def create_video_title_sanitized(self, url):
+    def get_video_title_sanitized(self, url):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(url, download=False)
             title = video_info['title']
@@ -45,7 +48,7 @@ class Video():
             return self.sanitized_name
 
     # download video information
-    def scrape_info(self):
+    def get_info(self):
         video_dir = os.path.join(self.acquisition_dir, self.sanitized_name + '.json')
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             info = ydl.extract_info(self.url, download=False)
@@ -53,10 +56,10 @@ class Video():
                 json.dump(ydl.sanitize_info(info), f)
 
     # extract audio from video
-    def extract_audio(self):
+    def get_audio(self):
         self.ydl_opts.update({
             'format': 'bestaudio',
-            'k': True,
+            'keep-video': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio'
             }]
@@ -64,20 +67,34 @@ class Video():
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download(self.url)
 
-        # extract thumbnail from video
-    def extract_thumbnail(self):
+    # extract thumbnail from video
+    def get_thumbnail(self):
+        self.ydl_opts.update({
+            'writethumbnail': True
+        })
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
             if 'thumbnail' in video_info:
                 thumbnail = video_info['thumbnail']
                 ydl.download([thumbnail])
-    def extract_subs(self):
+
+    # download subtitles (if any)
+    def get_subtitles(self):
         self.ydl_opts.update({
             'writesubtitles': True
         })
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download(self.url)
 
+    def get_comments(self):
+        if 'youtube.com/watch' in self.url or 'youtu.be' in self.url:
+            downloader = YoutubeCommentDownloader()
+            file_path = os.path.join(self.acquisition_dir,'video_comments.json')
+            comments = list(downloader.get_comments_from_url(self.url,
+                                                        sort_by=0)) # 0 =popular
+            with open(file_path, 'w') as f:
+                json.dump(comments, f)
+        #else: not a youtube video
 
     def create_zip(self, path):
         for folder in os.listdir(path):

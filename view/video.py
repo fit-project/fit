@@ -42,7 +42,7 @@ class VideoWorker(QtCore.QObject):
     def run(self):
         if self.video_controller.sanitized_name is None:
             try:
-                self.video_controller.create_video_title_sanitized(self.input_url.text())
+                self.video_controller.get_video_title_sanitized(self.input_url.text())
             except Exception as e:
                 self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
             else:
@@ -173,6 +173,15 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_thumbnail.setFont(font)
         self.checkbox_thumbnail.setObjectName("checkbox_thumbnail")
 
+        self.checkbox_subtitles= QtWidgets.QCheckBox(self.acquisition_group_box)
+        self.checkbox_subtitles.setGeometry(QtCore.QRect(230, 90, 100, 17))
+        self.checkbox_subtitles.setFont(font)
+        self.checkbox_subtitles.setObjectName("checkbox_subtitles")
+
+        self.checkbox_comments = QtWidgets.QCheckBox(self.acquisition_group_box)
+        self.checkbox_comments.setGeometry(QtCore.QRect(230, 110, 100, 17))
+        self.checkbox_comments.setFont(font)
+        self.checkbox_comments.setObjectName("checkbox_comments")
 
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
@@ -210,6 +219,8 @@ class Video(QtWidgets.QMainWindow):
         self.label_aditional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
         self.checkbox_audio.setText(video.AUDIO)
         self.checkbox_thumbnail.setText(video.THUMBNAIL)
+        self.checkbox_subtitles.setText(video.SUBTITLES)
+        self.checkbox_comments.setText(video.COMMENTS)
         self.scrape_button.setText(general.BUTTON_SCRAPE)
 
     def __init_worker(self):
@@ -295,10 +306,12 @@ class Video(QtWidgets.QMainWindow):
         self.video_controller.set_url(self.input_url.text())
         self.methods_to_execute = [
 
-            (True, self.video_controller.scrape_info),
+            (True, self.video_controller.get_info),
             (True, self.video_controller.download_video),
-            (self.checkbox_audio.isChecked(), self.video_controller.extract_audio),
-            (self.checkbox_thumbnail.isChecked(), self.video_controller.extract_thumbnail),
+            (self.checkbox_audio.isChecked(), self.video_controller.get_audio),
+            (self.checkbox_thumbnail.isChecked(), self.video_controller.get_thumbnail),
+            (self.checkbox_subtitles.isChecked(), self.video_controller.get_subtitles),
+            (self.checkbox_comments.isChecked(), self.video_controller.get_comments),
         ]
 
         internal_tasks = list(filter(lambda task: task[0] == True, self.methods_to_execute))

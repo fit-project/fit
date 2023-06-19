@@ -12,9 +12,11 @@ PLACEHOLDER_URL="https://www.youtube.com/watch?v=dQw4w9WgXcQ" # :)
 
 ACQUISITON_SETTINGS="Acquisition settings"
 BASIC_INFORMATION="Basic information"
-INFO="Json information"
+INFO="Video information"
 ADDITIONAL_INFORMATION="Additional information"
 AUDIO="Extract audio"
 THUMBNAIL="Thumbnail"
+SUBTITLES="Subtitles"
+COMMENTS="Comments"
 SERVER_ERROR = "Server error"
 INVALID_URL="Invalid URL"
