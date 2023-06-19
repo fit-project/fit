@@ -5,10 +5,12 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
+import string
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-
+from PyQt6.QtCore import QRegularExpression
+from PyQt6.QtGui import QRegularExpressionValidator
 
 from controller.case import Case as CaseController
 from controller.configurations.tabs.general.typesproceedings import TypesProceedings as TypesProceedingsController
@@ -50,6 +52,8 @@ class CaseForm(QtWidgets.QWidget):
         self.name_label.setObjectName("name_label")
         self.case_form_layout.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.name_label)
         self.name = QtWidgets.QComboBox(self)
+        self.name.editTextChanged.connect(self.__validate_input)
+
         font = QtGui.QFont()
         font.setPointSize(10)
         self.name.setFont(font)
@@ -119,7 +123,14 @@ class CaseForm(QtWidgets.QWidget):
 
         self.retranslateUi()
 
+    def __validate_input(self, text):
+        valid_text = self.__remove_chars(text)
+        self.name.setEditText(valid_text)
 
+    def __remove_chars(self, text):
+        valid_characters = string.ascii_letters + string.digits + "_-"
+        valid_text = ''.join(c for c in text if c.lower() in valid_characters)
+        return valid_text
     def retranslateUi(self):
 
         self.setWindowTitle(TITLE)
