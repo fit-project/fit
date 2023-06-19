@@ -449,7 +449,9 @@ class Mail(QtWidgets.QMainWindow):
 
         if self.configuration_group_box.isEnabled():
             self.configuration_group_box.setEnabled(False)
-
+        center_x = self.x() + self.width / 2
+        center_y = self.y() + self.height / 2
+        self.spinner.set_position(center_x,center_y)
         self.spinner.start()
         self.setEnabled(False)
 
