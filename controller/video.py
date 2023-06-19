@@ -18,7 +18,7 @@ import yt_dlp
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True}
+        self.ydl_opts = {'quiet': True,}
         self.acquisition_dir = None
         self.sanitized_name = None
 
@@ -71,6 +71,13 @@ class Video():
             if 'thumbnail' in video_info:
                 thumbnail = video_info['thumbnail']
                 ydl.download([thumbnail])
+    def extract_subs(self):
+        self.ydl_opts.update({
+            'writesubtitles': True
+        })
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            ydl.download(self.url)
+
 
     def create_zip(self, path):
         for folder in os.listdir(path):

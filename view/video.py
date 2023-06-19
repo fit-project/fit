@@ -116,23 +116,23 @@ class Video(QtWidgets.QMainWindow):
         # Get timestamp parameters
         self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
 
-        # LOGIN CONFIGURATION GROUP BOX
+        # VIDEO CONFIGURATION GROUP BOX
         self.url_configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.url_configuration_group_box.setEnabled(True)
         self.url_configuration_group_box.setFont(font)
         self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 40, 430, 140))
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
+        self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
+        self.label_url.setGeometry(QtCore.QRect(40, 60, 80, 20))
+        self.label_url.setFont(font)
+        self.label_url.setObjectName("label_url")
+
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
         self.input_url.setGeometry(QtCore.QRect(130, 60, 240, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(video.PLACEHOLDER_URL)
-
-        self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
-        self.label_url.setGeometry(QtCore.QRect(40, 60, 80, 20))
-        self.label_url.setFont(font)
-        self.label_url.setObjectName("label_url")
 
         # Verify if input fields are empty
         self.input_fields = [self.input_url]
@@ -256,11 +256,9 @@ class Video(QtWidgets.QMainWindow):
         self.acquisition.upadate_progress_bar()
 
     def __scrape(self):
-        if self.url_configuration_group_box.isEnabled() is True:
-            self.url_configuration_group_box.setEnabled(False)
 
-        # Login params
-        self.url = self.label_url.text()
+        # video_url
+        self.url = self.input_url.text()
 
         self.spinner.start()
         self.setEnabled(False)
@@ -346,6 +344,7 @@ class Video(QtWidgets.QMainWindow):
 
         self.acquisition_directory = None
         self.is_acquisition_running = False
+        self.video_controller.sanitized_name = None
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
@@ -356,6 +355,7 @@ class Video(QtWidgets.QMainWindow):
         return_value = msg.exec()
         if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             self.__open_acquisition_directory()
+
 
     def __zip_and_remove(self, video_dir):
 
