@@ -152,10 +152,35 @@ class Video(QtWidgets.QMainWindow):
         self.label_base_info.setFont(font)
         self.label_base_info.setObjectName("label_base_info")
 
-        self.label_info = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_info.setGeometry(QtCore.QRect(20, 50, 111, 20))
-        self.label_info.setFont(font)
-        self.label_info.setObjectName("label_info")
+        self.label_title = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_title.setGeometry(QtCore.QRect(20, 50, 111, 20))
+        self.label_title.setFont(font)
+        self.label_title.setObjectName("label_title")
+
+        self.label_channel = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_channel.setGeometry(QtCore.QRect(20, 70, 111, 20))
+        self.label_channel.setFont(font)
+        self.label_channel.setObjectName("label_channel")
+
+        self.label_caption = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_caption.setGeometry(QtCore.QRect(20, 90, 111, 20))
+        self.label_caption.setFont(font)
+        self.label_caption.setObjectName("label_caption")
+        self.label_tags = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_tags.setGeometry(QtCore.QRect(20, 110, 111, 20))
+        self.label_tags.setFont(font)
+        self.label_tags.setObjectName("label_tags")
+
+        self.label_duration = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_duration.setGeometry(QtCore.QRect(20, 130, 111, 20))
+        self.label_duration.setFont(font)
+        self.label_duration.setObjectName("label_duration")
+
+        self.label_views = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_views.setGeometry(QtCore.QRect(20, 150, 111, 20))
+        self.label_views.setFont(font)
+        self.label_views.setObjectName("label_views")
+
 
         # ADDITIONAL_INFORMATION
         self.label_aditional_information = QtWidgets.QLabel(self.acquisition_group_box)
@@ -182,6 +207,7 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_comments.setGeometry(QtCore.QRect(230, 110, 100, 17))
         self.checkbox_comments.setFont(font)
         self.checkbox_comments.setObjectName("checkbox_comments")
+
 
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
@@ -215,7 +241,12 @@ class Video(QtWidgets.QMainWindow):
 
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
         self.label_base_info.setText('<strong>' + video.BASIC_INFORMATION + '</strong>')
-        self.label_info.setText(video.INFO)
+        self.label_title.setText(video.TITLE)
+        self.label_channel.setText(video.CHANNEL)
+        self.label_caption.setText(video.CAPTION)
+        self.label_duration.setText(video.DURATION)
+        self.label_views.setText(video.VIEWS)
+        self.label_tags.setText(video.TAGS)
         self.label_aditional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
         self.checkbox_audio.setText(video.AUDIO)
         self.checkbox_thumbnail.setText(video.THUMBNAIL)

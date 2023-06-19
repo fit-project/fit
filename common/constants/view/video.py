@@ -12,7 +12,12 @@ PLACEHOLDER_URL="https://www.youtube.com/watch?v=dQw4w9WgXcQ" # :)
 
 ACQUISITON_SETTINGS="Acquisition settings"
 BASIC_INFORMATION="Basic information"
-INFO="Video information"
+TITLE="Title"
+CHANNEL="Channel"
+CAPTION="Caption"
+DURATION="Duration"
+VIEWS="View count"
+TAGS="Tags"
 ADDITIONAL_INFORMATION="Additional information"
 AUDIO="Extract audio"
 THUMBNAIL="Thumbnail"
