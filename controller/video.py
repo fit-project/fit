@@ -18,7 +18,7 @@ import yt_dlp
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = None
+        self.ydl_opts = {'quiet': True}
         self.acquisition_dir = None
         self.sanitized_name = None
 
@@ -28,9 +28,9 @@ class Video():
     # set output dir
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
-        self.ydl_opts = {'outtmpl': acquisition_dir + '/%(title)s.%(ext)s'}
+        self.ydl_opts.update({'outtmpl': acquisition_dir + '/%(title)s.%(ext)s'})
 
-    # download mp4
+    # download video in mp4 (default)
     def download_video(self):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.extract_info(self.url, download=True)
@@ -52,10 +52,25 @@ class Video():
             with open(video_dir, 'w') as f:
                 json.dump(ydl.sanitize_info(info), f)
 
-    # extract audio from video (see docs)
+    # extract audio from video
     def extract_audio(self):
-        # todo
-        return
+        self.ydl_opts.update({
+            'format': 'bestaudio',
+            'k': True,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio'
+            }]
+        })
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            ydl.download(self.url)
+
+        # extract thumbnail from video
+    def extract_thumbnail(self):
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            video_info = ydl.extract_info(self.url, download=False)
+            if 'thumbnail' in video_info:
+                thumbnail = video_info['thumbnail']
+                ydl.download([thumbnail])
 
     def create_zip(self, path):
         for folder in os.listdir(path):

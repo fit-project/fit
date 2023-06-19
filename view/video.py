@@ -88,7 +88,9 @@ class Video(QtWidgets.QMainWindow):
         font.setPointSize(10)
 
         self.setObjectName("mainWindow")
-        self.resize(530, 480)
+        self.width = 530
+        self.height = 480
+        self.setFixedSize(self.width, self.height)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.centralwidget.setObjectName("centralwidget")
@@ -162,10 +164,17 @@ class Video(QtWidgets.QMainWindow):
         self.label_aditional_information.setObjectName("label_aditional_information")
 
         self.checkbox_audio = QtWidgets.QCheckBox(self.acquisition_group_box)
-        self.checkbox_audio.setGeometry(QtCore.QRect(230, 50, 70, 17))
+        self.checkbox_audio.setGeometry(QtCore.QRect(230, 50, 100, 17))
         self.checkbox_audio.setFont(font)
         self.checkbox_audio.setObjectName("checkbox_audio")
 
+        self.checkbox_thumbnail = QtWidgets.QCheckBox(self.acquisition_group_box)
+        self.checkbox_thumbnail.setGeometry(QtCore.QRect(230, 70, 100, 17))
+        self.checkbox_thumbnail.setFont(font)
+        self.checkbox_thumbnail.setObjectName("checkbox_thumbnail")
+
+
+        # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
         self.scrape_button.setGeometry(QtCore.QRect(410, 390, 70, 25))
         self.scrape_button.setObjectName("scrapeButton")
@@ -200,6 +209,7 @@ class Video(QtWidgets.QMainWindow):
         self.label_info.setText(video.INFO)
         self.label_aditional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
         self.checkbox_audio.setText(video.AUDIO)
+        self.checkbox_thumbnail.setText(video.THUMBNAIL)
         self.scrape_button.setText(general.BUTTON_SCRAPE)
 
     def __init_worker(self):
@@ -290,6 +300,7 @@ class Video(QtWidgets.QMainWindow):
             (True, self.video_controller.scrape_info),
             (True, self.video_controller.download_video),
             (self.checkbox_audio.isChecked(), self.video_controller.extract_audio),
+            (self.checkbox_thumbnail.isChecked(), self.video_controller.extract_thumbnail),
         ]
 
         internal_tasks = list(filter(lambda task: task[0] == True, self.methods_to_execute))
