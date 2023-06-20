@@ -9,8 +9,6 @@
 import string
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import QRegularExpression
-from PyQt6.QtGui import QRegularExpressionValidator
 
 from controller.case import Case as CaseController
 from controller.configurations.tabs.general.typesproceedings import TypesProceedings as TypesProceedingsController
