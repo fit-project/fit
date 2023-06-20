@@ -210,8 +210,8 @@ class Video(QtWidgets.QMainWindow):
 
 
         # SCRAPE BUTTON
-        self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
-        self.scrape_button.setGeometry(QtCore.QRect(410, 390, 70, 25))
+        self.scrape_button = QtWidgets.QPushButton(self)
+        self.scrape_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
         self.scrape_button.setObjectName("scrapeButton")
         self.scrape_button.setFont(font)
         self.scrape_button.clicked.connect(self.__scrape)
