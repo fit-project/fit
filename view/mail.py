@@ -44,7 +44,7 @@ class MailWorker(QObject):
     finished = pyqtSignal()
 
     def __init__(self, mail_controller, email, password, server, 
-                 port, criteria, acquisition_mail_dir, emails_to_save, is_downloading):
+                 port, criteria, acquisition_mail_dir, acquisition_directory, emails_to_save, is_downloading):
         super().__init__()
         self.mail_controller = mail_controller       
         self.email = email
@@ -53,6 +53,7 @@ class MailWorker(QObject):
         self.port = port
         self.search_criteria = criteria
         self.acquisition_mail_dir = acquisition_mail_dir
+        self.acquisition_directory = acquisition_directory
         self.emails_to_save = emails_to_save
         self.is_downloading = is_downloading  
     
@@ -94,6 +95,7 @@ class MailWorker(QObject):
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
                 self.mail_controller.write_emails(email_id, self.acquisition_mail_dir, folder_stripped, folder)
                 self.progress.emit()
+        self.mail_controller.write_logs(self.acquisition_directory)
 
 
 
@@ -401,7 +403,7 @@ class Mail(QtWidgets.QMainWindow):
     def __init_worker(self):
         self.thread_worker = QThread()
         self.worker = MailWorker(self.mail_controller, self.email, self.password, self.server, 
-                                 self.port, self.search_criteria, self.acquisition_mail_dir, 
+                                 self.port, self.search_criteria, self.acquisition_mail_dir, self.acquisition_directory,
                                  self.emails_to_save, self.is_downloading)
         
         self.worker.moveToThread(self.thread_worker)
