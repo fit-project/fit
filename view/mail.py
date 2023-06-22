@@ -335,16 +335,16 @@ class Mail(QtWidgets.QMainWindow):
         self.label_to_date.setObjectName("label_to_date")
 
         # LOGIN BUTTON
-        self.search_button = QtWidgets.QPushButton(self.centralwidget)
-        self.search_button.setGeometry(QRect(405, 505, 75, 25))
+        self.search_button = QtWidgets.QPushButton(self)
+        self.search_button.setGeometry(QRect(405, 525, 75, 25))
         self.search_button.clicked.connect(self.__search)
         self.search_button.setFont(font)
         self.search_button.setObjectName("search_action")
         self.search_button.setEnabled(False)
 
         # SCRAPE BUTTON
-        self.download_button = QtWidgets.QPushButton(self.centralwidget)
-        self.download_button.setGeometry(QRect(875, 505, 75, 25))
+        self.download_button = QtWidgets.QPushButton(self)
+        self.download_button.setGeometry(QRect(875, 525, 75, 25))
         self.download_button.clicked.connect(self.__download)
         self.download_button.setFont(font)
         self.download_button.setObjectName("StartAction")
@@ -449,7 +449,9 @@ class Mail(QtWidgets.QMainWindow):
 
         if self.configuration_group_box.isEnabled():
             self.configuration_group_box.setEnabled(False)
-
+        center_x = self.x() + self.width / 2
+        center_y = self.y() + self.height / 2
+        self.spinner.set_position(center_x,center_y)
         self.spinner.start()
         self.setEnabled(False)
 

@@ -99,7 +99,9 @@ class Instagram(QtWidgets.QMainWindow):
 
 
         self.setObjectName("mainWindow")
-        self.resize(530, 480)
+        self.width = 530
+        self.height = 480
+        self.setFixedSize(self.width, self.height)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.centralwidget.setObjectName("centralwidget")
@@ -256,9 +258,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.checkbox_saved_post.setFont(font)
         self.checkbox_saved_post.setObjectName("checkbox_saved_post")
 
-       
-        self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
-        self.scrape_button.setGeometry(QtCore.QRect(410, 390, 70, 25))
+
+        self.scrape_button = QtWidgets.QPushButton(self)
+        self.scrape_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
         self.scrape_button.setObjectName("scrapeButton")
         self.scrape_button.setFont(font)
         self.scrape_button.clicked.connect(self.__scrape)
@@ -358,7 +360,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.username = self.input_username.text()
         self.password = self.input_password.text()
         self.profile =  self.input_profile.text()
-
+        center_x = self.x() + self.width / 2
+        center_y = self.y() + self.height / 2
+        self.spinner.set_position(center_x, center_y)
         self.spinner.start()
         self.setEnabled(False)
 
