@@ -86,7 +86,7 @@ class General(QtWidgets.QWidget):
       self.tool_button_cases_folder.setText("...")
       self.group_box_home_page_url.setTitle(general.HOME_URL)
       self.group_box_user_agent.setTitle(general.USER_AGENT)
-      self.tool_button_user_agent.setText("...")
+      self.tool_button_user_agent.setText(general.CHOOSE)
 
    def __select_cases_folder(self):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(self,

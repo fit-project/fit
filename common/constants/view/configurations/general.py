@@ -11,3 +11,4 @@ USER_AGENT_SITE="https://www.useragents.me/"
 CASE_FOLDER="Cases Folder"
 HOME_URL="Home Page URL"
 USER_AGENT="Usera Agent"
+CHOOSE="..." #CHOSE? SELECT?
