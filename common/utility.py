@@ -15,7 +15,7 @@ import hashlib
 import ntplib
 
 import urllib.request
-from   urllib.parse import urlparse
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 from configparser import SafeConfigParser
 
@@ -205,3 +205,16 @@ def screenshot_filename(path, basename, extention = '.png'):
 def is_cmd(name):
   return distutils.spawn.find_executable(name) is not None
 
+
+def get_version():
+    parser = SafeConfigParser()
+    parser.read('assets/config.ini')
+    version = parser.get('fit_properties', 'version')
+
+    return version
+
+
+def get_logo():
+    logo_path = os.path.join("assets", "branding", "FIT-640.png")
+
+    return logo_path
