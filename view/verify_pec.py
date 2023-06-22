@@ -66,7 +66,7 @@ class VerifyPec(QtWidgets.QMainWindow):
 
         self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.eml_group_box.setEnabled(True)
-        self.eml_group_box.setGeometry(QtCore.QRect(50, 20, 500, 180))
+        self.eml_group_box.setGeometry(QtCore.QRect(50, 20, 500, 160))
         self.eml_group_box.setObjectName("eml_group_box")
 
         # EML
@@ -85,7 +85,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.label_eml.setObjectName("label_eml")
 
         # VERIFICATION BUTTON
-        self.verification_button = QtWidgets.QPushButton(self.centralwidget)
+        self.verification_button = QtWidgets.QPushButton(self)
         self.verification_button.setGeometry(QtCore.QRect(450, 140, 75, 30))
         self.verification_button.clicked.connect(self.__verify)
         self.verification_button.setObjectName("StartAction")

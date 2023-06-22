@@ -142,8 +142,8 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.label_crt.setObjectName("label_crt")
 
         # VERIFICATION BUTTON
-        self.verification_button = QtWidgets.QPushButton(self.centralwidget)
-        self.verification_button.setGeometry(QtCore.QRect(300, 170, 75, 30))
+        self.verification_button = QtWidgets.QPushButton(self)
+        self.verification_button.setGeometry(QtCore.QRect(300, 190, 75, 30))
         self.verification_button.clicked.connect(self.verify)
         self.verification_button.setFont(font)
         self.verification_button.setObjectName("StartAction")
