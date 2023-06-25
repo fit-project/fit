@@ -135,7 +135,7 @@ class Instagram(QtWidgets.QMainWindow):
 
 
         self.input_username = QtWidgets.QLineEdit(self.loging_configuration_group_box)
-        self.input_username.setGeometry(QtCore.QRect(130, 30, 240, 20))
+        self.input_username.setGeometry(QtCore.QRect(130, 30, 200, 20))
         self.input_username.setFont(font)
         self.input_username.setPlaceholderText(instagram.PLACEHOLDER_USERNAME)
         self.input_username.setObjectName("input_username")
@@ -146,7 +146,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_username.setObjectName("label_username")
 
         self.input_password = QtWidgets.QLineEdit(self.loging_configuration_group_box)
-        self.input_password.setGeometry(QtCore.QRect(130, 60, 240, 20))
+        self.input_password.setGeometry(QtCore.QRect(130, 60, 200, 20))
         self.input_password.setFont(font)
         self.input_password.setObjectName("input_password")
         self.input_password.setPlaceholderText(instagram.PLACEHOLDER_PASSWORD)
@@ -158,7 +158,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.label_password.setObjectName("label_password")
 
         self.input_profile = QtWidgets.QLineEdit(self.loging_configuration_group_box)
-        self.input_profile.setGeometry(QtCore.QRect(130, 90, 240, 20))
+        self.input_profile.setGeometry(QtCore.QRect(130, 90, 200, 20))
         self.input_profile.setFont(font)
         self.input_profile.setPlaceholderText(instagram.PLACEHOLDER_PROFILE_NAME)
         self.input_profile.setObjectName("input_profile")
@@ -178,7 +178,7 @@ class Instagram(QtWidgets.QMainWindow):
         # ACQUISITION GROUP BOX
         self.acquisition_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.acquisition_group_box.setFont(font)
-        self.acquisition_group_box.setEnabled(True)
+        self.acquisition_group_box.setEnabled(False)
         self.acquisition_group_box.setGeometry(QtCore.QRect(50, 200, 430, 180))
         self.acquisition_group_box.setObjectName("acquisition_group_box")
 
@@ -256,12 +256,18 @@ class Instagram(QtWidgets.QMainWindow):
         self.checkbox_saved_post.setFont(font)
         self.checkbox_saved_post.setObjectName("checkbox_saved_post")
 
-       
+        self.login_button = QtWidgets.QPushButton(self.centralwidget)
+        self.login_button.setGeometry(QtCore.QRect(395, 140, 70, 25))
+        self.login_button.setObjectName("loginButton")
+        self.login_button.setFont(font)
+        self.login_button.clicked.connect(self.__login)
+        self.login_button.setEnabled(False)
+
         self.scrape_button = QtWidgets.QPushButton(self.centralwidget)
         self.scrape_button.setGeometry(QtCore.QRect(410, 390, 70, 25))
         self.scrape_button.setObjectName("scrapeButton")
         self.scrape_button.setFont(font)
-        self.scrape_button.clicked.connect(self.__scrape)
+        #self.scrape_button.clicked.connect(self.__scrape)
         self.scrape_button.setEnabled(False)
 
         self.status = QtWidgets.QStatusBar()
@@ -302,9 +308,10 @@ class Instagram(QtWidgets.QMainWindow):
         self.checkbox_saved_post.setText(instagram.SAVED)
         self.checkbox_follower.setText(instagram.FOLLOWERS)
         self.scrape_button.setText(general.BUTTON_SCRAPE)
+        self.login_button.setText(general.BUTTON_LOGIN)
     
     def __init_worker(self):
-        self.thread_worker= QtCore.QThread()
+        self.thread_worker = QtCore.QThread()
         self.worker = InstagramWorker(self.instagram_controller, self.methods_to_execute)
         
         self.worker.moveToThread(self.thread_worker)
@@ -350,14 +357,14 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition.upadate_progress_bar()
     
 
-    def __scrape(self):
+    def __login(self):
         if self.loging_configuration_group_box.isEnabled() is True:
                 self.loging_configuration_group_box.setEnabled(False)
 
         #Login params
         self.username = self.input_username.text()
         self.password = self.input_password.text()
-        self.profile =  self.input_profile.text()
+        self.profile = self.input_profile.text()
 
         self.spinner.start()
         self.setEnabled(False)
@@ -486,7 +493,7 @@ class Instagram(QtWidgets.QMainWindow):
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
-        self.scrape_button.setEnabled(all_field_filled)
+        self.login_button.setEnabled(all_field_filled)
 
     def __case(self):
         self.case_view.exec()
