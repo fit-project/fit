@@ -10,6 +10,8 @@
 import logging
 import os.path
 import shutil
+import platform
+import subprocess
 from urllib.parse import urlparse
 
 import numpy as np
@@ -355,7 +357,11 @@ class Web(QtWidgets.QMainWindow):
             self.__open_acquisition_directory()
 
     def __open_acquisition_directory(self):
-        os.startfile(self.acquisition_directory)
+        if platform.system() == 'Windows':
+            os.startfile(self.acquisition_directory)
+        else:
+            subprocess.call(["xdg-open", self.acquisition_directory])
+
 
     def __disable_all(self):
         self.setEnabled(False)
@@ -388,6 +394,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().save_resources(self.acquisition_page_folder)
 
     def __zip_and_remove(self):
+        print(self.acquisition_page_folder)
         shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
         downloads_folder = os.path.join(self.acquisition_directory, "downloads")
         has_files = os.listdir(downloads_folder)
