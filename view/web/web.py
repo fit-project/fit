@@ -394,6 +394,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().save_resources(self.acquisition_page_folder)
 
     def __zip_and_remove(self):
+        print(self.acquisition_page_folder)
         shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
         downloads_folder = os.path.join(self.acquisition_directory, "downloads")
         has_files = os.listdir(downloads_folder)
