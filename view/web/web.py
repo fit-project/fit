@@ -35,7 +35,7 @@ from common.constants.view import general
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-from common.utility import screenshot_filename
+from common.utility import screenshot_filename, get_version
 
 logger = logging.getLogger(__name__)
 
@@ -533,6 +533,9 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
         self.browser = Browser()
+
+        user_agent = self.configuration_general.configuration['user_agent']
+        self.browser.page().profile().setHttpUserAgent(user_agent+' FreezingInternetTool/'+get_version())
 
         if page is None:
             page = WebEnginePage(self.browser)

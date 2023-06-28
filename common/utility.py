@@ -15,7 +15,7 @@ import hashlib
 import ntplib
 
 import urllib.request
-from   urllib.parse import urlparse
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 from configparser import SafeConfigParser
 
