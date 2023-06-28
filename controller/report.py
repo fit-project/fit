@@ -12,9 +12,14 @@ import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
+from common.utility import get_logo, get_version, get_language
 
-import common.constants.controller.report as REPORT
-from common.utility import get_logo, get_version
+if get_language() == 'italian':
+    import common.constants.controller.report as REPORT
+else:
+    import common.constants.controller.report_eng as REPORT
+
+
 
 
 class Report:
@@ -159,27 +164,27 @@ class Report:
             acquisition_files[file] = file
 
         if not any(value.endswith('.avi') for value in acquisition_files.values()):
-            acquisition_files['acquisition.avi'] = "File non prodotto"
+            acquisition_files['acquisition.avi'] = REPORT.NOT_PRODUCED
         if not 'acquisition.hash' in acquisition_files.values():
-            acquisition_files['acquisition.hash'] = "File non prodotto"
+            acquisition_files['acquisition.hash'] = REPORT.NOT_PRODUCED
         if not 'acquisition.log' in acquisition_files.values():
-            acquisition_files['acquisition.log'] = "File non prodotto"
+            acquisition_files['acquisition.log'] = REPORT.NOT_PRODUCED
         if not any(value.endswith('.pcap') for value in acquisition_files.values()):
-            acquisition_files['acquisition.pcap'] = "File non prodotto"
+            acquisition_files['acquisition.pcap'] = REPORT.NOT_PRODUCED
         if not any(value.endswith('.zip') for value in acquisition_files.values()):
-            acquisition_files['acquisition.zip'] = "File non prodotto"
+            acquisition_files['acquisition.zip'] = REPORT.NOT_PRODUCED
         if not 'whois.txt' in acquisition_files.values():
-            acquisition_files['whois.txt'] = "File non prodotto"
+            acquisition_files['whois.txt'] = REPORT.NOT_PRODUCED
         if not 'headers.txt' in acquisition_files.values():
-            acquisition_files['headers.txt'] = "File non prodotto"
+            acquisition_files['headers.txt'] = REPORT.NOT_PRODUCED
         if not 'nslookup.txt' in acquisition_files.values():
-            acquisition_files['nslookup.txt'] = "File non prodotto"
+            acquisition_files['nslookup.txt'] = REPORT.NOT_PRODUCED
         if not 'server.cer' in acquisition_files.values():
-            acquisition_files['server.cer'] = "File non prodotto"
+            acquisition_files['server.cer'] = REPORT.NOT_PRODUCED
         if not 'sslkey.log' in acquisition_files.values():
-            acquisition_files['sslkey.log'] = "File non prodotto"
+            acquisition_files['sslkey.log'] = REPORT.NOT_PRODUCED
         if not 'traceroute.txt' in acquisition_files.values():
-            acquisition_files['traceroute.txt'] = "File non prodotto"
+            acquisition_files['traceroute.txt'] = REPORT.NOT_PRODUCED
 
         return acquisition_files
 
@@ -201,7 +206,7 @@ class Report:
                 pass
             if size > 0:
                 zip_enum += '<p>' + filename + "</p>"
-                zip_enum += '<p>Dimensione: ' + str(size) + " bytes</p>"
+                zip_enum += '<p>'+REPORT.NOT_PRODUCED + str(size) + " bytes</p>"
                 zip_enum += '<hr>'
         return zip_enum
 

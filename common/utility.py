@@ -218,3 +218,9 @@ def get_logo():
     logo_path = os.path.join("assets", "branding", "FIT-640.png")
 
     return logo_path
+
+
+def get_language():
+    parser = SafeConfigParser()
+    parser.read('assets/config.ini')
+    return parser.get('fit_properties', 'language')

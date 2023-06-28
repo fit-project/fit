@@ -11,8 +11,12 @@ import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 
-from common.utility import get_logo, get_version
-import common.constants.controller.report as REPORT
+from common.utility import get_logo, get_version, get_language
+
+if get_language() == 'italian':
+    import common.constants.controller.report as REPORT
+else:
+    import common.constants.controller.report_eng as REPORT
 
 class Html2Pdf:
     def __init__(self, cases_folder_path, case_info, ntp):
