@@ -13,7 +13,8 @@ from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
 
-from common.report import ReportText
+import common.constants.controller.report as REPORT
+from common.utility import get_logo, get_version
 
 
 class Report:
@@ -28,7 +29,6 @@ class Report:
     def generate_pdf(self, type, ntp):
 
         # PREPARING DATA TO FILL THE PDF
-        phrases = ReportText()
         if type == 'web':
             try:
                 with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
@@ -46,8 +46,8 @@ class Report:
         # FILLING FRONT PAGE WITH DATA
         front_index_path = os.path.join("assets", "templates","front.html")
         front_index = open(front_index_path).read().format(
-            img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
-            title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
+            img=get_logo(), t1=REPORT.T1,
+            title=REPORT.TITLE, report=REPORT.REPORT, version=get_version()
         )
 
         # FILLING TEMPLATE WITH DATA
@@ -55,42 +55,42 @@ class Report:
             content_index_path = os.path.join("assets", "templates", "template_web.html")
             content_index = open(content_index_path).read().format(
 
-                title=phrases.TEXT['title'],
-                index=phrases.TEXT['index'],
-                description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
-                case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
-                case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
-                case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
+                title=REPORT.TITLE,
+                index=REPORT.INDEX,
+                description=REPORT.DESCRIPTION, t1=REPORT.T1, t2=REPORT.T2,
+                case=REPORT.CASEINFO, casedata=REPORT.CASEDATA,
+                case0=REPORT.CASE, case1=REPORT.LAWYER, case2=REPORT.PROCEEDING,
+                case3=REPORT.COURT, case4=REPORT.NUMBER, case5=REPORT.ACQUISITION_TYPE, case6=REPORT.ACQUISITION_DATE,
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
                 data4=str(self.case_info['proceeding_number'] or 'N/A'),
-                typed=phrases.TEXT['typed'], type=type,
-                date=phrases.TEXT['date'], ntp=ntp,
-                t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
+                typed=REPORT.TYPED, type=type,
+                date=REPORT.DATE, ntp=ntp,
+                t3=REPORT.T3, t3descr=REPORT.T3DESCR,
                 whoisfile=whois_text,
-                t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
-                name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
+                t4=REPORT.T4, t4descr=REPORT.T4DESCR,
+                name=REPORT.NAME, descr=REPORT.DESCR,
 
-                avi=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.avi')[0]], avid=phrases.TEXT['avid'],
-                hash=acquisition_files['acquisition.hash'], hashd=phrases.TEXT['hashd'],
-                log=acquisition_files['acquisition.log'], logd=phrases.TEXT['logd'],
-                pcap=acquisition_files['acquisition.pcap'], pcapd=phrases.TEXT['pcapd'],
-                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
-                whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
-                headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
-                nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
-                cer=acquisition_files['server.cer'], cerd=phrases.TEXT['cerd'],
-                sslkey=acquisition_files['sslkey.log'], sslkeyd=phrases.TEXT['sslkeyd'],
-                traceroute=acquisition_files['traceroute.txt'], tracerouted=phrases.TEXT['tracerouted'],
+                avi=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.avi')[0]], avid=REPORT.AVID,
+                hash=acquisition_files['acquisition.hash'], hashd=REPORT.HASHD,
+                log=acquisition_files['acquisition.log'], logd=REPORT.LOGD,
+                pcap=acquisition_files['acquisition.pcap'], pcapd=REPORT.PCAPD,
+                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=REPORT.ZIPD,
+                whois=acquisition_files['whois.txt'], whoisd=REPORT.WHOISD,
+                headers=acquisition_files['headers.txt'], headersd=REPORT.HEADERSD,
+                nslookup=acquisition_files['nslookup.txt'], nslookupd=REPORT.PNGD,
+                cer=acquisition_files['server.cer'], cerd=REPORT.CERD,
+                sslkey=acquisition_files['sslkey.log'], sslkeyd=REPORT.SSLKEYD,
+                traceroute=acquisition_files['traceroute.txt'], tracerouted=REPORT.TRACEROUTED,
 
-                t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
-                t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
-                t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-                titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
-                titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
+                t5=REPORT.T5, t5descr=REPORT.T5DESCR, file=user_files,
+                t6=REPORT.T6, t6descr=REPORT.T6DESCR, filedata=zip_enum,
+                t7=REPORT.T7, t7descr=REPORT.T7DESCR,
+                titlecc=REPORT.TITLECC, ccdescr=REPORT.CCDESCR,
+                titleh=REPORT.TITLEH, hdescr=REPORT.HDESCR
             )
             pdf_options = {
                 'page-size': 'Letter',
@@ -108,30 +108,30 @@ class Report:
                                               "template_email.html")
             content_index = open(content_index_path).read().format(
 
-                title=phrases.TEXT['title'],
-                index=phrases.TEXT['index'],
-                description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
-                case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
-                case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
-                case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
+                title=REPORT.TITLE,
+                index=REPORT.INDEX,
+                description=REPORT.DESCRIPTION, t1=REPORT.T1, t2=REPORT.T2,
+                case=REPORT.CASEINFO, casedata=REPORT.CASEDATA,
+                case0=REPORT.CASE, case1=REPORT.LAWYER, case2=REPORT.PROCEEDING,
+                case3=REPORT.COURT, case4=REPORT.NUMBER, case5=REPORT.ACQUISITION_TYPE, case6=REPORT.ACQUISITION_DATE,
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
                 data4=str(self.case_info['proceeding_number'] or 'N/A'),
-                typed=phrases.TEXT['typed'], type=type,
-                date=phrases.TEXT['date'], ntp=ntp,
-                t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
-                name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
-                hash=acquisition_files['acquisition.hash'], hashd=phrases.TEXT['hashd'],
-                log=acquisition_files['acquisition.log'], logd=phrases.TEXT['logd'],
-                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
-                t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
-                t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
-                t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-                titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
-                titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
+                typed=REPORT.TYPED, type=type,
+                date=REPORT.DATE, ntp=ntp,
+                t4=REPORT.T4, t4descr=REPORT.T4DESCR,
+                name=REPORT.NAME, descr=REPORT.DESCR,
+                hash=acquisition_files['acquisition.hash'], hashd=REPORT.HASHD,
+                log=acquisition_files['acquisition.log'], logd=REPORT.LOGD,
+                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=REPORT.ZIPD,
+                t5=REPORT.T5, t5descr=REPORT.T5DESCR, file=user_files,
+                t6=REPORT.T6, t6descr=REPORT.T6DESCR, filedata=zip_enum,
+                t7=REPORT.T7, t7descr=REPORT.T7DESCR,
+                titlecc=REPORT.TITLECC, ccdescr=REPORT.CCDESCR,
+                titleh=REPORT.TITLEH, hdescr=REPORT.HDESCR
 
             )
             # create pdf front and content, merge them and remove merged files
@@ -189,7 +189,7 @@ class Report:
         # getting zip folder and passing file names and dimensions to the template
         for fname in os.listdir(self.cases_folder_path):
             if fname.endswith('.zip'):
-                zip_dir = self.cases_folder_path + "\\" + fname
+                zip_dir = os.path.join(self.cases_folder_path , fname)
 
         zip_folder = zipfile.ZipFile(zip_dir)
         for zip_file in zip_folder.filelist:

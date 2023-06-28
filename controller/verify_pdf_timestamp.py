@@ -11,7 +11,8 @@ import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 
-from common.report import ReportText
+import common.constants.controller.report as REPORT
+from common.utility import get_logo, get_version
 
 
 class VerifyPDFTimestamp:
@@ -27,31 +28,30 @@ class VerifyPDFTimestamp:
     def generate_pdf(self, result, info_file_path):
 
         # PREPARING DATA TO FILL THE PDF
-        phrases = ReportText()
         with open(info_file_path, "r") as f:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
         front_html = os.path.join('assets/templates/front.html')
         front_index = open(front_html).read().format(
-            img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
-            title=phrases.TEXT['title'], report=phrases.TEXT['verification'], version=phrases.TEXT['version']
+            img=get_logo(), t1=REPORT.T1,
+            title=REPORT.TITLE, report=REPORT.REPORT, version=get_version()
         )
 
         if result:
-            t3descr = phrases.TEXT['verifi_ok']
+            t3descr = REPORT.VERIFI_OK
         else:
-            t3descr = phrases.TEXT['verifi_ko']
+            t3descr = REPORT.VERIFI_KO
 
         content_html = os.path.join('assets/templates/template_verification.html')
         content_index = open(content_html).read().format(
 
-            title=phrases.TEXT['title'],
-            index=phrases.TEXT['index'],
-            description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
-            case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
-            case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
-            case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
-            t3=phrases.TEXT['verification'], t3descr=t3descr,
+            title=REPORT.TITLE,
+            index=REPORT.INDEX,
+            description=REPORT.DESCRIPTION, t1=REPORT.T1, t2=REPORT.T2,
+            case=REPORT.CASEINFO, casedata=REPORT.CASEDATA,
+            case0=REPORT.CASE, case1=REPORT.LAWYER, case2=REPORT.PROCEEDING,
+            case3=REPORT.COURT, case4=REPORT.NUMBER, case5=REPORT.ACQUISITION_TYPE, case6=REPORT.ACQUISITION_DATE,
+            t3=REPORT.VERIFICATION, t3descr=t3descr,
             info_file=info_file,
 
             data0=str(self.case_info['name'] or 'N/A'),
@@ -59,8 +59,8 @@ class VerifyPDFTimestamp:
             data2=str(self.case_info['proceeding_type'] or 'N/A'),
             data3=str(self.case_info['courthouse'] or 'N/A'),
             data4=str(self.case_info['proceeding_number'] or 'N/A'),
-            typed=phrases.TEXT['typed'], type=phrases.TEXT['verification'],
-            date=phrases.TEXT['date'], ntp=self.ntp,
+            typed=REPORT.TYPED, type=REPORT.VERIFICATION,
+            date=REPORT.DATE, ntp=self.ntp,
 
         )
         # create pdf front and content, merge them and remove merged files
