@@ -8,6 +8,7 @@
 ######  
 import hashlib
 import os
+import subprocess
 
 import rfc3161ng
 
@@ -201,8 +202,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
                 return_value = msg.exec()
                 if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                     path = self.get_current_dir()
-                    if get_platform() == 'win':
+                    platform = get_platform()
+                    if platform == 'win':
                         os.startfile(os.path.join(path,"report_timestamp_verification.pdf"))
+                    elif platform == 'osx':
+                        subprocess.call(["open", os.path.join(path,"report_timestamp_verification.pdf")])
+                    else:  # platform == 'lin' || platform == 'other'
+                        subprocess.call(["xdg-open", os.path.join(path,"report_timestamp_verification.pdf")])
 
 
         except Exception:
@@ -221,8 +227,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             return_value = msg.exec()
             if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                 path = self.get_current_dir()
-                if get_platform() == 'win':
+                platform = get_platform()
+                if platform == 'win':
                     os.startfile(os.path.join(path, "report_timestamp_verification.pdf"))
+                elif platform == 'osx':
+                    subprocess.call(["open", os.path.join(path, "report_timestamp_verification.pdf")])
+                else:  # platform == 'lin' || platform == 'other'
+                    subprocess.call(["xdg-open", os.path.join(path, "report_timestamp_verification.pdf")])
 
       
     

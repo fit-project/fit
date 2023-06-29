@@ -7,6 +7,8 @@
 # -----
 ######  
 import os
+import subprocess
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
@@ -128,8 +130,13 @@ class VerifyPec(QtWidgets.QMainWindow):
             return_value = msg.exec()
             if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                 path = os.path.dirname(str(self.input_eml.text()))
-                if get_platform() == 'win':
-                    os.startfile(os.path.join(path,"report_integrity_pec_verification.pdf"))
+                platform = get_platform()
+                if platform == 'win':
+                    os.startfile(os.path.join(path, "report_integrity_pec_verification.pdf"))
+                elif platform == 'osx':
+                    subprocess.call(["open", os.path.join(path, "report_integrity_pec_verification.pdf")])
+                else:  # platform == 'lin' || platform == 'other'
+                    subprocess.call(["xdg-open", os.path.join(path, "report_integrity_pec_verification.pdf")])
         except Exception as e:
             error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
                                     verify_pec.VERIFY_PEC_FAIL,
