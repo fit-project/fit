@@ -37,7 +37,7 @@ cd fit
 ```
 * If you don't have [poetry](https://python-poetry.org/), install it (below its showed windows Powershell):
 ```
-Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
 ```
 * install the dependencies:
 ```
