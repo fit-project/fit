@@ -9,7 +9,7 @@
 URL_CONFIGURATION="Url configuration"
 URL="Url video"
 PLACEHOLDER_URL="https://www.youtube.com/watch?v=dQw4w9WgXcQ" # :)
-
+PREVIEW="Preview"
 ACQUISITON_SETTINGS="Acquisition settings"
 BASIC_INFORMATION="Basic information"
 TITLE="Title"

@@ -1394,6 +1394,18 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-vlc"
+version = "3.0.18122"
+description = "VLC bindings for python."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-vlc-3.0.18122.tar.gz", hash = "sha256:1039bde287853b4b7b61ba22d83761832434f78506da762dfb060291bf32897d"},
+    {file = "python_vlc-3.0.18122-py3-none-any.whl", hash = "sha256:00e5133886a956ded7362b48926818e5486dfd73b2f9319b76d977acefe6042c"},
+]
+
+[[package]]
 name = "python-whois"
 version = "0.8.0"
 description = "Whois querying and parsing of domain registration information."
@@ -2133,4 +2145,4 @@ websockets = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "3ab21523d872c75042f2e4adc29cb0fb74f27db8a162fcaca40522fe4b29d886"
+content-hash = "5856dbc33a24986e2292d9a82e1a9cb7a5be9ea01fa750f3b76e5dc3e72a06b3"

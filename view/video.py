@@ -20,7 +20,7 @@ from view.acquisition.acquisition import Acquisition
 
 from controller.video import Video as VideoController
 from common.constants import details as Details, logger as Logger, tasks, state, status, error as Error
-from common.constants.view import general, mail, video
+from common.constants.view import general, video
 
 logger_acquisition = logging.getLogger(__name__)
 
@@ -88,7 +88,7 @@ class Video(QtWidgets.QMainWindow):
         font.setPointSize(10)
 
         self.setObjectName("mainWindow")
-        self.width = 530
+        self.width = 990
         self.height = 480
         self.setFixedSize(self.width, self.height)
         self.centralwidget = QtWidgets.QWidget(self)
@@ -209,13 +209,13 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_comments.setObjectName("checkbox_comments")
 
 
-        # SCRAPE BUTTON
-        self.scrape_button = QtWidgets.QPushButton(self)
-        self.scrape_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
-        self.scrape_button.setObjectName("scrapeButton")
-        self.scrape_button.setFont(font)
-        self.scrape_button.clicked.connect(self.__scrape)
-        self.scrape_button.setEnabled(False)
+        # LOAD BUTTON
+        self.load_button = QtWidgets.QPushButton(self)
+        self.load_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
+        self.load_button.setObjectName("loadButton")
+        self.load_button.setFont(font)
+        self.load_button.clicked.connect(self.__scrape)
+        self.load_button.setEnabled(False)
 
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
@@ -225,6 +225,24 @@ class Video(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.addPermanentWidget(self.progress_bar)
         self.setStatusBar(self.status)
+
+        # VIDEO PREVIEW GROUP BOX
+        self.video_preview_group_box = QtWidgets.QGroupBox(self.centralwidget)
+        self.video_preview_group_box.setEnabled(True)
+        self.video_preview_group_box.setFont(font)
+        self.video_preview_group_box.setGeometry(QtCore.QRect(515, 40, 430, 340))
+        self.video_preview_group_box.setObjectName("video_preview_group_box")
+
+        # SCRAPE BUTTON
+        self.scrape_button = QtWidgets.QPushButton(self)
+        self.scrape_button.setGeometry(QtCore.QRect(875, 410, 70, 25))
+        self.scrape_button.setObjectName("loadButton")
+        self.scrape_button.setFont(font)
+        self.scrape_button.clicked.connect(self.__scrape)
+        self.scrape_button.setEnabled(False)
+
+
+
 
         self.retranslateUi()
 
@@ -236,9 +254,8 @@ class Video(QtWidgets.QMainWindow):
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
         self.url_configuration_group_box.setTitle(video.URL_CONFIGURATION)
-
+        self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
-
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
         self.label_base_info.setText('<strong>' + video.BASIC_INFORMATION + '</strong>')
         self.label_title.setText(video.TITLE)
@@ -252,7 +269,8 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_thumbnail.setText(video.THUMBNAIL)
         self.checkbox_subtitles.setText(video.SUBTITLES)
         self.checkbox_comments.setText(video.COMMENTS)
-        self.scrape_button.setText(general.BUTTON_SCRAPE)
+        self.load_button.setText(general.BUTTON_LOAD)
+        self.scrape_button.setText(general.DOWNLOAD)
 
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
@@ -423,7 +441,7 @@ class Video(QtWidgets.QMainWindow):
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
-        self.scrape_button.setEnabled(all_field_filled)
+        self.load_button.setEnabled(all_field_filled)
 
     def __case(self):
         self.case_view.exec()

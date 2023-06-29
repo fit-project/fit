@@ -21,6 +21,7 @@ class Video():
         self.url = None
         self.ydl_opts = {'quiet': True}
         self.acquisition_dir = None
+        self.title = None
         self.sanitized_name = None
         self.video_id = None
 
@@ -43,6 +44,7 @@ class Video():
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(url, download=False)
             title = video_info['title']
+            self.title = title
             sanitized_name = re.sub(r'[<>:"/\\|?*]', '', title)
             self.sanitized_name = sanitized_name
             return self.sanitized_name
