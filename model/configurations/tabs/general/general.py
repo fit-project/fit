@@ -52,7 +52,7 @@ class General(Base):
         self.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \
                           "QtWebEngine/6.5.0 Chrome/108.0.5359.220 Safari/537.36"
 
-        self.language = "italian"
+        self.language = "english"
 
         self.db.session.add(self)
         self.db.session.commit()
