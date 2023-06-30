@@ -216,7 +216,7 @@ class Video(QtWidgets.QMainWindow):
 
         # LOAD BUTTON
         self.load_button = QtWidgets.QPushButton(self)
-        self.load_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
+        self.load_button.setGeometry(QtCore.QRect(400, 410, 80, 25))
         self.load_button.setObjectName("loadButton")
         self.load_button.setFont(font)
         self.load_button.clicked.connect(self.__load)
@@ -254,7 +254,7 @@ class Video(QtWidgets.QMainWindow):
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self)
         self.scrape_button.setGeometry(QtCore.QRect(875, 410, 70, 25))
-        self.scrape_button.setObjectName("loadButton")
+        self.scrape_button.setObjectName("scrapeButton")
         self.scrape_button.setFont(font)
         self.scrape_button.clicked.connect(self.__scrape)
         self.scrape_button.setEnabled(False)
