@@ -11,6 +11,7 @@ import os
 import re
 import logging
 import shutil
+import subprocess
 from datetime import timedelta
 
 from PyQt6 import QtWidgets, QtGui
@@ -19,6 +20,7 @@ from PyQt6.QtCore import (QObject, QThread, QRegularExpression , QDate, Qt, QRec
 from PyQt6.QtGui import QFont, QDoubleValidator, QRegularExpressionValidator, QIcon
 from PyQt6 import QtCore
 
+from common.utility import get_platform
 from view.acquisition.acquisition import Acquisition
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
@@ -687,7 +689,13 @@ class Mail(QtWidgets.QMainWindow):
 
         return_value = msg.exec()
         if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
-            os.startfile(self.acquisition_directory)
+            platform = get_platform()
+            if platform == 'win':
+                os.startfile(self.acquisition_directory)
+            elif platform == 'osx':
+                subprocess.call(["open", self.acquisition_directory])
+            else:  # platform == 'lin' || platform == 'other'
+                subprocess.call(["xdg-open", self.acquisition_directory])
         
 
     def __case(self):

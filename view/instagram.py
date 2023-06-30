@@ -9,11 +9,13 @@
 import os
 import shutil
 import logging
+import subprocess
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 
+from common.utility import get_platform
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
@@ -486,7 +488,14 @@ class Instagram(QtWidgets.QMainWindow):
             error_dlg.exec()
 
     def __open_acquisition_directory(self):
-        os.startfile(self.acquisition_directory)
+        platform = get_platform()
+
+        if platform == 'win':
+            os.startfile(self.acquisition_directory)
+        elif platform == 'osx':
+            subprocess.call(["open", self.acquisition_directory])
+        else:  # platform == 'lin' || platform == 'other'
+            subprocess.call(["xdg-open", self.acquisition_directory])
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
