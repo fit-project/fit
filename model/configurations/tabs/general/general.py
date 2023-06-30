@@ -45,8 +45,7 @@ class General(Base):
         self.db.session.commit()
     
     def set_default_values(self):
-        
-        default_path_by_os = {"lin": "~/Documents/FIT", "osx": "~/Documents/FIT", "win": "~/Documents/FIT"}
+        default_path_by_os = {"lin": "~/Documents/FIT", "osx": "~/Documents/FIT", "win": "~/Documents/FIT", "other": "~/Documents/FIT"}
         self.cases_folder_path = default_path_by_os[utility.get_platform()]
         self.home_page_url = "https://www.google.it"
         self.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \

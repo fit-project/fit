@@ -196,7 +196,7 @@ class Report:
         # getting zip folder and passing file names and dimensions to the template
         for fname in os.listdir(self.cases_folder_path):
             if fname.endswith('.zip'):
-                zip_dir = os.path.join(self.cases_folder_path , fname)
+                zip_dir = os.path.join(self.cases_folder_path, fname)
 
         zip_folder = zipfile.ZipFile(zip_dir)
         for zip_file in zip_folder.filelist:

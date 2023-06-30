@@ -35,6 +35,7 @@ from nslookup import Nslookup
 def get_platform():
 
     platforms = {
+        'linux'  : 'lin',
         'linux1' : 'lin',
         'linux2' : 'lin',
         'darwin' : 'osx',

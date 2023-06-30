@@ -16,8 +16,8 @@ from common.utility import get_logo, get_version, get_language
 class Html2Pdf:
     def __init__(self, cases_folder_path, case_info, ntp):
         self.cases_folder_path = cases_folder_path
-        self.output_front = os.path.join(self.cases_folder_path , "front_report.pdf")
-        self.output_content = os.path.join(self.cases_folder_path , "content_report.pdf")
+        self.output_front = os.path.join(self.cases_folder_path, "front_report.pdf")
+        self.output_content = os.path.join(self.cases_folder_path, "content_report.pdf")
         self.output_front_result = open(self.output_front, "w+b")
         self.output_content_result = open(self.output_content, "w+b")
         self.case_info = case_info
@@ -51,7 +51,7 @@ class Html2Pdf:
             case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
             case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.PROCEEDING,
             case3=self.REPORT.COURT, case4=self.REPORT.NUMBER, case5=self.REPORT.ACQUISITION_TYPE, case6=self.REPORT.ACQUISITION_DATE,
-            t3=self.REPORT.self.REPORT_PEC, info_file=info_file,
+            t3=self.REPORT.REPORT_PEC, info_file=info_file,
 
             data0=str(self.case_info['name'] or 'N/A'),
             data1=str(self.case_info['lawyer_name'] or 'N/A'),
@@ -68,7 +68,7 @@ class Html2Pdf:
         merger = PdfMerger()
         merger.append(self.output_front_result)
         merger.append(self.output_content_result)
-        merger.write(os.path.join(self.cases_folder_path , "report_integrity_pec_verification.pdf"))
+        merger.write(os.path.join(self.cases_folder_path, "report_integrity_pec_verification.pdf"))
         merger.close()
         self.output_content_result.close()
         self.output_front_result.close()
