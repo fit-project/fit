@@ -9,9 +9,14 @@
 import os
 import shutil
 import logging
+import subprocess
 
+import requests
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QLabel
 
+from common.utility import get_platform
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
@@ -214,7 +219,7 @@ class Video(QtWidgets.QMainWindow):
         self.load_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
         self.load_button.setObjectName("loadButton")
         self.load_button.setFont(font)
-        self.load_button.clicked.connect(self.__scrape)
+        self.load_button.clicked.connect(self.__load)
         self.load_button.setEnabled(False)
 
         self.status = QtWidgets.QStatusBar()
@@ -233,6 +238,19 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box.setGeometry(QtCore.QRect(515, 40, 430, 340))
         self.video_preview_group_box.setObjectName("video_preview_group_box")
 
+
+        self.thumbnail = QLabel(self.video_preview_group_box)
+        self.thumbnail.setGeometry(QtCore.QRect(30, 40, 200, 112))
+        self.thumbnail.setScaledContents(True)
+        self.thumbnail.setObjectName("thumbnail")
+
+        self.title = QtWidgets.QLabel(self.video_preview_group_box)
+        self.title.setGeometry(QtCore.QRect(30, 180, 370, 60))
+        self.title.setFont(font)
+        self.title.setObjectName("title")
+        self.title.setWordWrap(True)
+
+
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self)
         self.scrape_button.setGeometry(QtCore.QRect(875, 410, 70, 25))
@@ -240,8 +258,6 @@ class Video(QtWidgets.QMainWindow):
         self.scrape_button.setFont(font)
         self.scrape_button.clicked.connect(self.__scrape)
         self.scrape_button.setEnabled(False)
-
-
 
 
         self.retranslateUi()
@@ -315,6 +331,24 @@ class Video(QtWidgets.QMainWindow):
     def __handle_progress(self):
         self.acquisition.upadate_progress_bar()
 
+    def __load(self):
+
+        # video_url
+        self.url = self.input_url.text()
+        center_x = self.x() + self.width / 2
+        center_y = self.y() + self.height / 2
+        self.spinner.set_position(center_x, center_y)
+        self.spinner.start()
+        self.setEnabled(False)
+
+        loop = QtCore.QEventLoop()
+        QtCore.QTimer.singleShot(1000, loop.quit)
+        loop.exec()
+        if self.video_controller.sanitized_name is None:
+            self.__init_worker()
+        else:
+            self.__start_scraped()
+
     def __scrape(self):
 
         # video_url
@@ -334,14 +368,26 @@ class Video(QtWidgets.QMainWindow):
             self.__start_scraped()
 
     def __handle_valid_url(self):
-
         self.thread_worker.quit()
-
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
 
-        self.__start_scraped()
+        self.__load_info()
+    def __load_info(self):
+        self.setEnabled(True)
+        self.status.showMessage('')
+        self.spinner.stop()
+        self.is_acquisition_running = False
+
+        self.video_controller.set_url(self.input_url.text())
+        title, thumbnail = self.video_controller.print_info()
+        response = requests.get(thumbnail)
+        pixmap = QPixmap()
+        pixmap.loadFromData(response.content)
+        self.thumbnail.setPixmap(pixmap)
+        self.title.setText(title)
+        self.scrape_button.setEnabled(True)
 
     def __start_scraped(self):
 
@@ -354,7 +400,7 @@ class Video(QtWidgets.QMainWindow):
             )
         self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.sanitized_name)
         self.is_acquisition_running = True
-        self.video_controller.set_url(self.input_url.text())
+
         self.methods_to_execute = [
 
             (True, self.video_controller.get_info),
@@ -437,7 +483,14 @@ class Video(QtWidgets.QMainWindow):
             error_dlg.exec()
 
     def __open_acquisition_directory(self):
-        os.startfile(self.acquisition_directory)
+        platform = get_platform()
+
+        if platform == 'win':
+            os.startfile(self.acquisition_directory)
+        elif platform == 'osx':
+            subprocess.call(["open", self.acquisition_directory])
+        else:  # platform == 'lin' || platform == 'other'
+            subprocess.call(["xdg-open", self.acquisition_directory])
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)

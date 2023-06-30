@@ -19,11 +19,12 @@ from youtube_comment_downloader import YoutubeCommentDownloader
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True}
+        self.ydl_opts = {'quiet': True, "cookies-from-browser": "edge"}
         self.acquisition_dir = None
         self.title = None
         self.sanitized_name = None
         self.video_id = None
+        self.thumbnail = None
 
     def set_url(self, url):
         self.url = url
@@ -39,15 +40,24 @@ class Video():
             info = ydl.extract_info(self.url, download=True)
             self.video_id = info['id']
 
+    def print_info(self):
+        self.ydl_opts.update({
+            'writethumbnail': True
+        })
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            video_info = ydl.extract_info(self.url, download=False)
+            self.thumbnail = video_info['thumbnail']
+            return self.title, self.thumbnail
+
+
     # extract video title and sanitize it
     def get_video_title_sanitized(self, url):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(url, download=False)
-            title = video_info['title']
-            self.title = title
-            sanitized_name = re.sub(r'[<>:"/\\|?*]', '', title)
-            self.sanitized_name = sanitized_name
-            return self.sanitized_name
+            self.title = video_info['title']
+        sanitized_name = re.sub(r'[<>:"/\\|?*]', '', self.title)
+        self.sanitized_name = sanitized_name
+        return self.sanitized_name
 
     # download video information
     def get_info(self):
@@ -69,16 +79,11 @@ class Video():
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download(self.url)
 
+
     # extract thumbnail from video
     def get_thumbnail(self):
-        self.ydl_opts.update({
-            'writethumbnail': True
-        })
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            video_info = ydl.extract_info(self.url, download=False)
-            if 'thumbnail' in video_info:
-                thumbnail = video_info['thumbnail']
-                ydl.download([thumbnail])
+            ydl.download([self.thumbnail])
 
     # download subtitles (if any)
     def get_subtitles(self):
