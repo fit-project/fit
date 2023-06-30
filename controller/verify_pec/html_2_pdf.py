@@ -17,8 +17,8 @@ from common.report import ReportText
 class Html2Pdf:
     def __init__(self, cases_folder_path, case_info, ntp):
         self.cases_folder_path = cases_folder_path
-        self.output_front = self.cases_folder_path + "\\" + "front_report.pdf"
-        self.output_content = self.cases_folder_path + "\\" + "content_report.pdf"
+        self.output_front = os.path.join(self.cases_folder_path, "front_report.pdf")
+        self.output_content = os.path.join(self.cases_folder_path, "content_report.pdf")
         self.output_front_result = open(self.output_front, "w+b")
         self.output_content_result = open(self.output_content, "w+b")
         self.case_info = case_info
@@ -63,7 +63,7 @@ class Html2Pdf:
         merger = PdfMerger()
         merger.append(self.output_front_result)
         merger.append(self.output_content_result)
-        merger.write(self.cases_folder_path + "\\" + "report_integrity_pec_verification.pdf")
+        merger.write(os.path.join(self.cases_folder_path, "report_integrity_pec_verification.pdf"))
         merger.close()
         self.output_content_result.close()
         self.output_front_result.close()
