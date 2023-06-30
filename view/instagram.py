@@ -35,11 +35,10 @@ class InstagramWorker(QtCore.QObject):
     logged_in = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-
     def __init__(self, instagram_controller, methods_to_execute):
         super().__init__()
         self.instagram_controller = instagram_controller
-        self.methods_to_execute = methods_to_execute    
+        self.methods_to_execute = methods_to_execute
     
     @QtCore.pyqtSlot()
     def run(self):
@@ -58,6 +57,7 @@ class InstagramWorker(QtCore.QObject):
                 self.error.emit(e)
             else:
                 self.logged_in.emit()
+            self.instagram_controller.check_account()
         else:
             for checkbox, method in self.methods_to_execute:
                 if checkbox:
@@ -262,14 +262,14 @@ class Instagram(QtWidgets.QMainWindow):
         self.login_button.setGeometry(QtCore.QRect(395, 165, 70, 25))
         self.login_button.setObjectName("loginButton")
         self.login_button.setFont(font)
-        self.login_button.clicked.connect(self.__scrape)
+        self.login_button.clicked.connect(self.__login)
         self.login_button.setEnabled(False)
 
         self.scrape_button = QtWidgets.QPushButton(self)
         self.scrape_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
         self.scrape_button.setObjectName("scrapeButton")
         self.scrape_button.setFont(font)
-        self.scrape_button.clicked.connect(self.__scrape)
+        #self.scrape_button.clicked.connect(self.__scrape)
         self.scrape_button.setEnabled(False)
 
         self.status = QtWidgets.QStatusBar()
@@ -313,7 +313,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.login_button.setText(general.BUTTON_LOGIN)
     
     def __init_worker(self):
-        self.thread_worker= QtCore.QThread()
+        self.thread_worker = QtCore.QThread()
         self.worker = InstagramWorker(self.instagram_controller, self.methods_to_execute)
         
         self.worker.moveToThread(self.thread_worker)
@@ -359,7 +359,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition.upadate_progress_bar()
     
 
-    def __scrape(self):
+    def __login(self):
         if self.loging_configuration_group_box.isEnabled() is True:
                 self.loging_configuration_group_box.setEnabled(False)
 
@@ -434,7 +434,6 @@ class Instagram(QtWidgets.QMainWindow):
             os.makedirs(self.profile_dir)
         
         self.instagram_controller.set_dir(self.profile_dir)
-
 
         self.__init_worker()
             
