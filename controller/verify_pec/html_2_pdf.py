@@ -58,7 +58,7 @@ class Html2Pdf:
             data2=str(self.case_info['proceeding_type'] or 'N/A'),
             data3=str(self.case_info['courthouse'] or 'N/A'),
             data4=str(self.case_info['proceeding_number'] or 'N/A'),
-            typed=self.REPORT.TYPED, type=self.REPORT.self.REPORT_PEC,
+            typed=self.REPORT.TYPED, type=self.REPORT.REPORT_PEC,
             date=self.REPORT.DATE, ntp=self.ntp,
 
         )
