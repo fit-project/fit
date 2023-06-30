@@ -10,6 +10,7 @@
 import logging
 import os.path
 import shutil
+import subprocess
 from urllib.parse import urlparse
 
 import numpy as np
@@ -35,7 +36,7 @@ from common.constants.view import general
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-from common.utility import screenshot_filename, get_version
+from common.utility import screenshot_filename, get_version, get_platform
 
 logger = logging.getLogger(__name__)
 
@@ -355,7 +356,14 @@ class Web(QtWidgets.QMainWindow):
             self.__open_acquisition_directory()
 
     def __open_acquisition_directory(self):
-        os.startfile(self.acquisition_directory)
+        platform = get_platform()
+
+        if platform == 'win':
+            os.startfile(self.acquisition_directory)
+        elif platform == 'osx':
+            subprocess.call(["open", self.acquisition_directory])
+        else: # platform == 'lin' || platform == 'other'
+            subprocess.call(["xdg-open", self.acquisition_directory])
 
     def __disable_all(self):
         self.setEnabled(False)
