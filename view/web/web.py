@@ -36,7 +36,7 @@ from common.constants.view import general
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-from common.utility import screenshot_filename, get_platform
+from common.utility import screenshot_filename, get_version, get_platform
 
 logger = logging.getLogger(__name__)
 
@@ -357,7 +357,7 @@ class Web(QtWidgets.QMainWindow):
 
     def __open_acquisition_directory(self):
         platform = get_platform()
-        
+
         if platform == 'win':
             os.startfile(self.acquisition_directory)
         elif platform == 'osx':
@@ -541,6 +541,9 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
         self.browser = Browser()
+
+        user_agent = self.configuration_general.configuration['user_agent']
+        self.browser.page().profile().setHttpUserAgent(user_agent+' FreezingInternetTool/'+get_version())
 
         if page is None:
             page = WebEnginePage(self.browser)
