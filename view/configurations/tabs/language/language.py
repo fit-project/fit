@@ -45,7 +45,7 @@ class Language(QtWidgets.QWidget):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Language", "Language Options"))
-        self.group_box_language.setTitle(_translate("Language", "Language"))
+        self.group_box_language.setTitle(_translate("Language", "Report Language"))
 
 
     def __set_current_config_values(self):
