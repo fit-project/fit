@@ -11,9 +11,7 @@ import os
 import re
 import shutil
 
-import requests
 import yt_dlp
-from bs4 import BeautifulSoup
 from youtube_comment_downloader import YoutubeCommentDownloader
 
 from common.constants.view import video
@@ -51,21 +49,7 @@ class Video():
                 info = ydl.extract_info(self.url, download=True)
                 self.video_id = info['id']
             except:
-                pass #can't download, todo
-                # self.__is_facebook_video()
-
-    def __is_facebook_video(self):
-        pattern = r"^(?:http[s]?://)?(?:www[.])?(?:facebook[.]com/|fb[.]me/|fb[.]com/)(?:.*)$"
-        match = re.match(pattern, self.url)
-        if match is not None:
-            modified_url = self.url.replace("www.", "mbasic.")
-            response = requests.get(modified_url)
-            soup = BeautifulSoup(response.content, 'html.parser')
-            video_element = soup.find('video')
-
-            if video_element and 'src' in video_element.attrs:
-                video_url = video_element['src']
-                print(video_url)
+                pass #can't download, skip for now
 
     # show thumbnail and video title
     def print_info(self):
