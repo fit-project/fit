@@ -10,11 +10,8 @@ import json
 import os
 import re
 import shutil
-
-import requests
 import yt_dlp
 from youtube_comment_downloader import YoutubeCommentDownloader
-
 
 class Video():
     def __init__(self):
@@ -26,9 +23,11 @@ class Video():
         self.video_id = None
         self.thumbnail = None
         self.quality = None
+        self.duration = None
 
     def set_url(self, url):
         self.url = url
+
     def set_quality(self, quality):
         self.quality = quality
 
@@ -53,7 +52,8 @@ class Video():
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
             self.thumbnail = video_info['thumbnail']
-            return self.title, self.thumbnail
+            self.duration = video_info['duration']
+            return self.title, self.thumbnail, self.__convert_seconds_to_hh_mm_ss(self.duration)
 
     # extract video title and sanitize it
     def get_video_title_sanitized(self, url):
@@ -118,3 +118,9 @@ class Video():
             if os.path.isdir(folder_path):
                 shutil.make_archive(folder_path, 'zip', folder_path)
                 shutil.rmtree(folder_path)
+    def __convert_seconds_to_hh_mm_ss(self, seconds):
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"

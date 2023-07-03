@@ -125,7 +125,7 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.url_configuration_group_box.setEnabled(True)
         self.url_configuration_group_box.setFont(font)
-        self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 40, 430, 140))
+        self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 20, 430, 140))
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
         self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
@@ -213,20 +213,31 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.video_preview_group_box.setEnabled(True)
         self.video_preview_group_box.setFont(font)
-        self.video_preview_group_box.setGeometry(QtCore.QRect(515, 40, 430, 340))
+        self.video_preview_group_box.setGeometry(QtCore.QRect(515, 20, 430, 360))
         self.video_preview_group_box.setObjectName("video_preview_group_box")
 
 
         self.thumbnail = QLabel(self.video_preview_group_box)
-        self.thumbnail.setGeometry(QtCore.QRect(30, 40, 200, 112))
+        self.thumbnail.setGeometry(QtCore.QRect(30, 40, 370, 208))
         self.thumbnail.setScaledContents(True)
         self.thumbnail.setObjectName("thumbnail")
 
         self.title = QtWidgets.QLabel(self.video_preview_group_box)
-        self.title.setGeometry(QtCore.QRect(30, 180, 370, 60))
+        self.title.setGeometry(QtCore.QRect(30, 260, 370, 60))
         self.title.setFont(font)
         self.title.setObjectName("title")
         self.title.setWordWrap(True)
+
+        self.label_duration = QtWidgets.QLabel(self.video_preview_group_box)
+        self.label_duration.setGeometry(QtCore.QRect(30, 330, 60, 25))
+        self.label_duration.setFont(font)
+        self.label_duration.hide()
+        self.label_duration.setObjectName("label_duration")
+
+        self.duration = QtWidgets.QLabel(self.video_preview_group_box)
+        self.duration.setGeometry(QtCore.QRect(90, 330, 50, 25))
+        self.duration.setFont(font)
+        self.duration.setObjectName("duration")
 
 
         # SCRAPE BUTTON
@@ -250,6 +261,7 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box.setTitle(video.URL_CONFIGURATION)
         self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
+        self.label_duration.setText(video.DURATION)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
         self.label_video_quality.setText('<strong>' + video.VIDEO_QUALITY + '</strong>')
         self.label_aditional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
@@ -353,12 +365,14 @@ class Video(QtWidgets.QMainWindow):
         self.is_acquisition_running = False
 
         self.video_controller.set_url(self.input_url.text())
-        title, thumbnail = self.video_controller.print_info()
+        title, thumbnail, duration = self.video_controller.print_info()
         response = requests.get(thumbnail)
         pixmap = QPixmap()
         pixmap.loadFromData(response.content)
         self.thumbnail.setPixmap(pixmap)
         self.title.setText(title)
+        self.label_duration.show()
+        self.duration.setText(duration)
         self.scrape_button.setEnabled(True)
 
     def __start_scraped(self):
