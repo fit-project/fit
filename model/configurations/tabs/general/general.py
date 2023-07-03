@@ -5,8 +5,8 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
-
+######
+from common.constants.view.configurations import general
 from model.db import Db
 import common.utility as utility
 
@@ -48,9 +48,7 @@ class General(Base):
         default_path_by_os = {"lin": "~/Documents/FIT", "osx": "~/Documents/FIT", "win": "~/Documents/FIT", "other": "~/Documents/FIT"}
         self.cases_folder_path = default_path_by_os[utility.get_platform()]
         self.home_page_url = "https://www.google.it"
-        self.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " \
-                          "QtWebEngine/6.5.0 Chrome/108.0.5359.220 Safari/537.36"
-
+        self.user_agent = general.DEFAULT_USER_AGENT
         self.language = "english"
 
         self.db.session.add(self)
