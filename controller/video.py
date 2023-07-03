@@ -10,8 +10,14 @@ import json
 import os
 import re
 import shutil
+
+import requests
 import yt_dlp
+from bs4 import BeautifulSoup
 from youtube_comment_downloader import YoutubeCommentDownloader
+
+from common.constants.view import video
+
 
 class Video():
     def __init__(self):
@@ -41,8 +47,25 @@ class Video():
         if self.quality == 'Lowest':
             self.ydl_opts['format'] = 'worstvideo'
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            info = ydl.extract_info(self.url, download=True)
-            self.video_id = info['id']
+            try:
+                info = ydl.extract_info(self.url, download=True)
+                self.video_id = info['id']
+            except:
+                pass #can't download, todo
+                # self.__is_facebook_video()
+
+    def __is_facebook_video(self):
+        pattern = r"^(?:http[s]?://)?(?:www[.])?(?:facebook[.]com/|fb[.]me/|fb[.]com/)(?:.*)$"
+        match = re.match(pattern, self.url)
+        if match is not None:
+            modified_url = self.url.replace("www.", "mbasic.")
+            response = requests.get(modified_url)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            video_element = soup.find('video')
+
+            if video_element and 'src' in video_element.attrs:
+                video_url = video_element['src']
+                print(video_url)
 
     # show thumbnail and video title
     def print_info(self):
@@ -51,8 +74,15 @@ class Video():
         })
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
-            self.thumbnail = video_info['thumbnail']
-            self.duration = video_info['duration']
+            try:
+                self.thumbnail = video_info['thumbnail']
+            except:
+                self.thumbnail = video.NO_PREVIEW
+            try:
+                self.duration = video_info['duration']
+            except:
+                self.duration = 0
+
             return self.title, self.thumbnail, self.__convert_seconds_to_hh_mm_ss(int(self.duration))
 
     # extract video title and sanitize it
@@ -118,9 +148,12 @@ class Video():
             if os.path.isdir(folder_path):
                 shutil.make_archive(folder_path, 'zip', folder_path)
                 shutil.rmtree(folder_path)
-    def __convert_seconds_to_hh_mm_ss(self, seconds):
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        seconds = seconds % 60
 
-        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    def __convert_seconds_to_hh_mm_ss(self, seconds):
+        if seconds != 0:
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+            return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+        else:
+            return video.UNKNOWN

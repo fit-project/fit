@@ -147,12 +147,12 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
         self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
-        self.label_url.setGeometry(QtCore.QRect(40, 60, 80, 20))
+        self.label_url.setGeometry(QtCore.QRect(20, 60, 80, 20))
         self.label_url.setFont(font)
         self.label_url.setObjectName("label_url")
 
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
-        self.input_url.setGeometry(QtCore.QRect(150, 60, 240, 20))
+        self.input_url.setGeometry(QtCore.QRect(100, 60, 290, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(video.PLACEHOLDER_URL)
