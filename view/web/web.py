@@ -36,7 +36,7 @@ from common.constants.view import general
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-from common.utility import screenshot_filename, get_platform, get_version
+from common.utility import screenshot_filename, get_version, get_platform
 
 logger = logging.getLogger(__name__)
 
