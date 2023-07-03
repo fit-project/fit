@@ -8,9 +8,12 @@
 ######  
 import imaplib
 import email
+import io
 import os
 import email.message
 import re
+import sys
+
 import pyzmail
 
 class Mail():
@@ -19,6 +22,7 @@ class Mail():
         self.password = None
         self.mailbox = None
         self.is_logged_in = False
+        self.logs=''
 
     def check_server(self, server, port):
         # Connect and log to the mailbox using IMAP server
@@ -26,6 +30,7 @@ class Mail():
             self.mailbox = imaplib.IMAP4_SSL(server, int(port))  # imap ssl port
         except Exception as e:
             raise Exception(e)
+        self.__save_logs()
 
     def check_login(self, email_address, password):
         self.email_address = email_address
@@ -39,6 +44,7 @@ class Mail():
         
         # Clear password after usage
         self.password = ''
+        self.__save_logs()
 
 
     def get_mails_from_every_folder(self, params):
@@ -59,6 +65,7 @@ class Mail():
 
         # Scrape every message from the folders
         scraped_emails = self.fetch_messages(folders, params)
+        self.__save_logs()
         return scraped_emails
 
     def fetch_messages(self, folders, params=None):
@@ -89,7 +96,7 @@ class Mail():
                         scraped_emails[folder] = [dict_value]
             except: # no e-mails in the current folder
                 pass
-            
+        self.__save_logs()
         return scraped_emails
 
     def set_criteria(self, sender, recipient, subject, from_date, to_date):
@@ -116,6 +123,7 @@ class Mail():
                 # Create acquisition folder
                 folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
                 self.write_emails(email_id, mail_dir, folder_stripped)
+        self.__save_logs()
 
     def download_everything(self, project_folder):
 
@@ -130,6 +138,7 @@ class Mail():
             self.download_messages(folders, project_folder)
         except Exception as e:  # handle exception
                 raise Exception(e)
+        self.__save_logs()
 
     def download_messages(self, folders, project_folder):
         for folder in folders:
@@ -144,9 +153,9 @@ class Mail():
                     self.write_emails(email_id, project_folder, folder_stripped)
             except Exception as e:  # handle exception
                 raise Exception(e)
+        self.__save_logs()
 
     def write_emails(self, email_id, mail_dir, folder_stripped, folder):
-
         # Create mail folder
         folder_dir = os.path.join(mail_dir, folder_stripped)
         if not os.path.exists(folder_dir):
@@ -164,3 +173,18 @@ class Mail():
 
         with open(email_path, 'wb') as f:
             f.write(message.as_bytes())
+        self.__save_logs()
+
+    def __save_logs(self):
+        logs_buffer = io.StringIO()
+        original_stderr = sys.stderr
+        sys.stderr = logs_buffer
+        self.mailbox.print_log()
+        self.logs = self.logs + '\n'+logs_buffer.getvalue()
+        sys.stderr = original_stderr
+
+    def write_logs(self, acquisition_folder):
+        with open(os.path.join(acquisition_folder,'imap_logs.log'),'w') as f:
+            f.write(self.logs)
+
+
