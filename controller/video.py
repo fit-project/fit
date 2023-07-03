@@ -53,7 +53,7 @@ class Video():
             video_info = ydl.extract_info(self.url, download=False)
             self.thumbnail = video_info['thumbnail']
             self.duration = video_info['duration']
-            return self.title, self.thumbnail, self.__convert_seconds_to_hh_mm_ss(self.duration)
+            return self.title, self.thumbnail, self.__convert_seconds_to_hh_mm_ss(int(self.duration))
 
     # extract video title and sanitize it
     def get_video_title_sanitized(self, url):

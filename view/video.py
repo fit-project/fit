@@ -10,9 +10,11 @@ import os
 import shutil
 import logging
 import subprocess
+import webbrowser
 
 import requests
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel
 
@@ -65,6 +67,22 @@ class VideoWorker(QtCore.QObject):
             self.scraped.emit()
         self.finished.emit()
 
+# Create a clickabel label to open the browser
+class ClickableLabel(QLabel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet("color: #0067C0;")
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            url = video.SUPPORTED_SITES_LIST
+            webbrowser.open(url)
+
+    def enterEvent(self, event):
+        self.setStyleSheet("color: #0067C0; text-decoration: underline;")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def leaveEvent(self, event):
+        self.setStyleSheet("color: #0067C0; text-decoration: none;")
 
 class Video(QtWidgets.QMainWindow):
 
@@ -134,10 +152,17 @@ class Video(QtWidgets.QMainWindow):
         self.label_url.setObjectName("label_url")
 
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
-        self.input_url.setGeometry(QtCore.QRect(130, 60, 240, 20))
+        self.input_url.setGeometry(QtCore.QRect(150, 60, 240, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(video.PLACEHOLDER_URL)
+
+        # SUPPORTED SITES
+        self.label_supported_sites = ClickableLabel(self.url_configuration_group_box)
+        self.label_supported_sites.setGeometry(QtCore.QRect(250, 100, 150, 20))
+        self.label_supported_sites.setFont(font)
+        self.label_supported_sites.setObjectName("label_supported_sites")
+
 
         # Verify if input fields are empty
         self.input_fields = [self.input_url]
@@ -261,6 +286,7 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box.setTitle(video.URL_CONFIGURATION)
         self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
+        self.label_supported_sites.setText(video.SUPPORTED)
         self.label_duration.setText(video.DURATION)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
         self.label_video_quality.setText('<strong>' + video.VIDEO_QUALITY + '</strong>')
