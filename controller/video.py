@@ -19,15 +19,18 @@ from youtube_comment_downloader import YoutubeCommentDownloader
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True, "cookies-from-browser": "edge"}
+        self.ydl_opts = {'quiet': True}
         self.acquisition_dir = None
         self.title = None
         self.sanitized_name = None
         self.video_id = None
         self.thumbnail = None
+        self.quality = None
 
     def set_url(self, url):
         self.url = url
+    def set_quality(self, quality):
+        self.quality = quality
 
     # set output dir
     def set_dir(self, acquisition_dir):
@@ -36,10 +39,13 @@ class Video():
 
     # download video and set video_id for further operations
     def download_video(self):
+        if self.quality == 'Lowest':
+            self.ydl_opts['format'] = 'worstvideo'
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             info = ydl.extract_info(self.url, download=True)
             self.video_id = info['id']
 
+    # show thumbnail and video title
     def print_info(self):
         self.ydl_opts.update({
             'writethumbnail': True
@@ -48,7 +54,6 @@ class Video():
             video_info = ydl.extract_info(self.url, download=False)
             self.thumbnail = video_info['thumbnail']
             return self.title, self.thumbnail
-
 
     # extract video title and sanitize it
     def get_video_title_sanitized(self, url):
@@ -76,11 +81,13 @@ class Video():
                 'key': 'FFmpegExtractAudio'
             }]
         })
-        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            ydl.download(self.url)
+        try:
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                ydl.download(self.url)
+        except:
+            pass  # can't download audio, skip
 
-
-    # extract thumbnail from video
+    # download thumbnail
     def get_thumbnail(self):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download([self.thumbnail])
@@ -90,18 +97,20 @@ class Video():
         self.ydl_opts.update({
             'writesubtitles': True
         })
-        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            ydl.download(self.url)
+        try:
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                ydl.download(self.url)
+        except:
+            pass  # no subs, skip
 
     def get_comments(self):
         if 'youtube.com/watch' in self.url or 'youtu.be' in self.url:
             downloader = YoutubeCommentDownloader()
-            file_path = os.path.join(self.acquisition_dir,'video_comments.json')
-            comments = list(downloader.get_comments_from_url(self.url,
-                                                        sort_by=0)) # 0 =popular
+            file_path = os.path.join(self.acquisition_dir, 'video_comments.json')
+            comments = list(downloader.get_comments_from_url(self.url, sort_by=0))  # 0 = popular
             with open(file_path, 'w') as f:
                 json.dump(comments, f)
-        #else: not a youtube video
+        # else: not a youtube video, skip
 
     def create_zip(self, path):
         for folder in os.listdir(path):

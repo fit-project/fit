@@ -58,7 +58,7 @@ class VideoWorker(QtCore.QObject):
                     try:
                         method()
                     except Exception as e:
-                        self.error.emit({'title': video.SERVER_ERROR, 'msg': Error.VIDEO_SERVER_ERROR, 'details': e})
+                        self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
                     else:
                         self.progress.emit()
 
@@ -151,40 +151,18 @@ class Video(QtWidgets.QMainWindow):
         self.acquisition_group_box.setGeometry(QtCore.QRect(50, 200, 430, 180))
         self.acquisition_group_box.setObjectName("acquisition_group_box")
 
-        # BASIC INFORMATION
-        self.label_base_info = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_base_info.setGeometry(QtCore.QRect(20, 30, 111, 20))
-        self.label_base_info.setFont(font)
-        self.label_base_info.setObjectName("label_base_info")
+        # VIDEO QUALITY 
+        self.label_video_quality = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_video_quality.setGeometry(QtCore.QRect(20, 30, 111, 20))
+        self.label_video_quality.setFont(font)
+        self.label_video_quality.setObjectName("label_video_quality")
 
-        self.label_title = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_title.setGeometry(QtCore.QRect(20, 50, 111, 20))
-        self.label_title.setFont(font)
-        self.label_title.setObjectName("label_title")
-
-        self.label_channel = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_channel.setGeometry(QtCore.QRect(20, 70, 111, 20))
-        self.label_channel.setFont(font)
-        self.label_channel.setObjectName("label_channel")
-
-        self.label_caption = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_caption.setGeometry(QtCore.QRect(20, 90, 111, 20))
-        self.label_caption.setFont(font)
-        self.label_caption.setObjectName("label_caption")
-        self.label_tags = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_tags.setGeometry(QtCore.QRect(20, 110, 111, 20))
-        self.label_tags.setFont(font)
-        self.label_tags.setObjectName("label_tags")
-
-        self.label_duration = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_duration.setGeometry(QtCore.QRect(20, 130, 111, 20))
-        self.label_duration.setFont(font)
-        self.label_duration.setObjectName("label_duration")
-
-        self.label_views = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_views.setGeometry(QtCore.QRect(20, 150, 111, 20))
-        self.label_views.setFont(font)
-        self.label_views.setObjectName("label_views")
+        self.quality = QtWidgets.QComboBox(self.acquisition_group_box)
+        self.quality.setGeometry(QtCore.QRect(20, 70, 111, 25))
+        self.quality.setFont(font)
+        self.quality.addItem(video.HIGHEST)
+        self.quality.addItem(video.LOWEST)
+        self.quality.setObjectName("quality")
 
 
         # ADDITIONAL_INFORMATION
@@ -273,13 +251,7 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
-        self.label_base_info.setText('<strong>' + video.BASIC_INFORMATION + '</strong>')
-        self.label_title.setText(video.TITLE)
-        self.label_channel.setText(video.CHANNEL)
-        self.label_caption.setText(video.CAPTION)
-        self.label_duration.setText(video.DURATION)
-        self.label_views.setText(video.VIEWS)
-        self.label_tags.setText(video.TAGS)
+        self.label_video_quality.setText('<strong>' + video.VIDEO_QUALITY + '</strong>')
         self.label_aditional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
         self.checkbox_audio.setText(video.AUDIO)
         self.checkbox_thumbnail.setText(video.THUMBNAIL)
@@ -400,6 +372,8 @@ class Video(QtWidgets.QMainWindow):
             )
         self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.sanitized_name)
         self.is_acquisition_running = True
+
+        self.video_controller.set_quality(self.quality.currentText())
 
         self.methods_to_execute = [
 
