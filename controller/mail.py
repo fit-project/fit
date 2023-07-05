@@ -72,7 +72,7 @@ class Mail():
         scraped_emails = {}
         for folder in folders:
             try:
-                self.mailbox.select(folder)
+                self.mailbox.select(folder,readonly=True)
                 type, data = self.mailbox.search(None, params)
 
                 # Fetch every message in specified folder
@@ -113,6 +113,38 @@ class Mail():
         # combine the search criteria
         params = ' '.join(criteria)
         return params
+    def write_emails(self, email_id, mail_dir, folder_stripped, folder):
+        # Create mail folder
+        folder_dir = os.path.join(mail_dir, folder_stripped)
+        if not os.path.exists(folder_dir):
+            os.makedirs(folder_dir)
+        self.mailbox.select(folder,readonly=True)
+        try:
+            status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
+        except Exception as e:
+            print(e)
+        message_mail = raw_email[0][1]
+
+        message = pyzmail.PyzMessage.factory(message_mail)
+        sanitized_id = re.sub(r'[<>:"/\\|?*]', '', message.get('message-id')[1:-8])
+        filename = f"{sanitized_id}.eml"
+        email_path = os.path.join(folder_dir, filename)
+
+        with open(email_path, 'wb') as f:
+            f.write(message.as_bytes())
+        self.__save_logs()
+
+    def __save_logs(self):
+        logs_buffer = io.StringIO()
+        original_stderr = sys.stderr
+        sys.stderr = logs_buffer
+        self.mailbox.print_log()
+        self.logs = self.logs + '\n'+logs_buffer.getvalue()
+        sys.stderr = original_stderr
+
+    def write_logs(self, acquisition_folder):
+        with open(os.path.join(acquisition_folder,'imap_logs.log'),'w') as f:
+            f.write(self.logs)
 
     def download_single_messages(self, mail_dir, emails_dict):
         for folder, emails_list in emails_dict.items():
@@ -144,7 +176,7 @@ class Mail():
         for folder in folders:
             folder_stripped = re.sub(r"[^a-zA-Z0-9]+", '-', folder)
             try:
-                self.mailbox.select(folder)
+                self.mailbox.select(folder,readonly=True)
                 type, data = self.mailbox.search(None, 'ALL')
 
                 # Fetch every message in specified folder
@@ -154,37 +186,3 @@ class Mail():
             except Exception as e:  # handle exception
                 raise Exception(e)
         self.__save_logs()
-
-    def write_emails(self, email_id, mail_dir, folder_stripped, folder):
-        # Create mail folder
-        folder_dir = os.path.join(mail_dir, folder_stripped)
-        if not os.path.exists(folder_dir):
-            os.makedirs(folder_dir)
-        self.mailbox.select(folder)
-
-        status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
-
-        message_mail = raw_email[0][1]
-
-        message = pyzmail.PyzMessage.factory(message_mail)
-
-        filename = f"{message.get('message-id')[1:-8]}.eml"
-        email_path = os.path.join(folder_dir, filename)
-
-        with open(email_path, 'wb') as f:
-            f.write(message.as_bytes())
-        self.__save_logs()
-
-    def __save_logs(self):
-        logs_buffer = io.StringIO()
-        original_stderr = sys.stderr
-        sys.stderr = logs_buffer
-        self.mailbox.print_log()
-        self.logs = self.logs + '\n'+logs_buffer.getvalue()
-        sys.stderr = original_stderr
-
-    def write_logs(self, acquisition_folder):
-        with open(os.path.join(acquisition_folder,'imap_logs.log'),'w') as f:
-            f.write(self.logs)
-
-
