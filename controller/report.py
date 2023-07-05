@@ -12,11 +12,12 @@ import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
+from common.utility import get_logo, get_version, get_language
 
-from common.report import ReportText
 
 
 class Report:
+
     def __init__(self, cases_folder_path, case_info):
         self.cases_folder_path = cases_folder_path
         self.output_front = os.path.join(self.cases_folder_path, "front_report.pdf")
@@ -25,10 +26,16 @@ class Report:
         self.output_content_result = open(self.output_content, "w+b")
         self.case_info = case_info
 
+        language = get_language()
+        if language == 'Italian':
+            import common.constants.controller.report as REPORT
+        else:
+            import common.constants.controller.report_eng as REPORT
+        self.REPORT = REPORT
+
     def generate_pdf(self, type, ntp):
 
         # PREPARING DATA TO FILL THE PDF
-        phrases = ReportText()
         if type == 'web':
             try:
                 with open(os.path.join(self.cases_folder_path, 'whois.txt'), "r") as f:
@@ -46,8 +53,8 @@ class Report:
         # FILLING FRONT PAGE WITH DATA
         front_index_path = os.path.join("assets", "templates","front.html")
         front_index = open(front_index_path).read().format(
-            img=phrases.TEXT['img'], t1=phrases.TEXT['t1'],
-            title=phrases.TEXT['title'], report=phrases.TEXT['report'], version=phrases.TEXT['version']
+            img=get_logo(), t1=self.REPORT.T1,
+            title=self.REPORT.TITLE, report=self.REPORT.REPORT, version=get_version()
         )
 
         # FILLING TEMPLATE WITH DATA
@@ -55,42 +62,42 @@ class Report:
             content_index_path = os.path.join("assets", "templates", "template_web.html")
             content_index = open(content_index_path).read().format(
 
-                title=phrases.TEXT['title'],
-                index=phrases.TEXT['index'],
-                description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
-                case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
-                case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
-                case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
+                title=self.REPORT.TITLE,
+                index=self.REPORT.INDEX,
+                description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
+                case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
+                case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.PROCEEDING,
+                case3=self.REPORT.COURT, case4=self.REPORT.NUMBER, case5=self.REPORT.ACQUISITION_TYPE, case6=self.REPORT.ACQUISITION_DATE,
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
                 data4=str(self.case_info['proceeding_number'] or 'N/A'),
-                typed=phrases.TEXT['typed'], type=type,
-                date=phrases.TEXT['date'], ntp=ntp,
-                t3=phrases.TEXT['t3'], t3descr=phrases.TEXT['t3descr'],
+                typed=self.REPORT.TYPED, type=type,
+                date=self.REPORT.DATE, ntp=ntp,
+                t3=self.REPORT.T3, t3descr=self.REPORT.T3DESCR,
                 whoisfile=whois_text,
-                t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
-                name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
+                t4=self.REPORT.T4, t4descr=self.REPORT.T4DESCR,
+                name=self.REPORT.NAME, descr=self.REPORT.DESCR,
 
-                avi=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.avi')[0]], avid=phrases.TEXT['avid'],
-                hash=acquisition_files['acquisition.hash'], hashd=phrases.TEXT['hashd'],
-                log=acquisition_files['acquisition.log'], logd=phrases.TEXT['logd'],
-                pcap=acquisition_files['acquisition.pcap'], pcapd=phrases.TEXT['pcapd'],
-                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
-                whois=acquisition_files['whois.txt'], whoisd=phrases.TEXT['whoisd'],
-                headers=acquisition_files['headers.txt'], headersd=phrases.TEXT['headersd'],
-                nslookup=acquisition_files['nslookup.txt'], nslookupd=phrases.TEXT['pngd'],
-                cer=acquisition_files['server.cer'], cerd=phrases.TEXT['cerd'],
-                sslkey=acquisition_files['sslkey.log'], sslkeyd=phrases.TEXT['sslkeyd'],
-                traceroute=acquisition_files['traceroute.txt'], tracerouted=phrases.TEXT['tracerouted'],
+                avi=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.avi')[0]], avid=self.REPORT.AVID,
+                hash=acquisition_files['acquisition.hash'], hashd=self.REPORT.HASHD,
+                log=acquisition_files['acquisition.log'], logd=self.REPORT.LOGD,
+                pcap=acquisition_files['acquisition.pcap'], pcapd=self.REPORT.PCAPD,
+                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=self.REPORT.ZIPD,
+                whois=acquisition_files['whois.txt'], whoisd=self.REPORT.WHOISD,
+                headers=acquisition_files['headers.txt'], headersd=self.REPORT.HEADERSD,
+                nslookup=acquisition_files['nslookup.txt'], nslookupd=self.REPORT.PNGD,
+                cer=acquisition_files['server.cer'], cerd=self.REPORT.CERD,
+                sslkey=acquisition_files['sslkey.log'], sslkeyd=self.REPORT.SSLKEYD,
+                traceroute=acquisition_files['traceroute.txt'], tracerouted=self.REPORT.TRACEROUTED,
 
-                t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
-                t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
-                t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-                titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
-                titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
+                t5=self.REPORT.T5, t5descr=self.REPORT.T5DESCR, file=user_files,
+                t6=self.REPORT.T6, t6descr=self.REPORT.T6DESCR, filedata=zip_enum,
+                t7=self.REPORT.T7, t7descr=self.REPORT.T7DESCR,
+                titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
+                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR
             )
             pdf_options = {
                 'page-size': 'Letter',
@@ -108,30 +115,30 @@ class Report:
                                               "template_email.html")
             content_index = open(content_index_path).read().format(
 
-                title=phrases.TEXT['title'],
-                index=phrases.TEXT['index'],
-                description=phrases.TEXT['description'], t1=phrases.TEXT['t1'], t2=phrases.TEXT['t2'],
-                case=phrases.TEXT['case'], casedata=phrases.TEXT['casedata'],
-                case0=phrases.CASE[0], case1=phrases.CASE[1], case2=phrases.CASE[2],
-                case3=phrases.CASE[3], case4=phrases.CASE[4], case5=phrases.CASE[5], case6=phrases.CASE[6],
+                title=self.REPORT.TITLE,
+                index=self.REPORT.INDEX,
+                description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
+                case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
+                case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.PROCEEDING,
+                case3=self.REPORT.COURT, case4=self.REPORT.NUMBER, case5=self.REPORT.ACQUISITION_TYPE, case6=self.REPORT.ACQUISITION_DATE,
 
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['proceeding_type'] or 'N/A'),
                 data3=str(self.case_info['courthouse'] or 'N/A'),
                 data4=str(self.case_info['proceeding_number'] or 'N/A'),
-                typed=phrases.TEXT['typed'], type=type,
-                date=phrases.TEXT['date'], ntp=ntp,
-                t4=phrases.TEXT['t4'], t4descr=phrases.TEXT['t4descr'],
-                name=phrases.TEXT['name'], descr=phrases.TEXT['descr'],
-                hash=acquisition_files['acquisition.hash'], hashd=phrases.TEXT['hashd'],
-                log=acquisition_files['acquisition.log'], logd=phrases.TEXT['logd'],
-                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=phrases.TEXT['zipd'],
-                t5=phrases.TEXT['t5'], t5descr=phrases.TEXT['t5descr'], file=user_files,
-                t6=phrases.TEXT['t6'], t6descr=phrases.TEXT['t6descr'], filedata=zip_enum,
-                t7=phrases.TEXT['t7'], t7descr=phrases.TEXT['t7descr'],
-                titlecc=phrases.TEXT['titlecc'], ccdescr=phrases.TEXT['ccdescr'],
-                titleh=phrases.TEXT['titleh'], hdescr=phrases.TEXT['hdescr']
+                typed=self.REPORT.TYPED, type=type,
+                date=self.REPORT.DATE, ntp=ntp,
+                t4=self.REPORT.T4, t4descr=self.REPORT.T4DESCR,
+                name=self.REPORT.NAME, descr=self.REPORT.DESCR,
+                hash=acquisition_files['acquisition.hash'], hashd=self.REPORT.HASHD,
+                log=acquisition_files['acquisition.log'], logd=self.REPORT.LOGD,
+                zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=self.REPORT.ZIPD,
+                t5=self.REPORT.T5, t5descr=self.REPORT.T5DESCR, file=user_files,
+                t6=self.REPORT.T6, t6descr=self.REPORT.T6DESCR, filedata=zip_enum,
+                t7=self.REPORT.T7, t7descr=self.REPORT.T7DESCR,
+                titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
+                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR
 
             )
             # create pdf front and content, merge them and remove merged files
@@ -159,27 +166,27 @@ class Report:
             acquisition_files[file] = file
 
         if not any(value.endswith('.avi') for value in acquisition_files.values()):
-            acquisition_files['acquisition.avi'] = "File non prodotto"
+            acquisition_files['acquisition.avi'] = self.REPORT.NOT_PRODUCED
         if not 'acquisition.hash' in acquisition_files.values():
-            acquisition_files['acquisition.hash'] = "File non prodotto"
+            acquisition_files['acquisition.hash'] = self.REPORT.NOT_PRODUCED
         if not 'acquisition.log' in acquisition_files.values():
-            acquisition_files['acquisition.log'] = "File non prodotto"
+            acquisition_files['acquisition.log'] = self.REPORT.NOT_PRODUCED
         if not any(value.endswith('.pcap') for value in acquisition_files.values()):
-            acquisition_files['acquisition.pcap'] = "File non prodotto"
+            acquisition_files['acquisition.pcap'] = self.REPORT.NOT_PRODUCED
         if not any(value.endswith('.zip') for value in acquisition_files.values()):
-            acquisition_files['acquisition.zip'] = "File non prodotto"
+            acquisition_files['acquisition.zip'] = self.REPORT.NOT_PRODUCED
         if not 'whois.txt' in acquisition_files.values():
-            acquisition_files['whois.txt'] = "File non prodotto"
+            acquisition_files['whois.txt'] = self.REPORT.NOT_PRODUCED
         if not 'headers.txt' in acquisition_files.values():
-            acquisition_files['headers.txt'] = "File non prodotto"
+            acquisition_files['headers.txt'] = self.REPORT.NOT_PRODUCED
         if not 'nslookup.txt' in acquisition_files.values():
-            acquisition_files['nslookup.txt'] = "File non prodotto"
+            acquisition_files['nslookup.txt'] = self.REPORT.NOT_PRODUCED
         if not 'server.cer' in acquisition_files.values():
-            acquisition_files['server.cer'] = "File non prodotto"
+            acquisition_files['server.cer'] = self.REPORT.NOT_PRODUCED
         if not 'sslkey.log' in acquisition_files.values():
-            acquisition_files['sslkey.log'] = "File non prodotto"
+            acquisition_files['sslkey.log'] = self.REPORT.NOT_PRODUCED
         if not 'traceroute.txt' in acquisition_files.values():
-            acquisition_files['traceroute.txt'] = "File non prodotto"
+            acquisition_files['traceroute.txt'] = self.REPORT.NOT_PRODUCED
 
         return acquisition_files
 
@@ -201,7 +208,7 @@ class Report:
                 pass
             if size > 0:
                 zip_enum += '<p>' + filename + "</p>"
-                zip_enum += '<p>Dimensione: ' + str(size) + " bytes</p>"
+                zip_enum += '<p>'+self.REPORT.NOT_PRODUCED + str(size) + " bytes</p>"
                 zip_enum += '<hr>'
         return zip_enum
 
