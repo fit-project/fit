@@ -217,6 +217,7 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
+        #TODO PROBLEMA ZONARO
         profile = QWebEngineProfile.defaultProfile()
         profile.clearHttpCache()
 
