@@ -72,8 +72,9 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.setObjectName("SelectTask")
 
         # Create a button group for radio buttons
-        self.radio_button_group = QtWidgets.QButtonGroup()
-        self.radio_button_group.buttonToggled[QtWidgets.QAbstractButton, bool].connect(self.completeChanged)
+        self.radio_button_group1 = QtWidgets.QButtonGroup(self)
+        self.radio_button_group1.setObjectName("radio_button_group1")
+        self.radio_button_group1.buttonToggled[QtWidgets.QAbstractButton, bool].connect(self.completeChanged)
         self.radio_button_container = QtWidgets.QWidget(self)
         self.radio_button_container.setGeometry(QtCore.QRect(80, 40, 650, 112))
         self.radio_button_container.setObjectName("radio_button_container")
@@ -81,6 +82,8 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout.setContentsMargins(0, 0, 0, 0)
         self.radio_buttons_hlayout.setObjectName("radio_buttons_hlayout")
 
+        
+        self.radio_button_group1.buttonClicked.connect(self.__task_clicked)
         
         #RADIO BUTTON WEB
         self.web_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -98,7 +101,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.web.setObjectName("web")
         self.web_vlayout.addWidget(self.web)
         self.radio_buttons_hlayout.addWidget(self.web_radio_button_wrapper)
-        self.radio_button_group.addButton(self.web, 0)
+        self.radio_button_group1.addButton(self.web, 0)
 
         #RADIO BUTTON MAIL
         self.mail_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -118,7 +121,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.mail.setObjectName("mail")
         self.mail_vlayout.addWidget(self.mail)
         self.radio_buttons_hlayout.addWidget(self.mail_radio_button_wrapper)
-        self.radio_button_group.addButton(self.mail, 1)
+        self.radio_button_group1.addButton(self.mail, 1)
 
         # RADIO BUTTON INSTAGRAM
         self.insta_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -138,7 +141,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.insta.setObjectName("insta")
         self.insta_vlayout.addWidget(self.insta)
         self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
-        self.radio_button_group.addButton(self.insta, 3)
+        self.radio_button_group1.addButton(self.insta, 3)
 
         # RADIO BUTTON VIDEO
         self.video_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -159,18 +162,21 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.video.setObjectName("video")
         self.video_vlayout.addWidget(self.video)
         self.radio_buttons_hlayout.addWidget(self.video_radio_button_wrapper)
-        self.radio_button_group.addButton(self.video, 3)
+        self.radio_button_group1.addButton(self.video, 3)
 
 
         # Create a button group for radio buttons
-        self.radio_button_group_row2 = QtWidgets.QButtonGroup()
-        self.radio_button_group_row2.buttonToggled[QtWidgets.QAbstractButton, bool].connect(self.completeChanged)
+        self.radio_button_group2 = QtWidgets.QButtonGroup(self)
+        self.radio_button_group2.setObjectName("radio_button_group_row2")
+        self.radio_button_group2.buttonToggled[QtWidgets.QAbstractButton, bool].connect(self.completeChanged)
         self.radio_button_container2 = QtWidgets.QWidget(self)
-        self.radio_button_container2.setGeometry(QtCore.QRect(80, 160, 325, 112))
+        self.radio_button_container2.setGeometry(QtCore.QRect(80, 160, 322, 112))
         self.radio_button_container2.setObjectName("radio_button_container2")
         self.radio_buttons_hlayout2 = QtWidgets.QHBoxLayout(self.radio_button_container2)
         self.radio_buttons_hlayout2.setContentsMargins(0, 0, 0, 0)
         self.radio_buttons_hlayout2.setObjectName("radio_buttons_hlayout2")
+
+        self.radio_button_group2.buttonClicked.connect(self.__task_clicked)
 
         # RADIO BUTTON VERIFY TIMESTAMP
         self.timestamp_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container2)
@@ -190,7 +196,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.timestamp.setObjectName("timestamp")
         self.timestamp_vlayout.addWidget(self.timestamp)
         self.radio_buttons_hlayout2.addWidget(self.timestamp_radio_button_wrapper)
-        self.radio_button_group_row2.addButton(self.timestamp, 5)
+        self.radio_button_group2.addButton(self.timestamp, 5)
 
 
         # RADIO BUTTON VERIFY PEC
@@ -212,30 +218,41 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.pec.setObjectName("pec")
         self.pec_vlayout.addWidget(self.pec)
         self.radio_buttons_hlayout2.addWidget(self.pec_radio_button_wrapper)
-        self.radio_button_group_row2.addButton(self.pec, 6)
+        self.radio_button_group2.addButton(self.pec, 6)
 
-        box = AccordionView(CASE_SUMMARY, self)
-        box.setGeometry(QtCore.QRect(80, 300, 430, 30))
-        lay = QtWidgets.QVBoxLayout()
+        
 
         #AREA RECAP INFO
-        self.acquisition_group_box = QtWidgets.QGroupBox()
-        self.acquisition_group_box.setEnabled(True)
-        self.acquisition_group_box.setGeometry(QtCore.QRect(80, 300, 501, 171))
-        self.acquisition_group_box.setObjectName("acquisition_group_box")
+        self.recap_case_box = AccordionView(CASE_SUMMARY, self)
+        self.recap_case_box.setGeometry(QtCore.QRect(80, 400, 430, 30))
+        self.recap_case_box_lay = QtWidgets.QVBoxLayout()
+
         self.recap_case_info = QtWidgets.QTextBrowser()
-        #self.recap_case_info.setGeometry(QtCore.QRect(30, 30, 430, 121))
+        self.recap_case_info.setGeometry(QtCore.QRect(30, 30, 430, 125))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.recap_case_info.setFont(font)
         self.recap_case_info.setReadOnly(True)
         self.recap_case_info.setObjectName("recap_case_info")
 
-        lay.addWidget(self.recap_case_info)
-        box.setContentLayout(lay)
+        self.recap_case_box_lay.addWidget(self.recap_case_info)
+        self.recap_case_box.setContentLayout(self.recap_case_box_lay)
+
+        
 
     def isComplete(self):
-        return self.radio_button_group.checkedId() >= 0
+        return self.radio_button_group1.checkedId() >= 0 or self.radio_button_group2.checkedId() >= 0
+        
+    
+    def __task_clicked(self):
+        button_groups = [child for child in self.children() if type(child) == QtWidgets.QButtonGroup]
+        button_groups.remove(self.sender())
+
+        for button_group in button_groups:
+            if button_group.checkedButton() is not None:
+                button_group.setExclusive(False)
+                button_group.checkedButton().setChecked(False)
+                button_group.setExclusive(True)
 
 
 class Wizard(QtWidgets.QWizard):
@@ -286,10 +303,10 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.recap_case_info.setHtml(self._get_recap_case_info_HTML())
 
     def _save_case(self):
-        
-        buttons = self.select_task_page.radio_button_group.buttons()
-        selected_buttons_index = [buttons[x].isChecked() for x in range(len(buttons))].index(True)
-        task = buttons[selected_buttons_index].objectName()
+
+        button_group = [child for child in self.select_task_page.children() 
+                        if type(child) == QtWidgets.QButtonGroup and child.checkedButton()]
+        task = button_group[0].checkedButton().objectName()
 
 
         #store information case on the local DB
@@ -313,7 +330,6 @@ class Wizard(QtWidgets.QWizard):
 
     def retranslateUi(self):
         self.setWindowTitle(self.__get_version())
-        self.select_task_page.acquisition_group_box.setTitle(CASE_SUMMARY)
         self.select_task_page.web.setText(TASK_WEB)
         self.select_task_page.mail.setText(TASK_MAIL)
         self.select_task_page.insta.setText(TASK_INSTAGRAM)

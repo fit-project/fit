@@ -17,6 +17,7 @@ class Accordion(QtWidgets.QWidget):
         self.toggle_button = QtWidgets.QToolButton(
             text=title, checkable=True, checked=False
         )
+        
         self.toggle_button.setStyleSheet("QToolButton { border: none; }")
         self.toggle_button.setToolButtonStyle(
             QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon
@@ -26,7 +27,7 @@ class Accordion(QtWidgets.QWidget):
 
         self.toggle_animation = QtCore.QParallelAnimationGroup(self)
 
-        self.content_area = QtWidgets.QScrollArea(
+        self.content_area = QtWidgets.QTextBrowser(
             maximumHeight=0, minimumHeight=0
         )
         self.content_area.setSizePolicy(
@@ -67,19 +68,23 @@ class Accordion(QtWidgets.QWidget):
         lay = self.content_area.layout()
         del lay
         self.content_area.setLayout(layout)
+
         collapsed_height = (
             self.sizeHint().height() - self.content_area.maximumHeight()
         )
-        content_height = layout.sizeHint().height()
+
+        content_height = layout.itemAt(0).widget().height()
+
+
         for i in range(self.toggle_animation.animationCount()):
             animation = self.toggle_animation.animationAt(i)
-            animation.setDuration(500)
+            animation.setDuration(100)
             animation.setStartValue(collapsed_height)
             animation.setEndValue(collapsed_height + content_height)
 
         content_animation = self.toggle_animation.animationAt(
             self.toggle_animation.animationCount() - 1
         )
-        content_animation.setDuration(500)
+        content_animation.setDuration(100)
         content_animation.setStartValue(0)
         content_animation.setEndValue(content_height)
