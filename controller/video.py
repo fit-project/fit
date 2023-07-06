@@ -8,6 +8,7 @@
 ######
 import json
 import os
+import re
 import shutil
 
 import yt_dlp
@@ -79,6 +80,17 @@ class Video():
             info = ydl.extract_info(self.url, download=False)
             with open(video_dir, 'w') as f:
                 json.dump(ydl.sanitize_info(info), f)
+
+    # check if video is from yt, but it's not a short
+    def is_youtube_video(self):
+        youtube_regex = r"(?:https?:\/\/)?(?:www\.)?youtu(?:\.be|be\.com)\/(?:watch\?v=|embed\/|v\/|\.+\?v=)?([\w\-]+)(?:\S+)?"
+        shorts_regex = r"(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([\w\-]+)(?:\S+)?"
+        match = re.match(youtube_regex, self.url)
+        if match:
+            shorts_match = re.match(shorts_regex, self.url)
+            return shorts_match is None
+        return False
+
 
     # extract audio from video
     def get_audio(self):

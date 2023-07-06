@@ -172,7 +172,7 @@ class Video(QtWidgets.QMainWindow):
         # ACQUISITION GROUP BOX
         self.acquisition_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.acquisition_group_box.setFont(font)
-        self.acquisition_group_box.setEnabled(True)
+        self.acquisition_group_box.setEnabled(False)
         self.acquisition_group_box.setGeometry(QtCore.QRect(50, 200, 430, 180))
         self.acquisition_group_box.setObjectName("acquisition_group_box")
 
@@ -191,28 +191,28 @@ class Video(QtWidgets.QMainWindow):
 
 
         # ADDITIONAL_INFORMATION
-        self.label_aditional_information = QtWidgets.QLabel(self.acquisition_group_box)
-        self.label_aditional_information.setGeometry(QtCore.QRect(230, 30, 150, 20))
-        self.label_aditional_information.setFont(font)
-        self.label_aditional_information.setObjectName("label_aditional_information")
+        self.label_additional_information = QtWidgets.QLabel(self.acquisition_group_box)
+        self.label_additional_information.setGeometry(QtCore.QRect(180, 30, 150, 20))
+        self.label_additional_information.setFont(font)
+        self.label_additional_information.setObjectName("label_additional_information")
 
         self.checkbox_audio = QtWidgets.QCheckBox(self.acquisition_group_box)
-        self.checkbox_audio.setGeometry(QtCore.QRect(230, 50, 100, 17))
+        self.checkbox_audio.setGeometry(QtCore.QRect(180, 50, 100, 17))
         self.checkbox_audio.setFont(font)
         self.checkbox_audio.setObjectName("checkbox_audio")
 
         self.checkbox_thumbnail = QtWidgets.QCheckBox(self.acquisition_group_box)
-        self.checkbox_thumbnail.setGeometry(QtCore.QRect(230, 70, 100, 17))
+        self.checkbox_thumbnail.setGeometry(QtCore.QRect(180, 70, 100, 17))
         self.checkbox_thumbnail.setFont(font)
         self.checkbox_thumbnail.setObjectName("checkbox_thumbnail")
 
         self.checkbox_subtitles= QtWidgets.QCheckBox(self.acquisition_group_box)
-        self.checkbox_subtitles.setGeometry(QtCore.QRect(230, 90, 100, 17))
+        self.checkbox_subtitles.setGeometry(QtCore.QRect(180, 90, 230, 17))
         self.checkbox_subtitles.setFont(font)
         self.checkbox_subtitles.setObjectName("checkbox_subtitles")
 
         self.checkbox_comments = QtWidgets.QCheckBox(self.acquisition_group_box)
-        self.checkbox_comments.setGeometry(QtCore.QRect(230, 110, 100, 17))
+        self.checkbox_comments.setGeometry(QtCore.QRect(180, 110, 230, 17))
         self.checkbox_comments.setFont(font)
         self.checkbox_comments.setObjectName("checkbox_comments")
 
@@ -290,7 +290,7 @@ class Video(QtWidgets.QMainWindow):
         self.label_duration.setText(video.DURATION)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
         self.label_video_quality.setText('<strong>' + video.VIDEO_QUALITY + '</strong>')
-        self.label_aditional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
+        self.label_additional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
         self.checkbox_audio.setText(video.AUDIO)
         self.checkbox_thumbnail.setText(video.THUMBNAIL)
         self.checkbox_subtitles.setText(video.SUBTITLES)
@@ -342,9 +342,9 @@ class Video(QtWidgets.QMainWindow):
         self.acquisition.upadate_progress_bar()
 
     def __load(self):
-
         # video_url
         self.url = self.input_url.text()
+        self.video_controller.video_id = None
         center_x = self.x() + self.width / 2
         center_y = self.y() + self.height / 2
         self.spinner.set_position(center_x, center_y)
@@ -356,7 +356,10 @@ class Video(QtWidgets.QMainWindow):
         loop.exec()
         if self.video_controller.video_id is None:
             self.__init_worker()
+            self.acquisition_group_box.setEnabled(True)
         else:
+
+            self.acquisition_group_box.setEnabled(True)
             self.__start_scraped()
 
     def __scrape(self):
@@ -401,6 +404,10 @@ class Video(QtWidgets.QMainWindow):
         self.duration.setText(duration)
         self.scrape_button.setEnabled(True)
 
+        if not self.video_controller.is_youtube_video():
+            self.checkbox_comments.setEnabled(False)
+            self.checkbox_subtitles.setEnabled(False)
+
     def __start_scraped(self):
 
         if self.acquisition_directory is None:
@@ -425,7 +432,7 @@ class Video(QtWidgets.QMainWindow):
             (self.checkbox_comments.isChecked(), self.video_controller.get_comments),
         ]
 
-        internal_tasks = list(filter(lambda task: task[0] == True, self.methods_to_execute))
+        internal_tasks = list(filter(lambda task: task[0] is True, self.methods_to_execute))
 
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
