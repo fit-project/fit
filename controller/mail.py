@@ -5,7 +5,8 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
+import hashlib
 import imaplib
 import email
 import io
@@ -15,6 +16,9 @@ import re
 import sys
 
 import pyzmail
+
+from common.utility import calculate_hash
+
 
 class Mail():
     def __init__(self):
@@ -113,6 +117,7 @@ class Mail():
         # combine the search criteria
         params = ' '.join(criteria)
         return params
+
     def write_emails(self, email_id, mail_dir, folder_stripped, folder):
         # Create mail folder
         folder_dir = os.path.join(mail_dir, folder_stripped)
@@ -127,7 +132,11 @@ class Mail():
 
         message = pyzmail.PyzMessage.factory(message_mail)
         sanitized_id = re.sub(r'[<>:"/\\|?*]', '', message.get('message-id')[1:-8])
-        filename = f"{sanitized_id}.eml"
+        md5_hash = hashlib.md5()
+        md5_hash.update(sanitized_id.encode('utf-8'))
+        md5_digest = md5_hash.hexdigest()
+        filename = f"{md5_digest}.eml"
+
         email_path = os.path.join(folder_dir, filename)
 
         with open(email_path, 'wb') as f:
