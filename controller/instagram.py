@@ -179,16 +179,19 @@ class Instagram():
             except Exception as e:
                 raise Exception(e)
             if self.profile.is_private():
-
                 followers = self.profile.get_followers()
-                follow = False
-                for follower in followers:
+                if len(followers) == 0:
+                    #CASO 3, posso fare scrape di tutto tranne saved posts
+                    #tagged posts, post, storie, followers, followees, highlights
                     pass
+                else:
+                    #CASO 2, posso fare scrape di tutto tranne saved posts
+                pass
             else:
-                #CASO 4
+                #CASO 4, posso fare scrape di tutto tranne post salvati
                 pass
         else:
-            #account uguali, posso fare scrape di tutto CASO 1
+            #CASO 1, account uguali, posso fare scrape di tutto
             pass
 
 
