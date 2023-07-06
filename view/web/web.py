@@ -217,9 +217,6 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        profile = QWebEngineProfile.defaultProfile()
-        profile.clearHttpCache()
-
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],
@@ -325,7 +322,7 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.showMessage('')
 
-        self.__clear_cache()
+        #self.__clear_cache()
         profile = QWebEngineProfile.defaultProfile()
         profile.clearHttpCache()
 
