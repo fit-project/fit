@@ -35,8 +35,10 @@ class InstagramWorker(QtCore.QObject):
     logged_in = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, instagram_controller, methods_to_execute):
+    def __init__(self, instagram_controller, methods_to_execute, checkbox, acquisition_group_box):
         super().__init__()
+        self.checkbox = checkbox
+        self.acquisition_group_box = acquisition_group_box
         self.instagram_controller = instagram_controller
         self.methods_to_execute = methods_to_execute
     
@@ -44,6 +46,7 @@ class InstagramWorker(QtCore.QObject):
     def run(self):
         if self.instagram_controller.is_logged_in is False:
             try:
+                print("Prima del login")
                 self.instagram_controller.login()
             except InvalidArgumentException as e:
                 self.error.emit({'title':instagram.INVALID_USER, 'msg':Error.INVALID_USER, 'details':e})
@@ -55,9 +58,19 @@ class InstagramWorker(QtCore.QObject):
                 self.error.emit({'title':instagram.INVALID_PROFILE, 'msg':Error.INVALID_PROFILE, 'details':e})
             except Exception as e:
                 self.error.emit(e)
+            #else:
+                #self.logged_in.emit()
+            print("Prima del check")
+            check_account = self.instagram_controller.check_account()
+            if check_account == 1:
+                pass
+            elif check_account == 2 or check_account == 4:
+                self.checkbox[4].setEnabled(False)
             else:
-                self.logged_in.emit()
-            self.instagram_controller.check_account()
+                for check in self.checkbox:
+                    check.setEnabled(False)
+            self.acquisition_group_box.setEnabled(True)
+            self.logged_in.emit()
         else:
             for checkbox, method in self.methods_to_execute:
                 if checkbox:
@@ -312,9 +325,10 @@ class Instagram(QtWidgets.QMainWindow):
         self.scrape_button.setText(general.BUTTON_SCRAPE)
         self.login_button.setText(general.BUTTON_LOGIN)
     
-    def __init_worker(self):
+    def __init_worker(self, checkbox, acquisition_group_box):
         self.thread_worker = QtCore.QThread()
-        self.worker = InstagramWorker(self.instagram_controller, self.methods_to_execute)
+        self.worker = InstagramWorker(self.instagram_controller, self.methods_to_execute, checkbox,
+                                      acquisition_group_box)
         
         self.worker.moveToThread(self.thread_worker)
         self.thread_worker.started.connect(self.worker.run)
@@ -379,7 +393,10 @@ class Instagram(QtWidgets.QMainWindow):
 
         #If not logged in
         if self.instagram_controller.is_logged_in is False:
-            self.__init_worker()
+            checkbox = [self.checkbox_followee, self.checkbox_follower, self.checkbox_highlight,
+                        self.checkbox_post, self.checkbox_saved_post, self.checkbox_tagged_post,
+                        self.checkbox_story]
+            self.__init_worker(checkbox, self.acquisition_group_box)
             self.instagram_controller.set_login_information(self.username, self.password, self.profile)
         else:
             self.__start_scraped()
@@ -434,8 +451,10 @@ class Instagram(QtWidgets.QMainWindow):
             os.makedirs(self.profile_dir)
         
         self.instagram_controller.set_dir(self.profile_dir)
-
-        self.__init_worker()
+        checkbox = [self.checkbox_followee, self.checkbox_follower, self.checkbox_highlight,
+                    self.checkbox_post, self.checkbox_saved_post, self.checkbox_tagged_post,
+                    self.checkbox_story]
+        self.__init_worker(checkbox, self.acquisition_group_box)
             
     
     def __hanlde_scraped(self):
