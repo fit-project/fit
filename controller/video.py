@@ -8,7 +8,6 @@
 ######
 import json
 import os
-import re
 import shutil
 
 import yt_dlp
@@ -38,7 +37,7 @@ class Video():
     # set output dir
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
-        self.ydl_opts.update({'outtmpl': acquisition_dir + '/%(title)s.%(ext)s'})
+        self.ydl_opts.update({'outtmpl': acquisition_dir + '/%(id)s.%(ext)s'})
 
     # download video and set video_id for further operations
     def download_video(self):
@@ -47,17 +46,15 @@ class Video():
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             try:
                 info = ydl.extract_info(self.url, download=True)
-                self.video_id = info['id']
             except:
                 pass #can't download, skip for now
 
     # show thumbnail and video title
     def print_info(self):
-        self.ydl_opts.update({
-            'writethumbnail': True
-        })
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
+            self.video_id = video_info['id']
+            self.title = video_info['title']
             try:
                 self.thumbnail = video_info['thumbnail']
             except:
@@ -70,17 +67,14 @@ class Video():
             return self.title, self.thumbnail, self.__convert_seconds_to_hh_mm_ss(int(self.duration))
 
     # extract video title and sanitize it
-    def get_video_title_sanitized(self, url):
+    def get_video_id(self, url):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(url, download=False)
-            self.title = video_info['title']
-        sanitized_name = re.sub(r'[<>:"/\\|?*]', '', self.title)
-        self.sanitized_name = sanitized_name
-        return self.sanitized_name
+            self.id = video_info['id']
 
     # download video information
     def get_info(self):
-        video_dir = os.path.join(self.acquisition_dir, self.sanitized_name + '.json')
+        video_dir = os.path.join(self.acquisition_dir, self.video_id + '.json')
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             info = ydl.extract_info(self.url, download=False)
             with open(video_dir, 'w') as f:

@@ -47,9 +47,9 @@ class VideoWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def run(self):
-        if self.video_controller.sanitized_name is None:
+        if self.video_controller.video_id is None:
             try:
-                self.video_controller.get_video_title_sanitized(self.input_url.text())
+                self.video_controller.get_video_id(self.input_url.text())
             except Exception as e:
                 self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
             else:
@@ -354,7 +354,7 @@ class Video(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
-        if self.video_controller.sanitized_name is None:
+        if self.video_controller.video_id is None:
             self.__init_worker()
         else:
             self.__start_scraped()
@@ -372,7 +372,7 @@ class Video(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
-        if self.video_controller.sanitized_name is None:
+        if self.video_controller.video_id is None:
             self.__init_worker()
         else:
             self.__start_scraped()
@@ -410,7 +410,7 @@ class Video(QtWidgets.QMainWindow):
                 self.case_info['name'],
                 self.input_url.text()
             )
-        self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.sanitized_name)
+        self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.video_id)
         self.is_acquisition_running = True
 
         self.video_controller.set_quality(self.quality.currentText())
@@ -468,7 +468,7 @@ class Video(QtWidgets.QMainWindow):
 
         self.acquisition_directory = None
         self.is_acquisition_running = False
-        self.video_controller.sanitized_name = None
+        self.video_controller.video_id = None
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
