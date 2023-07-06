@@ -78,7 +78,7 @@ class Mail():
                 # Fetch every message in specified folder
                 messages = data[0].split()
                 for email_id in messages:
-                    status, email_data = self.mailbox.fetch(email_id, "(RFC822)")
+                    status, email_data = self.mailbox.fetch(email_id, "BODY.PEEK[HEADER]") #fetch just the header to speed up the process
                     email_part = email.message_from_bytes(email_data[0][1])
 
                     # prepare data for the dict
