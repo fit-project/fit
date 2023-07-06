@@ -14,11 +14,11 @@ import os
 import email.message
 import re
 import sys
+import time
 
 import pyzmail
 
-from common.utility import calculate_hash
-
+from common.constants import error, details as Details, logger as Logger
 
 class Mail():
     def __init__(self):
@@ -26,7 +26,7 @@ class Mail():
         self.password = None
         self.mailbox = None
         self.is_logged_in = False
-        self.logs=''
+        self.logs = ''
 
     def check_server(self, server, port):
         # Connect and log to the mailbox using IMAP server
@@ -51,7 +51,7 @@ class Mail():
         self.__save_logs()
 
 
-    def get_mails_from_every_folder(self, params):
+    def get_mails_from_every_folder(self, params, status, acquisition):
 
         # Retrieve every folder from the mailbox
         folders = []
@@ -68,15 +68,30 @@ class Mail():
                 folders.append(name)
 
         # Scrape every message from the folders
-        scraped_emails = self.fetch_messages(folders, params)
+        scraped_emails = self.fetch_messages(folders,status, acquisition, params)
         self.__save_logs()
         return scraped_emails
 
-    def fetch_messages(self, folders, params=None):
+    def fetch_messages(self, folders, status, acquisition, params=None):
+        num_emails_test = 1  # number of emails used to calculate the estimated fetching time
+        start_time = time.time()
         scraped_emails = {}
+
+        self.mailbox.select(readonly=True)
+        stat, email_ids = self.mailbox.search(None, params)
+        emails = email_ids[0].split()
+        total_emails = len(emails)
+        selected_emails = email_ids[0].split()[:num_emails_test]
+        for email_id in selected_emails:
+            self.mailbox.fetch(email_id, '(BODY.PEEK[HEADER])')
+        end_time = time.time()
+        estimated_time =  round(((end_time - start_time) * (total_emails / num_emails_test)) / 60,2) # minutes
+        status.showMessage(Logger.FETCH_EMAILS.format(estimated_time, total_emails))
+        acquisition.logger.info(Logger.FETCH_EMAILS.format(estimated_time,total_emails))
+
         for folder in folders:
             try:
-                self.mailbox.select(folder,readonly=True)
+                self.mailbox.select(folder, readonly=True)
                 type, data = self.mailbox.search(None, params)
 
                 # Fetch every message in specified folder
@@ -143,6 +158,7 @@ class Mail():
             f.write(message.as_bytes())
         self.__save_logs()
 
+
     def __save_logs(self):
         logs_buffer = io.StringIO()
         original_stderr = sys.stderr
@@ -155,7 +171,10 @@ class Mail():
         with open(os.path.join(acquisition_folder,'imap_logs.log'),'w') as f:
             f.write(self.logs)
 
-    def download_single_messages(self, mail_dir, emails_dict):
+
+
+    #unused methods
+    '''def download_single_messages(self, mail_dir, emails_dict):
         for folder, emails_list in emails_dict.items():
 
             for emails in emails_list:
@@ -195,3 +214,4 @@ class Mail():
             except Exception as e:  # handle exception
                 raise Exception(e)
         self.__save_logs()
+'''

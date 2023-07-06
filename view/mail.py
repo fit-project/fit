@@ -46,7 +46,7 @@ class MailWorker(QObject):
     finished = pyqtSignal()
 
     def __init__(self, mail_controller, email, password, server,
-                 port, criteria, acquisition_mail_dir, acquisition_directory, emails_to_save, is_downloading):
+                 port, criteria, acquisition_mail_dir, acquisition_directory, emails_to_save, is_downloading, status, acquisition):
         super().__init__()
         self.mail_controller = mail_controller
         self.email = email
@@ -58,6 +58,8 @@ class MailWorker(QObject):
         self.acquisition_directory = acquisition_directory
         self.emails_to_save = emails_to_save
         self.is_downloading = is_downloading
+        self.status = status
+        self.acquisition = acquisition
 
     @pyqtSlot()
     def run(self):
@@ -69,7 +71,7 @@ class MailWorker(QObject):
                 self.mail_controller.check_login(self.email, self.password)
 
             if self.is_downloading is False:
-                emails = self.mail_controller.get_mails_from_every_folder(self.search_criteria)
+                emails = self.mail_controller.get_mails_from_every_folder(self.search_criteria,self.status, self.acquisition)
             else:
                 self.__download_emails()
 
@@ -397,7 +399,7 @@ class Mail(QtWidgets.QMainWindow):
         self.thread_worker = QThread()
         self.worker = MailWorker(self.mail_controller, self.email, self.password, self.server,
                                  self.port, self.search_criteria, self.acquisition_mail_dir, self.acquisition_directory,
-                                 self.emails_to_save, self.is_downloading)
+                                 self.emails_to_save, self.is_downloading,self.status, self.acquisition)
 
         self.worker.moveToThread(self.thread_worker)
         self.thread_worker.started.connect(self.worker.run)
@@ -472,7 +474,7 @@ class Mail(QtWidgets.QMainWindow):
 
         self.__init_worker()
 
-        self.status.showMessage(Logger.FETCH_EMAILS)
+
 
     def __start(self):
 
@@ -496,7 +498,7 @@ class Mail(QtWidgets.QMainWindow):
 
         self.__start()
 
-        self.acquisition.logger.info(Logger.FETCH_EMAILS)
+
         self.acquisition.logger.info(Logger.SEARCH_CRITERIA.format(self.search_criteria))
 
         # remove items from tree to clear the acquisition
