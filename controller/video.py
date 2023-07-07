@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
+import hashlib
 import json
 import os
 import re
@@ -21,10 +22,12 @@ class Video():
     def __init__(self):
         self.url = None
         self.ydl_opts = {'quiet': True}
+
         self.acquisition_dir = None
         self.title = None
         self.sanitized_name = None
         self.video_id = None
+        self.id_digest = None
         self.thumbnail = None
         self.quality = None
         self.duration = None
@@ -38,9 +41,9 @@ class Video():
     # set output dir
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
-        self.ydl_opts.update({'outtmpl': acquisition_dir + '/%(id)s.%(ext)s'})
+        self.ydl_opts.update({'outtmpl': acquisition_dir + '/'+self.id_digest+'.%(ext)s'})
 
-    # download video and set video_id for further operations
+    # download video and set id_digest for saving the file
     def download_video(self):
         if self.quality == 'Lowest':
             self.ydl_opts['format'] = 'worstvideo'
@@ -55,6 +58,7 @@ class Video():
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
             self.video_id = video_info['id']
+            self.id_digest = self.__calculate_md5(self.video_id)
             self.title = video_info['title']
             try:
                 self.thumbnail = video_info['thumbnail']
@@ -148,3 +152,10 @@ class Video():
             return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
         else:
             return video.UNKNOWN
+
+    def __calculate_md5(self, id):
+        md5 = hashlib.md5()
+        bytes = id.encode('utf-8')
+        md5.update(bytes)
+        md5_id = md5.hexdigest()
+        return md5_id

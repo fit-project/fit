@@ -417,7 +417,7 @@ class Video(QtWidgets.QMainWindow):
                 self.case_info['name'],
                 self.input_url.text()
             )
-        self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.video_id)
+        self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.id_digest)
         self.is_acquisition_running = True
 
         self.video_controller.set_quality(self.quality.currentText())
