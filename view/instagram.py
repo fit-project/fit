@@ -46,7 +46,6 @@ class InstagramWorker(QtCore.QObject):
     def run(self):
         if self.instagram_controller.is_logged_in is False:
             try:
-                print("Prima del login")
                 self.instagram_controller.login()
             except InvalidArgumentException as e:
                 self.error.emit({'title':instagram.INVALID_USER, 'msg':Error.INVALID_USER, 'details':e})
@@ -58,9 +57,6 @@ class InstagramWorker(QtCore.QObject):
                 self.error.emit({'title':instagram.INVALID_PROFILE, 'msg':Error.INVALID_PROFILE, 'details':e})
             except Exception as e:
                 self.error.emit(e)
-            #else:
-                #self.logged_in.emit()
-            print("Prima del check")
             check_account = self.instagram_controller.check_account()
             if check_account == 1:
                 pass
@@ -282,7 +278,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.scrape_button.setGeometry(QtCore.QRect(410, 410, 70, 25))
         self.scrape_button.setObjectName("scrapeButton")
         self.scrape_button.setFont(font)
-        #self.scrape_button.clicked.connect(self.__scrape)
+        self.scrape_button.clicked.connect(self.__scrape)
         self.scrape_button.setEnabled(False)
 
         self.status = QtWidgets.QStatusBar()
@@ -372,6 +368,9 @@ class Instagram(QtWidgets.QMainWindow):
     def __handle_progress(self):
         self.acquisition.upadate_progress_bar()
     
+    def __scrape(self):
+        self.acquisition_group_box.setEnabled(False)
+        self.__start_scraped()
 
     def __login(self):
         if self.loging_configuration_group_box.isEnabled() is True:
@@ -402,15 +401,14 @@ class Instagram(QtWidgets.QMainWindow):
             self.__start_scraped()
 
     def __handle_logged_in(self):
+        #row = self.acquisition.info.get_row(tasks.LOGIN)
+        #self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+        self.acquisition.stop([], '', 1)
+        self.acquisition.log_end_message()
+        self.spinner.stop()
+        self.setEnabled(True)
+        self.scrape_button.setEnabled(True)
 
-        self.thread_worker.quit()
-
-        loop = QtCore.QEventLoop()
-        QtCore.QTimer.singleShot(1000, loop.quit)
-        loop.exec()
-
-        self.__start_scraped()
-    
     def __start_scraped(self):
         if self.acquisition_directory is None:
             self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
