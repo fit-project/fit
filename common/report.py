@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+'''#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 ######
 # -----
@@ -115,5 +115,6 @@ class ReportText:
         }
         self.CASE = ["Cliente / Caso", "Avvocato", "Tipo di procedimento",
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
-        
 
+
+'''

@@ -217,10 +217,6 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        #TODO PROBLEMA ZONARO
-        profile = QWebEngineProfile.defaultProfile()
-        profile.clearHttpCache()
-
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],

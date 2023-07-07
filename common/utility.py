@@ -22,11 +22,13 @@ from configparser import SafeConfigParser
 from whois import NICClient, extract_domain, IPV4_OR_V6
 import socket
 import requests
+
+from controller.configurations.tabs.language.language import Language as LanguageController
+
 requests.urllib3.disable_warnings()
 import ssl
 import scapy.all as scapy
 from contextlib import redirect_stdout
-
 
 from nslookup import Nslookup
 
@@ -219,3 +221,7 @@ def get_logo():
     logo_path = os.path.join("assets", "branding", "FIT-640.png")
 
     return logo_path
+
+def get_language():
+    controller = LanguageController()
+    return controller.options['language']
