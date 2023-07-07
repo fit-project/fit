@@ -13,7 +13,7 @@ For the implementation:
 * SQLite and SQLAlchemy for persistence
 
 ## Suggestions
-On PCs with Windows OS it is strongly recommended to install [NPCAP](https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceroute.
+On PCs with Windows OS it is strongly recommended to install [NPCAP](https://npcap.com/dist/) otherwise it will not be possible to capture the network traffic and to excute traceroute. Do not install WinPCAP because they have been deprecated.
 
 ## Downloading FIT
 There are two ways you can get the FIT:
