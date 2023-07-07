@@ -29,6 +29,8 @@ RETRIES_NUMBER="Retries EML download"
 SERVER_CONFIGURATION="Server configuration"
 VERIFY_IMAP="Verify IMAP server"
 VERIFY_SMTP="Verify SMTP server"
+TWO_FACTOR_AUTH_URL="https://github.com/fit-project/fit/wiki/Two-Factor-Authentication"
+TWO_FACTOR_AUTH="In case you enabled Two Factor Authentication (2FA), please read this guide"
 
 
 

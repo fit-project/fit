@@ -12,6 +12,7 @@ import re
 import logging
 import shutil
 import subprocess
+import webbrowser
 from datetime import timedelta
 
 from PyQt6 import QtWidgets, QtGui
@@ -19,6 +20,7 @@ from PyQt6.QtCore import (QObject, QThread, QRegularExpression, QDate, Qt, QRect
                           pyqtSignal, QEventLoop, QTimer, pyqtSlot)
 from PyQt6.QtGui import QFont, QDoubleValidator, QRegularExpressionValidator, QIcon
 from PyQt6 import QtCore
+from PyQt6.QtWidgets import QLabel
 
 from common.utility import get_platform
 from view.acquisition.acquisition import Acquisition
@@ -36,7 +38,21 @@ from common.constants import error, details as Details, logger as Logger
 
 logger = logging.getLogger(__name__)
 
+class ClickableLabel(QLabel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet("color: #0067C0;")
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            url = mail.TWO_FACTOR_AUTH_URL
+            webbrowser.open(url)
 
+    def enterEvent(self, event):
+        self.setStyleSheet("color: #0067C0; text-decoration: underline;")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def leaveEvent(self, event):
+        self.setStyleSheet("color: #0067C0; text-decoration: none;")
 class MailWorker(QObject):
 
     get_emails = pyqtSignal(dict)
@@ -187,7 +203,7 @@ class Mail(QtWidgets.QMainWindow):
 
         # EMAIL FIELD
         self.input_email = QtWidgets.QLineEdit(self.configuration_group_box)
-        self.input_email.setGeometry(QRect(130, 60, 240, 20))
+        self.input_email.setGeometry(QRect(130, 30, 240, 20))
         self.input_email.setFont(font)
         self.input_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         self.input_email.setObjectName("input_email")
@@ -195,14 +211,14 @@ class Mail(QtWidgets.QMainWindow):
 
         # EMAIL LABEL
         self.label_email = QtWidgets.QLabel(self.configuration_group_box)
-        self.label_email.setGeometry(QRect(40, 60, 80, 20))
+        self.label_email.setGeometry(QRect(40, 30, 80, 20))
         self.label_email.setFont(font)
         self.label_email.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_email.setObjectName("label_email")
 
         # PASSWORD FIELD
         self.input_password = QtWidgets.QLineEdit(self.configuration_group_box)
-        self.input_password.setGeometry(QRect(130, 95, 240, 20))
+        self.input_password.setGeometry(QRect(130, 65, 240, 20))
         self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.input_password.setFont(font)
         self.input_password.setPlaceholderText(search_pec.PLACEHOLDER_PASSWORD)
@@ -211,14 +227,14 @@ class Mail(QtWidgets.QMainWindow):
 
         # SERVER FIELD
         self.input_server = QtWidgets.QLineEdit(self.configuration_group_box)
-        self.input_server.setGeometry(QRect(130, 130, 240, 20))
+        self.input_server.setGeometry(QRect(130, 100, 240, 20))
         self.input_server.setFont(font)
         self.input_server.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_SERVER)
         self.input_server.setObjectName("input_server")
 
         # PORT FIELD
         self.input_port = QtWidgets.QLineEdit(self.configuration_group_box)
-        self.input_port.setGeometry(QRect(130, 165, 240, 20))
+        self.input_port.setGeometry(QRect(130, 135, 240, 20))
         self.input_port.setFont(font)
         self.input_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
         validator = QDoubleValidator()
@@ -232,24 +248,28 @@ class Mail(QtWidgets.QMainWindow):
 
         # PASSWORD LABEL
         self.label_password = QtWidgets.QLabel(self.configuration_group_box)
-        self.label_password.setGeometry(QRect(40, 95, 80, 20))
+        self.label_password.setGeometry(QRect(40, 65, 80, 20))
         self.label_password.setFont(font)
         self.label_password.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_password.setObjectName("label_password")
 
         # SERVER LABEL
         self.label_server = QtWidgets.QLabel(self.configuration_group_box)
-        self.label_server.setGeometry(QRect(40, 130, 80, 20))
+        self.label_server.setGeometry(QRect(40, 100, 80, 20))
         self.label_server.setFont(font)
         self.label_server.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_server.setObjectName("label_server")
 
         # PORT LABEL
         self.label_port = QtWidgets.QLabel(self.configuration_group_box)
-        self.label_port.setGeometry(QRect(40, 165, 80, 20))
+        self.label_port.setGeometry(QRect(40, 135, 80, 20))
         self.label_port.setFont(font)
         self.label_port.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_port.setObjectName("label_port")
+
+        self.label_two_factor_auth = ClickableLabel(self.configuration_group_box)
+        self.label_two_factor_auth.setGeometry(QtCore.QRect(20, 170, 400, 20))
+        self.label_two_factor_auth.setObjectName("label_two_factor_auth")
 
         # SCRAPING CRITERIA
         self.criteria_group_box = QtWidgets.QGroupBox(self.centralwidget)
@@ -394,6 +414,7 @@ class Mail(QtWidgets.QMainWindow):
         self.label_to_date.setText(search_pec.LABEL_TO_DATE)
         self.search_button.setText(search_pec.SEARCH_BUTTON)
         self.download_button.setText(search_pec.DOWNLOAD_BUTTON)
+        self.label_two_factor_auth.setText(mail.TWO_FACTOR_AUTH)
 
     def __init_worker(self):
         self.thread_worker = QThread()
