@@ -109,6 +109,7 @@ class Video():
 
     # download thumbnail
     def get_thumbnail(self):
+        self.ydl_opts['format'] = 'best'
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download([self.thumbnail])
 

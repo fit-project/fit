@@ -475,7 +475,6 @@ class Video(QtWidgets.QMainWindow):
 
         self.acquisition_directory = None
         self.is_acquisition_running = False
-        self.video_controller.video_id = None
 
     def __show_finish_acquisition_dialog(self):
         msg = QtWidgets.QMessageBox(self)
