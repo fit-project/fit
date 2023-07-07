@@ -342,7 +342,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.thread_worker.start()
         
     def __handle_error(self, e):
-
         self.spinner.stop()
         if self.loging_configuration_group_box.isEnabled() is False:
             self.loging_configuration_group_box.setEnabled(True)
@@ -369,7 +368,12 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition.upadate_progress_bar()
     
     def __scrape(self):
+        self.spinner.start()
         self.acquisition_group_box.setEnabled(False)
+        self.thread_worker.quit()
+        loop = QtCore.QEventLoop()
+        QtCore.QTimer.singleShot(1000, loop.quit)
+        loop.exec()
         self.__start_scraped()
 
     def __login(self):
@@ -401,10 +405,6 @@ class Instagram(QtWidgets.QMainWindow):
             self.__start_scraped()
 
     def __handle_logged_in(self):
-        #row = self.acquisition.info.get_row(tasks.LOGIN)
-        #self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
-        self.acquisition.stop([], '', 1)
-        self.acquisition.log_end_message()
         self.spinner.stop()
         self.setEnabled(True)
         self.scrape_button.setEnabled(True)
