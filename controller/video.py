@@ -21,7 +21,7 @@ from common.constants.view import video
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True}
+        self.ydl_opts = {'quiet': True, 'no-warnings' : True}
 
         self.acquisition_dir = None
         self.title = None
@@ -37,6 +37,13 @@ class Video():
 
     def set_quality(self, quality):
         self.quality = quality
+
+    def set_auth(self, username, password):
+        self.ydl_opts.update({
+            'username': username,
+            'password': password
+        })
+
 
     # set output dir
     def set_dir(self, acquisition_dir):
@@ -101,9 +108,6 @@ class Video():
         self.ydl_opts.update({
             'format': 'bestaudio',
             'keep-video': True,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio'
-            }]
         })
         try:
             with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:

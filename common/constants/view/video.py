@@ -7,13 +7,17 @@
 # -----
 ######  
 URL_CONFIGURATION="Url configuration"
-URL="Url video"
+URL="Video URL*"
 PLACEHOLDER_URL="https://www.youtube.com/watch?v=dQw4w9WgXcQ" # :)
 PREVIEW="Preview"
 ACQUISITON_SETTINGS="Acquisition settings"
 VIDEO_QUALITY="Video quality"
 HIGHEST="Highest"
 LOWEST="Lowest"
+LABEL_USERNAME="Username"
+LABEL_PASSWORD="Password"
+PLACEHOLDER_PASSWORD="Password"
+PLACEHOLDER_USERNAME="Username"
 ADDITIONAL_INFORMATION="Additional information"
 AUDIO="Extract audio"
 THUMBNAIL="Thumbnail"
