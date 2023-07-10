@@ -60,11 +60,23 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         self.path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self, "Save File", old_path, "*." + suffix
         )
+        
         if self.path:
-            download.setPath(self.path)
+            download.setDownloadFileName(self.path)
             download.accept()
-            download.finished.connect(self.__install)
-            download.downloadProgress.connect(self.__progress)
+            download.isFinishedChanged.connect(self.__install)
+            download.receivedBytesChanged.connect(
+                lambda: self.__progress(
+                    download.receivedBytes(),
+                    download.totalBytes(),
+                )
+            )
+            download.totalBytesChanged.connect(
+                lambda: self.__progress(
+                    download.receivedBytes(),
+                    download.totalBytes(),
+                )
+            )
 
     def __install(self):
         self.close()

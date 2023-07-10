@@ -1,23 +1,22 @@
-#!/usr/bin/env python3
+'''#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 ######
 # -----
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
-import os
-import pathlib
-from configparser import SafeConfigParser
+######
+from common.utility import get_logo, get_version
+
 
 class ReportText:
     def __init__(self):
         self.TEXT = {
             'report_pec': "Report di verifica della PEC",
-            'img': self.__get_logo(),
+            'img': get_logo(),
             'title': "FIT",
             'report': "Report Freezing Internet Tool",
-            'version': "Versione {}".format(self.__get_version()),
+            'version': "Versione {}".format(get_version()),
             'index': "Indice",
 
             'description': "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti "
@@ -116,15 +115,6 @@ class ReportText:
         }
         self.CASE = ["Cliente / Caso", "Avvocato", "Tipo di procedimento",
                      "Tribunale", "Numero di procedimento", "Tipo di acquisizione", "Data acquisizione"]
-        
-    def __get_version(self):
-        parser = SafeConfigParser()
-        parser.read('assets/config.ini')
-        version = parser.get('fit_properties', 'version')
-        
-        return version
 
-    def __get_logo(self):
-        logo_path = os.path.join("assets", "branding", "FIT-640.png")
 
-        return logo_path
+'''

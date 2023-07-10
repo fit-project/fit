@@ -5,12 +5,13 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
-
+######
+import webbrowser
 
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
+from common.constants.view.configurations import general
 from view.configurations.tabs.general.typesproceedings import TypesProceedings as TypesproceedingsView
 from view.configurations.tabs.general.network import Network as NetworkView
 from controller.configurations.tabs.general.general import General as GeneralController
@@ -57,6 +58,23 @@ class General(QtWidgets.QWidget):
       self.home_page_url = QtWidgets.QLineEdit(self.group_box_home_page_url)
       self.home_page_url.setGeometry(QtCore.QRect(20, 20, 601, 22))
       self.home_page_url.setObjectName("home_page_url")
+
+      # USER AGENT
+      self.group_box_user_agent = QtWidgets.QGroupBox(self)
+      self.group_box_user_agent.setGeometry(QtCore.QRect(10, 150, 691, 51))
+      self.group_box_user_agent.setObjectName("group_box_user_agent")
+      self.user_agent = QtWidgets.QLineEdit(self.group_box_user_agent)
+      self.user_agent.setGeometry(QtCore.QRect(20, 20, 550, 22))
+      self.user_agent.setObjectName("user_agent")
+      self.tool_button_user_agent = QtWidgets.QToolButton(self.group_box_user_agent)
+      self.tool_button_user_agent.setGeometry(QtCore.QRect(580, 20, 27, 22))
+      self.tool_button_user_agent.setObjectName("tool_button_user_agent")
+      self.tool_button_user_agent.clicked.connect(self.__select_user_agent)
+
+      self.button_default_user_agent = QtWidgets.QToolButton(self.group_box_user_agent)
+      self.button_default_user_agent.setGeometry(QtCore.QRect(610, 20, 60, 22))
+      self.button_default_user_agent.setObjectName("button_default_user_agent")
+      self.button_default_user_agent.clicked.connect(self.__default_user_agent)
         
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
@@ -67,11 +85,13 @@ class General(QtWidgets.QWidget):
 
 
    def retranslateUi(self):
-      _translate = QtCore.QCoreApplication.translate
-      self.setWindowTitle(_translate("General", "General"))
-      self.group_box_cases_folder.setTitle(_translate("General", "Cases Folder"))
-      self.tool_button_cases_folder.setText(_translate("General", "..."))
-      self.group_box_home_page_url.setTitle(_translate("General", "Home Page URL"))
+      self.setWindowTitle(general.GENERAL)
+      self.group_box_cases_folder.setTitle(general.CASE_FOLDER)
+      self.tool_button_cases_folder.setText("...")
+      self.group_box_home_page_url.setTitle(general.HOME_URL)
+      self.group_box_user_agent.setTitle(general.USER_AGENT)
+      self.tool_button_user_agent.setText(general.CHOOSE)
+      self.button_default_user_agent.setText(general.RESET)
 
    def __select_cases_folder(self):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(self,
@@ -80,9 +100,17 @@ class General(QtWidgets.QWidget):
                        QFileDialog.Option.ShowDirsOnly)
         self.cases_folder.setText(cases_folder)
 
+   def __select_user_agent(self):
+      url = general.USER_AGENT_SITE
+      webbrowser.open(url)
+
+   def __default_user_agent(self):
+      self.user_agent.setText(general.DEFAULT_USER_AGENT)
+
    def __set_current_config_values(self):
       self.cases_folder.setText(self.configuration['cases_folder_path'])
       self.home_page_url.setText(self.configuration['home_page_url'])
+      self.user_agent.setText(self.configuration['user_agent'])
    
    def __get_current_values(self):
         

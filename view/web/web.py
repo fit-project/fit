@@ -10,6 +10,7 @@
 import logging
 import os.path
 import shutil
+import subprocess
 from urllib.parse import urlparse
 
 import numpy as np
@@ -35,7 +36,7 @@ from common.constants.view import general
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-from common.utility import screenshot_filename
+from common.utility import screenshot_filename, get_version, get_platform
 
 logger = logging.getLogger(__name__)
 
@@ -216,9 +217,6 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        profile = QWebEngineProfile.defaultProfile()
-        profile.clearHttpCache()
-
         self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],
@@ -324,7 +322,7 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.showMessage('')
 
-        self.__clear_cache()
+        #self.__clear_cache()
         profile = QWebEngineProfile.defaultProfile()
         profile.clearHttpCache()
 
@@ -355,7 +353,14 @@ class Web(QtWidgets.QMainWindow):
             self.__open_acquisition_directory()
 
     def __open_acquisition_directory(self):
-        os.startfile(self.acquisition_directory)
+        platform = get_platform()
+
+        if platform == 'win':
+            os.startfile(self.acquisition_directory)
+        elif platform == 'osx':
+            subprocess.call(["open", self.acquisition_directory])
+        else: # platform == 'lin' || platform == 'other'
+            subprocess.call(["xdg-open", self.acquisition_directory])
 
     def __disable_all(self):
         self.setEnabled(False)
@@ -533,6 +538,9 @@ class Web(QtWidgets.QMainWindow):
         if qurl is None:
             qurl = QtCore.QUrl('')
         self.browser = Browser()
+
+        user_agent = self.configuration_general.configuration['user_agent']
+        self.browser.page().profile().setHttpUserAgent(user_agent+' FreezingInternetTool/'+get_version())
 
         if page is None:
             page = WebEnginePage(self.browser)
