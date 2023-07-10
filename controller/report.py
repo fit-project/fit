@@ -66,7 +66,7 @@ class Report:
 
                 title=self.REPORT.TITLE,
                 index=self.REPORT.INDEX,
-                description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
+                description=self.REPORT.DESCRIPTION.format(self.REPORT.RELEASES_LINK), t1=self.REPORT.T1, t2=self.REPORT.T2,
                 case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
                 case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.PROCEEDING,
                 case3=self.REPORT.COURT, case4=self.REPORT.NUMBER, case5=self.REPORT.ACQUISITION_TYPE, case6=self.REPORT.ACQUISITION_DATE,
@@ -121,7 +121,7 @@ class Report:
 
                 title=self.REPORT.TITLE,
                 index=self.REPORT.INDEX,
-                description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
+                description=self.REPORT.DESCRIPTION.format(self.REPORT.RELEASES_LINK), t1=self.REPORT.T1, t2=self.REPORT.T2,
                 case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
                 case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.PROCEEDING,
                 case3=self.REPORT.COURT, case4=self.REPORT.NUMBER, case5=self.REPORT.ACQUISITION_TYPE, case6=self.REPORT.ACQUISITION_DATE,

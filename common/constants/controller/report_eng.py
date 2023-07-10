@@ -5,7 +5,15 @@ REPORT = "Freezing Internet Tool Report"
 INDEX = "Index"
 
 DESCRIPTION = "FIT - Freezing Internet Tool is an application for forensic acquisition of content such as web pages, " \
-              "emails, and social media directly from the internet. <br><br>" \
+              "emails, and social media directly from the internet. FIT is a FLOSS tool: an acronym for 'Free/Libre and " \
+              "Open Source Software.' It is a type of software whose source code is made available to the public and can" \
+              " be used, modified, and distributed by anyone, according to the terms of a specific free and open" \
+              " source software license. This means that, compared to proprietary software, FLOSS software offers " \
+              "greater freedom and flexibility to users, who can customize it to meet their needs, improve it, and " \
+              "distribute it without restrictions. Additionally, being open to review by other developers, FLOSS " \
+              "software often benefits from a more transparent and inclusive collaborative development process. " \
+              "FIT has been developed using the Python programming language, implementing a modular architecture. " \
+              "FIT can be downloaded from the following link: {}.<br><br>" \
               "A forensic browser is software used to analyze and retrieve data from electronic devices such as computers, " \
               "smartphones, or tablets during forensic investigations. This software allows access to device usage information " \
               "such as activity history, files and documents, text messages, images, and much more, providing evidence that " \
@@ -99,4 +107,5 @@ ACQUISITION_DATE = "Acquisition Date"
 NOT_PRODUCED = "File not produced."
 SIZE = "Size: "
 VIDEO_LINK = "Link to the video"
-COMPLETE_SCREENSHOT= "Full screenshot"
+COMPLETE_SCREENSHOT = "Full screenshot"
+RELEASES_LINK = "<a href='https://github.com/fit-project/fit/releases'>Freezing Internet Tool - Releases</a>"
