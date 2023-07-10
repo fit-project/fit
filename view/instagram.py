@@ -57,16 +57,17 @@ class InstagramWorker(QtCore.QObject):
                 self.error.emit({'title':instagram.INVALID_PROFILE, 'msg':Error.INVALID_PROFILE, 'details':e})
             except Exception as e:
                 self.error.emit(e)
-            check_account = self.instagram_controller.check_account()
-            if check_account == 1:
-                pass
-            elif check_account == 2 or check_account == 4:
-                self.checkbox[4].setEnabled(False)
             else:
-                for check in self.checkbox:
-                    check.setEnabled(False)
-            self.acquisition_group_box.setEnabled(True)
-            self.logged_in.emit()
+                check_account = self.instagram_controller.check_account()
+                if check_account == 1:
+                    pass
+                elif check_account == 2 or check_account == 4:
+                    self.checkbox[4].setEnabled(False)
+                else:
+                    for check in self.checkbox:
+                        check.setEnabled(False)
+                self.acquisition_group_box.setEnabled(True)
+                self.logged_in.emit()
         else:
             for checkbox, method in self.methods_to_execute:
                 if checkbox:
@@ -394,15 +395,14 @@ class Instagram(QtWidgets.QMainWindow):
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
 
-        #If not logged in
-        if self.instagram_controller.is_logged_in is False:
-            checkbox = [self.checkbox_followee, self.checkbox_follower, self.checkbox_highlight,
-                        self.checkbox_post, self.checkbox_saved_post, self.checkbox_tagged_post,
-                        self.checkbox_story]
-            self.__init_worker(checkbox, self.acquisition_group_box)
-            self.instagram_controller.set_login_information(self.username, self.password, self.profile)
-        else:
-            self.__start_scraped()
+
+        checkbox = [self.checkbox_followee, self.checkbox_follower, self.checkbox_highlight,
+                    self.checkbox_post, self.checkbox_saved_post, self.checkbox_tagged_post,
+                    self.checkbox_story]
+
+        self.__init_worker(checkbox, self.acquisition_group_box)
+        self.instagram_controller.set_login_information(self.username, self.password, self.profile)
+
 
     def __handle_logged_in(self):
         self.spinner.stop()
