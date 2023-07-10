@@ -408,6 +408,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.spinner.stop()
         self.setEnabled(True)
         self.scrape_button.setEnabled(True)
+        self.login_button.setEnabled(False)
 
     def __start_scraped(self):
         if self.acquisition_directory is None:
