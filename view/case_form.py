@@ -40,7 +40,7 @@ class CaseForm(QtWidgets.QWidget):
 
         self.case_form_layout.setFormAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.case_form_layout.setContentsMargins(9, 5, 0, 5)
-        #self.case_form_layout.setVerticalSpacing(10)
+        self.case_form_layout.setVerticalSpacing(10)
         self.case_form_layout.setObjectName("case_form_layout")
 
         #CASE_NAME_COMBO
@@ -141,7 +141,7 @@ class CaseForm(QtWidgets.QWidget):
         self.notes_label.setFont(font)
         self.notes_label.setObjectName("notes_label")
         self.case_form_layout.setWidget(6, QtWidgets.QFormLayout.ItemRole.LabelRole, self.notes_label)
-        self.notes = QtWidgets.QLineEdit(self)
+        self.notes = QtWidgets.QTextEdit(self)
         self.notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -197,6 +197,9 @@ class CaseForm(QtWidgets.QWidget):
                     if isinstance(item, QtWidgets.QLineEdit) is not False:
                         if value is not None:
                             item.setText(str(value))
+                    if isinstance(item, QtWidgets.QTextEdit) is not False:
+                        if value is not None:
+                            item.setText(str(value))
                     if isinstance(item, QtWidgets.QComboBox):
                         if keyword in 'proceeding_type': 
                             type_proceeding = next((proceeding for proceeding in self.proceedings if proceeding["id"] == value), None)
@@ -232,6 +235,12 @@ class CaseForm(QtWidgets.QWidget):
                 elif isinstance(item, QtWidgets.QLineEdit) is not False:
                     if item.text():
                         item = item.text()
+                    else:
+                        item = ''
+
+                elif isinstance(item, QtWidgets.QTextEdit) is not False:
+                    if item.toPlainText():
+                        item = item.toPlainText()
                     else:
                         item = ''
 

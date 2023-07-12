@@ -11,7 +11,7 @@ from model.db import Db
 
 import os
 
-from sqlalchemy import ForeignKey, Column, Integer, String
+from sqlalchemy import ForeignKey, Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
@@ -26,7 +26,7 @@ class Case(Base):
     proceeding_type = Column(Integer)
     courthouse = Column(String)
     proceeding_number = Column(Integer)
-    notes = Column(String)
+    notes = Column(Text)
 
     def __init__(self) -> None:
         super().__init__()
