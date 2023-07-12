@@ -50,9 +50,13 @@ class VideoWorker(QtCore.QObject):
     @QtCore.pyqtSlot()
     def run(self):
         if self.video_controller.video_id is None:
+            self.video_controller.set_url(self.input_url.text())
             self.video_controller.set_auth(self.input_username.text(), self.input_password.text())
             try:
-                self.video_controller.get_video_id(self.input_url.text())
+                if not self.video_controller.is_facebook_video():
+                    self.video_controller.get_video_id(self.input_url.text())
+                else:
+                    self.video_controller.video_id = 'facebook'
             except Exception as e:
                 self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
             else:
@@ -423,7 +427,6 @@ class Video(QtWidgets.QMainWindow):
         self.spinner.stop()
         self.is_acquisition_running = False
 
-        self.video_controller.set_url(self.input_url.text())
         title, thumbnail, duration = self.video_controller.print_info()
         response = requests.get(thumbnail)
         pixmap = QPixmap()
@@ -435,6 +438,9 @@ class Video(QtWidgets.QMainWindow):
         self.scrape_button.setEnabled(True)
 
         if not self.video_controller.is_youtube_video():
+            self.checkbox_comments.setEnabled(False)
+            self.checkbox_subtitles.setEnabled(False)
+        elif self.video_controller.is_facebook_video():
             self.checkbox_comments.setEnabled(False)
             self.checkbox_subtitles.setEnabled(False)
 

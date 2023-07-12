@@ -11,7 +11,10 @@ import json
 import os
 import re
 import shutil
-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import yt_dlp
 from youtube_comment_downloader import YoutubeCommentDownloader
 
@@ -21,7 +24,7 @@ from common.constants.view import video
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True, 'no-warnings' : True}
+        self.ydl_opts = {'quiet': True, 'no-warnings': True}
 
         self.acquisition_dir = None
         self.title = None
@@ -31,6 +34,8 @@ class Video():
         self.thumbnail = None
         self.quality = None
         self.duration = None
+        self.username = None
+        self.password = None
 
     def set_url(self, url):
         self.url = url
@@ -39,29 +44,36 @@ class Video():
         self.quality = quality
 
     def set_auth(self, username, password):
+        self.username = username
+        self.password = password
         self.ydl_opts.update({
             'username': username,
             'password': password
         })
 
-
     # set output dir
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
-        self.ydl_opts.update({'outtmpl': acquisition_dir + '/'+self.id_digest+'.%(ext)s'})
+        self.ydl_opts.update({'outtmpl': acquisition_dir + '/' + self.id_digest + '.%(ext)s'})
 
     # download video and set id_digest for saving the file
     def download_video(self):
-        if self.quality == 'Lowest':
-            self.ydl_opts['format'] = 'worstvideo'
-        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            try:
-                info = ydl.extract_info(self.url, download=True)
-            except:
-                pass #can't download, skip for now
+        if self.is_facebook_video():
+            self.download_facebook_video()
+        else:
+            if self.quality == 'Lowest':
+                self.ydl_opts['format'] = 'worstvideo'
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                try:
+                    ydl.extract_info(self.url, download=True)
+                except:
+                    pass  # can't download, skip for now
 
     # show thumbnail and video title
     def print_info(self):
+        if self.is_facebook_video():
+            self.id_digest = self.__calculate_md5(self.video_id)
+            return None, video.NO_PREVIEW, None
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
             self.video_id = video_info['id']
@@ -86,6 +98,8 @@ class Video():
 
     # download video information
     def get_info(self):
+        if self.is_facebook_video():
+            return
         video_dir = os.path.join(self.acquisition_dir, self.video_id + '.json')
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             info = ydl.extract_info(self.url, download=False)
@@ -102,7 +116,6 @@ class Video():
             return shorts_match is None
         return False
 
-
     # extract audio from video
     def get_audio(self):
         self.ydl_opts.update({
@@ -117,6 +130,8 @@ class Video():
 
     # download thumbnail
     def get_thumbnail(self):
+        if self.is_facebook_video():
+            return
         self.ydl_opts['format'] = 'best'
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download([self.thumbnail])
@@ -148,6 +163,12 @@ class Video():
                 shutil.make_archive(folder_path, 'zip', folder_path)
                 shutil.rmtree(folder_path)
 
+    def is_facebook_video(self):  # experimental
+        facebook_url_pattern = r'(https?://)?(www\.)?facebook\.com/[a-zA-Z0-9./?=_-]+'
+        is_facebook_url = re.match(facebook_url_pattern, self.url) is not None
+        contains_videos = "videos" in self.url.lower()
+        return is_facebook_url and contains_videos
+
     def __convert_seconds_to_hh_mm_ss(self, seconds):
         if seconds != 0:
             hours = seconds // 3600
@@ -163,3 +184,40 @@ class Video():
         md5.update(bytes)
         md5_id = md5.hexdigest()
         return md5_id
+
+    def download_facebook_video(self):
+        options = webdriver.EdgeOptions()
+        options.add_experimental_option("detach", True)
+        options.add_argument("start-maximized")
+        options.add_argument("--disable-extensions")
+        options.add_experimental_option(
+            "prefs", {"profile.default_content_setting_values.notifications": 2}  # 1 to allow notifications, 2 to block
+        )
+        browser = webdriver.Edge(options=options)
+
+        browser.get("https://www.facebook.com/login.php")
+        wait = WebDriverWait(browser, 10)
+        try:
+
+            decline_cookies = wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "button[title='Decline optional cookies']")))
+            decline_cookies.click()
+
+            username = wait.until(EC.presence_of_element_located((By.ID, "email")))
+            password = wait.until(EC.presence_of_element_located((By.ID, "pass")))
+            submit = wait.until(EC.presence_of_element_located((By.ID, "loginbutton")))
+            username.send_keys(self.username)
+            password.send_keys(self.password)
+            self.password = ''
+            submit.click()
+
+            browser.get(self.url)
+
+            meatballs_menu = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[aria-label='Altro']")))
+            meatballs_menu.click()
+
+            download_item = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a[download]')))
+            download_item.click()
+
+        except:
+            browser.quit()
