@@ -9,6 +9,7 @@
 import string
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QSizePolicy
 
 from controller.case import Case as CaseController
 from controller.configurations.tabs.general.typesproceedings import TypesProceedings as TypesProceedingsController
@@ -38,8 +39,8 @@ class CaseForm(QtWidgets.QWidget):
         self.case_form_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTop | QtCore.Qt.AlignmentFlag.AlignTrailing)
 
         self.case_form_layout.setFormAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.case_form_layout.setContentsMargins(9, 13, 0, 13)
-        self.case_form_layout.setVerticalSpacing(10)
+        self.case_form_layout.setContentsMargins(9, 5, 0, 5)
+        #self.case_form_layout.setVerticalSpacing(10)
         self.case_form_layout.setObjectName("case_form_layout")
 
         #CASE_NAME_COMBO
@@ -74,6 +75,20 @@ class CaseForm(QtWidgets.QWidget):
         self.lawyer_name.setObjectName("lawyer_name")
         self.case_form_layout.setWidget(1, QtWidgets.QFormLayout.ItemRole.FieldRole, self.lawyer_name)
 
+        # OPERATOR_LINE_EDIT
+        self.operator_label = QtWidgets.QLabel(self)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.operator_label.setFont(font)
+        self.operator_label.setObjectName("operator_label")
+        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.ItemRole.LabelRole, self.operator_label)
+        self.operator = QtWidgets.QLineEdit(self)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.operator.setFont(font)
+        self.operator.setObjectName("operator")
+        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.operator)
+
 
         #types_proceedings_COMBO
         self.types_proceedings_label = QtWidgets.QLabel(self)
@@ -81,13 +96,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.types_proceedings_label.setFont(font)
         self.types_proceedings_label.setObjectName("proceeding_type_label")
-        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.ItemRole.LabelRole, self.types_proceedings_label)
+        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.ItemRole.LabelRole, self.types_proceedings_label)
         self.types_proceedings = QtWidgets.QComboBox(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.types_proceedings.setFont(font)
         self.types_proceedings.setObjectName("proceeding_type")        
-        self.case_form_layout.setWidget(2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.types_proceedings)
+        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.types_proceedings)
 
 
         #COURTHOUSE_LINE_EDIT
@@ -96,13 +111,13 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.courthouse_label.setFont(font)
         self.courthouse_label.setObjectName("courthouse_label")
-        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.ItemRole.LabelRole, self.courthouse_label)
+        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.ItemRole.LabelRole, self.courthouse_label)
         self.courthouse = QtWidgets.QLineEdit(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.courthouse.setFont(font)
         self.courthouse.setObjectName("courthouse")
-        self.case_form_layout.setWidget(3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.courthouse)
+        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.ItemRole.FieldRole, self.courthouse)
 
 
         #proceeding_number_LINE_EDIT
@@ -111,13 +126,28 @@ class CaseForm(QtWidgets.QWidget):
         font.setPointSize(10)
         self.proceeding_number_label.setFont(font)
         self.proceeding_number_label.setObjectName("proceeding_number_label")
-        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.ItemRole.LabelRole, self.proceeding_number_label)
+        self.case_form_layout.setWidget(5, QtWidgets.QFormLayout.ItemRole.LabelRole, self.proceeding_number_label)
         self.proceeding_number = QtWidgets.QLineEdit(self)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.proceeding_number.setFont(font)
         self.proceeding_number.setObjectName("proceeding_number")
-        self.case_form_layout.setWidget(4, QtWidgets.QFormLayout.ItemRole.FieldRole, self.proceeding_number)
+        self.case_form_layout.setWidget(5, QtWidgets.QFormLayout.ItemRole.FieldRole, self.proceeding_number)
+
+        # NOTES
+        self.notes_label = QtWidgets.QLabel(self)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.notes_label.setFont(font)
+        self.notes_label.setObjectName("notes_label")
+        self.case_form_layout.setWidget(6, QtWidgets.QFormLayout.ItemRole.LabelRole, self.notes_label)
+        self.notes = QtWidgets.QLineEdit(self)
+        self.notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.notes.setFont(font)
+        self.notes.setObjectName("notes")
+        self.case_form_layout.setWidget(6, QtWidgets.QFormLayout.ItemRole.FieldRole, self.notes)
 
         self.retranslateUi()
 
@@ -134,9 +164,12 @@ class CaseForm(QtWidgets.QWidget):
         self.setWindowTitle(TITLE)
         self.name_label.setText(NAME)
         self.lawyer_name_label.setText(LAWYER)
+        self.operator_label.setText(OPERATOR)
         self.types_proceedings_label.setText(PROCEEDING_TYPE)
         self.courthouse_label.setText(COURTHOUSE)
         self.proceeding_number_label.setText(PROCEEDING_NUMBER)
+        self.notes_label.setText(NOTES)
+
     
 
     def set_index_from_type_proceedings_id(self, type_proceedings_id):
@@ -176,9 +209,11 @@ class CaseForm(QtWidgets.QWidget):
     
     def clear_case_information(self):
         self.lawyer_name.setText("")
+        self.operator.setText("")
         self.types_proceedings.setCurrentIndex(-1)
         self.courthouse.setText("")
         self.proceeding_number.setText("")
+        self.notes.setText("")
     
     def get_current_case_info(self):
         case_info = next((item for item in self.cases if item["name"] == self.name.currentText()), {})

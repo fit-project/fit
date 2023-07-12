@@ -41,7 +41,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.move(x, y)
         
         self.configuration_button = QtWidgets.QPushButton(self)
-        self.configuration_button.setGeometry(QtCore.QRect(400, 350, 100, 25))
+        self.configuration_button.setGeometry(QtCore.QRect(400, 450, 100, 25))
         self.configuration_button.setObjectName("skip_button")
         self.configuration_button.setText("Configuration")
         self.configuration_button.clicked.connect(self.__configuration)

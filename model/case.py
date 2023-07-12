@@ -22,9 +22,11 @@ class Case(Base):
     id = Column(Integer, primary_key = True)
     name = Column(String, unique=True)
     lawyer_name = Column(String)
+    operator = Column(String)
     proceeding_type = Column(Integer)
     courthouse = Column(String)
     proceeding_number = Column(Integer)
+    notes = Column(String)
 
     def __init__(self) -> None:
         super().__init__()
@@ -43,9 +45,11 @@ class Case(Base):
         case = Case()
         case.name = case_info['name']
         case.lawyer_name = case_info['lawyer_name']
+        case.operator = case_info['operator']
         case.proceeding_type = case_info['proceeding_type']
         case.courthouse = case_info['courthouse']
         case.proceeding_number = case_info['proceeding_number']
+        case.notes = case_info['notes']
 
         self.db.session.add(case)
         self.db.session.commit()

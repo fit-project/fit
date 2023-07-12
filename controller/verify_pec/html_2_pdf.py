@@ -49,17 +49,20 @@ class Html2Pdf:
             index=self.REPORT.INDEX,
             description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
             case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
-            case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.PROCEEDING,
-            case3=self.REPORT.COURT, case4=self.REPORT.NUMBER, case5=self.REPORT.ACQUISITION_TYPE, case6=self.REPORT.ACQUISITION_DATE,
+            case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2 = self.REPORT.OPERATOR, case3=self.REPORT.PROCEEDING,
+            case4=self.REPORT.COURT, case5=self.REPORT.NUMBER, case6=self.REPORT.ACQUISITION_TYPE, case7=self.REPORT.ACQUISITION_DATE,
+            case8=self.REPORT.NOTES,
             t3=self.REPORT.REPORT_PEC, info_file=info_file,
 
             data0=str(self.case_info['name'] or 'N/A'),
             data1=str(self.case_info['lawyer_name'] or 'N/A'),
-            data2=str(self.case_info['proceeding_type'] or 'N/A'),
-            data3=str(self.case_info['courthouse'] or 'N/A'),
-            data4=str(self.case_info['proceeding_number'] or 'N/A'),
-            typed=self.REPORT.TYPED, type=self.REPORT.REPORT_PEC,
-            date=self.REPORT.DATE, ntp=self.ntp,
+            data2=str(self.case_info['operator'] or 'N/A'),
+            data3=str(self.case_info['proceeding_type'] or 'N/A'),
+            data4=str(self.case_info['courthouse'] or 'N/A'),
+            data5=str(self.case_info['proceeding_number'] or 'N/A'),
+            data6=self.REPORT.REPORT_PEC,
+            data7=self.ntp,
+            data8=str(self.case_info['notes'] or 'N/A'),
 
         )
         # create pdf front and content, merge them and remove merged files
