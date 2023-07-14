@@ -67,9 +67,9 @@ class Pec():
 
         # Attach CRT file
         with open(crt, "rb") as f:
-            attach_tsr = MIMEApplication(f.read(), _subtype="crt")
-            attach_tsr.add_header('content-disposition', 'attachment', filename="tsa.crt")
-            msg.attach(attach_tsr)
+            attach_crt = MIMEApplication(f.read(), _subtype="crt")
+            attach_crt.add_header('content-disposition', 'attachment', filename="tsa.crt")
+            msg.attach(attach_crt)
 
         try:
             server = smtplib.SMTP_SSL(self.smtp_server, self.smtp_port)
