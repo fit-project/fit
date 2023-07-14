@@ -63,13 +63,13 @@ class InstagramWorker(QtCore.QObject):
             else:
                 check_account = self.instagram_controller.check_account()
                 if check_account == 1:
+                    self.acquisition_group_box.setEnabled(True)
                     pass
                 elif check_account == 2 or check_account == 4:
                     self.checkbox[4].setEnabled(False)
+                    self.acquisition_group_box.setEnabled(True)
                 else:
-                    for check in self.checkbox:
-                        check.setEnabled(False)
-                self.acquisition_group_box.setEnabled(True)
+                    self.acquisition_group_box.setEnabled(False)
                 self.logged_in.emit()
         else:
             for checkbox, method in self.methods_to_execute:
@@ -442,7 +442,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.progress_bar.setValue(0)
         self.acquisition.start([], self.acquisition_directory, self.case_info, len(internal_tasks))
 
-        self.status.showMessage(Logger.SCRAPING_INSTAGRAM)
+        self.status.showMessage(Logger.SCRAPING_INSTAGRAM.format(self.profile))
         self.acquisition.logger.info(Logger.LOGGED_IN.format(self.username))
         self.acquisition.logger.info(Logger.SCRAPING_INSTAGRAM.format(self.profile))
         self.acquisition.info.add_task(tasks.SCRAPING_INSTAGRAM, state.STARTED, status.PENDING)
