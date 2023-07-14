@@ -51,6 +51,7 @@ class Pec():
 
         pdf = os.path.join(self.acquisition_directory, 'acquisition_report.pdf')
         tsr = os.path.join(self.acquisition_directory, 'timestamp.tsr')
+        crt = os.path.join(self.acquisition_directory, 'tsa.crt')
 
         # Attach PDF Report
         with open(pdf, "rb") as f:
@@ -62,6 +63,12 @@ class Pec():
         with open(tsr, "rb") as f:
             attach_tsr = MIMEApplication(f.read(), _subtype="tsr")
             attach_tsr.add_header('content-disposition', 'attachment', filename="timestamp.tsr")
+            msg.attach(attach_tsr)
+
+        # Attach CRT file
+        with open(crt, "rb") as f:
+            attach_tsr = MIMEApplication(f.read(), _subtype="crt")
+            attach_tsr.add_header('content-disposition', 'attachment', filename="tsa.crt")
             msg.attach(attach_tsr)
 
         try:
