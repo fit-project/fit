@@ -5,10 +5,10 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
+import os
 
-
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 from view.post_acquisition.pec.search_pec import SearchPec as SearchPecView
 from common.constants.view.pec import eml_not_found
@@ -27,7 +27,9 @@ class EmlNotFound(QtWidgets.QDialog):
 
         self.setObjectName("eml_not_found")
         self.resize(200, 100)
+        self.setWindowTitle("Freezing Internet Tool")
 
+        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
         buttons = QtWidgets.QDialogButtonBox.StandardButton.Yes | QtWidgets.QDialogButtonBox.StandardButton.No
 
         self.buttonBox = QtWidgets.QDialogButtonBox(buttons)

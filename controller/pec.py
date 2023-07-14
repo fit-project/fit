@@ -73,7 +73,6 @@ class Pec():
     
 
     def retrieve_eml(self):
-        
         if self.timestamp is None:
             return
         find_it = False
@@ -89,6 +88,25 @@ class Pec():
                 self.__save_message(server, messages[0])
         except Exception as e:
              raise Exception(e)
+
+        return find_it
+
+    def retrieve_eml_from_timestamp(self, timestamp):
+        find_it = False
+        try:
+            server = imaplib.IMAP4_SSL(self.imap_server, self.imap_port)
+            server.login(self.pec_email, self.password)
+            server.select('inbox')
+            subject = 'ID: ' + timestamp
+            search_criteria = f'SUBJECT "{subject}"'
+
+            status, messages = server.search(None, search_criteria)
+            messages = messages[0].split(b" ")
+            if str(messages) != "[b'']":
+                find_it = True
+                self.__save_message(server, messages[0])
+        except Exception as e:
+            raise Exception(e)
 
         return find_it
     
