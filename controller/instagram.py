@@ -182,17 +182,16 @@ class Instagram():
             if self.profile.is_private:
                 followers = self.profile.followers
                 if followers == 0:
-                    #CASO 3, posso fare scrape di tutto tranne saved posts
-                    #tagged posts, post, storie, followers, followees, highlights
+                    #CASO 3: posso fare scrape solo delle informazioni di base
                     return 3
                 else:
-                    #CASO 2, posso fare scrape di tutto tranne saved posts
+                    #CASO 2: posso fare scrape di tutto tranne saved posts
                     return 2
             else:
-                #CASO 4, posso fare scrape di tutto tranne post salvati
+                #CASO 4: posso fare scrape di tutto tranne post salvati
                 return 4
         else:
-            #CASO 1, account uguali, posso fare scrape di tutto
+            #CASO 1: account uguali, posso fare scrape di tutto
             return 1
 
 

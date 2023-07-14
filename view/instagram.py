@@ -10,12 +10,13 @@ import os
 import shutil
 import logging
 import subprocess
-
+import common.utility
 from PyQt6 import QtCore, QtGui, QtWidgets
 from instaloader import InvalidArgumentException, BadCredentialsException, ConnectionException, \
     ProfileNotExistsException
 
 from common.utility import get_platform
+from controller.configurations.tabs.general import network
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
@@ -92,7 +93,8 @@ class Instagram(QtWidgets.QMainWindow):
         self.instagram_controller = InstragramController()
         self.username = None
         self.password = None
-        self.profile = None     
+        self.profile = None
+        self.login_time = None
 
     def init(self, case_info, wizard, options=None):
         self.__init__()
@@ -397,7 +399,6 @@ class Instagram(QtWidgets.QMainWindow):
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
 
-
         checkbox = [self.checkbox_followee, self.checkbox_follower, self.checkbox_highlight,
                     self.checkbox_post, self.checkbox_saved_post, self.checkbox_tagged_post,
                     self.checkbox_story]
@@ -442,7 +443,8 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition.start([], self.acquisition_directory, self.case_info, len(internal_tasks))
 
         self.status.showMessage(Logger.SCRAPING_INSTAGRAM)
-        self.acquisition.logger.info(Logger.SCRAPING_INSTAGRAM)
+        self.acquisition.logger.info(Logger.LOGGED_IN.format(self.username))
+        self.acquisition.logger.info(Logger.SCRAPING_INSTAGRAM.format(self.profile))
         self.acquisition.info.add_task(tasks.SCRAPING_INSTAGRAM, state.STARTED, status.PENDING)
 
 
