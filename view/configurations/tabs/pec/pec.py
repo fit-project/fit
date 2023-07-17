@@ -8,8 +8,10 @@
 ######
 import imaplib
 import smtplib
+import webbrowser
 
 from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMessageBox, QLabel
 
@@ -20,7 +22,21 @@ from common.constants.view.pec import pec, search_pec
 
 __is_tab__ = True
 
+class ClickableLabel(QLabel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet("color: #0067C0;")
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            url = pec.TWO_FACTOR_AUTH_URL
+            webbrowser.open(url)
 
+    def enterEvent(self, event):
+        self.setStyleSheet("color: #0067C0; text-decoration: underline;")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def leaveEvent(self, event):
+        self.setStyleSheet("color: #0067C0; text-decoration: none;")
 class Pec(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
@@ -44,6 +60,9 @@ class Pec(QtWidgets.QWidget):
         self.enabled_checkbox.stateChanged.connect(self.__is_enabled_pec)
         self.enabled_checkbox.setObjectName("enabled")
 
+        self.label_two_factor_auth = ClickableLabel(self)
+        self.label_two_factor_auth.setGeometry(QtCore.QRect(100, 30, 500, 70))
+        self.label_two_factor_auth.setObjectName("label_two_factor_auth")
 
         # CREDENTIAL GROUPBOX
         self.group_box_credential = QtWidgets.QGroupBox(self)
@@ -180,6 +199,7 @@ class Pec(QtWidgets.QWidget):
         self.label_smtp_port.setText(pec.LABEL_SMPT_PORT)
         self.verification_imap_button.setText(pec.VERIFY_IMAP)
         self.verification_smtp_button.setText(pec.VERIFY_SMTP)
+        self.label_two_factor_auth.setText(pec.TWO_FACTOR_AUTH)
 
     def __is_enabled_pec(self):
         self.group_box_credential.setEnabled(self.enabled_checkbox.isChecked())
