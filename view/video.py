@@ -189,7 +189,6 @@ class Video(QtWidgets.QMainWindow):
         self.quality.addItem(video.LOWEST)
         self.quality.setObjectName("quality")
 
-
         # ADDITIONAL_INFORMATION
         self.label_additional_information = QtWidgets.QLabel(self.acquisition_group_box)
         self.label_additional_information.setGeometry(QtCore.QRect(180, 30, 150, 20))
