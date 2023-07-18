@@ -34,7 +34,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.case_form_widget.setObjectName("case_form_widget")
 
         self.form = CaseFormView(self.case_form_widget)
-        self.form.setGeometry(QtCore.QRect(0, 0, 400, 200))
+        self.form.setGeometry(QtCore.QRect(0, 0, 400, 250))
       
 
         x = (self.case_form_widget.frameGeometry().width()/2) - (self.form.frameGeometry().width()/2) -20
@@ -42,7 +42,7 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.move(x, y)
         
         self.configuration_button = QtWidgets.QPushButton(self)
-        self.configuration_button.setGeometry(QtCore.QRect(400, 350, 100, 25))
+        self.configuration_button.setGeometry(QtCore.QRect(400, 400, 100, 25))
         self.configuration_button.setObjectName("skip_button")
         self.configuration_button.setText("Configuration")
         self.configuration_button.clicked.connect(self.__configuration)
@@ -370,12 +370,12 @@ class Wizard(QtWidgets.QWizard):
                     if type_proceeding is not None:
                         value = type_proceeding["name"]
                     else:
-                       value = "N/A" 
+                       value = "N/A"
 
                 label = item.text()
                 html += "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:19px;\">\n"
                 html += "<span style=\" font-size:14px; font-weight:300; color:#000000;\">" + label  + ": </span>\n"
-                html += "<span style=\" font-size:14px; font-weight:600;  color:#000000;\">" + str(value)  + "</span>\n"
+                html += "<span style=\" font-size:14px; font-weight:600;  color:#000000;\">" + str(value).replace("\n", "<br>")  + "</span>\n"
                 html += "</p>\n"
         html += "</body>\n"
         html += "</html>"
