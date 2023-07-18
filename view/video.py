@@ -39,17 +39,24 @@ class VideoWorker(QtCore.QObject):
     valid_url = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, video_controller, methods_to_execute, input_url):
+    def __init__(self, video_controller, methods_to_execute, input_url, input_username, input_password):
         super().__init__()
         self.video_controller = video_controller
         self.methods_to_execute = methods_to_execute
         self.input_url = input_url
+        self.input_username = input_username
+        self.input_password = input_password
 
     @QtCore.pyqtSlot()
     def run(self):
         if self.video_controller.video_id is None:
+            self.video_controller.set_url(self.input_url.text())
+            self.video_controller.set_auth(self.input_username.text(), self.input_password.text())
             try:
-                self.video_controller.get_video_id(self.input_url.text())
+                if not self.video_controller.is_facebook_video():
+                    self.video_controller.get_video_id(self.input_url.text())
+                else:
+                    self.video_controller.video_id = 'facebook'
             except Exception as e:
                 self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
             else:
@@ -67,7 +74,7 @@ class VideoWorker(QtCore.QObject):
             self.scraped.emit()
         self.finished.emit()
 
-# Create a clickabel label to open the browser
+# Create a clickable label to open the browser
 class ClickableLabel(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -143,25 +150,49 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.url_configuration_group_box.setEnabled(True)
         self.url_configuration_group_box.setFont(font)
-        self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 20, 430, 140))
+        self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 20, 430, 200))
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
         self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
-        self.label_url.setGeometry(QtCore.QRect(20, 60, 80, 20))
+        self.label_url.setGeometry(QtCore.QRect(20, 40, 80, 20))
         self.label_url.setFont(font)
         self.label_url.setObjectName("label_url")
 
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
-        self.input_url.setGeometry(QtCore.QRect(100, 60, 290, 20))
+        self.input_url.setGeometry(QtCore.QRect(100, 40, 290, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(video.PLACEHOLDER_URL)
 
         # SUPPORTED SITES
         self.label_supported_sites = ClickableLabel(self.url_configuration_group_box)
-        self.label_supported_sites.setGeometry(QtCore.QRect(250, 100, 150, 20))
+        self.label_supported_sites.setGeometry(QtCore.QRect(250, 80, 150, 20))
         self.label_supported_sites.setFont(font)
         self.label_supported_sites.setObjectName("label_supported_sites")
+
+        # AUTH
+        self.label_username = QtWidgets.QLabel(self.url_configuration_group_box)
+        self.label_username.setGeometry(QtCore.QRect(20, 120, 80, 20))
+        self.label_username.setFont(font)
+        self.label_username.setObjectName("label_username")
+
+        self.input_username = QtWidgets.QLineEdit(self.url_configuration_group_box)
+        self.input_username.setGeometry(QtCore.QRect(100, 120, 290, 20))
+        self.input_username.setFont(font)
+        self.input_username.setObjectName("input_username")
+        self.input_username.setPlaceholderText(video.PLACEHOLDER_USERNAME)
+
+        self.label_password = QtWidgets.QLabel(self.url_configuration_group_box)
+        self.label_password.setGeometry(QtCore.QRect(20, 160, 80, 20))
+        self.label_password.setFont(font)
+        self.label_password.setObjectName("label_password")
+
+        self.input_password = QtWidgets.QLineEdit(self.url_configuration_group_box)
+        self.input_password.setGeometry(QtCore.QRect(100, 160, 290, 20))
+        self.input_password.setFont(font)
+        self.input_password.setObjectName("input_password")
+        self.input_password.setPlaceholderText(video.PLACEHOLDER_PASSWORD)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 
 
         # Verify if input fields are empty
@@ -173,7 +204,7 @@ class Video(QtWidgets.QMainWindow):
         self.acquisition_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.acquisition_group_box.setFont(font)
         self.acquisition_group_box.setEnabled(False)
-        self.acquisition_group_box.setGeometry(QtCore.QRect(50, 200, 430, 180))
+        self.acquisition_group_box.setGeometry(QtCore.QRect(50, 240, 430, 140))
         self.acquisition_group_box.setObjectName("acquisition_group_box")
 
         # VIDEO QUALITY 
@@ -286,6 +317,9 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
         self.label_supported_sites.setText(video.SUPPORTED)
+        self.label_username.setText(video.LABEL_USERNAME)
+        self.label_password.setText(video.LABEL_PASSWORD)
+        self.scrape_button.setText(general.DOWNLOAD)
         self.label_duration.setText(video.DURATION)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
         self.label_video_quality.setText('<strong>' + video.VIDEO_QUALITY + '</strong>')
@@ -299,7 +333,7 @@ class Video(QtWidgets.QMainWindow):
 
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
-        self.worker = VideoWorker(self.video_controller, self.methods_to_execute, self.input_url)
+        self.worker = VideoWorker(self.video_controller, self.methods_to_execute, self.input_url, self.input_username, self.input_password)
 
         self.worker.moveToThread(self.thread_worker)
         self.thread_worker.started.connect(self.worker.run)
@@ -392,7 +426,6 @@ class Video(QtWidgets.QMainWindow):
         self.spinner.stop()
         self.is_acquisition_running = False
 
-        self.video_controller.set_url(self.input_url.text())
         title, thumbnail, duration = self.video_controller.print_info()
         response = requests.get(thumbnail)
         pixmap = QPixmap()
@@ -404,6 +437,9 @@ class Video(QtWidgets.QMainWindow):
         self.scrape_button.setEnabled(True)
 
         if not self.video_controller.is_youtube_video():
+            self.checkbox_comments.setEnabled(False)
+            self.checkbox_subtitles.setEnabled(False)
+        elif self.video_controller.is_facebook_video():
             self.checkbox_comments.setEnabled(False)
             self.checkbox_subtitles.setEnabled(False)
 
