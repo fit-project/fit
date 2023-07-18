@@ -33,7 +33,7 @@ class SearchPec():
 
                 if str(messages) != "[b'']":
                     for msg_id in messages:
-                        status, raw_email = server.fetch(msg_id, "(RFC822)")
+                        status, raw_email = server.fetch(msg_id, "BODY.PEEK[HEADER]")
                         raw_email = raw_email[0][1]
                         message = pyzmail.PyzMessage.factory(raw_email)
                         pecs.append(message)
