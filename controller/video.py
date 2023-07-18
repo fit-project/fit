@@ -11,10 +11,6 @@ import json
 import os
 import re
 import shutil
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import yt_dlp
 from youtube_comment_downloader import YoutubeCommentDownloader
 
@@ -58,22 +54,16 @@ class Video():
 
     # download video and set id_digest for saving the file
     def download_video(self):
-        if self.is_facebook_video():
-            self.download_facebook_video()
-        else:
-            if self.quality == 'Lowest':
-                self.ydl_opts['format'] = 'worstvideo'
-            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-                try:
-                    ydl.extract_info(self.url, download=True)
-                except:
-                    pass  # can't download, skip for now
+        #if self.is_facebook_video():
+            #self.download_facebook_video()
+        #else:
+        if self.quality == 'Lowest':
+            self.ydl_opts['format'] = 'worstvideo'
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            ydl.extract_info(self.url, download=True)
 
     # show thumbnail and video title
     def print_info(self):
-        if self.is_facebook_video():
-            self.id_digest = self.__calculate_md5(self.video_id)
-            return None, video.NO_PREVIEW, None
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             video_info = ydl.extract_info(self.url, download=False)
             self.video_id = video_info['id']
@@ -185,39 +175,3 @@ class Video():
         md5_id = md5.hexdigest()
         return md5_id
 
-    def download_facebook_video(self):
-        options = webdriver.EdgeOptions()
-        options.add_experimental_option("detach", True)
-        options.add_argument("start-maximized")
-        options.add_argument("--disable-extensions")
-        options.add_experimental_option(
-            "prefs", {"profile.default_content_setting_values.notifications": 2}  # 1 to allow notifications, 2 to block
-        )
-        browser = webdriver.Edge(options=options)
-
-        browser.get("https://www.facebook.com/login.php")
-        wait = WebDriverWait(browser, 10)
-        try:
-
-            decline_cookies = wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "button[title='Decline optional cookies']")))
-            decline_cookies.click()
-
-            username = wait.until(EC.presence_of_element_located((By.ID, "email")))
-            password = wait.until(EC.presence_of_element_located((By.ID, "pass")))
-            submit = wait.until(EC.presence_of_element_located((By.ID, "loginbutton")))
-            username.send_keys(self.username)
-            password.send_keys(self.password)
-            self.password = ''
-            submit.click()
-
-            browser.get(self.url)
-
-            meatballs_menu = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[aria-label='Altro']")))
-            meatballs_menu.click()
-
-            download_item = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a[download]')))
-            download_item.click()
-
-        except:
-            browser.quit()

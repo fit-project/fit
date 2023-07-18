@@ -28,7 +28,6 @@ PyQt6-WebEngine = "^6.5.0"
 screeninfo = "^0.8.1"
 yt-dlp = "^2023.3.4"
 youtube-comment-downloader = "^0.1.68"
-selenium = "^4.10.0"
 
 [tool.poetry.dev-dependencies]
 

@@ -39,19 +39,16 @@ class VideoWorker(QtCore.QObject):
     valid_url = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, video_controller, methods_to_execute, input_url, input_username, input_password):
+    def __init__(self, video_controller, methods_to_execute, input_url):
         super().__init__()
         self.video_controller = video_controller
         self.methods_to_execute = methods_to_execute
         self.input_url = input_url
-        self.input_username = input_username
-        self.input_password = input_password
 
     @QtCore.pyqtSlot()
     def run(self):
         if self.video_controller.video_id is None:
             self.video_controller.set_url(self.input_url.text())
-            self.video_controller.set_auth(self.input_username.text(), self.input_password.text())
             try:
                 if not self.video_controller.is_facebook_video():
                     self.video_controller.get_video_id(self.input_url.text())
@@ -154,24 +151,24 @@ class Video(QtWidgets.QMainWindow):
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
         self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
-        self.label_url.setGeometry(QtCore.QRect(20, 40, 80, 20))
+        self.label_url.setGeometry(QtCore.QRect(20, 80, 80, 20))
         self.label_url.setFont(font)
         self.label_url.setObjectName("label_url")
 
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
-        self.input_url.setGeometry(QtCore.QRect(100, 40, 290, 20))
+        self.input_url.setGeometry(QtCore.QRect(100, 80, 290, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(video.PLACEHOLDER_URL)
 
         # SUPPORTED SITES
         self.label_supported_sites = ClickableLabel(self.url_configuration_group_box)
-        self.label_supported_sites.setGeometry(QtCore.QRect(250, 80, 150, 20))
+        self.label_supported_sites.setGeometry(QtCore.QRect(250, 120, 150, 20))
         self.label_supported_sites.setFont(font)
         self.label_supported_sites.setObjectName("label_supported_sites")
 
         # AUTH
-        self.label_username = QtWidgets.QLabel(self.url_configuration_group_box)
+        '''self.label_username = QtWidgets.QLabel(self.url_configuration_group_box)
         self.label_username.setGeometry(QtCore.QRect(20, 120, 80, 20))
         self.label_username.setFont(font)
         self.label_username.setObjectName("label_username")
@@ -192,7 +189,7 @@ class Video(QtWidgets.QMainWindow):
         self.input_password.setFont(font)
         self.input_password.setObjectName("input_password")
         self.input_password.setPlaceholderText(video.PLACEHOLDER_PASSWORD)
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)'''
 
 
         # Verify if input fields are empty
@@ -317,8 +314,8 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
         self.label_supported_sites.setText(video.SUPPORTED)
-        self.label_username.setText(video.LABEL_USERNAME)
-        self.label_password.setText(video.LABEL_PASSWORD)
+        #self.label_username.setText(video.LABEL_USERNAME)
+        #self.label_password.setText(video.LABEL_PASSWORD)
         self.scrape_button.setText(general.DOWNLOAD)
         self.label_duration.setText(video.DURATION)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
@@ -333,7 +330,7 @@ class Video(QtWidgets.QMainWindow):
 
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
-        self.worker = VideoWorker(self.video_controller, self.methods_to_execute, self.input_url, self.input_username, self.input_password)
+        self.worker = VideoWorker(self.video_controller, self.methods_to_execute, self.input_url)
 
         self.worker.moveToThread(self.thread_worker)
         self.thread_worker.started.connect(self.worker.run)
@@ -425,23 +422,36 @@ class Video(QtWidgets.QMainWindow):
         self.status.showMessage('')
         self.spinner.stop()
         self.is_acquisition_running = False
+        try:
+            title, thumbnail, duration = self.video_controller.print_info()
+        except Exception as e:
+            title = video.SERVER_ERROR
+            msg = Error.GENERIC_ERROR
+            details = e
 
-        title, thumbnail, duration = self.video_controller.print_info()
-        response = requests.get(thumbnail)
-        pixmap = QPixmap()
-        pixmap.loadFromData(response.content)
-        self.thumbnail.setPixmap(pixmap)
-        self.title.setText(title)
-        self.label_duration.show()
-        self.duration.setText(duration)
-        self.scrape_button.setEnabled(True)
+            if isinstance(e, dict):
+                title = e.get('title')
+                msg = e.get('msg')
+                details = e.get('details')
 
-        if not self.video_controller.is_youtube_video():
-            self.checkbox_comments.setEnabled(False)
-            self.checkbox_subtitles.setEnabled(False)
-        elif self.video_controller.is_facebook_video():
-            self.checkbox_comments.setEnabled(False)
-            self.checkbox_subtitles.setEnabled(False)
+            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
+                                  title,
+                                  msg,
+                                  str(details))
+            error_dlg.exec()
+        else:
+            response = requests.get(thumbnail)
+            pixmap = QPixmap()
+            pixmap.loadFromData(response.content)
+            self.thumbnail.setPixmap(pixmap)
+            self.title.setText(title)
+            self.label_duration.show()
+            self.duration.setText(duration)
+            self.scrape_button.setEnabled(True)
+
+            if not self.video_controller.is_youtube_video():
+                self.checkbox_comments.setEnabled(False)
+                self.checkbox_subtitles.setEnabled(False)
 
     def __start_scraped(self):
 
