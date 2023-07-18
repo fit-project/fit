@@ -42,8 +42,8 @@ SEARCH_CRITERIA = "Search criteria: {}"
 SAVE_EMAILS="Save all selected emails"
 
 FETCH_PROFILE="Fetching profile"
-LOGGED_IN="Try loggin whit username {} and profile_name {}"
-SCRAPING_INSTAGRAM="Scraping profile"
+LOGGED_IN="Logged in with username: {}"
+SCRAPING_INSTAGRAM="Scraping profile: {}"
 
 
 FETCH_VIDEO="Fetching video"
