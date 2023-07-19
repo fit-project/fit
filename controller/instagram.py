@@ -29,8 +29,9 @@ class Instagram():
     def __init__(self):
         self.loader = instaloader.Instaloader(rate_controller=lambda ctx: InstagramRateController(ctx))
         self.profile = None
+        self.profile_from_username = None
         self.username = None
-        self.username = None
+        self.password = None
         self.profile_name = None
         self.is_logged_in = False
 
@@ -171,4 +172,26 @@ class Instagram():
             if os.path.isdir(folder_path):
                 shutil.make_archive(folder_path, 'zip', folder_path)
                 shutil.rmtree(folder_path)
-        
+
+    def check_account(self):
+        if self.username != self.profile_name:
+            try:
+                self.profile = Profile.from_username(self.loader.context, self.profile_name)
+            except Exception as e:
+                raise Exception(e)
+            if self.profile.is_private:
+                followers = self.profile.followers
+                if followers == 0:
+                    #CASE 3: we can only scrape basic information
+                    return 3
+                else:
+                    #CASE 2: we can scrape all but not saved posts
+                    return 2
+            else:
+                #CASE 4: we can scrape all but not saved posts
+                return 4
+        else:
+            #CASE 1: we can scrape all
+            return 1
+
+

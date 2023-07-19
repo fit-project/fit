@@ -464,6 +464,10 @@ class Web(QtWidgets.QMainWindow):
             part = 0
             step = self.tabs.currentWidget().height()
             end = self.tabs.currentWidget().page().contentsSize().toSize().height()
+            loop = QtCore.QEventLoop()
+            QtCore.QTimer.singleShot(500, loop.quit)
+            loop.exec()
+
             parts = end / step
 
             increment = 90 / parts
@@ -481,6 +485,7 @@ class Web(QtWidgets.QMainWindow):
                     self.tabs.currentWidget().grab().save(filename)
                 else:
                     self.tabs.currentWidget().page().runJavaScript("window.scrollTo({}, {});".format(0, next))
+
                     ### Waiting everything is synchronized
                     loop = QtCore.QEventLoop()
                     QtCore.QTimer.singleShot(500, loop.quit)

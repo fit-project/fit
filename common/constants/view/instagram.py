@@ -31,6 +31,6 @@ CONNECTION_ERROR="Connection error"
 INVALID_USER="Invalid username"
 INVALID_PROFILE="Invalid profile"
 
-PLACEHOLDER_USERNAME="Phone/account/email"
-PLACEHOLDER_PASSWORD="password"
+PLACEHOLDER_USERNAME="Account's username"
+PLACEHOLDER_PASSWORD="Password"
 PLACEHOLDER_PROFILE_NAME="Profile name to acquire"
