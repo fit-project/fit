@@ -105,7 +105,9 @@ class Report:
                 t8=self.REPORT.T8, t8descr=self.REPORT.T8DESCR, video_hyperlink = video,
                 t9=self.REPORT.T9, t9descr=self.REPORT.T9DESCR,
                 titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
-                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR
+                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR,
+                page=self.REPORT.PAGE, of=self.REPORT.OF,
+                logo=self.case_info['logo']
             )
             pdf_options = {
                 'page-size': 'Letter',
@@ -149,7 +151,9 @@ class Report:
                 t6=self.REPORT.T6, t6descr=self.REPORT.T6DESCR, filedata=zip_enum,
                 t7=self.REPORT.T7, t7descr=self.REPORT.T7DESCR,
                 titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
-                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR
+                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR,
+                page=self.REPORT.PAGE, of=self.REPORT.OF,
+                logo=self.case_info['logo']
 
             )
             # create pdf front and content, merge them and remove merged files

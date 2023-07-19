@@ -71,6 +71,8 @@ class VerifyPDFTimestamp:
             data6=self.REPORT.VERIFICATION,
             data7=self.ntp,
             data8=str(self.case_info['notes'] or 'N/A').replace("\n", "<br>"),
+            page=self.REPORT.PAGE, of=self.REPORT.OF,
+            logo=self.case_info['logo']
         )
         # create pdf front and content, merge them and remove merged files
         pisa.CreatePDF(front_index, dest=self.output_front_result)
