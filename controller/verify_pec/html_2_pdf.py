@@ -36,11 +36,11 @@ class Html2Pdf:
         with open(info_file_path, "r") as f:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
-
         front_index = open('assets/templates/front.html').read().format(
             img=get_logo(), t1=self.REPORT.T1,
             title=self.REPORT.TITLE, report=self.REPORT.REPORT, version=get_version()
         )
+
 
 
         content_index = open('assets/templates/template_pec.html').read().format(
@@ -63,6 +63,8 @@ class Html2Pdf:
             data6=self.REPORT.REPORT_PEC,
             data7=self.ntp,
             data8=str(self.case_info['notes'] or 'N/A').replace("\n", "<br>"),
+            page=self.REPORT.PAGE, of=self.REPORT.OF,
+            logo=self.case_info['logo']
 
         )
         # create pdf front and content, merge them and remove merged files

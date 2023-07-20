@@ -27,6 +27,7 @@ class Case(Base):
     courthouse = Column(String)
     proceeding_number = Column(Integer)
     notes = Column(Text)
+    logo = Column(String)
 
     def __init__(self) -> None:
         super().__init__()
@@ -50,6 +51,7 @@ class Case(Base):
         case.courthouse = case_info['courthouse']
         case.proceeding_number = case_info['proceeding_number']
         case.notes = case_info['notes']
+        case.logo = case_info['logo']
 
         self.db.session.add(case)
         self.db.session.commit()

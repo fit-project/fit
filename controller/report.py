@@ -42,9 +42,11 @@ class Report:
                     whois_text = f.read()
                     f.close()
             except:
-                whois_text = 'Not produced'
+                whois_text = self.REPORT.NOT_PRODUCED
 
-        user_files = self.__hash_reader()
+        hash_file_content = self.__hash_reader()
+        screenshot = self.__insert_screenshot()
+        video = self.__insert_video_hyperlink()
 
         acquisition_files = self._acquisition_files_names()
 
@@ -64,7 +66,7 @@ class Report:
 
                 title=self.REPORT.TITLE,
                 index=self.REPORT.INDEX,
-                description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
+                description=self.REPORT.DESCRIPTION.format(self.REPORT.RELEASES_LINK), t1=self.REPORT.T1, t2=self.REPORT.T2,
                 case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
                 case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.OPERATOR,
                 case3=self.REPORT.PROCEEDING,
@@ -97,11 +99,15 @@ class Report:
                 sslkey=acquisition_files['sslkey.log'], sslkeyd=self.REPORT.SSLKEYD,
                 traceroute=acquisition_files['traceroute.txt'], tracerouted=self.REPORT.TRACEROUTED,
 
-                t5=self.REPORT.T5, t5descr=self.REPORT.T5DESCR, file=user_files,
+                t5=self.REPORT.T5, t5descr=self.REPORT.T5DESCR, file=hash_file_content,
                 t6=self.REPORT.T6, t6descr=self.REPORT.T6DESCR, filedata=zip_enum,
-                t7=self.REPORT.T7, t7descr=self.REPORT.T7DESCR,
+                t7=self.REPORT.T7, t7descr=self.REPORT.T7DESCR, screenshot=screenshot,
+                t8=self.REPORT.T8, t8descr=self.REPORT.T8DESCR, video_hyperlink = video,
+                t9=self.REPORT.T9, t9descr=self.REPORT.T9DESCR,
                 titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
-                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR
+                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR,
+                page=self.REPORT.PAGE, of=self.REPORT.OF,
+                logo=self.case_info['logo']
             )
             pdf_options = {
                 'page-size': 'Letter',
@@ -121,7 +127,7 @@ class Report:
 
                 title=self.REPORT.TITLE,
                 index=self.REPORT.INDEX,
-                description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
+                description=self.REPORT.DESCRIPTION.format(self.REPORT.RELEASES_LINK), t1=self.REPORT.T1, t2=self.REPORT.T2,
                 case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
                 case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2 = self.REPORT.OPERATOR, case3=self.REPORT.PROCEEDING,
                 case4=self.REPORT.COURT, case5=self.REPORT.NUMBER, case6=self.REPORT.ACQUISITION_TYPE,
@@ -141,11 +147,13 @@ class Report:
                 hash=acquisition_files['acquisition.hash'], hashd=self.REPORT.HASHD,
                 log=acquisition_files['acquisition.log'], logd=self.REPORT.LOGD,
                 zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=self.REPORT.ZIPD,
-                t5=self.REPORT.T5, t5descr=self.REPORT.T5DESCR, file=user_files,
+                t5=self.REPORT.T5, t5descr=self.REPORT.T5DESCR, file=hash_file_content,
                 t6=self.REPORT.T6, t6descr=self.REPORT.T6DESCR, filedata=zip_enum,
                 t7=self.REPORT.T7, t7descr=self.REPORT.T7DESCR,
                 titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
-                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR
+                titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR,
+                page=self.REPORT.PAGE, of=self.REPORT.OF,
+                logo=self.case_info['logo']
 
             )
             # create pdf front and content, merge them and remove merged files
@@ -225,3 +233,35 @@ class Report:
             for line in f:
                 hash_text += '<p>' + line + "</p>"
         return hash_text
+
+    def __insert_screenshot(self):
+        screenshot_text = ''
+        main_screenshot_path = os.path.join(self.cases_folder_path, 'screenshot.png')
+
+        files = os.listdir(os.path.join(self.cases_folder_path,'screenshot'))
+
+        for file in files:
+            path = os.path.join(self.cases_folder_path,'screenshot', file)
+            if os.path.isfile(path):
+                screenshot_text += '<p>' \
+                                   '<a href="file://' + path + '">' + \
+                                   'Screenshot'+ os.path.basename(file) + \
+                                   '</a><br><img src="' + path + '"></p><br><br>'
+
+        # main full page screenshot
+        screenshot_text += '<p>' \
+                           '<a href="file://' + main_screenshot_path + '">' + \
+                           self.REPORT.COMPLETE_SCREENSHOT + \
+                           '</a><br><img src="' + main_screenshot_path  + '"></p>'
+        return screenshot_text
+
+    def __insert_video_hyperlink(self):
+        acquisition_files = {}
+        files = [f.name for f in os.scandir(self.cases_folder_path) if f.is_file()]
+        for file in files:
+            acquisition_files[file] = file
+        if not any(value.endswith('.avi') for value in acquisition_files.values()):
+            hyperlink = self.REPORT.NOT_PRODUCED
+        else:
+            hyperlink = '<a href="file://' + self.cases_folder_path + '">' + self.REPORT.VIDEO_LINK + '</a>'
+        return hyperlink

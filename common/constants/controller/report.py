@@ -5,7 +5,16 @@ REPORT = "Report Freezing Internet Tool"
 INDEX = "Indice"
 
 DESCRIPTION = "FIT - Freezing Internet Tool è un’applicazione per l'acquisizione forense di contenuti " \
-              "come pagine web, e-mail e social media direttamente da internet. <br><br>" \
+              "come pagine web, e-mail e social media direttamente da internet. FIT è uno strumento FLOSS: acronimo di" \
+              " 'Free/Libre and Open Source Software', è un tipo di software il cui codice sorgente è reso disponibile" \
+              " al pubblico e può essere utilizzato, modificato e distribuito da chiunque, secondo i termini di una " \
+              "specifica licenza di software libero e open source. Ciò significa che, rispetto al software proprietario, " \
+              "il software FLOSS offre maggiori libertà e flessibilità agli utenti, che possono personalizzarlo in base " \
+              "alle proprie esigenze, migliorandolo e distribuendolo senza restrizioni. " \
+              "Inoltre, essendo aperto alla revisione da parte di altri sviluppatori, il software FLOSS spesso " \
+              "beneficia di un processo di sviluppo collaborativo più trasparente e inclusivo. " \
+              "FIT è stato realizzato in linguaggio di programmazione Python, " \
+              "implementando un’architettura modulare. FIT può essere scaricato al seguente link: {}.<br><br>" \
               "Un browser forense è un software utilizzato per analizzare e recuperare dati da dispositivi elettronici, " \
               "come computer, smartphone o tablet, durante indagini forensi. Questo software consente di accedere a " \
               "informazioni sull'utilizzo del dispositivo, come cronologia delle attività, file e documenti, " \
@@ -87,7 +96,9 @@ T7DESCR = "Tutti i file prodotti dall'utente durante l'acquisizione sono raccolt
           "della cartella compressa avente estensione .zip. Per ognuno di questi file viene riportata " \
           "la dimensione espressa in bytes."
 T8 = "Screenshot della pagina"
-T8DESCR = "Viene di seguito riportato lo screenshot della pagina navigata durante l'acquisizione."
+T8DESCR = "Vengono di seguito riportati gli screenshot della pagina navigata durante l'acquisizione."
+T9 = "Acquisizione video"
+T9DESCR = "Viene di seguito riportato l'hyperlink alla registrazione video."
 VERIFI_OK = "La verifica del timestamp del report in formato PDF ha fornito esito positivo. " \
             "Di seguito vengono riportate le informazioni riguardanti l'esito della verifica, il file, " \
             "l'algoritmo di hashing e il servizio di Time Stamp Authority utilizzato per effettuare il controllo."
@@ -103,7 +114,12 @@ COURT = "Tribunale"
 NUMBER = "Numero di procedimento"
 ACQUISITION_TYPE = "Tipo di acquisizione"
 ACQUISITION_DATE = "Data acquisizione"
-NOT_PRODUCED = "File non prodotto"
+NOT_PRODUCED = "File non prodotto."
 SIZE = "Dimensione: "
+VIDEO_LINK = "Link al video"
+COMPLETE_SCREENSHOT = "Screenshot dell'intera pagina"
+RELEASES_LINK = "<a href='https://github.com/fit-project/fit/releases'>Freezing Internet Tool - Releases</a>"
 NOTES = "Note"
 OPERATOR = "Operatore"
+PAGE="Pagina "
+OF="di "

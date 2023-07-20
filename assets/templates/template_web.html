@@ -131,6 +131,8 @@
         <li class="bodymatter"><a href="#t5" style="text-decoration=none">{t5:}</a></li>
         <li class="bodymatter"><a href="#t6" style="text-decoration=none">{t6:}</a></li>
         <li class="bodymatter"><a href="#t7" style="text-decoration=none">{t7:}</a></li>
+        <li class="bodymatter"><a href="#t8" style="text-decoration=none">{t8:}</a></li>
+        <li class="bodymatter"><a href="#t9" style="text-decoration=none">{t9:}</a></li>
     </ol>
 </div>
 
@@ -140,11 +142,11 @@
     <hr color="orange">
 </div>
 
-<div id="footer_content" style="text-align: right; font-family: 'Times New Roman'; font-size: 11pt;">Pagina
-    <pdf:pagenumber></pdf:pagenumber>
-    di
-    <pdf:pagecount></pdf:pagecount>
+<div id="footer_content" style="justify-content: space-between; display: flex; font-family: 'Times New Roman';text-align: center; font-size: 11pt;">
+   <img src="{logo:}" width="40" height="auto">&nbsp&nbsp&nbsp
+        {page:}<pdf:pagenumber></pdf:pagenumber> {of:}<pdf:pagecount></pdf:pagecount>
 </div>
+
 
 
 <h4 id="t1" style="text-align: left;">1. {t1:}</h4>
@@ -195,6 +197,7 @@
     </tr>
 
 </table>
+    </div>
     <br>
 <p><b>{case8:}</b></p>
     <p>{data8:}</p>
@@ -268,6 +271,7 @@
     </tr>
 
 </table>
+
 <div class="pagebreak"></div>
 
 <h4 id="t6" style="text-align: left;">6. {t6:}</h4>
@@ -279,5 +283,14 @@
 <p>{t7descr:}</p>
 {filedata:}
 
+<div class="pagebreak"></div>
+<h4 id="t8" style="text-align: left;">8. {t8:}</h4>
+<p>{t8descr:}</p>
+<div id="screenshot">{screenshot:}</div>
+
+<div class="pagebreak"></div>
+<h4 id="t9" style="text-align: left;">9. {t9:}</h4>
+<p>{t9descr:}</p>
+<p>{video_hyperlink:}</p>
 </body>
 </html>

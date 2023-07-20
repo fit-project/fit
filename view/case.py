@@ -23,7 +23,7 @@ class Case(QtWidgets.QDialog):
         self.case_info = case_info
 
         self.setObjectName("Case")
-        self.resize(479, 311)
+        self.setFixedSize(479, 400)
         self.setWindowTitle(DIALOG_TITLE.format(self.case_info['name'], str(self.case_info['id'])))
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
 
@@ -37,7 +37,7 @@ class Case(QtWidgets.QDialog):
     
     def initUI(self):
         self.button_box = QtWidgets.QDialogButtonBox(self)
-        self.button_box.setGeometry(QtCore.QRect(10, 270, 441, 32))
+        self.button_box.setGeometry(QtCore.QRect(10, 350, 441, 32))
         self.button_box.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.button_box.setStandardButtons(
             QtWidgets.QDialogButtonBox.StandardButton.Cancel | QtWidgets.QDialogButtonBox.StandardButton.Save)
