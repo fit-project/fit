@@ -236,17 +236,20 @@ class Report:
 
     def __insert_screenshot(self):
         screenshot_text = ''
+       
         main_screenshot_path = os.path.join(self.cases_folder_path, 'screenshot.png')
+        screenshots_path = os.path.join(self.cases_folder_path,'screenshot')
 
-        files = os.listdir(os.path.join(self.cases_folder_path,'screenshot'))
 
-        for file in files:
-            path = os.path.join(self.cases_folder_path,'screenshot', file)
-            if os.path.isfile(path):
-                screenshot_text += '<p>' \
-                                   '<a href="file://' + path + '">' + \
-                                   'Screenshot'+ os.path.basename(file) + \
-                                   '</a><br><img src="' + path + '"></p><br><br>'
+        if os.path.isdir(screenshots_path):
+            files = os.listdir(screenshots_path)
+            for file in files:
+                path = os.path.join(self.cases_folder_path,'screenshot', file)
+                if os.path.isfile(path):
+                    screenshot_text += '<p>' \
+                                    '<a href="file://' + path + '">' + \
+                                    'Screenshot'+ os.path.basename(file) + \
+                                    '</a><br><img src="' + path + '"></p><br><br>'
 
         # main full page screenshot
         screenshot_text += '<p>' \
