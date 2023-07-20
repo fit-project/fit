@@ -322,7 +322,7 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.showMessage('')
 
-        #self.__clear_cache()
+        self.__clear_cache()
         profile = QWebEngineProfile.defaultProfile()
         profile.clearHttpCache()
 

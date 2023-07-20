@@ -63,7 +63,7 @@ class LogConfigTools:
                     'handlers': ['facquisition'],
                     'level': 'INFO'
                 },
-                'view.youtube': {
+                'view.video': {
                     'handlers': ['facquisition'],
                     'level': 'INFO'
                 },

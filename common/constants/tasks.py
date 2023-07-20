@@ -27,6 +27,8 @@ EML="Download eml file"
 INSTAGRAM="Save instagram profile"
 FETCH_PROFILE="Fetch profile"
 SCRAPING_INSTAGRAM="Scrape profile"
+DOWNLOAD_VIDEO="Save video"
+FETCH_VIDEO="Fetch video URL"
 MAIL="Save e-mail"
 YOUTUBE="Save video"
-    
+

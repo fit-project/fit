@@ -33,4 +33,5 @@ INVALID_PROFILE="Invalid profile"
 
 PLACEHOLDER_USERNAME="Account's username"
 PLACEHOLDER_PASSWORD="Password"
+SERVER_ERROR = "Server error"
 PLACEHOLDER_PROFILE_NAME="Profile name to acquire"
