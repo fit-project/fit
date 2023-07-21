@@ -223,7 +223,7 @@ class Report:
                 pass
             if size > 0:
                 zip_enum += '<p>' + filename + "</p>"
-                zip_enum += '<p>'+self.REPORT.NOT_PRODUCED + str(size) + " bytes</p>"
+                zip_enum += '<p>'+self.REPORT.SIZE + str(size) + " bytes</p>"
                 zip_enum += '<hr>'
         return zip_enum
 
@@ -236,9 +236,14 @@ class Report:
 
     def __insert_screenshot(self):
         screenshot_text = ''
-       
-        main_screenshot_path = os.path.join(self.cases_folder_path, 'screenshot.png')
+        main_screenshot_path = os.path.join(self.cases_folder_path, 'screenshot','full_page')
         screenshots_path = os.path.join(self.cases_folder_path,'screenshot')
+        main_screenshot_file= os.path.join(self.cases_folder_path, 'screenshot.png')
+
+        files = os.listdir(main_screenshot_path)
+        path = os.path.join(main_screenshot_path, files[0])
+        images = os.listdir(path)
+        main_screenshot = os.path.join(path, images[0])
 
 
         if os.path.isdir(screenshots_path):
@@ -253,9 +258,10 @@ class Report:
 
         # main full page screenshot
         screenshot_text += '<p>' \
-                           '<a href="file://' + main_screenshot_path + '">' + \
+                           '<a href="file://' + main_screenshot_file + '">' + \
                            self.REPORT.COMPLETE_SCREENSHOT + \
-                           '</a><br><img src="' + main_screenshot_path  + '"></p>'
+                           '</a><br><img src="' + main_screenshot + '"></p>'
+
         return screenshot_text
 
     def __insert_video_hyperlink(self):
