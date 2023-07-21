@@ -13,7 +13,6 @@ from PyQt6.QtWidgets import QFileDialog
 
 from common.constants.view.configurations import general
 from view.configurations.tabs.general.typesproceedings import TypesProceedings as TypesproceedingsView
-from view.configurations.tabs.general.network import Network as NetworkView
 from controller.configurations.tabs.general.general import General as GeneralController
 
 
@@ -79,8 +78,6 @@ class General(QtWidgets.QWidget):
       #PROCEEDINGS TYPE LIST
       self.group_box_types_proceedings = TypesproceedingsView(self)
 
-      #NETWORK TOOLS
-      self.group_box_network_check = NetworkView(self)
 
 
 
@@ -129,7 +126,6 @@ class General(QtWidgets.QWidget):
 
    def accept(self) -> None:
       self.group_box_types_proceedings.accept()
-      self.group_box_network_check.accept()
       self.__get_current_values()
       self.controller.configuration = self.configuration
       
