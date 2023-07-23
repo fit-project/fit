@@ -142,7 +142,7 @@ def traceroute(url, filename):
                     print(snd.ttl, rcv.src, isinstance(rcv.payload, scapy.TCP))
 
 def get_headers_information(url):
-    response = requests.get(url)
+    response = requests.get(url, verify=False)
     
     return response.headers
 
@@ -160,8 +160,10 @@ def get_peer_PEM_cert(url, port=443, timeout=10):
     
     if not netloc:
        return None
-    else: 
+    else:
         context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
         conn = socket.create_connection((netloc, port))
         sock = context.wrap_socket(conn, server_hostname=netloc)
         sock.settimeout(timeout)
