@@ -47,6 +47,9 @@ class WebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    def handleCertificateError(self, error):
+        error.acceptCertificate()
+
     # When you click a link that has the target="_blank" attribute, QT calls the CreateWindow method in
     # QWebEnginePage to create a new tab/new window.
     def createWindow(self, _type, ):
@@ -549,6 +552,8 @@ class Web(QtWidgets.QMainWindow):
 
         if page is None:
             page = WebEnginePage(self.browser)
+
+        page.certificateError.connect(page.handleCertificateError)
 
         page.new_page_after_link_with_target_blank_attribute.connect(lambda page: self.add_new_tab(page=page))
         self.browser.setPage(page)
