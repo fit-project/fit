@@ -18,16 +18,19 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel
 
-from common.utility import get_platform
+from view.menu_bar import MenuBar as MenuBarView
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
+
 from view.error import Error as ErrorView
 from view.spinner import Spinner
 from view.acquisition.acquisition import Acquisition
 
 from controller.video import Video as VideoController
+
 from common.constants import details as Details, logger as Logger, tasks, state, status, error as Error
 from common.constants.view import general, video
+from common.utility import get_platform
 
 logger_acquisition = logging.getLogger(__name__)
 
@@ -103,10 +106,6 @@ class Video(QtWidgets.QMainWindow):
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info
-        self.configuration_view = ConfigurationView(self)
-        self.configuration_view.hide()
-        self.case_view = CaseView(self.case_info, self)
-        self.case_view.hide()
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
 
@@ -121,27 +120,25 @@ class Video(QtWidgets.QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.centralwidget.setObjectName("centralwidget")
-
-        # MENU BAR
         self.setCentralWidget(self.centralwidget)
+
+
+        #### - START MENU BAR - #####
+        # Uncomment to disable native menubar on Mac
         self.menuBar().setNativeMenuBar(False)
 
-        # CONF BUTTON
-        self.menu_configuration = QtGui.QAction('Configuration', self)
-        self.menu_configuration.setObjectName("menu_configuration")
-        self.menu_configuration.triggered.connect(self.__configuration)
-        self.menuBar().addAction(self.menu_configuration)
+        #This bar is common on all main window
+        self.menu_bar = MenuBarView(self, self.case_info)
 
-        # CASE BUTTON
-        self.case_action = QtGui.QAction('Case', self)
-        self.case_action.setStatusTip("Show case info")
-        self.case_action.triggered.connect(self.__case)
-        self.menuBar().addAction(self.case_action)
+        #Add default menu on menu bar
+        self.menu_bar.add_default_actions()
+        self.setMenuBar(self.menu_bar)
+        #### - END MENUBAR - #####
 
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
 
         # Get timestamp parameters
-        self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
+        self.configuration_timestamp = self.menu_bar.configuration_view.get_tab_from_name("configuration_timestamp")
 
         # VIDEO CONFIGURATION GROUP BOX
         self.url_configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
@@ -456,7 +453,7 @@ class Video(QtWidgets.QMainWindow):
     def __start_scraped(self):
 
         if self.acquisition_directory is None:
-            self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
+            self.acquisition_directory = self.menu_bar.case_view.form.controller.create_acquisition_directory(
                 'video',
                 self.configuration_general.configuration['cases_folder_path'],
                 self.case_info['name'],
@@ -560,12 +557,6 @@ class Video(QtWidgets.QMainWindow):
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
         self.load_button.setEnabled(all_field_filled)
-
-    def __case(self):
-        self.case_view.exec()
-
-    def __configuration(self):
-        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:

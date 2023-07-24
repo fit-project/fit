@@ -12,17 +12,14 @@ import subprocess
 
 import rfc3161ng
 
-from view.error import Error as ErrorView
-from view.case import Case as CaseView
-from view.configuration import Configuration as ConfigurationView
+
+from view.menu_bar import MenuBar as MenuBarView
+
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 
-from controller.configurations.tabs.network.networktools import NetworkTools as NetworkToolsController
-
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QFileDialog
 
 from common.utility import get_ntp_date_and_time, get_platform
@@ -38,8 +35,6 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.data = None  # acquisition_report.pdf
         self.tsr_in = None  # timestamp.tsr
         self.untrusted = None  # tsa.crt
-        self.configuration_view = ConfigurationView(self)
-        self.configuration_view.hide()
 
     def init(self, case_info, wizard, options=None):
         self.__init__()
@@ -54,8 +49,6 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             if "acquisition_directory" in options:
                 self.acquisition_directory = options['acquisition_directory']
 
-        self.case_view = CaseView(self.case_info, self)
-        self.case_view.hide()
 
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
         self.setObjectName("verify_timestamp_window")
@@ -65,26 +58,21 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.setCentralWidget(self.centralwidget)
 
-        # MENU BAR
-        self.setCentralWidget(self.centralwidget)
-        self.menuBar().setNativeMenuBar(False)
-
-        # CONF BUTTON
-
-        self.menuConfiguration = QtGui.QAction('Configuration',self)
-        self.menuConfiguration.setObjectName("menuConfiguration")
-        self.menuConfiguration.triggered.connect(self.configuration)
-        self.menuBar().addAction(self.menuConfiguration)
-
-        # CASE BUTTON
-        self.case_action = QtGui.QAction('Case',self)
-        self.case_action.setStatusTip("Show case info")
-        self.case_action.triggered.connect(self.case)
-        self.menuBar().addAction(self.case_action)
-
         # set font
         font = QtGui.QFont()
         font.setPointSize(10)
+
+        #### - START MENU BAR - #####
+        # Uncomment to disable native menubar on Mac
+        self.menuBar().setNativeMenuBar(False)
+
+        #This bar is common on all main window
+        self.menu_bar = MenuBarView(self, self.case_info)
+
+        #Add default menu on menu bar
+        self.menu_bar.add_default_actions()
+        self.setMenuBar(self.menu_bar)
+        #### - END MENUBAR - #####
 
         # TIMESTAMP GROUP
         self.timestamp_group_box = QtWidgets.QGroupBox(self.centralwidget)
@@ -180,7 +168,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         data = self.input_pdf.text()
 
         certificate = open(untrusted, 'rb').read()
-        configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
+        configuration_timestamp = self.menu_bar.configuration_view.get_tab_from_name("configuration_timestamp")
         options = configuration_timestamp.options
         server_name = options['server_name']
 
@@ -318,18 +306,13 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
 
     def get_current_dir(self):
         if not self.acquisition_directory:
-            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
             open_folder = os.path.expanduser(
                 os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
             return open_folder
         else:
             return self.acquisition_directory
 
-    def case(self):
-        self.case_view.exec()
-
-    def configuration(self):
-        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         self.deleteLater()

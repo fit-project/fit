@@ -24,8 +24,8 @@ from PyQt6.QtWidgets import QLabel
 
 from common.utility import get_platform
 from view.acquisition.acquisition import Acquisition
-from view.case import Case as CaseView
-from view.configuration import Configuration as ConfigurationView
+from view.menu_bar import MenuBar as MenuBarView
+
 from view.error import Error as ErrorView
 from view.spinner import Spinner
 
@@ -151,12 +151,7 @@ class Mail(QtWidgets.QMainWindow):
         self.height = 590
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
-        self.configuration_view = ConfigurationView(self)
-        self.configuration_view.hide()
         self.wizard = wizard
-
-        self.case_view = CaseView(self.case_info, self)
-        self.case_view.hide()
 
         self.setObjectName("email_scrape_window")
 
@@ -167,6 +162,19 @@ class Mail(QtWidgets.QMainWindow):
         # set font
         font = QFont()
         font.setPointSize(10)
+
+
+        #### - START MENU BAR - #####
+        # Uncomment to disable native menubar on Mac
+        self.menuBar().setNativeMenuBar(False)
+
+        #This bar is common on all main window
+        self.menu_bar = MenuBarView(self, self.case_info)
+
+        #Add default menu on menu bar
+        self.menu_bar.add_default_actions()
+        self.setMenuBar(self.menu_bar)
+        #### - END MENUBAR - #####
 
         # PROGRESS BAR
         self.status = QtWidgets.QStatusBar()
@@ -370,23 +378,11 @@ class Mail(QtWidgets.QMainWindow):
         self.download_button.setObjectName("StartAction")
         self.download_button.setEnabled(False)
 
-        # MENU BAR
         self.setCentralWidget(self.centralwidget)
-        self.menuBar().setNativeMenuBar(False)
 
-        # CONF BUTTON
-        self.menu_configuration = QtGui.QAction("Configuration", self)
-        self.menu_configuration.setObjectName("menuConfiguration")
-        self.menu_configuration.triggered.connect(self.__configuration)
-        self.menuBar().addAction(self.menu_configuration)
+        
 
-        # CASE BUTTON
-        self.case_action = QtGui.QAction("Case", self)
-        self.case_action.setStatusTip("Show case info")
-        self.case_action.triggered.connect(self.__case)
-        self.menuBar().addAction(self.case_action)
-
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
 
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
@@ -501,7 +497,7 @@ class Mail(QtWidgets.QMainWindow):
 
         if self.acquisition_directory is None:
             # Create acquisition directory
-            self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
+            self.acquisition_directory = self.menu_bar.case_view.form.controller.create_acquisition_directory(
                 'email',
                 self.configuration_general.configuration['cases_folder_path'],
                 self.case_info['name'],
@@ -703,13 +699,6 @@ class Mail(QtWidgets.QMainWindow):
                 subprocess.call(["open", self.acquisition_directory])
             else:  # platform == 'lin' || platform == 'other'
                 subprocess.call(["xdg-open", self.acquisition_directory])
-        
-
-    def __case(self):
-        self.case_view.exec()
-
-    def __configuration(self):
-        self.configuration_view.exec()
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:

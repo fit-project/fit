@@ -27,8 +27,7 @@ from view.web.screenshot_select_area import SelectArea as SelectAreaView
 from view.acquisition.acquisition import Acquisition
 from view.acquisition.tasks.task import AcquisitionTask
 
-from view.case import Case as CaseView
-from view.configuration import Configuration as ConfigurationView
+from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView
 
 from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
@@ -133,21 +132,34 @@ class Web(QtWidgets.QMainWindow):
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info
-        self.configuration_view = ConfigurationView(self)
-        self.configuration_view.hide()
 
-        self.case_view = CaseView(self.case_info, self)
-        self.case_view.hide()
 
-        self.tabs = QtWidgets.QTabWidget()
-        self.tabs.setDocumentMode(True)
-        self.tabs.tabBarDoubleClicked.connect(self.tab_open_doubleclick)
-        self.tabs.currentChanged.connect(self.current_tab_changed)
-        self.tabs.setTabsClosable(True)
-        self.tabs.tabCloseRequested.connect(self.close_current_tab)
+        #### - START MENU BAR - #####
+        # Uncomment to disable native menubar on Mac
+        self.menuBar().setNativeMenuBar(False)
 
-        self.setCentralWidget(self.tabs)
+        #This bar is common on all main window
+        self.menu_bar = MenuBarView(self, self.case_info)
 
+        #Add custom menu on menu bar
+        tab_menu = self.menu_bar.addMenu("&Tab")
+        new_tab_action = QtGui.QAction(QtGui.QIcon(os.path.join('assets/images', 'ui-tab--plus.png')), "New Tab",
+                                       self)
+        new_tab_action.setStatusTip("Open a new tab")
+        new_tab_action.triggered.connect(lambda _: self.add_new_tab())
+        tab_menu.addAction(new_tab_action)
+
+        #Add default menu on menu bar
+        self.menu_bar.add_default_actions()
+        self.setMenuBar(self.menu_bar)
+        #### - END MENUBAR - #####
+
+        #### - START NAVIGATION TOOL BAR - #####
+        self.navtb = NavigationToolBarView(self)
+        self.addToolBar(self.navtb)
+        #### - END NAVIGATION TOOL BAR - #####
+
+        #### - START STATUS BAR - #####
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setMaximumWidth(400)
@@ -158,6 +170,17 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.setStatusBar(self.status)
         self.progress_bar.setHidden(True)
+        #### - END STATUS BAR - #####
+
+        #TABS BAR
+        self.tabs = QtWidgets.QTabWidget()
+        self.tabs.setDocumentMode(True)
+        self.tabs.tabBarDoubleClicked.connect(self.tab_open_doubleclick)
+        self.tabs.currentChanged.connect(self.current_tab_changed)
+        self.tabs.setTabsClosable(True)
+        self.tabs.tabCloseRequested.connect(self.close_current_tab)
+
+        self.setCentralWidget(self.tabs)
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
@@ -169,35 +192,12 @@ class Web(QtWidgets.QMainWindow):
         self.stop_acquisition_is_started = False
 
         self.__clear_cache()
-        self.navtb = NavigationToolBarView(self)
-        self.addToolBar(self.navtb)
 
-        # Uncomment to disable native menubar on Mac
-        self.menuBar().setNativeMenuBar(False)
 
-        tab_menu = self.menuBar().addMenu("&Tab")
-        new_tab_action = QtGui.QAction(QtGui.QIcon(os.path.join('assets/images', 'ui-tab--plus.png')), "New Tab",
-                                       self)
-        new_tab_action.setStatusTip("Open a new tab")
-        new_tab_action.triggered.connect(lambda _: self.add_new_tab())
-        tab_menu.addAction(new_tab_action)
-
-        # CONFIGURATION ACTION
-        configuration_action = QtGui.QAction("Configuration", self)
-        configuration_action.setStatusTip("Show configuration info")
-        configuration_action.triggered.connect(self.configuration)
-        self.menuBar().addAction(configuration_action)
-
-        # CASE ACTION
-        case_action = QtGui.QAction("Case", self)
-        case_action.setStatusTip("Show case info")
-        case_action.triggered.connect(self.case)
-        self.menuBar().addAction(case_action)
-
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
 
         # Get timestamp parameters
-        self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
+        self.configuration_timestamp = self.menu_bar.configuration_view.get_tab_from_name("configuration_timestamp")
         self.add_new_tab(QtCore.QUrl(self.configuration_general.configuration['home_page_url']), 'Homepage')
 
         self.show()
@@ -215,7 +215,7 @@ class Web(QtWidgets.QMainWindow):
 
     def start_acquisition(self):
 
-        self.acquisition_directory = self.case_view.form.controller.create_acquisition_directory(
+        self.acquisition_directory = self.menu_bar.case_view.form.controller.create_acquisition_directory(
             'web',
             self.configuration_general.configuration['cases_folder_path'],
             self.case_info['name'],
@@ -236,6 +236,9 @@ class Web(QtWidgets.QMainWindow):
             self.acquisition_is_running = True
 
             self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
+
+            #disable configuration and case menu
+            self.menu_bar.enable_actions(False)
 
             # disable start acquisition button
             self.navtb.enable_start_acquisition_button()
@@ -368,6 +371,10 @@ class Web(QtWidgets.QMainWindow):
     def __enable_all(self):
         self.setEnabled(True)
         self.navtb.setEnabled(True)
+
+        #re-enable configuration and case menu
+        self.menu_bar.enable_actions(True)
+        
         # Add information button to re-enable buttons list
         self.navtb.navigation_actions.append('info')
         self.navtb.enable_actions(filter=self.navtb.navigation_actions)
@@ -415,12 +422,6 @@ class Web(QtWidgets.QMainWindow):
         task.state = state.FINISHED
         task.status = Status.COMPLETED
         self.__are_internal_tasks_completed()
-
-    def case(self):
-        self.case_view.exec()
-
-    def configuration(self):
-        self.configuration_view.exec()
 
     def take_screenshot(self):
         if self.screenshot_directory is not None:

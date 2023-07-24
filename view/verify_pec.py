@@ -12,16 +12,15 @@ import subprocess
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
-from common.utility import get_ntp_date_and_time
+from view.error import Error as ErrorView
+from view.menu_bar import MenuBar as MenuBarView
+
 from controller.verify_pec.verify_pec import verifyPec as verifyPecController
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
-from view.error import Error as ErrorView
-
-from view.case import Case as CaseView
-from view.configuration import Configuration as ConfigurationView
 
 from common.constants.view import verify_pec, general, verify_pdf_timestamp
-from common.utility import get_platform
+from common.utility import get_platform, get_ntp_date_and_time
+
 
 
 class VerifyPec(QtWidgets.QMainWindow):
@@ -29,7 +28,6 @@ class VerifyPec(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         super(VerifyPec, self).__init__(*args, **kwargs)
-        self.configuration_view = ConfigurationView(self)
         self.acquisition_directory = None
 
     def init(self, case_info, wizard, options=None):
@@ -40,9 +38,6 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
 
-        self.case_view = CaseView(self.case_info, self)
-        self.case_view.hide()
-
         self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
         self.setObjectName("verify_pec_window")
 
@@ -51,21 +46,17 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
         self.setCentralWidget(self.centralwidget)
 
-        # MENU BAR
-        self.setCentralWidget(self.centralwidget)
+        #### - START MENU BAR - #####
+        # Uncomment to disable native menubar on Mac
         self.menuBar().setNativeMenuBar(False)
 
-        # CONF BUTTON
-        self.menu_configuration = QtGui.QAction('Configuration',self)
-        self.menu_configuration.setObjectName("menuConfiguration")
-        self.menu_configuration.triggered.connect(self.__configuration)
-        self.menuBar().addAction(self.menu_configuration)
+        #This bar is common on all main window
+        self.menu_bar = MenuBarView(self, self.case_info)
 
-        # CASE BUTTON
-        self.case_action = QtGui.QAction('Case',self)
-        self.case_action.setStatusTip("Show case info")
-        self.case_action.triggered.connect(self.__case)
-        self.menuBar().addAction(self.case_action)
+        #Add default menu on menu bar
+        self.menu_bar.add_default_actions()
+        self.setMenuBar(self.menu_bar)
+        #### - END MENUBAR - #####
 
         self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.eml_group_box.setEnabled(True)
@@ -150,16 +141,10 @@ class VerifyPec(QtWidgets.QMainWindow):
         if check:
             self.input_eml.setText(file)
 
-    def __case(self):
-        self.case_view.exec()
-
-    def __configuration(self):
-        self.configuration_view.exec()
-    
 
     def __get_acquisition_directory(self):
         if not self.acquisition_directory:
-            configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
+            configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
             open_folder = os.path.expanduser(
                 os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
             return open_folder
