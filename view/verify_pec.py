@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import QFileDialog
 
 from common.utility import get_ntp_date_and_time
 from controller.verify_pec.verify_pec import verifyPec as verifyPecController
+from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 from view.error import Error as ErrorView
 
 from view.case import Case as CaseView
@@ -113,11 +114,8 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.verification_button.setEnabled(all_fields_filled)
 
     def __verify(self):
-        self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        # Get network parameters for (NTP)
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
-        ntp = get_ntp_date_and_time(self.configuration_network.configuration["ntp_server"])
+        
+        ntp = get_ntp_date_and_time(NetworkControllerCheck().configuration["ntp_server"])
         pec = verifyPecController()
         try:
             pec.verify(self.input_eml.text(), self.case_info, ntp)

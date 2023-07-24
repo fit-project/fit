@@ -9,17 +9,18 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from controller.configurations.tabs.general.network import Network as NetworkController
+from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck as NetworkCheckController
+from common.constants.view.network import *
 
 __is_tab__ = False
 
-class Network(QtWidgets.QGroupBox):
+class NetworkCheck(QtWidgets.QGroupBox):
 
   def __init__(self, parent=None):
 
-    super(Network, self).__init__(parent)
+    super(NetworkCheck, self).__init__(parent)
 
-    self.controller = NetworkController()
+    self.controller = NetworkCheckController()
     self.configuration = self.controller.configuration
 
     self.initUI()
@@ -29,7 +30,7 @@ class Network(QtWidgets.QGroupBox):
 
   def initUI(self):
 
-    self.setGeometry(QtCore.QRect(10, 295, 691, 101))
+    self.setGeometry(QtCore.QRect(10, 195, 691, 101))
     self.setObjectName("group_box_network_check")
 
     #NTP GROUPBOX
@@ -88,13 +89,12 @@ class Network(QtWidgets.QGroupBox):
       
   
   def retranslateUi(self):
-    _translate = QtCore.QCoreApplication.translate
-    self.setTitle(_translate("ConfigurationView", "Network Check"))
-    self.group_box_ntp_configuration.setTitle(_translate("ConfigurationView", "NTP"))
-    self.group_box_nslookup_configuration.setTitle(_translate("ConfigurationView", "Nslookup"))
-    self.nslookup_dns_server.setPlaceholderText(_translate("ConfigurationView", "DNS"))
-    self.nslookup_enable_tcp.setText(_translate("ConfigurationView", "Enable TCP"))
-    self.nslookup_enable_verbose_mode.setText(_translate("ConfigurationView", "Verbose"))
+    self.setTitle(GROUP_BOX_TITLE_NETWORK_CHECK)
+    self.group_box_ntp_configuration.setTitle(GROUP_BOX_TITLE_NTP)
+    self.group_box_nslookup_configuration.setTitle(GROUP_BOX_TITLE_NSLOOKUP)
+    self.nslookup_dns_server.setPlaceholderText(DNS)
+    self.nslookup_enable_tcp.setText(NSLOOKUP_OPTIONS_ENABLE_TCP)
+    self.nslookup_enable_verbose_mode.setText(NSLOOKUP_OPTIONS_ENABLE_VERBOSE_MODE)
 
   
   def __set_current_config_values(self):

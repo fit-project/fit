@@ -17,9 +17,9 @@ Base = declarative_base()
 
 
 
-class Network(Base):
+class NetworkCheck(Base):
 
-    __tablename__ = 'configuration_network'
+    __tablename__ = 'configuration_networkcheck'
     
     id = Column(Integer, primary_key = True)
     ntp_server = Column(String)
@@ -34,13 +34,13 @@ class Network(Base):
     
 
     def get(self):
-        if self.db.session.query(Network).first() is None:
+        if self.db.session.query(NetworkCheck).first() is None:
             self.set_default_values()
             
-        return self.db.session.query(Network).all()
+        return self.db.session.query(NetworkCheck).all()
     
     def update(self, configuration):
-        self.db.session.query(Network).filter(Network.id == configuration.get('id')).update(configuration)
+        self.db.session.query(NetworkCheck).filter(NetworkCheck.id == configuration.get('id')).update(configuration)
         self.db.session.commit()
     
     def set_default_values(self):

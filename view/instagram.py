@@ -16,7 +16,6 @@ from instaloader import InvalidArgumentException, BadCredentialsException, Conne
     ProfileNotExistsException
 
 from common.utility import get_platform
-from controller.configurations.tabs.general import network
 from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 from view.error import Error as ErrorView
