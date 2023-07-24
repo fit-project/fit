@@ -48,7 +48,13 @@ class Acquisition(Base):
         for task in tasks:
             if task == Tasks.PACKET_CAPTURE and PacketCaptureCotroller().options['enabled'] is False or\
                task == Tasks.SCREEN_RECORDER and ScreenRecorderController().options['enabled'] is False or\
-               task == Tasks.TRACEROUTE and get_platform() == 'win' and is_npcap_installed() is False:
+               task == Tasks.SSLKEYLOG and NetworkToolsController().configuration['ssl_keylog'] is False or\
+               task == Tasks.SSLCERTIFICATE and NetworkToolsController().configuration['ssl_certificate'] is False or\
+               task == Tasks.HEADERS and NetworkToolsController().configuration['headers'] is False or\
+               task == Tasks.WHOIS and NetworkToolsController().configuration['whois'] is False or\
+               task == Tasks.NSLOOKUP and NetworkToolsController().configuration['nslookup'] is False or\
+               task == Tasks.TRACEROUTE and NetworkToolsController().configuration['traceroute'] is False or\
+               get_platform() == 'win' and is_npcap_installed() is False:
                 _tasks.remove(task)
         
         return _tasks
@@ -64,6 +70,9 @@ class Acquisition(Base):
 
         self.folder = folder
         self.case_info = case_info
+
+        if self.logger.name == 'view.web.web':
+            self.log_confing.set_web_loggers()
 
         self.log_confing.change_filehandlers_path(self.folder)
         logging.config.dictConfig(self.log_confing.config)

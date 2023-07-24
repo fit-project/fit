@@ -11,6 +11,8 @@ import datetime
 import logging
 import os
 
+from controller.configurations.tabs.network.networktools import NetworkTools as NetworkToolsController
+
 
 # Produce RFC 3339 timestamps
 logging.Formatter.formatTime = (lambda self, record, datefmt: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat())
@@ -21,7 +23,7 @@ class LogConfigTools:
 
         self.config = {
             'version': 1,
-            'disable_existing_loggers': True,
+            'disable_existing_loggers': False,
             'formatters': {
                 'detailed': {
                     'class': 'logging.Formatter',
@@ -100,17 +102,20 @@ class LogConfigTools:
             logger.propagate = False
 
     def set_web_loggers(self):
-        self.config['formatters']['whois'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
-        self.config['formatters']['headers'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
-        self.config['formatters']['nslookup'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
-
-        self.config['handlers']['fwhois'] = {'class': 'logging.FileHandler', 'filename': 'whois.txt', 'mode': 'w',
+        if NetworkToolsController().configuration['whois']:
+            self.config['formatters']['whois'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
+            self.config['handlers']['fwhois'] = {'class': 'logging.FileHandler', 'filename': 'whois.txt', 'mode': 'w',
                                             'formatter': 'whois'}
-        self.config['handlers']['fheaders'] = {'class': 'logging.FileHandler', 'filename': 'headers.txt', 'mode': 'w',
-                                              'formatter': 'headers'}
-        self.config['handlers']['fnslookup'] = {'class': 'logging.FileHandler', 'filename': 'nslookup.txt', 'mode': 'w',
-                                               'formatter': 'nslookup'}
+            self.config['loggers']['whois'] = {'handlers': ['fwhois'], 'level': 'INFO'}
 
-        self.config['loggers']['whois'] = {'handlers': ['fwhois'], 'level': 'INFO'}
-        self.config['loggers']['headers'] = {'handlers': ['fheaders'], 'level': 'INFO'}
-        self.config['loggers']['nslookup'] = {'handlers': ['fnslookup'], 'level': 'INFO'}
+        if NetworkToolsController().configuration['headers']:
+            self.config['formatters']['headers'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
+            self.config['handlers']['fheaders'] = {'class': 'logging.FileHandler', 'filename': 'headers.txt', 'mode': 'w',
+                                              'formatter': 'headers'}
+            self.config['loggers']['headers'] = {'handlers': ['fheaders'], 'level': 'INFO'}
+
+        if NetworkToolsController().configuration['nslookup']:
+            self.config['formatters']['nslookup'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
+            self.config['handlers']['fnslookup'] = {'class': 'logging.FileHandler', 'filename': 'nslookup.txt', 'mode': 'w',
+                                               'formatter': 'nslookup'}
+            self.config['loggers']['nslookup'] = {'handlers': ['fnslookup'], 'level': 'INFO'}

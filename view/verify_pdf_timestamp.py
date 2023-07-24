@@ -19,6 +19,8 @@ from view.configuration import Configuration as ConfigurationView
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 
+from controller.configurations.tabs.network.networktools import NetworkTools as NetworkToolsController
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QFileDialog

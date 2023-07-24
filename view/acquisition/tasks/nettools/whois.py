@@ -7,6 +7,7 @@
 # -----
 ######  
 import logging
+import logging.config
 from PyQt6 import QtCore
 
 from common.utility import whois
@@ -22,9 +23,9 @@ class AcquisitionWhois(AcquisitionTask):
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
-    def start(self, url):
-        
+    def start(self, url):    
         logger.info(whois(url))
+
         
         self.parent().logger.info(Logger.WHOIS_GET)
         self.parent().task_is_completed({
