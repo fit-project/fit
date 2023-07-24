@@ -26,7 +26,7 @@ class TypesProceedings(QtWidgets.QGroupBox):
       self.types_proceedings.setPlainText(','.join([str(elem) for elem in self.controller.names]))
 
     def initUI(self):
-        self.setGeometry(QtCore.QRect(10, 210, 691, 75))
+        self.setGeometry(QtCore.QRect(10, 240, 691, 75))
         self.setObjectName("group_box_types_proceedings")
         self.types_proceedings = QtWidgets.QPlainTextEdit(self)
         self.types_proceedings.setGeometry(QtCore.QRect(20, 20, 601, 44))

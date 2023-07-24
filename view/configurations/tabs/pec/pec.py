@@ -6,37 +6,26 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
+
 import imaplib
 import smtplib
-import webbrowser
+
 
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMessageBox, QLabel
 
-from common.constants import error
-from controller.configurations.tabs.pec.pec import Pec as PecController
+from view.clickable_label import ClickableLabel as ClickableLabelView
 from view.error import Error as ErrorView
+
+from controller.configurations.tabs.pec.pec import Pec as PecController
+
 from common.constants.view.pec import pec, search_pec
+from common.constants import error
 
 __is_tab__ = True
 
-class ClickableLabel(QLabel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setStyleSheet("color: #0067C0;")
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            url = pec.TWO_FACTOR_AUTH_URL
-            webbrowser.open(url)
 
-    def enterEvent(self, event):
-        self.setStyleSheet("color: #0067C0; text-decoration: underline;")
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-
-    def leaveEvent(self, event):
-        self.setStyleSheet("color: #0067C0; text-decoration: none;")
 class Pec(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
@@ -60,7 +49,7 @@ class Pec(QtWidgets.QWidget):
         self.enabled_checkbox.stateChanged.connect(self.__is_enabled_pec)
         self.enabled_checkbox.setObjectName("enabled")
 
-        self.label_two_factor_auth = ClickableLabel(self)
+        self.label_two_factor_auth = ClickableLabelView(pec.TWO_FACTOR_AUTH_URL, self)
         self.label_two_factor_auth.setGeometry(QtCore.QRect(100, 30, 500, 70))
         self.label_two_factor_auth.setObjectName("label_two_factor_auth")
 
