@@ -101,21 +101,46 @@ class LogConfigTools:
             logger.addHandler(logging.NullHandler())
             logger.propagate = False
 
-    def set_web_loggers(self):
+    def set_dynamic_loggers(self):
+        
+        #ENABLE/DISABLE WHOIS
         if NetworkToolsController().configuration['whois']:
             self.config['formatters']['whois'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
             self.config['handlers']['fwhois'] = {'class': 'logging.FileHandler', 'filename': 'whois.txt', 'mode': 'w',
                                             'formatter': 'whois'}
             self.config['loggers']['whois'] = {'handlers': ['fwhois'], 'level': 'INFO'}
+        else:
+            if 'whois' in self.config['formatters']:
+                self.config['formatters'].pop('whois')
+            if 'fwhois' in self.config['handlers']:
+                self.config['handlers'].pop('fwhois')
+            if 'whois' in self.config['loggers']:
+                self.config['loggers'].pop('whois')
 
+        #ENABLE/DISABLE HEADERS
         if NetworkToolsController().configuration['headers']:
             self.config['formatters']['headers'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
             self.config['handlers']['fheaders'] = {'class': 'logging.FileHandler', 'filename': 'headers.txt', 'mode': 'w',
                                               'formatter': 'headers'}
             self.config['loggers']['headers'] = {'handlers': ['fheaders'], 'level': 'INFO'}
+        else:
+            if 'headers' in self.config['formatters']:
+                self.config['formatters'].pop('headers')
+            if 'fheaders' in self.config['handlers']:
+                self.config['handlers'].pop('fheaders')
+            if 'headers' in self.config['loggers']:
+                self.config['loggers'].pop('headers')
 
+        #ENABLE/DISABLE NSLOOKUP
         if NetworkToolsController().configuration['nslookup']:
             self.config['formatters']['nslookup'] = {'class': 'logging.Formatter', 'format': '%(message)s'}
             self.config['handlers']['fnslookup'] = {'class': 'logging.FileHandler', 'filename': 'nslookup.txt', 'mode': 'w',
                                                'formatter': 'nslookup'}
             self.config['loggers']['nslookup'] = {'handlers': ['fnslookup'], 'level': 'INFO'}
+        else:
+            if 'nslookup' in self.config['formatters']:
+                self.config['formatters'].pop('nslookup')
+            if 'fnslookup' in self.config['handlers']:
+                self.config['handlers'].pop('fnslookup')
+            if 'nslookup' in self.config['loggers']:
+                self.config['loggers'].pop('nslookup')

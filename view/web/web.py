@@ -121,7 +121,6 @@ class Web(QtWidgets.QMainWindow):
         self.screenshot_directory = None
         self.current_page_load_is_finished = False
         self.log_confing = LogConfigTools()
-        self.log_confing.set_web_loggers()
         self.case_info = None
         self.__tasks = []
         self.browser = None

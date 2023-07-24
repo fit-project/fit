@@ -72,7 +72,7 @@ class Acquisition(Base):
         self.case_info = case_info
 
         if self.logger.name == 'view.web.web':
-            self.log_confing.set_web_loggers()
+            self.log_confing.set_dynamic_loggers()
 
         self.log_confing.change_filehandlers_path(self.folder)
         logging.config.dictConfig(self.log_confing.config)

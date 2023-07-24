@@ -23,8 +23,6 @@ class Base(QObject):
         super().__init__(parent)
         self.logger = logger
         self.log_confing = LogConfigTools()
-        if self.logger.name == 'view.web.web':
-            self.log_confing.set_web_loggers()
         self.is_started = False
         self.is_completed = False
         self.send_pyqt_signal = False
