@@ -94,7 +94,7 @@ class Report:
                 zip=acquisition_files[fnmatch.filter(acquisition_files.keys(), '*.zip')[0]], zipd=self.REPORT.ZIPD,
                 whois=acquisition_files['whois.txt'], whoisd=self.REPORT.WHOISD,
                 headers=acquisition_files['headers.txt'], headersd=self.REPORT.HEADERSD,
-                nslookup=acquisition_files['nslookup.txt'], nslookupd=self.REPORT.PNGD,
+                nslookup=acquisition_files['nslookup.txt'], nslookupd=self.REPORT.NSLOOKUPD,
                 cer=acquisition_files['server.cer'], cerd=self.REPORT.CERD,
                 sslkey=acquisition_files['sslkey.log'], sslkeyd=self.REPORT.SSLKEYD,
                 traceroute=acquisition_files['traceroute.txt'], tracerouted=self.REPORT.TRACEROUTED,
@@ -244,8 +244,7 @@ class Report:
         path = os.path.join(main_screenshot_path, files[0])
         images = os.listdir(path)
         main_screenshot = os.path.join(path, images[0])
-
-
+        
         if os.path.isdir(screenshots_path):
             files = os.listdir(screenshots_path)
             for file in files:
