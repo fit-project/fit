@@ -122,9 +122,10 @@ def nslookup(url, dns_server, enable_verbose_mode, enable_tcp):
 
     if not netloc:
        return "Don't find Network location part in the URL"
-    else: 
+    else:
+        netloc = netloc.split(':')[0]
         dns_query = Nslookup(dns_servers=[dns_server], verbose=enable_verbose_mode, tcp=enable_tcp)
-        ips_record = dns_query.dns_lookup(url.netloc)
+        ips_record = dns_query.dns_lookup(netloc)
 
         return '\n'.join(map(str, ips_record.response_full))
 
@@ -134,7 +135,8 @@ def traceroute(url, filename):
 
     if not netloc:
         print("Don't find Network location part in the URL")
-    else: 
+    else:
+        netloc = netloc.split(':')[0]
         with open(filename, 'w') as f:
             with redirect_stdout(f):
                 ans, unans = scapy.sr(scapy.IP(dst=netloc, ttl=(1,22),id=scapy.RandShort())/scapy.TCP(flags=0x2), timeout=10)
@@ -161,6 +163,9 @@ def get_peer_PEM_cert(url, port=443, timeout=10):
     if not netloc:
        return None
     else:
+        if ':' in netloc:
+            netloc, port = netloc.split(':')
+            
         context = ssl.create_default_context()
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
