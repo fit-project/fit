@@ -15,7 +15,7 @@ import common.utility
 from PyQt6.QtCore import QObject
 
 from view.acquisition.info import AcquisitionInfo
-from controller.configurations.tabs.general import network
+from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 
 class Base(QObject):
 
@@ -126,7 +126,7 @@ class Base(QObject):
             self.__status_bar.showMessage(message)
     
     def get_time(self):
-         return common.utility.get_ntp_date_and_time(network.Network().configuration["ntp_server"])
+         return common.utility.get_ntp_date_and_time(NetworkControllerCheck().configuration["ntp_server"])
 
 
   

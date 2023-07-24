@@ -17,6 +17,7 @@ from view.case import Case as CaseView
 from view.configuration import Configuration as ConfigurationView
 
 from controller.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampController
+from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtGui import QFont
@@ -266,11 +267,10 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
 
 
     def generate_report_verification(self, data, server_name, timestamp, check):
+        
+        ntp = get_ntp_date_and_time(NetworkControllerCheck().configuration["ntp_server"])
 
-        configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
-        configuration_network = configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
-        ntp = get_ntp_date_and_time(configuration_network.configuration["ntp_server"])
+
 
         if check:
             verification = verify_pdf_timestamp.VALID_TIMESTAMP

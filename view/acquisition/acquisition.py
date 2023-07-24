@@ -22,7 +22,9 @@ from view.post_acquisition.post import PostAcquisition
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture as PacketCaptureCotroller
 from controller.configurations.tabs.screenrecorder.screenrecorder import ScreenRecorder as ScreenRecorderController
-from controller.configurations.tabs.general.network import Network as NetworkController
+from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck as NetworkCheckController
+from controller.configurations.tabs.network.networktools import NetworkTools as NetworkToolsController
+
 
 from common.utility import is_npcap_installed, get_platform
 
@@ -106,7 +108,7 @@ class Acquisition(Base):
         if url:
             self.log_stop_message(url)
 
-        net_configuration = NetworkController().configuration
+        net_configuration = NetworkCheckController().configuration
 
         self.set_state_and_status_tasks(State.STOPPED, Status.PENDING)
 

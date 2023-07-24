@@ -7,17 +7,17 @@
 # -----
 ######  
 
-from model.configurations.tabs.general.network import Network as NetworkModel
+from model.configurations.tabs.network.networkcheck import NetworkCheck as NetworkCheckModel
 
 import json
 
-class Network():
+class NetworkControllerCheck():
 
    _configuration = {}
    
    def __init__(self):
 
-      self.model = NetworkModel()
+      self.model = NetworkCheckModel()
       self._configuration = self.model.get()
 
 

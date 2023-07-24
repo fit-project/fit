@@ -194,10 +194,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.configuration_general = self.configuration_view.get_tab_from_name("configuration_general")
 
-        # Get network parameters for check (NTP, nslookup)
-        self.configuration_network = self.configuration_general.findChild(QtWidgets.QGroupBox,
-                                                                          'group_box_network_check')
-
         # Get timestamp parameters
         self.configuration_timestamp = self.configuration_view.get_tab_from_name("configuration_timestamp")
         self.add_new_tab(QtCore.QUrl(self.configuration_general.configuration['home_page_url']), 'Homepage')

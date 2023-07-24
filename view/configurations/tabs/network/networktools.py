@@ -10,9 +10,9 @@
 
 from PyQt6 import QtCore, QtWidgets
 
-from view.configurations.tabs.networktools.network import Network as NetworkView
-from controller.configurations.tabs.networktools.networktools import NetworkTools as NetworkToolsController
-from common.constants.view.network_tools import *
+from view.configurations.tabs.network.networkcheck import NetworkCheck as NetworkCheckView
+from controller.configurations.tabs.network.networktools import NetworkTools as NetworkToolsController
+from common.constants.view.network import *
 
 
 __is_tab__ = True
@@ -68,11 +68,11 @@ class NetworkTools(QtWidgets.QWidget):
 
 
         # PROCEEDINGS TYPE LIST
-        self.group_box_network_check = NetworkView(self)
+        self.group_box_network_check = NetworkCheckView(self)
 
     def retranslateUi(self):
-        self.setWindowTitle(NETWORK_TOOLS_TITLE)
-        self.enable_network_tools_box.setTitle(ENABLE_NETWORK_TOOLS)
+        self.setWindowTitle(NETWORK_OPTIONS_TITLE)
+        self.enable_network_tools_box.setTitle(GROUP_BOX_TITLE_NETWORK_TOOLS)
         self.whois_checkbox.setText(WHOIS)
         self.headers_checkbox.setText(HEADERS)
         self.ssl_keylog_checkbox.setText(SSL_KEYLOG)

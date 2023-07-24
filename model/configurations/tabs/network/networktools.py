@@ -41,12 +41,12 @@ class NetworkTools(Base):
         self.db.session.commit()
 
     def set_default_values(self):
-        self.whois = False
-        self.headers = False
-        self.traceroute = False
-        self.ssl_keylog = False
-        self.nslookup = False
-        self.ssl_certificate = False
+        self.whois = True
+        self.headers = True
+        self.traceroute = True
+        self.ssl_keylog = True
+        self.nslookup = True
+        self.ssl_certificate = True
         self.db.session.add(self)
         self.db.session.commit()
 

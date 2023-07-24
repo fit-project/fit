@@ -1,4 +1,4 @@
-from model.configurations.tabs.networktools.networktools import NetworkTools as NetworkToolsModel
+from model.configurations.tabs.network.networktools import NetworkTools as NetworkToolsModel
 
 class NetworkTools():
 
