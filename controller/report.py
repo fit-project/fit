@@ -236,16 +236,18 @@ class Report:
 
     def __insert_screenshot(self):
         screenshot_text = ''
-        main_screenshot_path = os.path.join(self.cases_folder_path, 'screenshot','full_page')
         screenshots_path = os.path.join(self.cases_folder_path,'screenshot')
-        main_screenshot_file= os.path.join(self.cases_folder_path, 'screenshot.png')
 
-        files = os.listdir(main_screenshot_path)
-        path = os.path.join(main_screenshot_path, files[0])
-        images = os.listdir(path)
-        main_screenshot = os.path.join(path, images[0])
-        
         if os.path.isdir(screenshots_path):
+            main_screenshot_path = os.path.join(self.cases_folder_path, 'screenshot','full_page')       
+            main_screenshot_file= os.path.join(self.cases_folder_path, 'screenshot.png')
+
+            files = os.listdir(main_screenshot_path)
+            path = os.path.join(main_screenshot_path, files[0])
+            images = os.listdir(path)
+            main_screenshot = os.path.join(path, images[0])
+        
+        
             files = os.listdir(screenshots_path)
             for file in files:
                 path = os.path.join(self.cases_folder_path,'screenshot', file)
@@ -255,11 +257,11 @@ class Report:
                                     'Screenshot'+ os.path.basename(file) + \
                                     '</a><br><img src="' + path + '"></p><br><br>'
 
-        # main full page screenshot
-        screenshot_text += '<p>' \
-                           '<a href="file://' + main_screenshot_file + '">' + \
-                           self.REPORT.COMPLETE_SCREENSHOT + \
-                           '</a><br><img src="' + main_screenshot + '"></p>'
+            # main full page screenshot
+            screenshot_text += '<p>' \
+                            '<a href="file://' + main_screenshot_file + '">' + \
+                            self.REPORT.COMPLETE_SCREENSHOT + \
+                            '</a><br><img src="' + main_screenshot + '"></p>'
 
         return screenshot_text
 
