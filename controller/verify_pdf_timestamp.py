@@ -5,13 +5,15 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
+import base64
 import os
 
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 
 from common.utility import get_logo, get_version, get_language
+from view.wizard import CaseInfoPage
 
 
 class VerifyPDFTimestamp:
@@ -43,6 +45,17 @@ class VerifyPDFTimestamp:
             title=self.REPORT.TITLE, report=self.REPORT.REPORT, version=get_version()
         )
 
+        case_info_page = CaseInfoPage()
+        type_proceeding = next(
+            (proceeding for proceeding in case_info_page.form.proceedings if
+             proceeding["id"] == self.case_info['proceeding_type']), None)
+        if type_proceeding is not None and "name" in type_proceeding:
+            proceeding_type = str(type_proceeding["name"])
+        else:
+            proceeding_type = 'N/A'
+        logo = self.case_info['logo_bin']
+        logo = base64.b64encode(logo).decode('utf-8')
+
         if result:
             t3descr = self.REPORT.VERIFI_OK
         else:
@@ -65,14 +78,14 @@ class VerifyPDFTimestamp:
             data0=str(self.case_info['name'] or 'N/A'),
             data1=str(self.case_info['lawyer_name'] or 'N/A'),
             data2=str(self.case_info['operator'] or 'N/A'),
-            data3=str(self.case_info['proceeding_type'] or 'N/A'),
+            data3=proceeding_type,
             data4=str(self.case_info['courthouse'] or 'N/A'),
             data5=str(self.case_info['proceeding_number'] or 'N/A'),
             data6=self.REPORT.VERIFICATION,
             data7=self.ntp,
             data8=str(self.case_info['notes'] or 'N/A').replace("\n", "<br>"),
             page=self.REPORT.PAGE, of=self.REPORT.OF,
-            logo=self.case_info['logo']
+            logo=logo
         )
         # create pdf front and content, merge them and remove merged files
         pisa.CreatePDF(front_index, dest=self.output_front_result)

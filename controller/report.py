@@ -5,7 +5,8 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
+import base64
 import fnmatch
 import os
 
@@ -47,10 +48,16 @@ class Report:
         hash_file_content = self.__hash_reader()
         screenshot = self.__insert_screenshot()
         video = self.__insert_video_hyperlink()
+
         case_info_page = CaseInfoPage()
         type_proceeding = next(
             (proceeding for proceeding in case_info_page.form.proceedings if proceeding["id"] == self.case_info['proceeding_type']), None)
-        proceeding_type = type_proceeding["name"]
+        if type_proceeding is not None and "name" in type_proceeding:
+            proceeding_type = str(type_proceeding["name"])
+        else: proceeding_type = 'N/A'
+        logo = self.case_info['logo_bin']
+        logo = base64.b64encode(logo).decode('utf-8')
+
 
         acquisition_files = self._acquisition_files_names()
 
@@ -80,7 +87,7 @@ class Report:
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['operator'] or 'N/A'),
-                data3=str(proceeding_type or 'N/A'),
+                data3=proceeding_type,
                 data4=str(self.case_info['courthouse'] or 'N/A'),
                 data5=str(self.case_info['proceeding_number'] or 'N/A'),
                 data6=type,
@@ -111,7 +118,7 @@ class Report:
                 titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
                 titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR,
                 page=self.REPORT.PAGE, of=self.REPORT.OF,
-                logo=self.case_info['logo']
+                logo=logo
             )
             pdf_options = {
                 'page-size': 'Letter',
@@ -140,7 +147,7 @@ class Report:
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['operator'] or 'N/A'),
-                data3=str(self.case_info['proceeding_type'] or 'N/A'),
+                data3=proceeding_type,
                 data4=str(self.case_info['courthouse'] or 'N/A'),
                 data5=str(self.case_info['proceeding_number'] or 'N/A'),
                 data6=type,
@@ -157,7 +164,7 @@ class Report:
                 titlecc=self.REPORT.TITLECC, ccdescr=self.REPORT.CCDESCR,
                 titleh=self.REPORT.TITLEH, hdescr=self.REPORT.HDESCR,
                 page=self.REPORT.PAGE, of=self.REPORT.OF,
-                logo=self.case_info['logo']
+                logo=logo
 
             )
             # create pdf front and content, merge them and remove merged files

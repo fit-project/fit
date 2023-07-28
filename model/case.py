@@ -11,7 +11,7 @@ from model.db import Db
 
 import os
 
-from sqlalchemy import ForeignKey, Column, Integer, String, Text
+from sqlalchemy import ForeignKey, Column, Integer, String, Text, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
@@ -27,6 +27,7 @@ class Case(Base):
     courthouse = Column(String)
     proceeding_number = Column(Integer)
     notes = Column(Text)
+    logo_bin = Column(LargeBinary)
     logo = Column(String)
 
     def __init__(self) -> None:
@@ -52,6 +53,10 @@ class Case(Base):
         case.proceeding_number = case_info['proceeding_number']
         case.notes = case_info['notes']
         case.logo = case_info['logo']
+
+        with open(case_info['logo'], 'rb') as file:
+            value = file.read()
+        case.logo_bin = value
 
         self.db.session.add(case)
         self.db.session.commit()
