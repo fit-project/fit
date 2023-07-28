@@ -13,7 +13,7 @@ from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
 from common.utility import get_logo, get_version, get_language
-
+from view.wizard import CaseInfoPage
 
 
 class Report:
@@ -47,6 +47,10 @@ class Report:
         hash_file_content = self.__hash_reader()
         screenshot = self.__insert_screenshot()
         video = self.__insert_video_hyperlink()
+        case_info_page = CaseInfoPage()
+        type_proceeding = next(
+            (proceeding for proceeding in case_info_page.form.proceedings if proceeding["id"] == self.case_info['proceeding_type']), None)
+        proceeding_type = type_proceeding["name"]
 
         acquisition_files = self._acquisition_files_names()
 
@@ -76,7 +80,7 @@ class Report:
                 data0=str(self.case_info['name'] or 'N/A'),
                 data1=str(self.case_info['lawyer_name'] or 'N/A'),
                 data2=str(self.case_info['operator'] or 'N/A'),
-                data3=str(self.case_info['proceeding_type'] or 'N/A'),
+                data3=str(proceeding_type or 'N/A'),
                 data4=str(self.case_info['courthouse'] or 'N/A'),
                 data5=str(self.case_info['proceeding_number'] or 'N/A'),
                 data6=type,
