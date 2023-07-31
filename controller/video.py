@@ -8,6 +8,7 @@
 ######
 import hashlib
 import json
+import logging
 import os
 import re
 import shutil
@@ -15,12 +16,17 @@ import yt_dlp
 from youtube_comment_downloader import YoutubeCommentDownloader
 
 from common.constants.view import video
-
+ytdl_logger = logging.getLogger("ytdl-ignore")
+ytdl_logger.disabled = True
 
 class Video():
     def __init__(self):
         self.url = None
-        self.ydl_opts = {'quiet': True, 'no-warnings': True}
+        self.ydl_opts = {'quiet': True,
+                         'no-warnings': True,
+                         'ignore-no-formats-error': True,
+                         'no-progress': True,
+                         'logger': ytdl_logger}
 
         self.acquisition_dir = None
         self.title = None
@@ -58,9 +64,15 @@ class Video():
             #self.download_facebook_video()
         #else:
         if self.quality == 'Lowest':
-            self.ydl_opts['format'] = 'worstvideo'
-        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            ydl.extract_info(self.url, download=True)
+            self.ydl_opts.update({
+                'format': 'worstvideo',
+                'keep-video': True,
+            })
+        try:
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                ydl.extract_info(self.url, download=True)
+        except Exception:
+            pass  # worstvideo is not available, skip
 
     # show thumbnail and video title
     def print_info(self):
@@ -122,9 +134,15 @@ class Video():
     def get_thumbnail(self):
         if self.is_facebook_video():
             return
-        self.ydl_opts['format'] = 'best'
-        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-            ydl.download([self.thumbnail])
+        self.ydl_opts.update({
+            'format': 'best',
+            'keep-video': True,
+        })
+        try:
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                ydl.download([self.thumbnail])
+        except:
+            pass  # can't download audio, skip
 
     # download subtitles (if any)
     def get_subtitles(self):
