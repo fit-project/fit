@@ -37,6 +37,9 @@ class Case(Base):
     
     def get(self):
         return self.db.session.query(Case).all()
+
+    def get_from_id(self, id):
+        return self.db.session.query(Case).filter_by(id=id).one()
     
     def update(self, case_info):
         self.db.session.query(Case).filter(Case.id == case_info.get('id')).update(case_info)
