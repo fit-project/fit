@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:pdf="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>{title:}</title>
+    <style type="text/css">
+    @media print {{
+        .pagebreak {{
+            page-break-before: always;
+        }}
+    }}
+
+    h1 {{
+        font-size: 45pt;
+        font-family: "Times New Roman", Times, serif;
+    }}
+
+    h2 {{
+        font-size: 30pt;
+        font-family: "Times New Roman", Times, serif;
+    }}
+
+     h3 {{
+        font-size: 23pt;
+        font-family: "Times New Roman", Times, serif;
+     }}
+
+    h4 {{
+        font-size: 19pt;
+        font-family: "Times New Roman", Times, serif;
+        color: #ff6600;
+    }}
+
+    h3 {{
+        font-size: 16pt;
+        font-family: "Times New Roman", Times, serif;
+    }}
+
+    p {{
+        font-size: 12pt;
+        font-family: "Times New Roman", Times, serif;
+        text-align: justify;
+    }}
+
+    @page {{
+
+        size: a4 portrait;
+        font-family: "Times New Roman", Times, serif;
+
+        @frame header_frame {{
+            -pdf-frame-content: header_content;
+            margin-top: 19pt; margin-right: 75pt; margin-left: 75pt;
+        }}
+
+        @frame content_frame {{
+           margin: 75pt;
+        }}
+
+        @frame footer_frame {{
+            -pdf-frame-content: footer_content;
+            margin-left: 75pt; margin-right: 75pt; top: 772pt;
+        }}
+
+    }}
+
+    .center {{
+        display: block;
+        text-align: center;
+    }}
+
+    .data_from_file {{
+        font-family: "Times New Roman", Times, serif;
+        font-size: 10pt;
+    }}
+
+    .bodymatter a::after {{
+        content: "p. " target-counter(attr(href), page);
+    }}
+
+    #case_info, #file_info {{
+        font-family: "Times New Roman", Times, serif;
+        font-size: 12pt;
+    }}
+
+    #case_info td, #case_info th, #file_info td, #file_info th {{
+        border: 1pt solid #ddd;
+        padding: 6pt;
+    }}
+
+    #case_info td, #file_info td, #case_info tr, #file_info tr {{
+        height: auto;
+    }}
+
+    #case_info th, #file_info th {{
+        background-color: orange;
+        color: white;
+        text-align: center;
+    }}
+
+    #toc_container {{
+        font-family: "Times New Roman", Times, serif;
+        font-size: 15pt;
+        color: black;
+    }}
+
+    #toc_container a {{
+        color: black;
+    }}
+
+    #toc_container p {{
+        font-family: "Times New Roman", Times, serif;
+        font-size: 19pt;
+    }}
+
+    #hash p {{
+     -pdf-word-wrap: CJK;
+    }}
+
+    </style>
+</head>
+
+<body>
+
+<div id="toc_container">
+    <p class="toc_title">{index:}</p>
+    <ol class="toc_list">
+        <li class="bodymatter"><a href="#t1" style="text-decoration=none">{t1:}</a></li>
+        <li class="bodymatter"><a href="#t2" style="text-decoration=none">{t2:}</a></li>
+        <li class="bodymatter"><a href="#t4" style="text-decoration=none">{t4:}</a></li>
+        <li class="bodymatter"><a href="#t5" style="text-decoration=none">{t5:}</a></li>
+        <li class="bodymatter"><a href="#t6" style="text-decoration=none">{t6:}</a></li>
+        <li class="bodymatter"><a href="#t7" style="text-decoration=none">{t7:}</a></li>
+        <li class="bodymatter"><a href="#t8" style="text-decoration=none">{t8:}</a></li>
+        <li class="bodymatter"><a href="#t9" style="text-decoration=none">{t9:}</a></li>
+    </ol>
+</div>
+
+<div class="pagebreak"></div>
+
+<div id="header_content" style="text-align: left; font-family: 'Times New Roman';font-size: 11pt">{title:} - {t1:}
+    <hr color="orange">
+</div>
+
+<div id="footer_content" style="justify-content: space-between; display: flex; font-family: 'Times New Roman';text-align: center; font-size: 11pt;">
+   <img src="data:image/png;base64,{logo:}" height="50" width="auto">&nbsp&nbsp&nbsp
+        {page:}<pdf:pagenumber></pdf:pagenumber> {of:}<pdf:pagecount></pdf:pagecount>
+</div>
+
+
+
+<h4 id="t1" style="text-align: left;">1. {t1:}</h4>
+<p>{description:}</p>
+
+<div class="pagebreak"></div>
+
+<h4 id="t2" style="text-align: left;">2. {t2:}</h4>
+<div style="overflow-x:auto;">
+<table id="case_info">
+    <tr>
+        <th>{case:}</th>
+        <th>{casedata:}</th>
+    </tr>
+    <tr>
+        <td>{case0:}</td>
+        <td>{data0:}</td>
+    </tr>
+    <tr>
+        <td>{case1:}</td>
+        <td>{data1:}</td>
+    </tr>
+    <tr>
+        <td>{case2:}</td>
+        <td>{data2:}</td>
+    </tr>
+    <tr>
+        <td>{case3:}</td>
+        <td>{data3:}</td>
+    </tr>
+    <tr>
+        <td>{case4:}</td>
+        <td>{data4:}</td>
+    </tr>
+
+    <tr>
+        <td>{case5:}</td>
+        <td>{data5:}</td>
+    </tr>
+
+    <tr>
+        <td>{case6}</td>
+        <td>{data6:}</td>
+    </tr>
+    <tr>
+        <td>{case7}</td>
+        <td>{data7:}</td>
+    </tr>
+
+</table>
+    </div>
+    <br>
+<p><b>{case8:}</b></p>
+    <p>{data8:}</p>
+
+<div class="pagebreak"></div>
+
+
+<h4 id="t4" style="text-align: left;">3. {t4:}</h4>
+<p>{t4descr:}</p>
+<h3 id="titlecc">3.1 {titlecc:}</h3>
+<p>{ccdescr:}</p>
+<h3 id="titleh">3.2 {titleh:}</h3>
+<p>{hdescr:}</p>
+<div class="pagebreak"></div>
+
+<h4 id="t5" style="text-align: left;">4. {t5:}</h4>
+<p>{t5descr:}</p>
+<table id="file_info">
+    <tr>
+        <th>{name:}</th>
+        <th>{descr:}</th>
+    </tr>
+    <tr>
+        <td>{avi:}</td>
+        <td>{avid:}</td>
+    </tr>
+    <tr>
+        <td>{hash:}</td>
+        <td>{hashd:}</td>
+    </tr>
+    <tr>
+        <td>{log:}</td>
+        <td>{logd:}</td>
+    </tr>
+    <tr>
+        <td>{pcap:}</td>
+        <td>{pcapd:}</td>
+    </tr>
+    <tr>
+        <td>{zip:}</td>
+        <td>{zipd:}</td>
+    </tr>
+    <tr>
+        <td>{whois:}</td>
+        <td>{whoisd:}</td>
+    </tr>
+    <tr>
+        <td>{headers:}</td>
+        <td>{headersd:}</td>
+    </tr>
+    <tr>
+        <td>{nslookup:}</td>
+        <td>{nslookupd:}</td>
+    </tr>
+    <tr>
+        <td>{cer:}</td>
+        <td>{cerd:}</td>
+    </tr>
+    <tr>
+        <td>{sslkey:}</td>
+        <td>{sslkeyd:}</td>
+    </tr>
+    <tr>
+        <td>{traceroute:}</td>
+        <td>{tracerouted:}</td>
+    </tr>
+
+</table>
+
+<div class="pagebreak"></div>
+
+<h4 id="t6" style="text-align: left;">5. {t6:}</h4>
+<p>{t6descr:}</p>
+<div id="hash">{file:}</div>
+
+<div class="pagebreak"></div>
+<h4 id="t7" style="text-align: left;">6. {t7:}</h4>
+<p>{t7descr:}</p>
+{filedata:}
+
+<div class="pagebreak"></div>
+<h4 id="t8" style="text-align: left;">7. {t8:}</h4>
+<p>{t8descr:}</p>
+<div id="screenshot">{screenshot:}</div>
+
+<div class="pagebreak"></div>
+<h4 id="t9" style="text-align: left;">8. {t9:}</h4>
+<p>{t9descr:}</p>
+<p>{video_hyperlink:}</p>
+</body>
+</html>
