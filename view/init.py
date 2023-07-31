@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 import os
 
@@ -17,15 +17,18 @@ from controller.configurations.tabs.packetcapture.packetcapture import PacketCap
 from common.utility import *
 from common.constants.view.init import *
 
-class DownloadAndInstallNpcap(QtWidgets.QDialog):
 
+class DownloadAndInstallNpcap(QtWidgets.QDialog):
     def __init__(self, url, parent=None):
         super(DownloadAndInstallNpcap, self).__init__(parent)
 
         self.path = None
         self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.resize(255, 77)
-        self.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
+        self.setWindowFlags(
+            QtCore.Qt.WindowType.CustomizeWindowHint
+            | QtCore.Qt.WindowType.WindowTitleHint
+        )
 
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 231, 41))
@@ -42,7 +45,7 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
 
         self.setWindowTitle(NPCAP)
         self.label.setText(NPCAP_DOWNLOAD)
-        
+
         self.web_view = QtWebEngineWidgets.QWebEngineView()
         self.web_view.page().profile().downloadRequested.connect(
             self.on_download_requested
@@ -53,14 +56,14 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         hbox = QtWidgets.QHBoxLayout(self)
         hbox.addWidget(self.web_view)
 
-    #@QtCore.pyqtSlot("QWebEngineDownloadItem*")
+    # @QtCore.pyqtSlot("QWebEngineDownloadItem*")
     def on_download_requested(self, download):
         old_path = download.url().path()
         suffix = QtCore.QFileInfo(old_path).suffix()
         self.path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self, "Save File", old_path, "*." + suffix
         )
-        
+
         if self.path:
             download.setDownloadFileName(self.path)
             download.accept()
@@ -80,62 +83,69 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
 
     def __install(self):
         self.close()
-        os.system('Powershell -Command Start-Process "{}" -Verb RunAs'.format(self.path))
-        
-    
+        os.system(
+            'Powershell -Command Start-Process "{}" -Verb RunAs'.format(self.path)
+        )
+
     def __progress(self, bytes_received, bytes_total):
-         if bytes_total > 0:
-            download_percentage = int(bytes_received*100/bytes_total)
+        if bytes_total > 0:
+            download_percentage = int(bytes_received * 100 / bytes_total)
             self.progressBar.setValue(download_percentage)
 
 
 class Init(QtCore.QObject):
-
     def __init__(self, parent=None):
         super().__init__(parent)
-    
+
     def __quit(self):
         sys.exit(1)
 
     def init_check(self):
-        #Check internet connection
+        # Check internet connection
         if check_internet_connection() is False:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                            CHECK_CONNETION,
-                            ERR_INTERNET_DISCONNECTED,
-                            ''
-                            )
-            
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                CHECK_CONNETION,
+                ERR_INTERNET_DISCONNECTED,
+                "",
+            )
+
             error_dlg.buttonClicked.connect(self.__quit)
-            
+
             error_dlg.exec()
-        
-        # If os is win check 
-        if get_platform() == 'win' :
+
+        # If os is win check
+        if get_platform() == "win":
             if is_npcap_installed() is False:
                 try:
                     url = get_npcap_installer_url()
                     msg = QtWidgets.QMessageBox()
-                    msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
+                    msg.setWindowFlags(
+                        QtCore.Qt.WindowType.CustomizeWindowHint
+                        | QtCore.Qt.WindowType.WindowTitleHint
+                    )
                     msg.setWindowTitle(NPCAP)
                     msg.setText(WAR_NPCAP_NOT_INSTALLED)
-                    msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                    msg.setStandardButtons(
+                        QtWidgets.QMessageBox.StandardButton.Yes
+                        | QtWidgets.QMessageBox.StandardButton.No
+                    )
                     msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    
+
                     return_value = msg.exec()
                     if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                         donwload_and_install = DownloadAndInstallNpcap(url)
                         donwload_and_install.exec()
                     else:
                         options = PacketCapture().options
-                        options["enabled"] =False
+                        options["enabled"] = False
                         PacketCapture().options = options
 
                 except Exception as e:
-                    error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                            NPCAP,
-                            ERR_NPCAP_RELEASE_VERSION,
-                            str(e)
-                            )
+                    error_dlg = ErrorView(
+                        QtWidgets.QMessageBox.Icon.Critical,
+                        NPCAP,
+                        ERR_NPCAP_RELEASE_VERSION,
+                        str(e),
+                    )
                     error_dlg.exec()
-        

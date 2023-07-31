@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 import cv2
 import numpy as np
 import sys
@@ -35,24 +35,31 @@ class ScreenRecorder(QObject):
         self.controller = CodecController()
 
     def set_options(self, options):
-
         # Specify resolution
         self.width = get_monitors()[0].width
         self.height = get_monitors()[0].height
-        # Specify video codec       
-        codec = next((item for item in self.controller.codec if item["id"] == options['codec_id']))
+        # Specify video codec
+        codec = next(
+            (
+                item
+                for item in self.controller.codec
+                if item["id"] == options["codec_id"]
+            )
+        )
         self.codec = cv2.VideoWriter_fourcc(*codec["name"])
 
         # Specify frames rate. We can choose any
         # value and experiment with it
-        self.fps = options['fps']
+        self.fps = options["fps"]
 
         # Specify name of Output file
-        self.filename = options['filename']
+        self.filename = options["filename"]
 
     def start(self):
         # Creating a VideoWriter object
-        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, (self.width, self.height))
+        self.out = cv2.VideoWriter(
+            self.filename, self.codec, self.fps, (self.width, self.height)
+        )
         try:
             while self.run:
                 # Take screenshot using PyAutoGUI
@@ -68,11 +75,12 @@ class ScreenRecorder(QObject):
                 self.out.write(frame)
 
         except:
-            error_dlg = ErrorView(QMessageBox.Icon.Critical,
-                                  screenrecorder.SCREEN_RECODER,
-                                  error.SCREEN_RECODER,
-                                  str(sys.exc_info()[0])
-                                  )
+            error_dlg = ErrorView(
+                QMessageBox.Icon.Critical,
+                screenrecorder.SCREEN_RECODER,
+                error.SCREEN_RECODER,
+                str(sys.exc_info()[0]),
+            )
 
             error_dlg.exec()
 
@@ -84,11 +92,10 @@ class ScreenRecorder(QObject):
         cv2.destroyAllWindows()
 
     def stop(self):
-        self.run = False  # set the run condition to false on stop 
+        self.run = False  # set the run condition to false on stop
 
 
 class AcquisitionScreenRecorder(AcquisitionTask):
-
     def __init__(self, name, state, status, parent: None):
         super().__init__(name, state, status, parent)
 
@@ -108,10 +115,9 @@ class AcquisitionScreenRecorder(AcquisitionTask):
 
         self.th_screenrecorder.start()
 
-        self.parent().task_is_completed({
-            'name': tasks.SCREEN_RECORDER,
-            'details': details.SCREEN_RECORDER_STARTED
-        })
+        self.parent().task_is_completed(
+            {"name": tasks.SCREEN_RECORDER, "details": details.SCREEN_RECORDER_STARTED}
+        )
 
     def stop(self):
         self.screenrecorder.stop()
@@ -119,9 +125,11 @@ class AcquisitionScreenRecorder(AcquisitionTask):
     def _thread_screenrecorder_is_finished(self):
         self.parent().logger.info(logger.SCREEN_RECODER_PACKET_CAPTURE_COMPLETED)
 
-        self.parent().task_is_completed({
-            'name': tasks.SCREEN_RECORDER,
-            'state': state.FINISHED,
-            'status': status.COMPLETED,
-            'details': details.SCREEN_RECORDER_COMPLETED
-        })
+        self.parent().task_is_completed(
+            {
+                "name": tasks.SCREEN_RECORDER,
+                "state": state.FINISHED,
+                "status": status.COMPLETED,
+                "details": details.SCREEN_RECORDER_COMPLETED,
+            }
+        )

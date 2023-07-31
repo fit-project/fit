@@ -9,12 +9,11 @@
 
 import webbrowser
 
-from PyQt6.QtWidgets import  QLabel
+from PyQt6.QtWidgets import QLabel
 from PyQt6.QtCore import Qt
 
 
 class ClickableLabel(QLabel):
-
     def __init__(self, url, parent=None):
         super().__init__(parent)
         self.setStyleSheet("color: #0067C0;")
@@ -31,4 +30,3 @@ class ClickableLabel(QLabel):
 
     def leaveEvent(self, event):
         self.setStyleSheet("color: #0067C0; text-decoration: none;")
-

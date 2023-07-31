@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 import imaplib
 import os
 import time
@@ -14,30 +14,33 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from common.constants.view.pec import pec
 from common.constants.status import FAIL
 
+
 class PecForm(QtWidgets.QDialog):
-    
     def __init__(self, parent: None):
         super().__init__()
-        self.parent = parent        
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
+        self.parent = parent
+        self.setWindowFlags(
+            self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
+        )
         self.__setupUi()
-    
 
     def __setupUi(self):
         self.setObjectName("PECForm")
         self.resize(452, 400)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
-        
-        #PEC USER AND PASSWORD
+        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+
+        # PEC USER AND PASSWORD
         self.label_pec_email = QtWidgets.QLabel(self.centralwidget)
         self.label_pec_email.setGeometry(QtCore.QRect(30, 30, 100, 20))
         self.label_pec_email.setObjectName("label_pec_email")
         self.input_pec_email = QtWidgets.QLineEdit(self.centralwidget)
         self.input_pec_email.setGeometry(QtCore.QRect(170, 30, 240, 20))
         self.input_pec_email.setObjectName("input_pec_email")
-        pec_regex = QtCore.QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
+        pec_regex = QtCore.QRegularExpression(
+            "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}"
+        )  # check
         validator = QtGui.QRegularExpressionValidator(pec_regex)
         self.input_pec_email.setValidator(validator)
         self.label_password = QtWidgets.QLabel(self.centralwidget)
@@ -47,8 +50,8 @@ class PecForm(QtWidgets.QDialog):
         self.input_password.setGeometry(QtCore.QRect(170, 60, 240, 20))
         self.input_password.setObjectName("input_password")
         self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-       
-        #PEC SMTP INFO
+
+        # PEC SMTP INFO
         self.label_smpt_server = QtWidgets.QLabel(self.centralwidget)
         self.label_smpt_server.setGeometry(QtCore.QRect(30, 120, 100, 20))
         self.label_smpt_server.setObjectName("label_smpt_server")
@@ -63,9 +66,8 @@ class PecForm(QtWidgets.QDialog):
         self.input_smtp_port.setObjectName("input_smtp_port")
         validator = QtGui.QIntValidator()
         self.input_smtp_port.setValidator(validator)
-        
-        
-        #PEC IMAP INFO
+
+        # PEC IMAP INFO
         self.label_imap_server = QtWidgets.QLabel(self.centralwidget)
         self.label_imap_server.setGeometry(QtCore.QRect(30, 190, 100, 20))
         self.label_imap_server.setObjectName("label_imap_server")
@@ -80,13 +82,18 @@ class PecForm(QtWidgets.QDialog):
         self.input_imap_port.setObjectName("input_imap_port")
         self.input_imap_port.setValidator(validator)
 
-
         # Verify if input fields are empty
-        self.input_fields = [self.input_pec_email, self.input_password, self.input_smtp_server, self.input_smtp_port,
-                             self.input_imap_server, self.input_imap_port]
+        self.input_fields = [
+            self.input_pec_email,
+            self.input_password,
+            self.input_smtp_server,
+            self.input_smtp_port,
+            self.input_imap_server,
+            self.input_imap_port,
+        ]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.__on_text_changed)
-        
+
         self.send_button = QtWidgets.QPushButton(self.centralwidget)
         self.send_button.setGeometry(QtCore.QRect(340, 297, 75, 25))
         self.send_button.setObjectName("scrapeButton")
@@ -116,16 +123,18 @@ class PecForm(QtWidgets.QDialog):
         self.output_message.setObjectName("outputMessage")
 
         self.check_box_save_pec_configuration = QtWidgets.QCheckBox(self.centralwidget)
-        self.check_box_save_pec_configuration.setGeometry(QtCore.QRect(170, 257, 111, 17))
+        self.check_box_save_pec_configuration.setGeometry(
+            QtCore.QRect(170, 257, 111, 17)
+        )
         self.check_box_save_pec_configuration.setObjectName("checkBox")
 
         if self.parent.options:
-            self.input_pec_email.setText(self.parent.options.get('pec_email'))
-            self.input_password.setText(self.parent.options.get('password'))
-            self.input_smtp_server.setText(self.parent.options.get('smtp_server'))
-            self.input_smtp_port.setText(self.parent.options.get('smtp_port'))
-            self.input_imap_server.setText(self.parent.options.get('imap_server'))
-            self.input_imap_port.setText(self.parent.options.get('imap_port'))
+            self.input_pec_email.setText(self.parent.options.get("pec_email"))
+            self.input_password.setText(self.parent.options.get("password"))
+            self.input_smtp_server.setText(self.parent.options.get("smtp_server"))
+            self.input_smtp_port.setText(self.parent.options.get("smtp_port"))
+            self.input_imap_server.setText(self.parent.options.get("imap_server"))
+            self.input_imap_port.setText(self.parent.options.get("imap_port"))
 
         self.retranslateUi()
 
@@ -139,7 +148,9 @@ class PecForm(QtWidgets.QDialog):
         self.label_imap_port.setText(pec.LABEL_IMAP_PORT + "*")
         self.send_button.setText(pec.SEND_BUTTON)
         self.skip_button.setText(pec.SKIP_BUTTON)
-        self.check_box_save_pec_configuration.setText(pec.CHECK_BOX_SAVE_PEC_CONFIGURATION)
+        self.check_box_save_pec_configuration.setText(
+            pec.CHECK_BOX_SAVE_PEC_CONFIGURATION
+        )
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
@@ -159,16 +170,16 @@ class PecForm(QtWidgets.QDialog):
         QtCore.QTimer.singleShot(500, loop.quit)
         loop.exec()
         if self.parent.options:
-            self.parent.options.update({
-            "pec_email": self.input_pec_email.text(),
-            "password": self.input_password.text(),
-            "smtp_server": self.input_smtp_server.text(),
-            "smtp_port": self.input_smtp_port.text(),
-            "imap_server": self.input_imap_server.text(),
-            "imap_port": self.input_imap_port.text()
-            })
+            self.parent.options.update(
+                {
+                    "pec_email": self.input_pec_email.text(),
+                    "password": self.input_password.text(),
+                    "smtp_server": self.input_smtp_server.text(),
+                    "smtp_port": self.input_smtp_port.text(),
+                    "imap_server": self.input_imap_server.text(),
+                    "imap_port": self.input_imap_port.text(),
+                }
+            )
 
         self.output_message.setText(pec.SEND_MESSAGE)
         self.parent.send()
-    
- 

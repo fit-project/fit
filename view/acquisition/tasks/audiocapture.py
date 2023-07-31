@@ -11,6 +11,8 @@ import wave
 
 import pyaudio as pa
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
+
+
 class RecordingThread(QThread):
     stopped = False
     sig_started = pyqtSignal()
@@ -23,7 +25,13 @@ class RecordingThread(QThread):
     def run(self) -> None:
         audio = pa.PyAudio()
         frames = []
-        stream = audio.open(format=pa.paInt16, channels=1, rate=44100, input=True, frames_per_buffer=1024)
+        stream = audio.open(
+            format=pa.paInt16,
+            channels=1,
+            rate=44100,
+            input=True,
+            frames_per_buffer=1024,
+        )
         self.stopped = False
         self.sig_started.emit()
 
@@ -35,11 +43,11 @@ class RecordingThread(QThread):
 
         self.sig_stopped.emit()
 
-        wf = wave.open(self.target_file, 'wb')
+        wf = wave.open(self.target_file, "wb")
         wf.setnchannels(1)
         wf.setsampwidth(audio.get_sample_size(pa.paInt16))
         wf.setframerate(44100)
-        wf.writeframes(b''.join(frames))
+        wf.writeframes(b"".join(frames))
         wf.close()
 
     @pyqtSlot()

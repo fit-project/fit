@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 import os
 
 import PyQt6
@@ -15,10 +15,9 @@ from PyQt6.QtWidgets import QWidget, QDialog, QLabel
 
 
 class Spinner(QDialog):
-	
     def __init__(self):
         super().__init__()
-       
+
         self.initUI()
 
     def initUI(self):
@@ -27,17 +26,17 @@ class Spinner(QDialog):
         self.width = 200
         self.height = 200
         self.resize(self.width, self.height)
-        self.centralwidget = QWidget(self)       
+        self.centralwidget = QWidget(self)
         self.label = QLabel(self.centralwidget)
         self.label.setGeometry(QRect(0, 0, self.width, self.height))
-        self.movie = QMovie(os.path.join('assets/images/', 'loader.gif'))
+        self.movie = QMovie(os.path.join("assets/images/", "loader.gif"))
         self.label.setMovie(self.movie)
         self.setModal(True)
 
-    def set_position(self, x,y):
+    def set_position(self, x, y):
         widget_x = x - self.width / 2
         widget_y = y - self.height / 2
-        self.move(widget_x,widget_y)
+        self.move(widget_x, widget_y)
 
     def start(self):
         self.movie.start()
