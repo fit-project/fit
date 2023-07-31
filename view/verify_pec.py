@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 import os
 import subprocess
 
@@ -20,7 +20,6 @@ from controller.configurations.tabs.network.networkcheck import NetworkControlle
 
 from common.constants.view import verify_pec, general, verify_pdf_timestamp
 from common.utility import get_platform, get_ntp_date_and_time
-
 
 
 class VerifyPec(QtWidgets.QMainWindow):
@@ -38,22 +37,24 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
         self.setObjectName("verify_pec_window")
 
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
+        self.centralwidget.setStyleSheet(
+            "QWidget {background-color: rgb(255, 255, 255);}"
+        )
         self.setCentralWidget(self.centralwidget)
 
         #### - START MENU BAR - #####
         # Uncomment to disable native menubar on Mac
         self.menuBar().setNativeMenuBar(False)
 
-        #This bar is common on all main window
+        # This bar is common on all main window
         self.menu_bar = MenuBarView(self, self.case_info)
 
-        #Add default menu on menu bar
+        # Add default menu on menu bar
         self.menu_bar.add_default_actions()
         self.setMenuBar(self.menu_bar)
         #### - END MENUBAR - #####
@@ -105,58 +106,85 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.verification_button.setEnabled(all_fields_filled)
 
     def __verify(self):
-        
-        ntp = get_ntp_date_and_time(NetworkControllerCheck().configuration["ntp_server"])
+        ntp = get_ntp_date_and_time(
+            NetworkControllerCheck().configuration["ntp_server"]
+        )
         pec = verifyPecController()
         try:
             pec.verify(self.input_eml.text(), self.case_info, ntp)
             msg = QtWidgets.QMessageBox()
-            msg.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint | QtCore.Qt.WindowType.WindowTitleHint)
+            msg.setWindowFlags(
+                QtCore.Qt.WindowType.CustomizeWindowHint
+                | QtCore.Qt.WindowType.WindowTitleHint
+            )
             msg.setWindowTitle(verify_pdf_timestamp.VERIFICATION_COMPLETED)
             msg.setText(verify_pec.VERIFY_PEC_SUCCESS_MSG)
-            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            msg.setStandardButtons(
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No
+            )
             msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             return_value = msg.exec()
             if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                 path = os.path.dirname(str(self.input_eml.text()))
                 platform = get_platform()
-                if platform == 'win':
-                    os.startfile(os.path.join(path, "report_integrity_pec_verification.pdf"))
-                elif platform == 'osx':
-                    subprocess.call(["open", os.path.join(path, "report_integrity_pec_verification.pdf")])
+                if platform == "win":
+                    os.startfile(
+                        os.path.join(path, "report_integrity_pec_verification.pdf")
+                    )
+                elif platform == "osx":
+                    subprocess.call(
+                        [
+                            "open",
+                            os.path.join(path, "report_integrity_pec_verification.pdf"),
+                        ]
+                    )
                 else:  # platform == 'lin' || platform == 'other'
-                    subprocess.call(["xdg-open", os.path.join(path, "report_integrity_pec_verification.pdf")])
+                    subprocess.call(
+                        [
+                            "xdg-open",
+                            os.path.join(path, "report_integrity_pec_verification.pdf"),
+                        ]
+                    )
         except Exception as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                                    verify_pec.VERIFY_PEC_FAIL,
-                                    verify_pec.VERIFY_PEC_FAIL_MGS,
-                                    str(e))
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                verify_pec.VERIFY_PEC_FAIL,
+                verify_pec.VERIFY_PEC_FAIL_MGS,
+                str(e),
+            )
             error_dlg.exec()
 
-
     def __dialog(self):
-
-        file, check = QFileDialog.getOpenFileName(None, verify_pec.OPEN_EML_FILE, 
-                                                    self.__get_acquisition_directory(), verify_pec.EML_FILES)
+        file, check = QFileDialog.getOpenFileName(
+            None,
+            verify_pec.OPEN_EML_FILE,
+            self.__get_acquisition_directory(),
+            verify_pec.EML_FILES,
+        )
         if check:
             self.input_eml.setText(file)
 
-
     def __get_acquisition_directory(self):
         if not self.acquisition_directory:
-            configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
+            configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
+                "configuration_general"
+            )
             open_folder = os.path.expanduser(
-                os.path.join(configuration_general.configuration['cases_folder_path'], self.case_info['name']))
+                os.path.join(
+                    configuration_general.configuration["cases_folder_path"],
+                    self.case_info["name"],
+                )
+            )
             return open_folder
         else:
             return self.acquisition_directory
-        
 
     def __back_to_wizard(self):
         self.deleteLater()
         self.wizard.reload_case_info()
         self.wizard.show()
-    
+
     def closeEvent(self, event):
         event.ignore()
         self.__back_to_wizard()

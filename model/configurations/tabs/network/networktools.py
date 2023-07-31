@@ -15,7 +15,7 @@ Base = declarative_base()
 
 
 class NetworkTools(Base):
-    __tablename__ = 'configuration_option'
+    __tablename__ = "configuration_option"
     id = Column(Integer, primary_key=True)
     whois = Column(Boolean)
     headers = Column(Boolean)
@@ -23,7 +23,6 @@ class NetworkTools(Base):
     ssl_keylog = Column(Boolean)
     nslookup = Column(Boolean)
     ssl_certificate = Column(Boolean)
-
 
     def __init__(self) -> None:
         super().__init__()
@@ -37,7 +36,9 @@ class NetworkTools(Base):
         return self.db.session.query(NetworkTools).all()
 
     def update(self, configuration):
-        self.db.session.query(NetworkTools).filter(NetworkTools.id == configuration.get('id')).update(configuration)
+        self.db.session.query(NetworkTools).filter(
+            NetworkTools.id == configuration.get("id")
+        ).update(configuration)
         self.db.session.commit()
 
     def set_default_values(self):
@@ -49,4 +50,3 @@ class NetworkTools(Base):
         self.ssl_certificate = True
         self.db.session.add(self)
         self.db.session.commit()
-
