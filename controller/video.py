@@ -59,7 +59,7 @@ class Video:
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
         self.ydl_opts.update(
-            {"outtmpl": self.acquisition_dir + "/" + self.id_digest + ".%(ext)s"}
+            {"outtmpl": acquisition_dir + "/" + self.id_digest + ".%(ext)s"}
         )
 
     def is_audio_available(self):
@@ -231,10 +231,6 @@ class Video:
         return md5_id
 
     def __set_default_opt(self):
-        self.ydl_opts = {
-            "quiet": True,
-            "no-warnings": True,
-            "ignore-no-formats-error": True,
-            "no-progress": True,
-            "logger": ytdl_logger,
-        }
+        self.ydl_opts.pop("format", None)
+        self.ydl_opts.pop("keep-video", None)
+        self.ydl_opts.pop("writesubtitles", None)
