@@ -53,14 +53,20 @@ class VerifyPDFTimestamp:
 
         case_info_page = CaseInfoPage()
         type_proceeding = next(
-            (proceeding for proceeding in case_info_page.form.proceedings if
-             proceeding["id"] == self.case_info['proceeding_type']), None)
+            (
+                proceeding
+                for proceeding in case_info_page.form.proceedings
+                if proceeding["id"] == self.case_info["proceeding_type"]
+            ),
+            None,
+        )
         if type_proceeding is not None and "name" in type_proceeding:
             proceeding_type = str(type_proceeding["name"])
         else:
-            proceeding_type = 'N/A'
-        logo = self.case_info['logo_bin']
-        logo = base64.b64encode(logo).decode('utf-8')
+            proceeding_type = "N/A"
+        logo = self.case_info["logo_bin"]
+        if logo is not None:
+            logo = base64.b64encode(logo).decode("utf-8")
 
         if result:
             t3descr = self.REPORT.VERIFI_OK
@@ -94,7 +100,7 @@ class VerifyPDFTimestamp:
                 data0=str(self.case_info["name"] or "N/A"),
                 data1=str(self.case_info["lawyer_name"] or "N/A"),
                 data2=str(self.case_info["operator"] or "N/A"),
-                data3=str(self.case_info["proceeding_type"] or "N/A"),
+                data3=proceeding_type,
                 data4=str(self.case_info["courthouse"] or "N/A"),
                 data5=str(self.case_info["proceeding_number"] or "N/A"),
                 data6=self.REPORT.VERIFICATION,
@@ -102,34 +108,10 @@ class VerifyPDFTimestamp:
                 data8=str(self.case_info["notes"] or "N/A").replace("\n", "<br>"),
                 page=self.REPORT.PAGE,
                 of=self.REPORT.OF,
-                logo=self.case_info["logo"],
+                logo=logo,
             )
-        content_html = os.path.join('assets/templates/template_verification.html')
-        content_index = open(content_html).read().format(
-
-            title=self.REPORT.TITLE,
-            index=self.REPORT.INDEX,
-            description=self.REPORT.DESCRIPTION, t1=self.REPORT.T1, t2=self.REPORT.T2,
-            case=self.REPORT.CASEINFO, casedata=self.REPORT.CASEDATA,
-            case0=self.REPORT.CASE, case1=self.REPORT.LAWYER, case2=self.REPORT.OPERATOR, case3=self.REPORT.PROCEEDING,
-            case4=self.REPORT.COURT, case5=self.REPORT.NUMBER, case6=self.REPORT.ACQUISITION_TYPE,
-            case7=self.REPORT.ACQUISITION_DATE, case8=self.REPORT.NOTES,
-
-            t3=self.REPORT.VERIFICATION, t3descr=t3descr,
-            info_file=info_file,
-
-            data0=str(self.case_info['name'] or 'N/A'),
-            data1=str(self.case_info['lawyer_name'] or 'N/A'),
-            data2=str(self.case_info['operator'] or 'N/A'),
-            data3=proceeding_type,
-            data4=str(self.case_info['courthouse'] or 'N/A'),
-            data5=str(self.case_info['proceeding_number'] or 'N/A'),
-            data6=self.REPORT.VERIFICATION,
-            data7=self.ntp,
-            data8=str(self.case_info['notes'] or 'N/A').replace("\n", "<br>"),
-            page=self.REPORT.PAGE, of=self.REPORT.OF,
-            logo=logo
         )
+
         # create pdf front and content, merge them and remove merged files
         pisa.CreatePDF(front_index, dest=self.output_front_result)
         pisa.CreatePDF(content_index, dest=self.output_content_result)

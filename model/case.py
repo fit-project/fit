@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
+from pathlib import Path
 
 from model.db import Db
 
@@ -38,10 +39,10 @@ class Case(Base):
 
     def get(self):
         return self.db.session.query(Case).all()
-      
+
     def get_from_id(self, id):
         return self.db.session.query(Case).filter_by(id=id).one()
-    
+
     def update(self, case_info):
         self.db.session.query(Case).filter(Case.id == case_info.get("id")).update(
             case_info
@@ -59,9 +60,11 @@ class Case(Base):
         case.notes = case_info["notes"]
         case.logo = case_info["logo"]
 
-        with open(case_info['logo'], 'rb') as file:
-            value = file.read()
-        case.logo_bin = value
+        file_path = Path(case_info["logo"])
+        if file_path.is_file():
+            with open(case_info["logo"], "rb") as file:
+                value = file.read()
+                case.logo_bin = value
 
         self.db.session.add(case)
         self.db.session.commit()
