@@ -5,6 +5,8 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
-SCREEN_RECODER="An error occurred during screen recoder acquisition! \nSee bellow for more detail."
+SCREEN_RECODER = (
+    "An error occurred during screen recoder acquisition! \nSee bellow for more detail."
+)

@@ -5,13 +5,13 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 import imaplib
 import pyzmail
 
-class SearchPec():
 
+class SearchPec:
     def __init__(self, pec_email, password, imap_server, imap_port, case_info):
         self.pec_email = pec_email
         self.password = password
@@ -20,14 +20,12 @@ class SearchPec():
         self.case_info = case_info
 
     def fetch_pec(self, search_criteria):
-        
         pecs = []
 
         with imaplib.IMAP4_SSL(self.imap_server, self.imap_port) as server:
-            
             try:
                 server.login(self.pec_email, self.password)
-                server.select('inbox')
+                server.select("inbox")
                 status, messages = server.search(None, search_criteria)
                 messages = messages[0].split(b" ")
 

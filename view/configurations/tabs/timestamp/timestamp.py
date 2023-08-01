@@ -5,18 +5,18 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 from PyQt6 import QtCore, QtWidgets
-from controller.configurations.tabs.timestamp.timestamp import Timestamp as TimestampController
+from controller.configurations.tabs.timestamp.timestamp import (
+    Timestamp as TimestampController,
+)
 
 __is_tab__ = True
 
 
 class Timestamp(QtWidgets.QWidget):
-
     def __init__(self, parent=None):
-
         super(Timestamp, self).__init__(parent)
 
         self.controller = TimestampController()
@@ -32,7 +32,9 @@ class Timestamp(QtWidgets.QWidget):
         # ENABLE CHECKBOX
         self.enabled_checkbox = QtWidgets.QCheckBox("Timestamp application", self)
         self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
-        self.enabled_checkbox.stateChanged.connect(self._is_enabled_timestamp_application)
+        self.enabled_checkbox.stateChanged.connect(
+            self._is_enabled_timestamp_application
+        )
         self.enabled_checkbox.setObjectName("enabled")
 
         # SERVER GROUPBOX
@@ -68,9 +70,9 @@ class Timestamp(QtWidgets.QWidget):
         self.group_box_cert_url.setEnabled(self.enabled_checkbox.isChecked())
 
     def __set_current_config_values(self):
-        self.enabled_checkbox.setChecked(self.controller.options['enabled'])
-        self.server_name.setText(self.controller.options['server_name'])
-        self.cert_url.setText(self.controller.options['cert_url'])
+        self.enabled_checkbox.setChecked(self.controller.options["enabled"])
+        self.server_name.setText(self.controller.options["server_name"])
+        self.cert_url.setText(self.controller.options["cert_url"])
         self._is_enabled_timestamp_application()
 
     def __get_current_values(self):

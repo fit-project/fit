@@ -30,7 +30,14 @@ from view.acquisition.tasks.task import AcquisitionTask
 from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView
 
-from common.constants import tasks as Tasks, logger as Logger, state, status as Status, error, details as Details
+from common.constants import (
+    tasks as Tasks,
+    logger as Logger,
+    state,
+    status as Status,
+    error,
+    details as Details,
+)
 from common.constants.view import general
 
 from common.settings import DEBUG
@@ -51,7 +58,10 @@ class WebEnginePage(QWebEnginePage):
 
     # When you click a link that has the target="_blank" attribute, QT calls the CreateWindow method in
     # QWebEnginePage to create a new tab/new window.
-    def createWindow(self, _type, ):
+    def createWindow(
+        self,
+        _type,
+    ):
         page = WebEnginePage(self)
         self.new_page_after_link_with_target_blank_attribute.emit(page)
         return page
@@ -65,7 +75,7 @@ class Browser(QWebEngineView):
         super().__init__(parent)
 
     def reconnect(self):
-        self.selected_directory = os.path.expanduser('~/Downloads')
+        self.selected_directory = os.path.expanduser("~/Downloads")
 
         self.page().profile().setDownloadPath(self.selected_directory)
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
@@ -79,27 +89,36 @@ class Browser(QWebEngineView):
         self.page().profile().setDownloadPath(self.selected_directory)
 
     def save_resources(self, acquisition_page_folder):
-
-        self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
+        self.page().profile().downloadRequested.disconnect(
+            self.__handle_download_request
+        )
         hostname = urlparse(self.url().toString()).hostname
-        self.page().save(os.path.join(acquisition_page_folder, hostname + '.html'),
-                         format=QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat)
+        self.page().save(
+            os.path.join(acquisition_page_folder, hostname + ".html"),
+            format=QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat,
+        )
 
     def reconnect_signal(self):
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
     def disconnect_signals(self):
-        self.page().profile().downloadRequested.disconnect(self.__retrieve_download_item)
-        self.page().profile().downloadRequested.disconnect(self.__handle_download_request)
+        self.page().profile().downloadRequested.disconnect(
+            self.__retrieve_download_item
+        )
+        self.page().profile().downloadRequested.disconnect(
+            self.__handle_download_request
+        )
 
     def __handle_download_request(self, download):
         if not os.path.isdir(self.selected_directory):
-            self.selected_directory = os.path.expanduser('~/Downloads')
+            self.selected_directory = os.path.expanduser("~/Downloads")
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.Directory)
         file_dialog.setDirectory(self.selected_directory)
         filename = download.downloadFileName()
-        download.isFinishedChanged.connect(lambda: self.downloadItemFinished.emit(filename))
+        download.isFinishedChanged.connect(
+            lambda: self.downloadItemFinished.emit(filename)
+        )
         if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
             self.selected_directory = file_dialog.selectedFiles()[0]
             download.accept()
@@ -112,7 +131,6 @@ class Browser(QWebEngineView):
 
 
 class Web(QtWidgets.QMainWindow):
-
     def __init__(self, *args, **kwargs):
         super(Web, self).__init__(*args, **kwargs)
         self.acquisition_directory = None
@@ -125,31 +143,32 @@ class Web(QtWidgets.QMainWindow):
         self.browser = None
 
         self.setWindowFlag(QtCore.Qt.WindowType.WindowMinMaxButtonsHint, True)
-        self.setObjectName('FITWeb')
+        self.setObjectName("FITWeb")
 
     def init(self, case_info, wizard, options=None):
-
         self.__init__()
         self.wizard = wizard
         self.case_info = case_info
-
 
         #### - START MENU BAR - #####
         # Uncomment to disable native menubar on Mac
         self.menuBar().setNativeMenuBar(False)
 
-        #This bar is common on all main window
+        # This bar is common on all main window
         self.menu_bar = MenuBarView(self, self.case_info)
 
-        #Add custom menu on menu bar
+        # Add custom menu on menu bar
         tab_menu = self.menu_bar.addMenu("&Tab")
-        new_tab_action = QtGui.QAction(QtGui.QIcon(os.path.join('assets/images', 'ui-tab--plus.png')), "New Tab",
-                                       self)
+        new_tab_action = QtGui.QAction(
+            QtGui.QIcon(os.path.join("assets/images", "ui-tab--plus.png")),
+            "New Tab",
+            self,
+        )
         new_tab_action.setStatusTip("Open a new tab")
         new_tab_action.triggered.connect(lambda _: self.add_new_tab())
         tab_menu.addAction(new_tab_action)
 
-        #Add default menu on menu bar
+        # Add default menu on menu bar
         self.menu_bar.add_default_actions()
         self.setMenuBar(self.menu_bar)
         #### - END MENUBAR - #####
@@ -172,7 +191,7 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         #### - END STATUS BAR - #####
 
-        #TABS BAR
+        # TABS BAR
         self.tabs = QtWidgets.QTabWidget()
         self.tabs.setDocumentMode(True)
         self.tabs.tabBarDoubleClicked.connect(self.tab_open_doubleclick)
@@ -193,40 +212,54 @@ class Web(QtWidgets.QMainWindow):
 
         self.__clear_cache()
 
-
-        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
+        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
+            "configuration_general"
+        )
 
         # Get timestamp parameters
-        self.configuration_timestamp = self.menu_bar.configuration_view.get_tab_from_name("configuration_timestamp")
-        self.add_new_tab(QtCore.QUrl(self.configuration_general.configuration['home_page_url']), 'Homepage')
+        self.configuration_timestamp = (
+            self.menu_bar.configuration_view.get_tab_from_name(
+                "configuration_timestamp"
+            )
+        )
+        self.add_new_tab(
+            QtCore.QUrl(self.configuration_general.configuration["home_page_url"]),
+            "Homepage",
+        )
 
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
 
         # Enable/Disable other modules logger
         if not DEBUG:
             loggers = [logging.getLogger()]  # get the root logger
-            loggers = loggers + [logging.getLogger(name) for name in logging.root.manager.loggerDict if
-                                 name not in [__name__, 'hashreport']]
+            loggers = loggers + [
+                logging.getLogger(name)
+                for name in logging.root.manager.loggerDict
+                if name not in [__name__, "hashreport"]
+            ]
 
             self.log_confing.disable_loggers(loggers)
 
     def start_acquisition(self):
-
-        self.acquisition_directory = self.menu_bar.case_view.form.controller.create_acquisition_directory(
-            'web',
-            self.configuration_general.configuration['cases_folder_path'],
-            self.case_info['name'],
-            self.tabs.currentWidget().url().toString()
+        self.acquisition_directory = (
+            self.menu_bar.case_view.form.controller.create_acquisition_directory(
+                "web",
+                self.configuration_general.configuration["cases_folder_path"],
+                self.case_info["name"],
+                self.tabs.currentWidget().url().toString(),
+            )
         )
 
         if self.acquisition_directory is not None:
             self.tabs.currentWidget().set_acquisition_dir(self.acquisition_directory)
             self.start_acquisition_is_started = True
 
-            self.screenshot_directory = os.path.join(self.acquisition_directory, "screenshot")
+            self.screenshot_directory = os.path.join(
+                self.acquisition_directory, "screenshot"
+            )
             if not os.path.isdir(self.screenshot_directory):
                 os.makedirs(self.screenshot_directory)
 
@@ -235,9 +268,11 @@ class Web(QtWidgets.QMainWindow):
 
             self.acquisition_is_running = True
 
-            self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
+            self.acquisition.post_acquisition.finished.connect(
+                self.__are_post_acquisition_finished
+            )
 
-            #disable configuration and case menu
+            # disable configuration and case menu
             self.menu_bar.enable_actions(False)
 
             # disable start acquisition button
@@ -252,7 +287,6 @@ class Web(QtWidgets.QMainWindow):
             self.acquisition.start(tasks, self.acquisition_directory, self.case_info)
 
     def stop_acquisition(self):
-
         if self.start_acquisition_is_finished:
             self.stop_acquisition_is_started = True
             self.progress_bar.setHidden(False)
@@ -267,11 +301,13 @@ class Web(QtWidgets.QMainWindow):
                 Tasks.TRACEROUTE,
                 Tasks.SSLKEYLOG,
                 Tasks.SSLCERTIFICATE,
-                Tasks.SCREEN_RECORDER
+                Tasks.SCREEN_RECORDER,
             ]
 
             # internal tasks
-            screenshot = AcquisitionTask(Tasks.SCREENSHOT, state.STARTED, Status.PENDING)
+            screenshot = AcquisitionTask(
+                Tasks.SCREENSHOT, state.STARTED, Status.PENDING
+            )
             self.__tasks.append(screenshot)
             save_page = AcquisitionTask(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
             self.__tasks.append(save_page)
@@ -282,7 +318,6 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition.info.show()
 
     def __are_external_tasks_completed(self):
-
         if self.start_acquisition_is_finished is False:
             self.__start_acquisition_is_finished()
         else:
@@ -295,14 +330,16 @@ class Web(QtWidgets.QMainWindow):
         status = list(set(status))
         if len(status) == 1 and status[0] == Status.COMPLETED:
             # start post acquisition external tasks
-            self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'web')
+            self.acquisition.post_acquisition.execute(
+                self.acquisition_directory, self.case_info, "web"
+            )
 
     def __are_post_acquisition_finished(self):
         self.__stop_acquisition_is_finished()
 
     def __start_acquisition_is_finished(self):
         self.acquisition.set_completed_progress_bar()
-        self.status.showMessage('')
+        self.status.showMessage("")
         # show progress bar for 2 seconds
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
@@ -321,7 +358,7 @@ class Web(QtWidgets.QMainWindow):
 
         # hidden progress bar
         self.progress_bar.setHidden(True)
-        self.status.showMessage('')
+        self.status.showMessage("")
 
         self.__clear_cache()
         profile = QWebEngineProfile.defaultProfile()
@@ -347,7 +384,10 @@ class Web(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox(self)
         msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
         msg.setText(Details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+        msg.setStandardButtons(
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No
+        )
 
         return_value = msg.exec()
         if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
@@ -356,11 +396,11 @@ class Web(QtWidgets.QMainWindow):
     def __open_acquisition_directory(self):
         platform = get_platform()
 
-        if platform == 'win':
+        if platform == "win":
             os.startfile(self.acquisition_directory)
-        elif platform == 'osx':
+        elif platform == "osx":
             subprocess.call(["open", self.acquisition_directory])
-        else: # platform == 'lin' || platform == 'other'
+        else:  # platform == 'lin' || platform == 'other'
             subprocess.call(["xdg-open", self.acquisition_directory])
 
     def __disable_all(self):
@@ -372,24 +412,25 @@ class Web(QtWidgets.QMainWindow):
         self.setEnabled(True)
         self.navtb.setEnabled(True)
 
-        #re-enable configuration and case menu
+        # re-enable configuration and case menu
         self.menu_bar.enable_actions(True)
-        
+
         # Add information button to re-enable buttons list
-        self.navtb.navigation_actions.append('info')
+        self.navtb.navigation_actions.append("info")
         self.navtb.enable_actions(filter=self.navtb.navigation_actions)
         self.navtb.enable_screenshot_buttons()
         self.navtb.enable_start_acquisition_button()
         self.navtb.enable_stop_and_info_acquisition_button()
 
     def save_page(self):
-
         self.acquisition.logger.info(Logger.SAVE_PAGE)
         self.acquisition.info.add_task(Tasks.SAVE_PAGE, state.STARTED, Status.PENDING)
 
         self.status.showMessage(Logger.SAVE_PAGE)
 
-        self.acquisition_page_folder = os.path.join(self.acquisition_directory, "acquisition_page")
+        self.acquisition_page_folder = os.path.join(
+            self.acquisition_directory, "acquisition_page"
+        )
         if not os.path.isdir(self.acquisition_page_folder):
             os.makedirs(self.acquisition_page_folder)
 
@@ -398,25 +439,28 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().save_resources(self.acquisition_page_folder)
 
     def __zip_and_remove(self):
-        shutil.make_archive(self.acquisition_page_folder, 'zip', self.acquisition_page_folder)
+        shutil.make_archive(
+            self.acquisition_page_folder, "zip", self.acquisition_page_folder
+        )
         downloads_folder = os.path.join(self.acquisition_directory, "downloads")
         has_files = os.listdir(downloads_folder)
         if len(has_files) > 0:
-            shutil.make_archive(downloads_folder, 'zip', downloads_folder)
+            shutil.make_archive(downloads_folder, "zip", downloads_folder)
         try:
             shutil.rmtree(self.acquisition_page_folder)
             shutil.rmtree(downloads_folder)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                                  Tasks.SAVE_PAGE,
-                                  error.DELETE_PROJECT_FOLDER,
-                                  "Error: %s - %s." % (e.filename, e.strerror)
-                                  )
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                Tasks.SAVE_PAGE,
+                error.DELETE_PROJECT_FOLDER,
+                "Error: %s - %s." % (e.filename, e.strerror),
+            )
 
             error_dlg.exec()
 
         row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
-        self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
+        self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, "")
         task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]
         self.acquisition.upadate_progress_bar()
         task.state = state.FINISHED
@@ -426,15 +470,19 @@ class Web(QtWidgets.QMainWindow):
     def take_screenshot(self):
         if self.screenshot_directory is not None:
             self.__disable_all()
-            filename = screenshot_filename(self.screenshot_directory, self.tabs.currentWidget().url().host())
+            filename = screenshot_filename(
+                self.screenshot_directory, self.tabs.currentWidget().url().host()
+            )
             self.tabs.currentWidget().grab().save(filename)
             self.__enable_all()
 
     def take_screenshot_selected_area(self):
         if self.screenshot_directory is not None:
             self.__disable_all()
-            filename = screenshot_filename(self.screenshot_directory,
-                                           "selected_" + self.tabs.currentWidget().url().host())
+            filename = screenshot_filename(
+                self.screenshot_directory,
+                "selected_" + self.tabs.currentWidget().url().host(),
+            )
             select_area = SelectAreaView(filename, self)
             select_area.finished.connect(self.__enable_all)
             select_area.snip_area()
@@ -442,11 +490,15 @@ class Web(QtWidgets.QMainWindow):
     def take_full_page_screenshot(self, last=False):
         if last:
             self.acquisition.logger.info(Logger.SCREENSHOT)
-            self.acquisition.info.add_task(Tasks.SCREENSHOT, state.STARTED, Status.PENDING)
+            self.acquisition.info.add_task(
+                Tasks.SCREENSHOT, state.STARTED, Status.PENDING
+            )
 
         if self.screenshot_directory is not None:
             full_page_folder = os.path.join(
-                self.screenshot_directory + "/full_page/{}/".format(self.tabs.currentWidget().url().host()))
+                self.screenshot_directory
+                + "/full_page/{}/".format(self.tabs.currentWidget().url().host())
+            )
             if not os.path.isdir(full_page_folder):
                 os.makedirs(full_page_folder)
 
@@ -483,7 +535,9 @@ class Web(QtWidgets.QMainWindow):
                 if next == 0:
                     self.tabs.currentWidget().grab().save(filename)
                 else:
-                    self.tabs.currentWidget().page().runJavaScript("window.scrollTo({}, {});".format(0, next))
+                    self.tabs.currentWidget().page().runJavaScript(
+                        "window.scrollTo({}, {});".format(0, next)
+                    )
 
                     ### Waiting everything is synchronized
                     loop = QtCore.QEventLoop()
@@ -510,14 +564,20 @@ class Web(QtWidgets.QMainWindow):
 
             whole_img_filename = screenshot_filename(full_page_folder, "full_page" + "")
             if last:
-                whole_img_filename = os.path.join(self.acquisition_directory, 'screenshot.png')
+                whole_img_filename = os.path.join(
+                    self.acquisition_directory, "screenshot.png"
+                )
 
             imgs_comb.save(whole_img_filename)
 
             if last:
                 row = self.acquisition.info.get_row(Tasks.SCREENSHOT)
-                self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, '')
-                task = list(filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks))[0]
+                self.acquisition.info.update_task(
+                    row, state.FINISHED, Status.COMPLETED, ""
+                )
+                task = list(
+                    filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks)
+                )[0]
                 task.state = state.FINISHED
                 task.status = Status.COMPLETED
                 self.__are_internal_tasks_completed()
@@ -540,18 +600,22 @@ class Web(QtWidgets.QMainWindow):
         self.current_page_load_is_finished = False
 
         if qurl is None:
-            qurl = QtCore.QUrl('')
+            qurl = QtCore.QUrl("")
         self.browser = Browser()
 
-        user_agent = self.configuration_general.configuration['user_agent']
-        self.browser.page().profile().setHttpUserAgent(user_agent+' FreezingInternetTool/'+get_version())
+        user_agent = self.configuration_general.configuration["user_agent"]
+        self.browser.page().profile().setHttpUserAgent(
+            user_agent + " FreezingInternetTool/" + get_version()
+        )
 
         if page is None:
             page = WebEnginePage(self.browser)
 
         page.certificateError.connect(page.handleCertificateError)
 
-        page.new_page_after_link_with_target_blank_attribute.connect(lambda page: self.add_new_tab(page=page))
+        page.new_page_after_link_with_target_blank_attribute.connect(
+            lambda page: self.add_new_tab(page=page)
+        )
         self.browser.setPage(page)
 
         self.browser.setUrl(qurl)
@@ -561,16 +625,17 @@ class Web(QtWidgets.QMainWindow):
 
         # More difficult! We only want to update the url when it's from the
         # correct tab
-        self.browser.urlChanged.connect(lambda qurl, browser=self.browser:
-                                        self.__update_urlbar(qurl, browser))
+        self.browser.urlChanged.connect(
+            lambda qurl, browser=self.browser: self.__update_urlbar(qurl, browser)
+        )
 
         self.browser.loadProgress.connect(self.load_progress)
 
-        self.browser.loadFinished.connect(lambda _, i=i, browser=self.browser:
-                                          self.__page_on_loaded(i, browser))
+        self.browser.loadFinished.connect(
+            lambda _, i=i, browser=self.browser: self.__page_on_loaded(i, browser)
+        )
 
-        self.browser.urlChanged.connect(lambda qurl:
-                                        self.__allow_notifications(qurl))
+        self.browser.urlChanged.connect(lambda qurl: self.__allow_notifications(qurl))
 
         self.browser.downloadItemFinished.connect(self.__handle_download_item_finished)
 
@@ -582,7 +647,7 @@ class Web(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
         loop.exec()
-        self.status.showMessage('')
+        self.status.showMessage("")
 
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
@@ -592,10 +657,10 @@ class Web(QtWidgets.QMainWindow):
             self.add_new_tab()
 
     def current_tab_changed(self, i):
-        self.tabs.currentWidget().page().profile().disconnect() # Disconnect the current tab
+        self.tabs.currentWidget().page().profile().disconnect()  # Disconnect the current tab
         for index in range(self.tabs.count()):
             if self.tabs.widget(index) == self.tabs.currentWidget():
-                self.tabs.currentWidget().reconnect() # Reconnect only the new current tab
+                self.tabs.currentWidget().reconnect()  # Reconnect only the new current tab
 
         if self.tabs.currentWidget() is not None:
             qurl = self.tabs.currentWidget().url()
@@ -617,7 +682,9 @@ class Web(QtWidgets.QMainWindow):
         self.setWindowTitle("%s - Freezing Internet Tool" % title)
 
     def navigate_home(self):
-        self.tabs.currentWidget().setUrl(QtCore.QUrl(self.configuration_general.configuration['home_page_url']))
+        self.tabs.currentWidget().setUrl(
+            QtCore.QUrl(self.configuration_general.configuration["home_page_url"])
+        )
 
     def navigate_to_url(self):  # Does not receive the Url
         q = QtCore.QUrl(self.navtb.urlbar.text())
@@ -632,7 +699,6 @@ class Web(QtWidgets.QMainWindow):
             self.navtb.enable_screenshot_buttons()
 
     def __clear_cache(self):
-
         profile = QWebEngineProfile.defaultProfile()
         profile.clearAllVisitedLinks()
         cookie_store = profile.cookieStore()
@@ -646,17 +712,23 @@ class Web(QtWidgets.QMainWindow):
             # If this signal is not from the current tab, ignore
             return
 
-        if q.scheme() == 'https':
+        if q.scheme() == "https":
             # Secure padlock icon
-            pixmap = QtGui.QPixmap(os.path.join('assets/svg/toolbar', 'lock-close.svg'))
+            pixmap = QtGui.QPixmap(os.path.join("assets/svg/toolbar", "lock-close.svg"))
             self.navtb.httpsicon.setPixmap(
-                pixmap.scaled(16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+                pixmap.scaled(
+                    16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio
+                )
+            )
 
         else:
             # Insecure padlock icon
-            pixmap = QtGui.QPixmap(os.path.join('assets/svg/toolbar', 'lock-open.svg'))
+            pixmap = QtGui.QPixmap(os.path.join("assets/svg/toolbar", "lock-open.svg"))
             self.navtb.httpsicon.setPixmap(
-                pixmap.scaled(16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+                pixmap.scaled(
+                    16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio
+                )
+            )
 
         self.navtb.urlbar.setText(q.toString())
         self.navtb.urlbar.setCursorPosition(0)

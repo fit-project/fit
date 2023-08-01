@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -18,15 +18,17 @@ import pkgutil
 from inspect import isclass
 from importlib import import_module
 
-class Configuration(QtWidgets.QDialog):
 
+class Configuration(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Configuration, self).__init__(parent)
 
         self.setObjectName("ConfigurationView")
         self.resize(722, 480)
 
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
+        self.setWindowFlags(
+            self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
+        )
         self.tabs = QtWidgets.QTabWidget(self)
         self.tabs.setGeometry(QtCore.QRect(0, 0, 721, 431))
         self.tabs.setObjectName("tabs")
@@ -36,7 +38,10 @@ class Configuration(QtWidgets.QDialog):
 
         self.buttonBox = QtWidgets.QDialogButtonBox(self)
         self.buttonBox.setGeometry(QtCore.QRect(520, 440, 192, 28))
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel | QtWidgets.QDialogButtonBox.StandardButton.Save)
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel
+            | QtWidgets.QDialogButtonBox.StandardButton.Save
+        )
 
         self.buttonBox.setObjectName("buttonBox")
 
@@ -47,26 +52,30 @@ class Configuration(QtWidgets.QDialog):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Configuration", "Fit Configuration"))
 
-
     def load_tabs(self):
-        package=view.configurations
+        package = view.configurations
         class_names_modules = {}
-        for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__, prefix=package.__name__+'.', onerror=lambda x: None):
-
-
-            #import module if not loaded
+        for importer, modname, ispkg in pkgutil.walk_packages(
+            path=package.__path__, prefix=package.__name__ + ".", onerror=lambda x: None
+        ):
+            # import module if not loaded
             if modname not in sys.modules and not ispkg:
                 import_module(modname)
 
             if modname in sys.modules and not ispkg:
-                
-                #find class name in a module 
-                class_name = [x for x in dir(sys.modules[modname]) if isclass(getattr(sys.modules[modname], x)) and 
-                                getattr(sys.modules[modname], '__is_tab__') and x.lower() == modname.rsplit( ".", 1 )[ 1 ]]
+                # find class name in a module
+                class_name = [
+                    x
+                    for x in dir(sys.modules[modname])
+                    if isclass(getattr(sys.modules[modname], x))
+                    and getattr(sys.modules[modname], "__is_tab__")
+                    and x.lower() == modname.rsplit(".", 1)[1]
+                ]
 
                 if class_name:
-
-                    class_names_modules.setdefault(class_name[0], []).append(sys.modules[modname])
+                    class_names_modules.setdefault(class_name[0], []).append(
+                        sys.modules[modname]
+                    )
 
         ordered_keys = sorted(class_names_modules.keys())
         for key in ordered_keys:
@@ -74,25 +83,24 @@ class Configuration(QtWidgets.QDialog):
                 tab = getattr(value, key)
                 tab = tab()
                 self.tabs.addTab(tab, tab.windowTitle())
-    
+
     def accept(self) -> None:
         for index in range(self.tabs.count()):
             tab = self.tabs.widget(index)
             tab.accept()
 
         return super().accept()
-    
+
     def get_tab_from_name(self, name):
-         for index in range(self.tabs.count()):
+        for index in range(self.tabs.count()):
             tab = self.tabs.widget(index)
 
             if tab.objectName() == name:
                 return tab
 
-    
     def reject(self) -> None:
         for index in range(self.tabs.count()):
             tab = self.tabs.widget(index)
             tab.reject()
-            
+
         return super().reject()

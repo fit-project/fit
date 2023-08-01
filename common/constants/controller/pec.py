@@ -5,7 +5,9 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
-SUBJECT="Report acquisizione {} caso: {} ID: {}"
-BODY="In allegato report e relativo timestamp dell'acquisizione {} relativa al caso: {}"
+SUBJECT = "Report acquisizione {} caso: {} ID: {}"
+BODY = (
+    "In allegato report e relativo timestamp dell'acquisizione {} relativa al caso: {}"
+)
