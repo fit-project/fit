@@ -13,7 +13,7 @@ from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
 from common.utility import get_logo, get_version, get_language
-
+from model.case import Case
 
 class Report:
     def __init__(self, cases_folder_path, case_info):
@@ -22,7 +22,8 @@ class Report:
         self.output_content = os.path.join(self.cases_folder_path, "content_report.pdf")
         self.output_front_result = open(self.output_front, "w+b")
         self.output_content_result = open(self.output_content, "w+b")
-        self.case_info = case_info
+        case = Case()
+        self.case_info = vars(case.get_from_id(case_info['id']))
 
         language = get_language()
         if language == "Italian":
