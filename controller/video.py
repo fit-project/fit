@@ -59,7 +59,7 @@ class Video:
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
         self.ydl_opts.update(
-            {"outtmpl": acquisition_dir + "/" + self.id_digest + ".%(ext)s"}
+            {"outtmpl": self.acquisition_dir + "/" + self.id_digest + ".%(ext)s"}
         )
 
     def is_audio_available(self):
