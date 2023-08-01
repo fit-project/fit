@@ -148,6 +148,7 @@ class Acquisition(Base):
 
         tasks = self.__remove_disable_tasks(tasks)
         self.total_internal_tasks = len(tasks)
+        
         self.total_tasks = (
             self.total_internal_tasks
             + len(self.post_acquisition_method_list)
@@ -155,8 +156,9 @@ class Acquisition(Base):
         )
 
         if self.total_tasks > 0:
-            self.increment = percent / self.total_tasks
-        else:
+            self.increment = percent/self.total_tasks
+
+        if self.total_internal_tasks == 0 or self.total_tasks == 0:
             self.completed.emit()
 
         if Tasks.WHOIS in tasks and url is not None:
