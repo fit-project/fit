@@ -10,15 +10,15 @@
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtWidgets import QComboBox
 
-from controller.configurations.tabs.language.language import Language as LanguageController
+from controller.configurations.tabs.language.language import (
+    Language as LanguageController,
+)
 
 __is_tab__ = True
 
 
 class Language(QtWidgets.QWidget):
-
     def __init__(self, parent=None):
-
         super(Language, self).__init__(parent)
 
         self.controller = LanguageController()
@@ -47,16 +47,18 @@ class Language(QtWidgets.QWidget):
         self.setWindowTitle(_translate("Language", "Language Options"))
         self.group_box_language.setTitle(_translate("Language", "Report Language"))
 
-
     def __set_current_config_values(self):
-        self.language.setCurrentText(self.controller.options['language'])
+        self.language.setCurrentText(self.controller.options["language"])
 
     def __get_current_values(self):
         for keyword in self.options:
             item = self.findChild(QtCore.QObject, keyword)
 
             if item is not None:
-                if isinstance(item, QtWidgets.QComboBox) is not False and item.currentText():
+                if (
+                    isinstance(item, QtWidgets.QComboBox) is not False
+                    and item.currentText()
+                ):
                     item = item.currentText()
                 elif isinstance(item, QtWidgets.QCheckBox):
                     item = item.isChecked()

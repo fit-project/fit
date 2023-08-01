@@ -5,9 +5,10 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 from PyQt6.QtCore import QObject
+
 
 class AcquisitionTask(QObject):
     def __init__(self, name, state, status, parent=None):

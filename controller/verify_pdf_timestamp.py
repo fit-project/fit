@@ -27,22 +27,28 @@ class VerifyPDFTimestamp:
         self.ntp = ntp
 
         language = get_language()
-        if language == 'Italian':
+        if language == "Italian":
             import common.constants.controller.report as REPORT
         else:
             import common.constants.controller.report_eng as REPORT
         self.REPORT = REPORT
 
     def generate_pdf(self, result, info_file_path):
-
         # PREPARING DATA TO FILL THE PDF
         with open(info_file_path, "r") as f:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
-        front_html = os.path.join('assets/templates/front.html')
-        front_index = open(front_html).read().format(
-            img=get_logo(), t1=self.REPORT.T1,
-            title=self.REPORT.TITLE, report=self.REPORT.REPORT, version=get_version()
+        front_html = os.path.join("assets/templates/front.html")
+        front_index = (
+            open(front_html)
+            .read()
+            .format(
+                img=get_logo(),
+                t1=self.REPORT.T1,
+                title=self.REPORT.TITLE,
+                report=self.REPORT.REPORT,
+                version=get_version(),
+            )
         )
 
         case_info_page = CaseInfoPage()
@@ -61,6 +67,43 @@ class VerifyPDFTimestamp:
         else:
             t3descr = self.REPORT.VERIFI_KO
 
+        content_html = os.path.join("assets/templates/template_verification.html")
+        content_index = (
+            open(content_html)
+            .read()
+            .format(
+                title=self.REPORT.TITLE,
+                index=self.REPORT.INDEX,
+                description=self.REPORT.DESCRIPTION,
+                t1=self.REPORT.T1,
+                t2=self.REPORT.T2,
+                case=self.REPORT.CASEINFO,
+                casedata=self.REPORT.CASEDATA,
+                case0=self.REPORT.CASE,
+                case1=self.REPORT.LAWYER,
+                case2=self.REPORT.OPERATOR,
+                case3=self.REPORT.PROCEEDING,
+                case4=self.REPORT.COURT,
+                case5=self.REPORT.NUMBER,
+                case6=self.REPORT.ACQUISITION_TYPE,
+                case7=self.REPORT.ACQUISITION_DATE,
+                case8=self.REPORT.NOTES,
+                t3=self.REPORT.VERIFICATION,
+                t3descr=t3descr,
+                info_file=info_file,
+                data0=str(self.case_info["name"] or "N/A"),
+                data1=str(self.case_info["lawyer_name"] or "N/A"),
+                data2=str(self.case_info["operator"] or "N/A"),
+                data3=str(self.case_info["proceeding_type"] or "N/A"),
+                data4=str(self.case_info["courthouse"] or "N/A"),
+                data5=str(self.case_info["proceeding_number"] or "N/A"),
+                data6=self.REPORT.VERIFICATION,
+                data7=self.ntp,
+                data8=str(self.case_info["notes"] or "N/A").replace("\n", "<br>"),
+                page=self.REPORT.PAGE,
+                of=self.REPORT.OF,
+                logo=self.case_info["logo"],
+            )
         content_html = os.path.join('assets/templates/template_verification.html')
         content_index = open(content_html).read().format(
 
@@ -94,7 +137,9 @@ class VerifyPDFTimestamp:
         merger.append(self.output_front_result)
         merger.append(self.output_content_result)
 
-        report_html = os.path.join(self.cases_folder_path, "report_timestamp_verification.pdf")
+        report_html = os.path.join(
+            self.cases_folder_path, "report_timestamp_verification.pdf"
+        )
         merger.write(report_html)
         merger.close()
 

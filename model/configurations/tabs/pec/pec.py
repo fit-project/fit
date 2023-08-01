@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 from model.db import Db
 from sqlalchemy import Column, Integer, String, Boolean
@@ -15,8 +15,8 @@ Base = declarative_base()
 
 
 class Pec(Base):
-    __tablename__ = 'configuration_pec'
-    id = Column(Integer, primary_key = True)
+    __tablename__ = "configuration_pec"
+    id = Column(Integer, primary_key=True)
     enabled = Column(Boolean)
     pec_email = Column(String)
     password = Column(String)
@@ -35,12 +35,11 @@ class Pec(Base):
         if self.db.session.query(Pec).first() is None:
             self.set_default_values()
         return self.db.session.query(Pec).all()
-   
 
     def update(self, options):
-        self.db.session.query(Pec).filter(Pec.id == options.get('id')).update(options)
+        self.db.session.query(Pec).filter(Pec.id == options.get("id")).update(options)
         self.db.session.commit()
-    
+
     def set_default_values(self):
         self.pec_email = ""
         self.password = ""
@@ -53,4 +52,3 @@ class Pec(Base):
 
         self.db.session.add(self)
         self.db.session.commit()
-

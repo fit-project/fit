@@ -27,9 +27,7 @@ __is_tab__ = True
 
 
 class Pec(QtWidgets.QWidget):
-
     def __init__(self, parent=None):
-
         super(Pec, self).__init__(parent)
 
         self.controller = PecController()
@@ -42,7 +40,6 @@ class Pec(QtWidgets.QWidget):
         self.__set_current_config_values()
 
     def initUI(self):
-
         # ENABLE CHECKBOX
         self.enabled_checkbox = QtWidgets.QCheckBox(self)
         self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
@@ -57,10 +54,16 @@ class Pec(QtWidgets.QWidget):
         self.group_box_credential = QtWidgets.QGroupBox(self)
         self.group_box_credential.setGeometry(QtCore.QRect(10, 90, 510, 70))
         self.group_box_credential.setObjectName("group_box_credential")
-        self.form_layout_widget_credential = QtWidgets.QWidget(self.group_box_credential)
+        self.form_layout_widget_credential = QtWidgets.QWidget(
+            self.group_box_credential
+        )
         self.form_layout_widget_credential.setGeometry(QtCore.QRect(10, 30, 491, 24))
-        self.form_layout_widget_credential.setObjectName("form_layout_widget_credential")
-        self.horizontal_Layout_credential = QtWidgets.QHBoxLayout(self.form_layout_widget_credential)
+        self.form_layout_widget_credential.setObjectName(
+            "form_layout_widget_credential"
+        )
+        self.horizontal_Layout_credential = QtWidgets.QHBoxLayout(
+            self.form_layout_widget_credential
+        )
         self.horizontal_Layout_credential.setContentsMargins(0, 0, 0, 0)
         self.horizontal_Layout_credential.setObjectName("horizontal_Layout_credential")
         self.label_pec_email = QtWidgets.QLabel(self.form_layout_widget_credential)
@@ -80,7 +83,7 @@ class Pec(QtWidgets.QWidget):
         self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.horizontal_Layout_credential.addWidget(self.password)
 
-        #RETRIES GROUPBOX
+        # RETRIES GROUPBOX
         self.group_box_retries = QtWidgets.QGroupBox(self)
         self.group_box_retries.setGeometry(QtCore.QRect(530, 90, 140, 70))
         self.group_box_retries.setObjectName("group_box_retries")
@@ -88,7 +91,7 @@ class Pec(QtWidgets.QWidget):
         self.retries.setGeometry(QtCore.QRect(20, 30, 80, 22))
         self.retries.setObjectName("retries")
 
-        #SERVER GROUPBOX
+        # SERVER GROUPBOX
         self.group_box_server = QtWidgets.QGroupBox(self)
         self.group_box_server.setGeometry(QtCore.QRect(10, 170, 660, 90))
         self.group_box_server.setObjectName("group_box_server")
@@ -96,7 +99,9 @@ class Pec(QtWidgets.QWidget):
         self.form_layout_widget_IMAP = QtWidgets.QWidget(self.group_box_server)
         self.form_layout_widget_IMAP.setGeometry(QtCore.QRect(10, 20, 600, 24))
         self.form_layout_widget_IMAP.setObjectName("form_layout_widget_server_IMAP")
-        self.horizontal_layout_IMAP = QtWidgets.QHBoxLayout(self.form_layout_widget_IMAP)
+        self.horizontal_layout_IMAP = QtWidgets.QHBoxLayout(
+            self.form_layout_widget_IMAP
+        )
         self.horizontal_layout_IMAP.setContentsMargins(0, 0, 0, 0)
         self.horizontal_layout_IMAP.setObjectName("horizontal_layout_server_IMAP")
 
@@ -118,8 +123,9 @@ class Pec(QtWidgets.QWidget):
         self.imap_port.setObjectName("imap_port")
         self.horizontal_layout_IMAP.addWidget(self.imap_port)
 
-
-        self.verification_imap_button = QtWidgets.QPushButton(self.form_layout_widget_IMAP)
+        self.verification_imap_button = QtWidgets.QPushButton(
+            self.form_layout_widget_IMAP
+        )
         self.verification_imap_button.clicked.connect(self.__verify_imap)
         self.verification_imap_button.setObjectName("verification_imap_button")
         self.verification_imap_button.setEnabled(True)
@@ -127,17 +133,20 @@ class Pec(QtWidgets.QWidget):
 
         self.info_imap_img = QLabel(self)
         self.info_imap_img.setEnabled(True)
-        self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+        self.info_imap_img.setPixmap(
+            QPixmap("assets/images/red-mark.png").scaled(20, 20)
+        )
         self.info_imap_img.setScaledContents(True)
         self.info_imap_img.setGeometry(QtCore.QRect(630, 192, 20, 20))
         self.info_imap_img.setVisible(False)
-
 
         self.form_layout_widget_SMTP = QtWidgets.QWidget(self.group_box_server)
         self.form_layout_widget_SMTP.setGeometry(QtCore.QRect(10, 50, 600, 24))
         self.form_layout_widget_SMTP.setObjectName("form_layout_widget_SMTP")
 
-        self.horizontal_layout_SMTP = QtWidgets.QHBoxLayout(self.form_layout_widget_SMTP)
+        self.horizontal_layout_SMTP = QtWidgets.QHBoxLayout(
+            self.form_layout_widget_SMTP
+        )
         self.horizontal_layout_SMTP.setContentsMargins(0, 0, 0, 0)
         self.horizontal_layout_SMTP.setObjectName("horizontal_layout_SMTP")
 
@@ -159,7 +168,9 @@ class Pec(QtWidgets.QWidget):
         self.smtp_port.setObjectName("smtp_port")
         self.horizontal_layout_SMTP.addWidget(self.smtp_port)
 
-        self.verification_smtp_button = QtWidgets.QPushButton(self.form_layout_widget_SMTP)
+        self.verification_smtp_button = QtWidgets.QPushButton(
+            self.form_layout_widget_SMTP
+        )
         self.verification_smtp_button.clicked.connect(self.__verify_smtp)
         self.verification_smtp_button.setObjectName("verification_smtp_button")
         self.verification_smtp_button.setEnabled(True)
@@ -167,12 +178,12 @@ class Pec(QtWidgets.QWidget):
 
         self.info_smtp_img = QLabel(self)
         self.info_smtp_img.setEnabled(True)
-        self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+        self.info_smtp_img.setPixmap(
+            QPixmap("assets/images/red-mark.png").scaled(20, 20)
+        )
         self.info_smtp_img.setScaledContents(True)
         self.info_smtp_img.setGeometry(QtCore.QRect(630, 222, 20, 20))
         self.info_smtp_img.setVisible(False)
-
-
 
     def retranslateUi(self):
         self.setWindowTitle(pec.WINDOW_TITLE)
@@ -195,16 +206,15 @@ class Pec(QtWidgets.QWidget):
         self.group_box_retries.setEnabled(self.enabled_checkbox.isChecked())
         self.group_box_server.setEnabled(self.enabled_checkbox.isChecked())
 
-
     def __set_current_config_values(self):
-        self.enabled_checkbox.setChecked(self.controller.options['enabled'])
-        self.pec_email.setText(self.controller.options['pec_email'])
-        self.password.setText(self.controller.options['password'])
-        self.smtp_server.setText(self.controller.options['smtp_server'])
-        self.smtp_port.setText(self.controller.options['smtp_port'])
-        self.imap_server.setText(self.controller.options['imap_server'])
-        self.imap_port.setText(self.controller.options['imap_port'])
-        self.retries.setValue(self.controller.options['retries'])
+        self.enabled_checkbox.setChecked(self.controller.options["enabled"])
+        self.pec_email.setText(self.controller.options["pec_email"])
+        self.password.setText(self.controller.options["password"])
+        self.smtp_server.setText(self.controller.options["smtp_server"])
+        self.smtp_port.setText(self.controller.options["smtp_port"])
+        self.imap_server.setText(self.controller.options["imap_server"])
+        self.imap_port.setText(self.controller.options["imap_port"])
+        self.retries.setValue(self.controller.options["retries"])
 
         self.__is_enabled_pec()
 
@@ -225,47 +235,51 @@ class Pec(QtWidgets.QWidget):
     def __verify_imap(self):
         try:
             self.info_imap_img.setVisible(False)
-            server = imaplib.IMAP4_SSL(self.imap_server.text(), int(self.imap_port.text()))
+            server = imaplib.IMAP4_SSL(
+                self.imap_server.text(), int(self.imap_port.text())
+            )
             server.login(self.pec_email.text(), self.password.text())
             server.logout()
-            self.info_imap_img.setPixmap(QPixmap("assets/images/green-mark.png").scaled(20, 20))
+            self.info_imap_img.setPixmap(
+                QPixmap("assets/images/green-mark.png").scaled(20, 20)
+            )
             self.info_imap_img.setVisible(True)
 
         except Exception as e:
-            self.info_imap_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+            self.info_imap_img.setPixmap(
+                QPixmap("assets/images/red-mark.png").scaled(20, 20)
+            )
             self.info_imap_img.setVisible(True)
-            error_dlg = ErrorView(QMessageBox.Icon.Critical,
-                                  pec.LOGIN_FAILED,
-                                  error.LOGIN_ERROR,
-                                  str(e)
-                                  )
+            error_dlg = ErrorView(
+                QMessageBox.Icon.Critical, pec.LOGIN_FAILED, error.LOGIN_ERROR, str(e)
+            )
             error_dlg.exec()
-
 
     def __verify_smtp(self):
         try:
             self.info_smtp_img.setVisible(False)
-            server = smtplib.SMTP_SSL(self.smtp_server.text(), int(self.smtp_port.text()))
+            server = smtplib.SMTP_SSL(
+                self.smtp_server.text(), int(self.smtp_port.text())
+            )
             server.login(self.pec_email.text(), self.password.text())
             server.quit()
-            self.info_smtp_img.setPixmap(QPixmap("assets/images/green-mark.png").scaled(20, 20))
+            self.info_smtp_img.setPixmap(
+                QPixmap("assets/images/green-mark.png").scaled(20, 20)
+            )
             self.info_smtp_img.setVisible(True)
-
 
         except Exception as e:
-
-            self.info_smtp_img.setPixmap(QPixmap("assets/images/red-mark.png").scaled(20, 20))
+            self.info_smtp_img.setPixmap(
+                QPixmap("assets/images/red-mark.png").scaled(20, 20)
+            )
             self.info_smtp_img.setVisible(True)
 
-            error_dlg = ErrorView(QMessageBox.Icon.Critical,
-                                  pec.LOGIN_FAILED,
-                                  error.LOGIN_ERROR,
-                                  str(e)
-                                  )
+            error_dlg = ErrorView(
+                QMessageBox.Icon.Critical, pec.LOGIN_FAILED, error.LOGIN_ERROR, str(e)
+            )
             error_dlg.exec()
 
     def accept(self) -> None:
-
         self.__get_current_values()
         self.controller.options = self.options
 

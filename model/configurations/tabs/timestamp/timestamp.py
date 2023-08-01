@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 from model.db import Db
 
@@ -16,7 +16,7 @@ Base = declarative_base()
 
 
 class Timestamp(Base):
-    __tablename__ = 'configuration_timestamp'
+    __tablename__ = "configuration_timestamp"
 
     id = Column(Integer, primary_key=True)
     enabled = Column(Boolean)
@@ -35,7 +35,9 @@ class Timestamp(Base):
         return self.db.session.query(Timestamp).all()
 
     def update(self, options):
-        self.db.session.query(Timestamp).filter(Timestamp.id == options.get('id')).update(options)
+        self.db.session.query(Timestamp).filter(
+            Timestamp.id == options.get("id")
+        ).update(options)
         self.db.session.commit()
 
     def set_default_values(self):

@@ -7,7 +7,7 @@
 # -----
 ######
 
-INPUT_URL="Video URL"
-SETTINGS="Video settings"
-DOWNLOAD="Download"
-SERVER_ERROR= "Error connecting to the server, please try again."
+INPUT_URL = "Video URL"
+SETTINGS = "Video settings"
+DOWNLOAD = "Download"
+SERVER_ERROR = "Error connecting to the server, please try again."

@@ -5,7 +5,7 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 import time
 from PyQt6 import QtCore, QtGui, QtWidgets
@@ -19,7 +19,10 @@ class SnippingWidget(QtWidgets.QWidget):
     def __init__(self, parent=None, app=None):
         super(SnippingWidget, self).__init__()
         self.parent = parent
-        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint | QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setWindowFlags(
+            QtCore.Qt.WindowType.WindowStaysOnTopHint
+            | QtCore.Qt.WindowType.FramelessWindowHint
+        )
         self.showFullScreen()
 
         self.screen = app.primaryScreen()
@@ -32,7 +35,9 @@ class SnippingWidget(QtWidgets.QWidget):
     def start(self):
         SnippingWidget.is_snipping = True
         self.setWindowOpacity(0.3)
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CursorShape.CrossCursor))
+        QtWidgets.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.CrossCursor)
+        )
         self.show()
 
     def paintEvent(self, event):
@@ -41,17 +46,21 @@ class SnippingWidget(QtWidgets.QWidget):
             brush_color = (128, 128, 255, 100)
             lw = 3
             opacity = 0.3
-            qp.setPen(QtGui.QPen(QtGui.QColor('red'), lw))
+            qp.setPen(QtGui.QPen(QtGui.QColor("red"), lw))
         else:
             brush_color = (0, 0, 0, 0)
             lw = 3
             opacity = 0.1
-            qp.setPen(QtGui.QPen(QtGui.QColor('green'), lw))
+            qp.setPen(QtGui.QPen(QtGui.QColor("green"), lw))
 
         self.setWindowOpacity(opacity)
         qp.setBrush(QtGui.QColor(*brush_color))
-        rect = QtCore.QRectF(self.begin.x(), self.begin.y(),
-                             abs(self.end.x() - self.begin.x()), abs(self.end.y() - self.begin.y()))
+        rect = QtCore.QRectF(
+            self.begin.x(),
+            self.begin.y(),
+            abs(self.end.x() - self.begin.x()),
+            abs(self.end.y() - self.begin.y()),
+        )
         qp.drawRect(rect)
 
     def mousePressEvent(self, event):
