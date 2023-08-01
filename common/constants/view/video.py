@@ -31,4 +31,3 @@ SUPPORTED_SITES_LIST = (
     "https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/supportedsites.md"
 )
 UNKNOWN = "Unknown"
-NO_PREVIEW = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/No_Preview_image_2.png/900px-No_Preview_image_2.png?20200726064257"

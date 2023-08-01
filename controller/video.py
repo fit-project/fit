@@ -48,7 +48,7 @@ class Video:
 
     def set_quality(self, quality):
         id = quality.split(":")
-        self.quality = id
+        self.quality = id[0].strip()
 
     def set_auth(self, username, password):
         self.username = username
@@ -87,18 +87,15 @@ class Video:
         # if self.is_facebook_video():
         # self.download_facebook_video()
         # else:
-
-        self.ydl_opts.update(
-            {
-                "format": self.quality,
-                "keep-video": True,
-            }
-        )
-        try:
-            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
-                ydl.extract_info(self.url, download=True)
-        except Exception:
-            pass  # worstvideo is not available, skip
+        if self.quality != "Default":
+            self.ydl_opts.update(
+                {
+                    "format": self.quality,
+                    "keep-video": True,
+                }
+            )
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            ydl.extract_info(self.url, download=True)
         self.__set_default_opt()
 
     # show thumbnail and video title
@@ -111,12 +108,12 @@ class Video:
             try:
                 self.thumbnail = video_info["thumbnail"]
             except:
-                self.thumbnail = video.NO_PREVIEW
+                self.thumbnail = False
             try:
                 self.duration = video_info["duration"]
             except:
                 self.duration = 0
-
+            self.__set_default_opt()
             return (
                 self.title,
                 self.thumbnail,
