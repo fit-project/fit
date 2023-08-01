@@ -17,7 +17,7 @@ class Accordion(QtWidgets.QWidget):
         self.toggle_button = QtWidgets.QToolButton(
             text=title, checkable=True, checked=False
         )
-        
+
         self.toggle_button.setStyleSheet("QToolButton { border: none; }")
         self.toggle_button.setToolButtonStyle(
             QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon
@@ -27,9 +27,7 @@ class Accordion(QtWidgets.QWidget):
 
         self.toggle_animation = QtCore.QParallelAnimationGroup(self)
 
-        self.content_area = QtWidgets.QTextBrowser(
-            maximumHeight=0, minimumHeight=0
-        )
+        self.content_area = QtWidgets.QTextBrowser(maximumHeight=0, minimumHeight=0)
         self.content_area.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
         )
@@ -55,7 +53,9 @@ class Accordion(QtWidgets.QWidget):
     def on_pressed(self):
         checked = self.toggle_button.isChecked()
         self.toggle_button.setArrowType(
-            QtCore.Qt.ArrowType.DownArrow if not checked else QtCore.Qt.ArrowType.RightArrow
+            QtCore.Qt.ArrowType.DownArrow
+            if not checked
+            else QtCore.Qt.ArrowType.RightArrow
         )
         self.toggle_animation.setDirection(
             QtCore.QAbstractAnimation.Direction.Forward
@@ -69,12 +69,9 @@ class Accordion(QtWidgets.QWidget):
         del lay
         self.content_area.setLayout(layout)
 
-        collapsed_height = (
-            self.sizeHint().height() - self.content_area.maximumHeight()
-        )
+        collapsed_height = self.sizeHint().height() - self.content_area.maximumHeight()
 
         content_height = layout.itemAt(0).widget().height()
-
 
         for i in range(self.toggle_animation.animationCount()):
             animation = self.toggle_animation.animationAt(i)

@@ -10,7 +10,7 @@
 from model.configurations.tabs.language.language import Language as LanguageModel
 
 
-class Language():
+class Language:
     _options = {}
 
     def __init__(self):
@@ -19,8 +19,13 @@ class Language():
 
     @property
     def options(self):
-        return {key: value for key, value in self._options[0].__dict__.items() if
-                not key.startswith("_") and not key.startswith("__") and not key.startswith("db")}
+        return {
+            key: value
+            for key, value in self._options[0].__dict__.items()
+            if not key.startswith("_")
+            and not key.startswith("__")
+            and not key.startswith("db")
+        }
 
     @options.setter
     def options(self, options):
