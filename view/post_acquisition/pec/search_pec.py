@@ -5,15 +5,35 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 import datetime
 import os
 
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import QRegularExpression, QDate, QRect, Qt, QEventLoop, QTimer, pyqtSignal
+from PyQt6.QtCore import (
+    QRegularExpression,
+    QDate,
+    QRect,
+    Qt,
+    QEventLoop,
+    QTimer,
+    pyqtSignal,
+)
 from PyQt6.QtGui import QRegularExpressionValidator, QDoubleValidator
-from PyQt6.QtWidgets import (QVBoxLayout, QTreeWidget, QTreeWidgetItem, QDateEdit, QPushButton,
-                             QAbstractItemView, QDialog, QWidget, QGroupBox, QLineEdit, QLabel, QMessageBox)
+from PyQt6.QtWidgets import (
+    QVBoxLayout,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QDateEdit,
+    QPushButton,
+    QAbstractItemView,
+    QDialog,
+    QWidget,
+    QGroupBox,
+    QLineEdit,
+    QLabel,
+    QMessageBox,
+)
 
 from view.error import Error as ErrorView
 
@@ -28,7 +48,6 @@ from view.spinner import Spinner
 
 
 class SearchPec(QDialog):
-
     downloadedeml = pyqtSignal(str)
 
     def __init__(self, *args, **kwargs):
@@ -43,7 +62,9 @@ class SearchPec(QDialog):
         self.input_to_date = None
         self.controller = PecConfigController()
         self.downloaded_status = FAIL
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint)
+        self.setWindowFlags(
+            self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
+        )
         self.spinner = Spinner()
 
     def init(self, case_info, acquisition_directory):
@@ -55,10 +76,12 @@ class SearchPec(QDialog):
         self.setObjectName("search_pec_window")
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
+        self.centralwidget.setStyleSheet(
+            "QWidget {background-color: rgb(255, 255, 255);}"
+        )
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
 
         # PEC GROUP
         self.pec_group_box = QGroupBox(self.centralwidget)
@@ -82,7 +105,7 @@ class SearchPec(QDialog):
         # EMAIL FIELD
         self.input_pec_email = QLineEdit(self.centralwidget)
         self.input_pec_email.setGeometry(QRect(180, 60, 240, 20))
-        self.input_pec_email.setText('example@pec-legal.it')
+        self.input_pec_email.setText("example@pec-legal.it")
         pec_regex = QRegularExpression("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")  # check
         validator = QRegularExpressionValidator(pec_regex)
         self.input_pec_email.setValidator(validator)
@@ -92,26 +115,31 @@ class SearchPec(QDialog):
         self.input_password = QLineEdit(self.centralwidget)
         self.input_password.setGeometry(QRect(180, 95, 240, 20))
         self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
-        self.input_password.setText('password')
+        self.input_password.setText("password")
         self.input_password.show()
         self.input_password.setObjectName("input_password")
 
         # SERVER FIELD
         self.input_imap_server = QLineEdit(self.centralwidget)
         self.input_imap_server.setGeometry(QRect(180, 130, 240, 20))
-        self.input_imap_server.setText('imap.pec-email.com')
+        self.input_imap_server.setText("imap.pec-email.com")
         self.input_imap_server.setObjectName("input_server")
 
         # PORT FIELD
         self.input_imap_port = QLineEdit(self.centralwidget)
         self.input_imap_port.setGeometry(QRect(180, 165, 240, 20))
-        self.input_imap_port.setText('993')
+        self.input_imap_port.setText("993")
         validator = QDoubleValidator()
         self.input_imap_port.setValidator(validator)
         self.input_imap_port.setObjectName("input_port")
 
         # DISABLE SCRAPE BUTTON IF FIELDS ARE EMPTY
-        self.input_fields = [self.input_pec_email, self.input_password, self.input_imap_server, self.input_imap_port]
+        self.input_fields = [
+            self.input_pec_email,
+            self.input_password,
+            self.input_imap_server,
+            self.input_imap_port,
+        ]
         for input_field in self.input_fields:
             input_field.textChanged.connect(self.__on_text_changed)
 
@@ -207,18 +235,14 @@ class SearchPec(QDialog):
         self.download_button.setObjectName("StartAction")
         self.download_button.setEnabled(False)
 
-
-
         self.options = self.controller.options
         if self.options:
-            self.input_pec_email.setText(self.options.get('pec_email'))
-            self.input_password.setText(self.options.get('password'))
-            self.input_imap_server.setText(self.options.get('imap_server'))
-            self.input_imap_port.setText(self.options.get('imap_port'))
-
+            self.input_pec_email.setText(self.options.get("pec_email"))
+            self.input_password.setText(self.options.get("password"))
+            self.input_imap_server.setText(self.options.get("imap_server"))
+            self.input_imap_port.setText(self.options.get("imap_port"))
 
         self.retranslateUi()
-
 
     def retranslateUi(self):
         self.pec_group_box.setTitle(search_pec.SETTINGS)
@@ -242,7 +266,6 @@ class SearchPec(QDialog):
         self.spinner.set_position(center_x, center_y)
         self.spinner.start()
 
-
         loop = QEventLoop()
         QTimer.singleShot(500, loop.quit)
         loop.exec()
@@ -251,64 +274,82 @@ class SearchPec(QDialog):
         self.root = QTreeWidgetItem(["Inbox"])
         self.pec_tree.addTopLevelItem(self.root)
 
-        search_pec = SearchPecController(self.input_pec_email.text(), self.input_password.text(), self.input_imap_server.text(),
-                                        self.input_imap_port.text(), self.case_info)
-
+        search_pec = SearchPecController(
+            self.input_pec_email.text(),
+            self.input_password.text(),
+            self.input_imap_server.text(),
+            self.input_imap_port.text(),
+            self.case_info,
+        )
 
         to = self.input_to.text()
         case = self.input_case.text()
-        from_date = datetime.datetime(self.input_from_date.date().year(), self.input_from_date.date().month(),
-                                     self.input_from_date.date().day())
+        from_date = datetime.datetime(
+            self.input_from_date.date().year(),
+            self.input_from_date.date().month(),
+            self.input_from_date.date().day(),
+        )
         from_date = from_date.date()
-        to_date = datetime.datetime(self.input_to_date.date().year(), self.input_to_date.date().month(),
-                                   self.input_to_date.date().day())
+        to_date = datetime.datetime(
+            self.input_to_date.date().year(),
+            self.input_to_date.date().month(),
+            self.input_to_date.date().day(),
+        )
         to_date = to_date.date()
 
         search_criteria = f'SUBJECT "POSTA CERTIFICATA:"'
 
-        #CHECK TO
+        # CHECK TO
         if len(to) > 0:
-           search_criteria = search_criteria + f' TO "{to}"'
+            search_criteria = search_criteria + f' TO "{to}"'
 
-        #CHECK CASE
+        # CHECK CASE
         if len(case) > 0:
             search_criteria = search_criteria + f' SUBJECT "{case}"'
 
-        #CHECK FROM DATE
+        # CHECK FROM DATE
         data = "1990-01-01"
-        default_data = datetime.datetime.strptime(data, '%Y-%m-%d')
+        default_data = datetime.datetime.strptime(data, "%Y-%m-%d")
         default_data = default_data.date()
 
         if from_date != default_data:
-            from_date = from_date.strftime('%d-%b-%Y')
+            from_date = from_date.strftime("%d-%b-%Y")
             search_criteria = search_criteria + f' SINCE "{from_date}"'
 
-        #CHECK DATE TO
+        # CHECK DATE TO
         data_today = datetime.datetime.today()
         data_today = data_today.date()
 
         if to_date != data_today:
-            to_date = to_date.strftime('%d-%b-%Y')
+            to_date = to_date.strftime("%d-%b-%Y")
             search_criteria = search_criteria + f' BEFORE "{to_date}"'
-        
+
         messages = []
         try:
             messages = search_pec.fetch_pec(search_criteria)
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Icon.Critical,
-                                    pec.LOGIN_FAILED,
-                                    pec.IMAP_FAILED_MGS,
-                                    str(e))
+            error_dlg = ErrorView(
+                QMessageBox.Icon.Critical, pec.LOGIN_FAILED, pec.IMAP_FAILED_MGS, str(e)
+            )
             error_dlg.exec()
-        
-   
+
         for message in messages:
             subject = message.get_subject()
-            date_str = str(message.get_decoded_header('Date'))
-            sender = message.get_decoded_header('From')
-            uid = message.get('Message-ID')
-            dict_value = 'Mittente: ' + sender + '\nData: ' \
-                        + date_str + '\nOggetto: ' + subject + '\nUID: ' + uid + '\n' + '\n'
+            date_str = str(message.get_decoded_header("Date"))
+            sender = message.get_decoded_header("From")
+            uid = message.get("Message-ID")
+            dict_value = (
+                "Mittente: "
+                + sender
+                + "\nData: "
+                + date_str
+                + "\nOggetto: "
+                + subject
+                + "\nUID: "
+                + uid
+                + "\n"
+                + "\n"
+            )
             self.email_folder = QTreeWidgetItem([dict_value])
             self.root.addChild(self.email_folder)
 
@@ -319,9 +360,7 @@ class SearchPec(QDialog):
 
         self.centralwidget.setEnabled(True)
 
-
     def __download_eml(self):
-
         self.centralwidget.setEnabled(False)
 
         center_x = self.x() + self.width / 2
@@ -340,39 +379,47 @@ class SearchPec(QDialog):
 
         timestamp_index = uid.find("ID:")
         uid_index = uid.find("UID:")
-        timestamp_slice = uid[timestamp_index + len("ID:") + 1: uid_index]
+        timestamp_slice = uid[timestamp_index + len("ID:") + 1 : uid_index]
 
         acquisition_index = uid.find("acquisizione")
         case_index = uid.find("caso: ")
-        acquisition_slice = uid[acquisition_index + len("acquisizione") + 1: case_index]
-        case_slice = uid[case_index + len("caso:") + 1: timestamp_index]
+        acquisition_slice = uid[
+            acquisition_index + len("acquisizione") + 1 : case_index
+        ]
+        case_slice = uid[case_index + len("caso:") + 1 : timestamp_index]
 
         acquisition_slice = acquisition_slice.strip()
         timestamp_slice = timestamp_slice.strip()
         case_slice = case_slice.strip()
 
-        pec_controller = PecController(self.input_pec_email.text(), self.input_password.text(), acquisition_slice, case_slice,
-                            self.acquisition_directory, None, None, self.input_imap_server.text(), self.input_imap_port.text())
-        
+        pec_controller = PecController(
+            self.input_pec_email.text(),
+            self.input_password.text(),
+            acquisition_slice,
+            case_slice,
+            self.acquisition_directory,
+            None,
+            None,
+            self.input_imap_server.text(),
+            self.input_imap_port.text(),
+        )
+
         try:
             if pec_controller.retrieve_eml_from_timestamp(timestamp_slice):
                 self.downloaded_status = SUCCESS
         except Exception as e:
-            error_dlg = ErrorView(QMessageBox.Icon.Critical,
-                                    pec.LOGIN_FAILED,
-                                    pec.IMAP_FAILED_MGS,
-                                    str(e))
+            error_dlg = ErrorView(
+                QMessageBox.Icon.Critical, pec.LOGIN_FAILED, pec.IMAP_FAILED_MGS, str(e)
+            )
             error_dlg.exec()
         self.spinner.stop()
         self.centralwidget.setEnabled(True)
 
         self.close()
 
-
     def __on_text_changed(self):
         all_fields_filled = all(input_field.text() for input_field in self.input_fields)
         self.login_button.setEnabled(all_fields_filled)
-
 
     def on_item_selection_changed(self):
         selected_items = self.pec_tree.selectedItems()
@@ -385,7 +432,6 @@ class SearchPec(QDialog):
             child_item = item.child(i)
             child_item.setSelected(selected)
             self.update_child_items(child_item, selected)
-    
+
     def closeEvent(self, event):
         self.downloadedeml.emit(self.downloaded_status)
-

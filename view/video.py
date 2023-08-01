@@ -28,7 +28,14 @@ from view.acquisition.acquisition import Acquisition
 
 from controller.video import Video as VideoController
 
-from common.constants import details as Details, logger as Logger, tasks, state, status, error as Error
+from common.constants import (
+    details as Details,
+    logger as Logger,
+    tasks,
+    state,
+    status,
+    error as Error,
+)
 from common.constants.view import general, video
 from common.utility import get_platform
 
@@ -56,9 +63,11 @@ class VideoWorker(QtCore.QObject):
                 if not self.video_controller.is_facebook_video():
                     self.video_controller.get_video_id(self.input_url.text())
                 else:
-                    self.video_controller.video_id = 'facebook'
+                    self.video_controller.video_id = "facebook"
             except Exception as e:
-                self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
+                self.error.emit(
+                    {"title": video.INVALID_URL, "msg": Error.INVALID_URL, "details": e}
+                )
             else:
                 self.valid_url.emit()
         else:
@@ -67,18 +76,26 @@ class VideoWorker(QtCore.QObject):
                     try:
                         method()
                     except Exception as e:
-                        self.error.emit({'title': video.INVALID_URL, 'msg': Error.INVALID_URL, 'details': e})
+                        self.error.emit(
+                            {
+                                "title": video.INVALID_URL,
+                                "msg": Error.INVALID_URL,
+                                "details": e,
+                            }
+                        )
                     else:
                         self.progress.emit()
 
             self.scraped.emit()
         self.finished.emit()
 
+
 # Create a clickable label to open the browser
 class ClickableLabel(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setStyleSheet("color: #0067C0;")
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             url = video.SUPPORTED_SITES_LIST
@@ -91,8 +108,8 @@ class ClickableLabel(QLabel):
     def leaveEvent(self, event):
         self.setStyleSheet("color: #0067C0; text-decoration: none;")
 
-class Video(QtWidgets.QMainWindow):
 
+class Video(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Video, self).__init__(*args, **kwargs)
         self.acquisition_directory = None
@@ -107,7 +124,7 @@ class Video(QtWidgets.QMainWindow):
         self.wizard = wizard
         self.case_info = case_info
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join('assets/svg/', 'FIT.svg')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
 
         # set font
         font = QtGui.QFont()
@@ -118,27 +135,34 @@ class Video(QtWidgets.QMainWindow):
         self.height = 480
         self.setFixedSize(self.width, self.height)
         self.centralwidget = QtWidgets.QWidget(self)
-        self.centralwidget.setStyleSheet("QWidget {background-color: rgb(255, 255, 255);}")
+        self.centralwidget.setStyleSheet(
+            "QWidget {background-color: rgb(255, 255, 255);}"
+        )
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
-
 
         #### - START MENU BAR - #####
         # Uncomment to disable native menubar on Mac
         self.menuBar().setNativeMenuBar(False)
 
-        #This bar is common on all main window
+        # This bar is common on all main window
         self.menu_bar = MenuBarView(self, self.case_info)
 
-        #Add default menu on menu bar
+        # Add default menu on menu bar
         self.menu_bar.add_default_actions()
         self.setMenuBar(self.menu_bar)
         #### - END MENUBAR - #####
 
-        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name("configuration_general")
+        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
+            "configuration_general"
+        )
 
         # Get timestamp parameters
-        self.configuration_timestamp = self.menu_bar.configuration_view.get_tab_from_name("configuration_timestamp")
+        self.configuration_timestamp = (
+            self.menu_bar.configuration_view.get_tab_from_name(
+                "configuration_timestamp"
+            )
+        )
 
         # VIDEO CONFIGURATION GROUP BOX
         self.url_configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
@@ -165,7 +189,7 @@ class Video(QtWidgets.QMainWindow):
         self.label_supported_sites.setObjectName("label_supported_sites")
 
         # AUTH
-        '''self.label_username = QtWidgets.QLabel(self.url_configuration_group_box)
+        """self.label_username = QtWidgets.QLabel(self.url_configuration_group_box)
         self.label_username.setGeometry(QtCore.QRect(20, 120, 80, 20))
         self.label_username.setFont(font)
         self.label_username.setObjectName("label_username")
@@ -186,8 +210,7 @@ class Video(QtWidgets.QMainWindow):
         self.input_password.setFont(font)
         self.input_password.setObjectName("input_password")
         self.input_password.setPlaceholderText(video.PLACEHOLDER_PASSWORD)
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)'''
-
+        self.input_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)"""
 
         # Verify if input fields are empty
         self.input_fields = [self.input_url]
@@ -201,7 +224,7 @@ class Video(QtWidgets.QMainWindow):
         self.acquisition_group_box.setGeometry(QtCore.QRect(50, 240, 430, 140))
         self.acquisition_group_box.setObjectName("acquisition_group_box")
 
-        # VIDEO QUALITY 
+        # VIDEO QUALITY
         self.label_video_quality = QtWidgets.QLabel(self.acquisition_group_box)
         self.label_video_quality.setGeometry(QtCore.QRect(20, 30, 111, 20))
         self.label_video_quality.setFont(font)
@@ -230,7 +253,7 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_thumbnail.setFont(font)
         self.checkbox_thumbnail.setObjectName("checkbox_thumbnail")
 
-        self.checkbox_subtitles= QtWidgets.QCheckBox(self.acquisition_group_box)
+        self.checkbox_subtitles = QtWidgets.QCheckBox(self.acquisition_group_box)
         self.checkbox_subtitles.setGeometry(QtCore.QRect(180, 90, 230, 17))
         self.checkbox_subtitles.setFont(font)
         self.checkbox_subtitles.setObjectName("checkbox_subtitles")
@@ -239,7 +262,6 @@ class Video(QtWidgets.QMainWindow):
         self.checkbox_comments.setGeometry(QtCore.QRect(180, 110, 230, 17))
         self.checkbox_comments.setFont(font)
         self.checkbox_comments.setObjectName("checkbox_comments")
-
 
         # LOAD BUTTON
         self.load_button = QtWidgets.QPushButton(self)
@@ -265,7 +287,6 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box.setGeometry(QtCore.QRect(515, 20, 430, 360))
         self.video_preview_group_box.setObjectName("video_preview_group_box")
 
-
         self.thumbnail = QLabel(self.video_preview_group_box)
         self.thumbnail.setGeometry(QtCore.QRect(30, 40, 370, 208))
         self.thumbnail.setScaledContents(True)
@@ -288,7 +309,6 @@ class Video(QtWidgets.QMainWindow):
         self.duration.setFont(font)
         self.duration.setObjectName("duration")
 
-
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self)
         self.scrape_button.setGeometry(QtCore.QRect(875, 410, 70, 25))
@@ -297,13 +317,16 @@ class Video(QtWidgets.QMainWindow):
         self.scrape_button.clicked.connect(self.__scrape)
         self.scrape_button.setEnabled(False)
 
-
         self.retranslateUi()
 
         # ACQUISITION
         self.is_acquisition_running = False
-        self.acquisition = Acquisition(logger_acquisition, self.progress_bar, self.status, self)
-        self.acquisition.post_acquisition.finished.connect(self.__are_post_acquisition_finished)
+        self.acquisition = Acquisition(
+            logger_acquisition, self.progress_bar, self.status, self
+        )
+        self.acquisition.post_acquisition.finished.connect(
+            self.__are_post_acquisition_finished
+        )
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
@@ -311,13 +334,15 @@ class Video(QtWidgets.QMainWindow):
         self.video_preview_group_box.setTitle(video.PREVIEW)
         self.label_url.setText(video.URL)
         self.label_supported_sites.setText(video.SUPPORTED)
-        #self.label_username.setText(video.LABEL_USERNAME)
-        #self.label_password.setText(video.LABEL_PASSWORD)
+        # self.label_username.setText(video.LABEL_USERNAME)
+        # self.label_password.setText(video.LABEL_PASSWORD)
         self.scrape_button.setText(general.DOWNLOAD)
         self.label_duration.setText(video.DURATION)
         self.acquisition_group_box.setTitle(video.ACQUISITON_SETTINGS)
-        self.label_video_quality.setText('<strong>' + video.VIDEO_QUALITY + '</strong>')
-        self.label_additional_information.setText('<strong>' + video.ADDITIONAL_INFORMATION + '</strong>')
+        self.label_video_quality.setText("<strong>" + video.VIDEO_QUALITY + "</strong>")
+        self.label_additional_information.setText(
+            "<strong>" + video.ADDITIONAL_INFORMATION + "</strong>"
+        )
         self.checkbox_audio.setText(video.AUDIO)
         self.checkbox_thumbnail.setText(video.THUMBNAIL)
         self.checkbox_subtitles.setText(video.SUBTITLES)
@@ -327,7 +352,9 @@ class Video(QtWidgets.QMainWindow):
 
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
-        self.worker = VideoWorker(self.video_controller, self.methods_to_execute, self.input_url)
+        self.worker = VideoWorker(
+            self.video_controller, self.methods_to_execute, self.input_url
+        )
 
         self.worker.moveToThread(self.thread_worker)
         self.thread_worker.started.connect(self.worker.run)
@@ -343,7 +370,6 @@ class Video(QtWidgets.QMainWindow):
         self.thread_worker.start()
 
     def __handle_error(self, e):
-
         self.spinner.stop()
         if self.url_configuration_group_box.isEnabled() is False:
             self.url_configuration_group_box.setEnabled(True)
@@ -355,14 +381,13 @@ class Video(QtWidgets.QMainWindow):
         details = e
 
         if isinstance(e, dict):
-            title = e.get('title')
-            msg = e.get('msg')
-            details = e.get('details')
+            title = e.get("title")
+            msg = e.get("msg")
+            details = e.get("details")
 
-        error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
-                              title,
-                              msg,
-                              str(details))
+        error_dlg = ErrorView(
+            QtWidgets.QMessageBox.Icon.Information, title, msg, str(details)
+        )
         error_dlg.exec()
 
     def __handle_progress(self):
@@ -385,12 +410,10 @@ class Video(QtWidgets.QMainWindow):
             self.__init_worker()
             self.acquisition_group_box.setEnabled(True)
         else:
-
             self.acquisition_group_box.setEnabled(True)
             self.__start_scraped()
 
     def __scrape(self):
-
         # video_url
         self.url = self.input_url.text()
         center_x = self.x() + self.width / 2
@@ -414,9 +437,10 @@ class Video(QtWidgets.QMainWindow):
         loop.exec()
 
         self.__load_info()
+
     def __load_info(self):
         self.setEnabled(True)
-        self.status.showMessage('')
+        self.status.showMessage("")
         self.spinner.stop()
         self.is_acquisition_running = False
         try:
@@ -427,14 +451,13 @@ class Video(QtWidgets.QMainWindow):
             details = e
 
             if isinstance(e, dict):
-                title = e.get('title')
-                msg = e.get('msg')
-                details = e.get('details')
+                title = e.get("title")
+                msg = e.get("msg")
+                details = e.get("details")
 
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Information,
-                                  title,
-                                  msg,
-                                  str(details))
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Information, title, msg, str(details)
+            )
             error_dlg.exec()
         else:
             response = requests.get(thumbnail)
@@ -451,21 +474,23 @@ class Video(QtWidgets.QMainWindow):
                 self.checkbox_subtitles.setEnabled(False)
 
     def __start_scraped(self):
-
         if self.acquisition_directory is None:
-            self.acquisition_directory = self.menu_bar.case_view.form.controller.create_acquisition_directory(
-                'video',
-                self.configuration_general.configuration['cases_folder_path'],
-                self.case_info['name'],
-                self.input_url.text()
+            self.acquisition_directory = (
+                self.menu_bar.case_view.form.controller.create_acquisition_directory(
+                    "video",
+                    self.configuration_general.configuration["cases_folder_path"],
+                    self.case_info["name"],
+                    self.input_url.text(),
+                )
             )
-        self.url_dir = os.path.join(self.acquisition_directory, self.video_controller.id_digest)
+        self.url_dir = os.path.join(
+            self.acquisition_directory, self.video_controller.id_digest
+        )
         self.is_acquisition_running = True
 
         self.video_controller.set_quality(self.quality.currentText())
 
         self.methods_to_execute = [
-
             (True, self.video_controller.get_info),
             (True, self.video_controller.download_video),
             (self.checkbox_audio.isChecked(), self.video_controller.get_audio),
@@ -474,15 +499,21 @@ class Video(QtWidgets.QMainWindow):
             (self.checkbox_comments.isChecked(), self.video_controller.get_comments),
         ]
 
-        internal_tasks = list(filter(lambda task: task[0] is True, self.methods_to_execute))
+        internal_tasks = list(
+            filter(lambda task: task[0] is True, self.methods_to_execute)
+        )
 
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
-        self.acquisition.start([], self.acquisition_directory, self.case_info, len(internal_tasks))
+        self.acquisition.start(
+            [], self.acquisition_directory, self.case_info, len(internal_tasks)
+        )
 
         self.status.showMessage(Logger.DOWNLOAD_VIDEO)
         self.acquisition.logger.info(Logger.DOWNLOAD_VIDEO)
-        self.acquisition.info.add_task(tasks.DOWNLOAD_VIDEO, state.STARTED, status.PENDING)
+        self.acquisition.info.add_task(
+            tasks.DOWNLOAD_VIDEO, state.STARTED, status.PENDING
+        )
 
         if not os.path.exists(self.url_dir):
             os.makedirs(self.url_dir)
@@ -493,23 +524,25 @@ class Video(QtWidgets.QMainWindow):
 
     def __hanlde_scraped(self):
         row = self.acquisition.info.get_row(tasks.DOWNLOAD_VIDEO)
-        self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, '')
+        self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, "")
 
         self.video_controller.create_zip(self.url_dir)
 
         self.__zip_and_remove(self.url_dir)
 
-        self.acquisition.stop([], '', 1)
+        self.acquisition.stop([], "", 1)
         self.acquisition.log_end_message()
         self.spinner.stop()
 
-        self.acquisition.post_acquisition.execute(self.acquisition_directory, self.case_info, 'video')
+        self.acquisition.post_acquisition.execute(
+            self.acquisition_directory, self.case_info, "video"
+        )
 
     def __are_post_acquisition_finished(self):
         self.acquisition.set_completed_progress_bar()
 
         self.progress_bar.setHidden(True)
-        self.status.showMessage('')
+        self.status.showMessage("")
 
         self.setEnabled(True)
 
@@ -522,34 +555,36 @@ class Video(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox(self)
         msg.setWindowTitle(Logger.ACQUISITION_FINISHED)
         msg.setText(Details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+        msg.setStandardButtons(
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No
+        )
 
         return_value = msg.exec()
         if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             self.__open_acquisition_directory()
 
-
     def __zip_and_remove(self, video_dir):
-
-        shutil.make_archive(video_dir, 'zip', video_dir)
+        shutil.make_archive(video_dir, "zip", video_dir)
 
         try:
             shutil.rmtree(video_dir)
         except OSError as e:
-            error_dlg = ErrorView(QtWidgets.QMessageBox.Icon.Critical,
-                                  tasks.DOWNLOAD_VIDEO,
-                                  Error.DELETE_PROJECT_FOLDER,
-                                  "Error: %s - %s." % (e.filename, e.strerror)
-                                  )
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                tasks.DOWNLOAD_VIDEO,
+                Error.DELETE_PROJECT_FOLDER,
+                "Error: %s - %s." % (e.filename, e.strerror),
+            )
 
             error_dlg.exec()
 
     def __open_acquisition_directory(self):
         platform = get_platform()
 
-        if platform == 'win':
+        if platform == "win":
             os.startfile(self.acquisition_directory)
-        elif platform == 'osx':
+        elif platform == "osx":
             subprocess.call(["open", self.acquisition_directory])
         else:  # platform == 'lin' || platform == 'other'
             subprocess.call(["xdg-open", self.acquisition_directory])

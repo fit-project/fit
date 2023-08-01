@@ -5,10 +5,10 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
-STARTED="Started"
-FINISHED="Finished"
-RUNNING="Running"
-PROGRESS="In Progress"
-STOPPED="Stopped"
+STARTED = "Started"
+FINISHED = "Finished"
+RUNNING = "Running"
+PROGRESS = "In Progress"
+STOPPED = "Stopped"

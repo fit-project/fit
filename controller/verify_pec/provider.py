@@ -5,19 +5,20 @@
 # Copyright (c) 2023 FIT-Project
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
-######  
+######
 
 import requests
 from configparser import SafeConfigParser
 from bs4 import BeautifulSoup
 
-class Provider():
+
+class Provider:
     def __init__(self, temp_x509):
         self.x509_file_path = temp_x509
         parser = SafeConfigParser()
-        parser.read('assets/config.ini')
-        self.url = parser.get('fit_properties', 'pec_providers_url')
-    
+        parser.read("assets/config.ini")
+        self.url = parser.get("fit_properties", "pec_providers_url")
+
     def get_provider_name(self):
         provider = None
         with open(self.x509_file_path, "r") as fp:
@@ -38,18 +39,16 @@ class Provider():
         found = False
 
         while True:
-            response = requests.get(f'{self.url}?page={page_num}')
-            soup = BeautifulSoup(response.text, 'html.parser')
+            response = requests.get(f"{self.url}?page={page_num}")
+            soup = BeautifulSoup(response.text, "html.parser")
 
             if provider_name in soup.get_text():
                 found = True
 
-          
-            next_button = soup.find('a', {'rel': 'next'})
+            next_button = soup.find("a", {"rel": "next"})
             if next_button is None:
                 break
             else:
                 page_num += 1
 
-   
         return found

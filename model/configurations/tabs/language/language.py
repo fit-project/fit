@@ -16,7 +16,7 @@ Base = declarative_base()
 
 
 class Language(Base):
-    __tablename__ = 'configuration_language'
+    __tablename__ = "configuration_language"
 
     id = Column(Integer, primary_key=True)
     language = Column(String)
@@ -33,7 +33,9 @@ class Language(Base):
         return self.db.session.query(Language).all()
 
     def update(self, options):
-        self.db.session.query(Language).filter(Language.id == options.get('id')).update(options)
+        self.db.session.query(Language).filter(Language.id == options.get("id")).update(
+            options
+        )
         self.db.session.commit()
 
     def set_default_values(self):
