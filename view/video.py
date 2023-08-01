@@ -233,8 +233,6 @@ class Video(QtWidgets.QMainWindow):
         self.quality = QtWidgets.QComboBox(self.acquisition_group_box)
         self.quality.setGeometry(QtCore.QRect(20, 70, 111, 25))
         self.quality.setFont(font)
-        self.quality.addItem(video.HIGHEST)
-        self.quality.addItem(video.LOWEST)
         self.quality.setObjectName("quality")
 
         # ADDITIONAL_INFORMATION
@@ -401,6 +399,8 @@ class Video(QtWidgets.QMainWindow):
         center_y = self.y() + self.height / 2
         self.spinner.set_position(center_x, center_y)
         self.spinner.start()
+
+        self.quality.clear()
         self.setEnabled(False)
 
         loop = QtCore.QEventLoop()
@@ -473,6 +473,20 @@ class Video(QtWidgets.QMainWindow):
                 self.checkbox_comments.setEnabled(False)
                 self.checkbox_subtitles.setEnabled(False)
 
+            audio_available = self.video_controller.is_audio_available()
+
+            if not audio_available:
+                self.checkbox_audio.setEnabled(False)
+
+            availabe_resolution = self.video_controller.get_available_resolutions()
+            if availabe_resolution == "Default":
+                self.quality.addItem(availabe_resolution)
+            else:
+                for format in availabe_resolution:
+                    format_id = format["format_id"]
+                    format_desc = format["format_note"]
+                    self.quality.addItem(f"{format_id}: {format_desc}")
+
     def __start_scraped(self):
         if self.acquisition_directory is None:
             self.acquisition_directory = (
@@ -543,7 +557,6 @@ class Video(QtWidgets.QMainWindow):
 
         self.progress_bar.setHidden(True)
         self.status.showMessage("")
-
         self.setEnabled(True)
 
         self.__show_finish_acquisition_dialog()
