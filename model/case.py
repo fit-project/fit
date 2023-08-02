@@ -31,6 +31,8 @@ class Case(Base):
     notes = Column(Text)
     logo_bin = Column(LargeBinary)
     logo = Column(String)
+    logo_height = Column(String)
+    logo_width = Column(String)
 
     def __init__(self) -> None:
         super().__init__()
@@ -62,6 +64,8 @@ class Case(Base):
         case.proceeding_number = case_info["proceeding_number"]
         case.notes = case_info["notes"]
         case.logo = case_info["logo"]
+        case.logo_height = case_info["logo_height"]
+        case.logo_width = case_info["logo_width"]
         if os.path.isfile(case.logo):
             case.logo_bin = self.__set_logo_bin(case.logo)
 

@@ -306,6 +306,14 @@ class CaseForm(QtWidgets.QWidget):
     def __set_logo_preview(self, data):
         qp = QtGui.QPixmap()
         qp.loadFromData(data)
+
+        self.logo_height = "auto"
+        self.logo_width = "100"
+
+        if qp.height() >= qp.width():
+            self.logo_height = "50"
+            self.logo_width = "auto"
+
         qp = qp.scaledToHeight(self.logo.height())
         self.logo_preview.setPixmap(qp)
         self.logo.setVisible(False)
@@ -314,6 +322,8 @@ class CaseForm(QtWidgets.QWidget):
 
     def __unset_logo_preview(self):
         self.logo_preview.setPixmap(QtGui.QPixmap())
+        self.logo_height = ""
+        self.logo_width = ""
         self.tool_button_logo.setText(SELECT_EMPTY_LOGO)
         self.logo.setText("")
         self.logo.setVisible(True)
@@ -402,5 +412,8 @@ class CaseForm(QtWidgets.QWidget):
                         item = ""
 
                 case_info[keyword] = item
+
+        case_info["logo_height"] = self.logo_height
+        case_info["logo_width"] = self.logo_width
 
         return case_info
