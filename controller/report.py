@@ -13,10 +13,13 @@ import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
+
+from controller.configurations.tabs.general.typesproceedings import (
+    TypesProceedings as TypesProceedingsController,
+)
+
 from common.utility import get_logo, get_version, get_language
 from model.case import Case
-from view.wizard import CaseInfoPage
-
 
 
 class Report:
@@ -52,20 +55,11 @@ class Report:
         screenshot = self.__insert_screenshot()
         video = self.__insert_video_hyperlink()
 
-        case_info_page = CaseInfoPage()
-        type_proceeding = next(
-            (
-                proceeding
-                for proceeding in case_info_page.form.proceedings
-                if proceeding["id"] == self.case_info["proceeding_type"]
-            ),
-            None,
+        proceeding_type = TypesProceedingsController().get_proceeding_name_by_id(
+            self.case_info.get("proceeding_type", 0)
         )
-        if type_proceeding is not None and "name" in type_proceeding:
-            proceeding_type = str(type_proceeding["name"])
-        else:
-            proceeding_type = "N/A"
-        logo = self.case_info["logo_bin"]
+
+        logo = self.case_info.get("logo_bin", "")
         if logo is not None:
             logo = (
                 '<div style="padding-bottom: 10px;"><img src="data:image/png;base64,'

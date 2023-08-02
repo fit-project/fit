@@ -40,6 +40,18 @@ class TypesProceedings:
                     }
                 )
 
+    def get_proceeding_name_by_id(self, id):
+        name = next(
+            (proceeding for proceeding in self._proceedings if proceeding["id"] == id),
+            None,
+        )
+        if name is not None:
+            name = name.get("name")
+        else:
+            name = "N/A"
+
+        return name
+
     @property
     def proceedings(self):
         return self._proceedings
