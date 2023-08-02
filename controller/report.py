@@ -66,7 +66,13 @@ class Report:
             proceeding_type = "N/A"
         logo = self.case_info["logo_bin"]
         if logo is not None:
-            logo = base64.b64encode(logo).decode("utf-8")
+            logo = (
+                '<div style="padding-bottom: 10px;"><img src="data:image/png;base64,'
+                + base64.b64encode(logo).decode("utf-8")
+                + '" height="auto" width="100"></div>'
+            )
+        else:
+            logo = "<div></div>"
 
         acquisition_files = self._acquisition_files_names()
 
