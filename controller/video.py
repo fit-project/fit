@@ -8,6 +8,7 @@
 ######
 import hashlib
 import json
+import logging
 import os
 import re
 import shutil
@@ -16,11 +17,20 @@ from youtube_comment_downloader import YoutubeCommentDownloader
 
 from common.constants.view import video
 
+ytdl_logger = logging.getLogger("ytdl-ignore")
+ytdl_logger.disabled = True
+
 
 class Video:
     def __init__(self):
         self.url = None
-        self.ydl_opts = {"quiet": True, "no-warnings": True}
+        self.ydl_opts = {
+            "quiet": True,
+            "no-warnings": True,
+            "ignore-no-formats-error": True,
+            "no-progress": True,
+            "logger": ytdl_logger,
+        }
 
         self.acquisition_dir = None
         self.title = None
@@ -37,7 +47,8 @@ class Video:
         self.url = url
 
     def set_quality(self, quality):
-        self.quality = quality
+        id = quality.split(":")
+        self.quality = id[0].strip()
 
     def set_auth(self, username, password):
         self.username = username
@@ -51,15 +62,41 @@ class Video:
             {"outtmpl": acquisition_dir + "/" + self.id_digest + ".%(ext)s"}
         )
 
+    def is_audio_available(self):
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            info_dict = ydl.extract_info(self.url, download=False)
+            formats = info_dict.get("formats", [])
+            for format in formats:
+                if format["audio_ext"] != "none":
+                    return True
+            return False
+
+    def get_available_resolutions(self):
+        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+            info_dict = ydl.extract_info(self.url, download=False)
+            formats = info_dict.get("formats", [])
+        if formats:
+            for format_item in formats:
+                format_code = format_item["format_id"]
+                if format_code == "0":
+                    return "Default"
+            return formats
+
     # download video and set id_digest for saving the file
     def download_video(self):
         # if self.is_facebook_video():
         # self.download_facebook_video()
         # else:
-        if self.quality == "Lowest":
-            self.ydl_opts["format"] = "worstvideo"
+        if self.quality != "Default":
+            self.ydl_opts.update(
+                {
+                    "format": self.quality,
+                    "keep-video": True,
+                }
+            )
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.extract_info(self.url, download=True)
+        self.__set_default_opt()
 
     # show thumbnail and video title
     def print_info(self):
@@ -71,12 +108,12 @@ class Video:
             try:
                 self.thumbnail = video_info["thumbnail"]
             except:
-                self.thumbnail = video.NO_PREVIEW
+                self.thumbnail = False
             try:
                 self.duration = video_info["duration"]
             except:
                 self.duration = 0
-
+            self.__set_default_opt()
             return (
                 self.title,
                 self.thumbnail,
@@ -132,6 +169,17 @@ class Video:
         self.ydl_opts["format"] = "best"
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download([self.thumbnail])
+        self.ydl_opts.update(
+            {
+                "format": "best",
+                "keep-video": True,
+            }
+        )
+        try:
+            with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+                ydl.download([self.thumbnail])
+        except:
+            pass  # can't download audio, skip
 
     # download subtitles (if any)
     def get_subtitles(self):
@@ -181,3 +229,8 @@ class Video:
         md5.update(bytes)
         md5_id = md5.hexdigest()
         return md5_id
+
+    def __set_default_opt(self):
+        self.ydl_opts.pop("format", None)
+        self.ydl_opts.pop("keep-video", None)
+        self.ydl_opts.pop("writesubtitles", None)
