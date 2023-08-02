@@ -117,7 +117,7 @@ class Report:
                     data0=str(self.case_info["name"] or "N/A"),
                     data1=str(self.case_info["lawyer_name"] or "N/A"),
                     data2=str(self.case_info["operator"] or "N/A"),
-                    data3=str(self.case_info["proceeding_type"] or "N/A"),
+                    data3=proceeding_type,
                     data4=str(self.case_info["courthouse"] or "N/A"),
                     data5=str(self.case_info["proceeding_number"] or "N/A"),
                     data6=type,
