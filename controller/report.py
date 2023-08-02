@@ -64,7 +64,11 @@ class Report:
             logo = (
                 '<div style="padding-bottom: 10px;"><img src="data:image/png;base64,'
                 + base64.b64encode(logo).decode("utf-8")
-                + '" height="auto" width="100"></div>'
+                + '" height="'
+                + self.case_info.get("logo_height", "")
+                + '" width="'
+                + self.case_info.get("logo_width", "")
+                + '"></div>'
             )
         else:
             logo = "<div></div>"
