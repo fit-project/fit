@@ -8,9 +8,12 @@
 ######
 import os
 import string
+from PIL import Image
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
+
+from view.error import Error as ErrorView
 
 from controller.case import Case as CaseController
 from controller.configurations.tabs.general.typesproceedings import (
@@ -26,6 +29,9 @@ class CaseForm(QtWidgets.QWidget):
         self.controller = CaseController()
         self.cases = self.controller.cases
         self.proceedings = TypesProceedingsController().proceedings
+        self.logo_formats = ["JPEG", "PNG"]
+        self.logo_minimum_width = 200
+        self.logo_background = ["transparent", "white"]
 
         self.setGeometry(QtCore.QRect(40, 30, 401, 300))
         self.setObjectName("form_layout")
@@ -139,16 +145,44 @@ class CaseForm(QtWidgets.QWidget):
         )
 
         # LOGO
+        logo_label_widget = QtWidgets.QWidget()
+        logo_label_layout = QtWidgets.QHBoxLayout(logo_label_widget)
+        logo_label_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.logo_icon_info = QtGui.QIcon(
+            os.path.join("assets/svg/acquisition", "info-circle.svg")
+        )
+        self.label_icon_info = QtWidgets.QLabel(self)
+        self.label_icon_info.setPixmap(self.logo_icon_info.pixmap(QtCore.QSize(16, 16)))
+        self.label_icon_info.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_icon_info.setToolTip(
+            LOGO_INFO.format(
+                self.logo_minimum_width,
+                "/".join(self.logo_formats),
+                "/".join(self.logo_background),
+            )
+        )
+
         self.logo_label = QtWidgets.QLabel(self)
         self.logo_label.setFont(font)
         self.logo_label.setObjectName("logo_label")
+        self.logo_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        logo_label_layout.addWidget(self.logo_label)
+        logo_label_layout.addWidget(self.label_icon_info)
+
         self.case_form_layout.setWidget(
-            6, QtWidgets.QFormLayout.ItemRole.LabelRole, self.logo_label
+            6, QtWidgets.QFormLayout.ItemRole.LabelRole, logo_label_widget
         )
 
         logo_widget = QtWidgets.QWidget()
         logo_layout = QtWidgets.QHBoxLayout(logo_widget)
         logo_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.logo_preview = QtWidgets.QLabel(self)
+        self.logo_preview.setObjectName("logo_preview")
+        self.logo_preview.setVisible(False)
+        logo_layout.addWidget(self.logo_preview)
 
         self.logo = QtWidgets.QLineEdit(self)
         self.logo.setFont(font)
@@ -181,6 +215,37 @@ class CaseForm(QtWidgets.QWidget):
 
         self.retranslateUi()
 
+    def __check_selected_logo(self, file_name):
+        err_msg = ""
+        img = Image.open(file_name)
+        img_format = img.format
+        img_width = img.width
+        img_main_color = max(img.getcolors(img.size[0] * img.size[1]))
+        img = img.convert("RGBA")
+        img_alpha_range = img.getextrema()[-1]
+
+        if img_format not in self.logo_formats:
+            err_msg = ERR_SELECTED_LOGO_FORMAT.format(
+                "/".join(self.logo_formats), img_format
+            )
+        elif img_width < self.logo_minimum_width:
+            err_msg = ERR_SELECTED_LOGO_MINIMUM_WIDTH.format(
+                self.logo_minimum_width, img_width
+            )
+        elif img_main_color[1] != (255, 255, 255) and img_alpha_range == (255, 255):
+            err_msg = ERR_SELECTED_LOGO_BG_COLOR.format("/".join(self.logo_background))
+        if err_msg != "":
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                CHECK_SELECTED_LOGO,
+                err_msg,
+                "",
+            )
+
+            error_dlg.exec()
+
+        return not bool(err_msg)
+
     def __select_logo(self):
         file_name, _ = QFileDialog.getOpenFileName(
             self,
@@ -190,7 +255,15 @@ class CaseForm(QtWidgets.QWidget):
         )
 
         if file_name:
-            self.logo.setText(file_name)
+            if self.__check_selected_logo(file_name):
+                self.logo.setText(file_name)
+
+                data = ""
+                with open(file_name, "rb") as file:
+                    data = file.read()
+                    self.__set_logo_preview(data)
+            else:
+                self.__unset_logo_preview()
 
     def __validate_input(self, text):
         valid_text = self.__remove_chars(text)
@@ -211,7 +284,7 @@ class CaseForm(QtWidgets.QWidget):
         self.proceeding_number_label.setText(PROCEEDING_NUMBER)
         self.notes_label.setText(NOTES)
         self.logo_label.setText(LOGO)
-        self.tool_button_logo.setText(SELECT_LOGO)
+        self.tool_button_logo.setText(SELECT_EMPTY_LOGO)
 
     def set_index_from_type_proceedings_id(self, type_proceedings_id):
         self.types_proceedings.setCurrentIndex(
@@ -230,6 +303,22 @@ class CaseForm(QtWidgets.QWidget):
         for proceedings in self.proceedings:
             self.types_proceedings.addItem(proceedings["name"], proceedings["id"])
 
+    def __set_logo_preview(self, data):
+        qp = QtGui.QPixmap()
+        qp.loadFromData(data)
+        qp = qp.scaledToHeight(self.logo.height())
+        self.logo_preview.setPixmap(qp)
+        self.logo.setVisible(False)
+        self.logo_preview.setVisible(True)
+        self.tool_button_logo.setText(SELECT_FULL_LOGO)
+
+    def __unset_logo_preview(self):
+        self.logo_preview.setPixmap(QtGui.QPixmap())
+        self.tool_button_logo.setText(SELECT_EMPTY_LOGO)
+        self.logo.setText("")
+        self.logo.setVisible(True)
+        self.logo_preview.setVisible(False)
+
     def set_case_information(self):
         case_info = next(
             (item for item in self.cases if item["name"] == self.name.currentText()),
@@ -237,6 +326,12 @@ class CaseForm(QtWidgets.QWidget):
         )
         if case_info is not None:
             for keyword, value in case_info.items():
+                if keyword == "logo_bin":
+                    if value is not None:
+                        self.__set_logo_preview(value)
+                    else:
+                        self.__unset_logo_preview()
+
                 item = self.findChild(QtCore.QObject, keyword)
                 if item is not None:
                     if isinstance(item, QtWidgets.QLineEdit) is not False:
@@ -269,7 +364,7 @@ class CaseForm(QtWidgets.QWidget):
         self.courthouse.setText("")
         self.proceeding_number.setText("")
         self.notes.setText("")
-        self.logo.setText("")
+        self.__unset_logo_preview()
 
     def get_current_case_info(self):
         case_info = next(

@@ -44,6 +44,9 @@ class Case(Base):
         return self.db.session.query(Case).filter_by(id=id).one()
 
     def update(self, case_info):
+        if os.path.isfile(case_info["logo"]):
+            case_info["logo_bin"] = self.__set_logo_bin(case_info["logo"])
+
         self.db.session.query(Case).filter(Case.id == case_info.get("id")).update(
             case_info
         )
@@ -59,17 +62,17 @@ class Case(Base):
         case.proceeding_number = case_info["proceeding_number"]
         case.notes = case_info["notes"]
         case.logo = case_info["logo"]
-
-        file_path = Path(case_info["logo"])
-        if file_path.is_file():
-            with open(case_info["logo"], "rb") as file:
-                value = file.read()
-                case.logo_bin = value
+        if os.path.isfile(case.logo):
+            case.logo_bin = self.__set_logo_bin(case.logo)
 
         self.db.session.add(case)
         self.db.session.commit()
 
         return self.db.session.query(Case).order_by(Case.id.desc()).first()
+
+    def __set_logo_bin(self, file_path):
+        with open(file_path, "rb") as file:
+            return file.read()
 
     def create_acquisition_directory(self, directories):
         acquisition_type_directory = os.path.join(

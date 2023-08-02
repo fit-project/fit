@@ -16,4 +16,13 @@ PROCEEDING_NUMBER = "Numero Procedimento"
 NOTES = "Note"
 DIALOG_TITLE = " Case {} ID:{}"
 LOGO = "Logo"
-SELECT_LOGO = "Browse..."
+LOGO_INFO = "Minimum width: {}px, Format: {}, Background: {}"
+SELECT_EMPTY_LOGO = "Browse..."
+SELECT_FULL_LOGO = "Change..."
+
+CHECK_SELECTED_LOGO = "Check logo file"
+ERR_SELECTED_LOGO_FORMAT = "The allowed formats are {}. Selected image format is {}"
+ERR_SELECTED_LOGO_MINIMUM_WIDTH = (
+    "The allowed minimum width is {}px. Selected image has width {}px"
+)
+ERR_SELECTED_LOGO_BG_COLOR = "The allowed background colors are {}."
