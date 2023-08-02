@@ -32,6 +32,8 @@ class CaseForm(QtWidgets.QWidget):
         self.logo_formats = ["JPEG", "PNG"]
         self.logo_minimum_width = 200
         self.logo_background = ["transparent", "white"]
+        self.logo_height = ""
+        self.logo_width = ""
 
         self.setGeometry(QtCore.QRect(40, 30, 401, 300))
         self.setObjectName("form_layout")
