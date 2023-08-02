@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
+import base64
 import fnmatch
 import os
 
@@ -14,6 +15,8 @@ from PyPDF2 import PdfMerger
 import zipfile
 from common.utility import get_logo, get_version, get_language
 from model.case import Case
+from view.wizard import CaseInfoPage
+
 
 
 class Report:
@@ -42,10 +45,35 @@ class Report:
                     f.close()
             except:
                 whois_text = self.REPORT.NOT_PRODUCED
+            if whois_text == "" or whois_text == "\n":
+                whois_text = self.REPORT.NOT_PRODUCED
 
         hash_file_content = self.__hash_reader()
         screenshot = self.__insert_screenshot()
         video = self.__insert_video_hyperlink()
+
+        case_info_page = CaseInfoPage()
+        type_proceeding = next(
+            (
+                proceeding
+                for proceeding in case_info_page.form.proceedings
+                if proceeding["id"] == self.case_info["proceeding_type"]
+            ),
+            None,
+        )
+        if type_proceeding is not None and "name" in type_proceeding:
+            proceeding_type = str(type_proceeding["name"])
+        else:
+            proceeding_type = "N/A"
+        logo = self.case_info["logo_bin"]
+        if logo is not None:
+            logo = (
+                '<div style="padding-bottom: 10px;"><img src="data:image/png;base64,'
+                + base64.b64encode(logo).decode("utf-8")
+                + '" height="auto" width="100"></div>'
+            )
+        else:
+            logo = "<div></div>"
 
         acquisition_files = self._acquisition_files_names()
 
@@ -66,7 +94,7 @@ class Report:
         )
 
         # FILLING TEMPLATE WITH DATA
-        if type == "web":
+        if type == "web" and whois_text != self.REPORT.NOT_PRODUCED:
             content_index_path = os.path.join(
                 "assets", "templates", "template_web.html"
             )
@@ -154,9 +182,113 @@ class Report:
                     hdescr=self.REPORT.HDESCR,
                     page=self.REPORT.PAGE,
                     of=self.REPORT.OF,
-                    logo=self.case_info["logo"],
+                    logo=logo,
                 )
             )
+            pdf_options = {
+                "page-size": "Letter",
+                "margin-top": "1in",
+                "margin-right": "1in",
+                "margin-bottom": "1in",
+                "margin-left": "1in",
+            }
+            # create pdf front and content, merge them and remove merged files
+            pisa.CreatePDF(
+                front_index, dest=self.output_front_result, options=pdf_options
+            )
+            pisa.CreatePDF(
+                content_index, dest=self.output_content_result, options=pdf_options
+            )
+
+        elif type == "web" and whois_text == self.REPORT.NOT_PRODUCED:
+            content_index_path = os.path.join(
+                "assets", "templates", "template_web_no_whois.html"
+            )
+            content_index = (
+                open(content_index_path)
+                .read()
+                .format(
+                    title=self.REPORT.TITLE,
+                    index=self.REPORT.INDEX,
+                    description=self.REPORT.DESCRIPTION.format(
+                        self.REPORT.RELEASES_LINK
+                    ),
+                    t1=self.REPORT.T1,
+                    t2=self.REPORT.T2,
+                    case=self.REPORT.CASEINFO,
+                    casedata=self.REPORT.CASEDATA,
+                    case0=self.REPORT.CASE,
+                    case1=self.REPORT.LAWYER,
+                    case2=self.REPORT.OPERATOR,
+                    case3=self.REPORT.PROCEEDING,
+                    case4=self.REPORT.COURT,
+                    case5=self.REPORT.NUMBER,
+                    case6=self.REPORT.ACQUISITION_TYPE,
+                    case7=self.REPORT.ACQUISITION_DATE,
+                    case8=self.REPORT.NOTES,
+                    data0=str(self.case_info["name"] or "N/A"),
+                    data1=str(self.case_info["lawyer_name"] or "N/A"),
+                    data2=str(self.case_info["operator"] or "N/A"),
+                    data3=proceeding_type,
+                    data4=str(self.case_info["courthouse"] or "N/A"),
+                    data5=str(self.case_info["proceeding_number"] or "N/A"),
+                    data6=type,
+                    data7=ntp,
+                    data8=str(self.case_info["notes"] or "N/A").replace("\n", "<br>"),
+                    t4=self.REPORT.T4,
+                    t4descr=self.REPORT.T4DESCR,
+                    name=self.REPORT.NAME,
+                    descr=self.REPORT.DESCR,
+                    avi=acquisition_files[
+                        fnmatch.filter(acquisition_files.keys(), "*.avi")[0]
+                    ],
+                    avid=self.REPORT.AVID,
+                    hash=acquisition_files["acquisition.hash"],
+                    hashd=self.REPORT.HASHD,
+                    log=acquisition_files["acquisition.log"],
+                    logd=self.REPORT.LOGD,
+                    pcap=acquisition_files["acquisition.pcap"],
+                    pcapd=self.REPORT.PCAPD,
+                    zip=acquisition_files[
+                        fnmatch.filter(acquisition_files.keys(), "*.zip")[0]
+                    ],
+                    zipd=self.REPORT.ZIPD,
+                    whois=acquisition_files["whois.txt"],
+                    whoisd=self.REPORT.WHOISD,
+                    headers=acquisition_files["headers.txt"],
+                    headersd=self.REPORT.HEADERSD,
+                    nslookup=acquisition_files["nslookup.txt"],
+                    nslookupd=self.REPORT.NSLOOKUPD,
+                    cer=acquisition_files["server.cer"],
+                    cerd=self.REPORT.CERD,
+                    sslkey=acquisition_files["sslkey.log"],
+                    sslkeyd=self.REPORT.SSLKEYD,
+                    traceroute=acquisition_files["traceroute.txt"],
+                    tracerouted=self.REPORT.TRACEROUTED,
+                    t5=self.REPORT.T5,
+                    t5descr=self.REPORT.T5DESCR,
+                    file=hash_file_content,
+                    t6=self.REPORT.T6,
+                    t6descr=self.REPORT.T6DESCR,
+                    filedata=zip_enum,
+                    t7=self.REPORT.T7,
+                    t7descr=self.REPORT.T7DESCR,
+                    screenshot=screenshot,
+                    t8=self.REPORT.T8,
+                    t8descr=self.REPORT.T8DESCR,
+                    video_hyperlink=video,
+                    t9=self.REPORT.T9,
+                    t9descr=self.REPORT.T9DESCR,
+                    titlecc=self.REPORT.TITLECC,
+                    ccdescr=self.REPORT.CCDESCR,
+                    titleh=self.REPORT.TITLEH,
+                    hdescr=self.REPORT.HDESCR,
+                    page=self.REPORT.PAGE,
+                    of=self.REPORT.OF,
+                    logo=logo,
+                )
+            )
+
             pdf_options = {
                 "page-size": "Letter",
                 "margin-top": "1in",
@@ -201,7 +333,7 @@ class Report:
                     data0=str(self.case_info["name"] or "N/A"),
                     data1=str(self.case_info["lawyer_name"] or "N/A"),
                     data2=str(self.case_info["operator"] or "N/A"),
-                    data3=str(self.case_info["proceeding_type"] or "N/A"),
+                    data3=proceeding_type,
                     data4=str(self.case_info["courthouse"] or "N/A"),
                     data5=str(self.case_info["proceeding_number"] or "N/A"),
                     data6=type,
@@ -233,7 +365,7 @@ class Report:
                     hdescr=self.REPORT.HDESCR,
                     page=self.REPORT.PAGE,
                     of=self.REPORT.OF,
-                    logo=self.case_info["logo"],
+                    logo=logo,
                 )
             )
             # create pdf front and content, merge them and remove merged files
@@ -340,7 +472,19 @@ class Report:
             files = os.listdir(screenshots_path)
             for file in files:
                 path = os.path.join(self.cases_folder_path, "screenshot", file)
+                path = os.path.join(self.cases_folder_path, "screenshot", file)
                 if os.path.isfile(path):
+                    screenshot_text += (
+                        "<p>"
+                        '<a href="file://'
+                        + path
+                        + '">'
+                        + "Screenshot"
+                        + os.path.basename(file)
+                        + '</a><br><img src="'
+                        + path
+                        + '"></p><br><br>'
+                    )
                     screenshot_text += (
                         "<p>"
                         '<a href="file://'
