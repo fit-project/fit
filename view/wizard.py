@@ -38,12 +38,12 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form.setGeometry(QtCore.QRect(0, 0, 400, 250))
 
         x = (
-            (self.case_form_widget.frameGeometry().width() / 2)
-            - (self.form.frameGeometry().width() / 2)
-            - 20
+                (self.case_form_widget.frameGeometry().width() / 2)
+                - (self.form.frameGeometry().width() / 2)
+                - 20
         )
         y = (self.case_form_widget.frameGeometry().height() / 2) - (
-            self.form.frameGeometry().height() / 2
+                self.form.frameGeometry().height() / 2
         )
         self.form.move(x, y)
 
@@ -155,7 +155,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.insta.setObjectName("insta")
         self.insta_vlayout.addWidget(self.insta)
         self.radio_buttons_hlayout.addWidget(self.insta_radio_button_wrapper)
-        self.radio_button_group1.addButton(self.insta, 3)
+        self.radio_button_group1.addButton(self.insta, 2)
 
         # RADIO BUTTON VIDEO
         self.video_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container)
@@ -250,6 +250,28 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.radio_buttons_hlayout2.addWidget(self.pec_radio_button_wrapper)
         self.radio_button_group2.addButton(self.pec, 6)
 
+        # RADIO BUTTON ENTIRE WEBSITE
+        self.entire_website_radio_button_wrapper = QtWidgets.QWidget(self.radio_button_container2)
+        self.entire_website_radio_button_wrapper.setStyleSheet(
+            "QWidget#entire_website_radio_button_wrapper {\n" "border: 1px solid black;\n" "}"
+        )
+        self.entire_website_radio_button_wrapper.setObjectName("entire_website_radio_button_wrapper")
+        self.entire_website_vlayout = QtWidgets.QVBoxLayout(self.entire_website_radio_button_wrapper)
+        self.entire_website_vlayout.setContentsMargins(5, 5, 5, 5)
+        self.entire_website_vlayout.setObjectName("entire_website_vlayout")
+        self.entire_website_img = QtWidgets.QLabel(self.entire_website_radio_button_wrapper)
+        self.entire_website_img.setEnabled(False)
+        self.entire_website_img.setStyleSheet("image: url(assets/images/wizard/entire-website.png);")
+        self.entire_website_img.setText("")
+        self.entire_website_img.setObjectName("entire_website_img")
+        self.entire_website_vlayout.addWidget(self.entire_website_img)
+        self.entire_website = QtWidgets.QRadioButton(self.entire_website_radio_button_wrapper)
+        self.entire_website.setEnabled(True)
+        self.entire_website.setObjectName("entire_website")
+        self.entire_website_vlayout.addWidget(self.entire_website)
+        self.radio_buttons_hlayout2.addWidget(self.entire_website_radio_button_wrapper)
+        self.radio_button_group2.addButton(self.entire_website, 7)
+
         # AREA RECAP INFO
         self.recap_case_box = AccordionView(CASE_SUMMARY, self)
         self.recap_case_box.setGeometry(QtCore.QRect(80, 400, 430, 30))
@@ -268,8 +290,8 @@ class SelectTaskPage(QtWidgets.QWizardPage):
 
     def isComplete(self):
         return (
-            self.radio_button_group1.checkedId() >= 0
-            or self.radio_button_group2.checkedId() >= 0
+                self.radio_button_group1.checkedId() >= 0
+                or self.radio_button_group2.checkedId() >= 0
         )
 
     def __task_clicked(self):
@@ -380,6 +402,7 @@ class Wizard(QtWidgets.QWizard):
         self.select_task_page.video.setText(TASK_VIDEO)
         self.select_task_page.timestamp.setText(TASK_VERIFY_TIMESTAMP)
         self.select_task_page.pec.setText(TASK_VERIFY_PEC)
+        self.select_task_page.entire_website.setText(TASK_ENTIRE_WEBISTE)
 
     def __get_version(self):
         parser = SafeConfigParser()
@@ -423,14 +446,14 @@ class Wizard(QtWidgets.QWizard):
                 label = item.text()
                 html += '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:19px;">\n'
                 html += (
-                    '<span style=" font-size:14px; font-weight:300; color:#000000;">'
-                    + label
-                    + ": </span>\n"
+                        '<span style=" font-size:14px; font-weight:300; color:#000000;">'
+                        + label
+                        + ": </span>\n"
                 )
                 html += (
-                    '<span style=" font-size:14px; font-weight:600;  color:#000000;">'
-                    + str(value).replace("\n", "<br>")
-                    + "</span>\n"
+                        '<span style=" font-size:14px; font-weight:600;  color:#000000;">'
+                        + str(value).replace("\n", "<br>")
+                        + "</span>\n"
                 )
                 html += "</p>\n"
         html += "</body>\n"
