@@ -72,6 +72,7 @@ class EntireWebsite:
         urls = set()
         soup = BeautifulSoup(response.content, 'html.parser')
         anchor_tags = soup.find_all('a')
+        urls.add(self.url)
         for tag in anchor_tags:
             href = tag.get('href')
             if href and not href.startswith('#'):
