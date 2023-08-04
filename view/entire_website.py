@@ -51,13 +51,16 @@ class EntireWebsiteWorker(QtCore.QObject):
     @QtCore.pyqtSlot()
     def run(self):
         if self.entire_website_controller.id_digest is None:
-            if self.entire_website_controller.is_valid_url(self.input_url.text()):
+            try:
+                self.entire_website_controller.is_valid_url(self.input_url.text())
+
+            except Exception as e:
+                self.error.emit(
+                    {"title": entire_site.INVALID_URL, "msg": Error.INVALID_URL, "details": e}
+                )
+            else:
                 self.entire_website_controller.set_url(self.input_url.text())
                 self.valid_url.emit()
-            else:
-                self.error.emit(
-                    {"title": entire_site.INVALID_URL, "msg": Error.INVALID_URL, "details": ""}
-                )
         else:
             try:
                 self.entire_website_controller.download()
@@ -134,39 +137,61 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.url_configuration_group_box = QtWidgets.QGroupBox(self.centralwidget)
         self.url_configuration_group_box.setEnabled(True)
         self.url_configuration_group_box.setFont(font)
-        self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 20, 430, 200))
+        self.url_configuration_group_box.setGeometry(QtCore.QRect(50, 20, 430, 150))
         self.url_configuration_group_box.setObjectName("configuration_group_box")
 
         self.label_url = QtWidgets.QLabel(self.url_configuration_group_box)
-        self.label_url.setGeometry(QtCore.QRect(20, 80, 80, 20))
+        self.label_url.setGeometry(QtCore.QRect(20, 50, 80, 20))
         self.label_url.setFont(font)
         self.label_url.setObjectName("label_url")
 
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
-        self.input_url.setGeometry(QtCore.QRect(100, 80, 290, 20))
+        self.input_url.setGeometry(QtCore.QRect(50, 50, 350, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
 
-        # Verify if input fields are empty
-        self.input_fields = [self.input_url]
-        for input_field in self.input_fields:
-            input_field.textChanged.connect(self.__on_text_changed)
-
-        # ACQUISITION GROUP BOX
-        self.acquisition_group_box = QtWidgets.QGroupBox(self.centralwidget)
-        self.acquisition_group_box.setFont(font)
-        self.acquisition_group_box.setEnabled(False)
-        self.acquisition_group_box.setGeometry(QtCore.QRect(50, 240, 430, 140))
-        self.acquisition_group_box.setObjectName("acquisition_group_box")
-
         # LOAD BUTTON
         self.crawl_button = QtWidgets.QPushButton(self)
-        self.crawl_button.setGeometry(QtCore.QRect(400, 410, 80, 25))
+        self.crawl_button.setGeometry(QtCore.QRect(380, 130, 85, 25))
         self.crawl_button.setObjectName("loadButton")
         self.crawl_button.setFont(font)
         self.crawl_button.clicked.connect(self.__crawl)
+
         self.crawl_button.setEnabled(False)
+        self.input_url.textChanged.connect(lambda input: self.__on_text_changed(self.input_url, self.crawl_button))
+
+        # CUSTOM URL GROUP BOX
+        self.custom_urls_group_box = QtWidgets.QGroupBox(self.centralwidget)
+        self.custom_urls_group_box.setFont(font)
+        self.custom_urls_group_box.setEnabled(False)
+        self.custom_urls_group_box.setGeometry(QtCore.QRect(50, 240, 430, 140))
+        self.custom_urls_group_box.setObjectName("custom_urls_group_box")
+
+        self.label_custom_url = QtWidgets.QLabel(self.custom_urls_group_box)
+        self.label_custom_url.setGeometry(QtCore.QRect(20, 50, 80, 20))
+        self.label_custom_url.setFont(font)
+        self.label_custom_url.setObjectName("label_custom_url")
+
+        self.input_custom_url = QtWidgets.QLineEdit(self.custom_urls_group_box)
+        self.input_custom_url.setGeometry(QtCore.QRect(50, 50, 330, 20))
+        self.input_custom_url.setFont(font)
+        self.input_custom_url.setObjectName("input_custom_url")
+        self.input_custom_url.setPlaceholderText(entire_site.PLACEHOLDER_CUSTOM_URL)
+
+        # ADD BUTTON
+        self.add_button = QtWidgets.QPushButton(self)
+        self.add_button.setGeometry(QtCore.QRect(440, 310, 20, 20))
+        self.add_button.setStyleSheet(
+            "QPushButton { border-radius: 10px; background-color: #4286f4; color: white; font-size: 20px; }"
+            "QPushButton:hover { background-color: #1c62cc; }"
+        )
+        self.add_button.setObjectName("add_button")
+        self.add_button.setFont(font)
+        self.add_button.clicked.connect(self.__add)
+        self.add_button.setEnabled(False)
+        self.input_custom_url.textChanged.connect(
+            lambda input: self.__on_text_changed(self.input_custom_url, self.add_button))
 
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
@@ -183,6 +208,18 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.url_preview_group_box.setFont(font)
         self.url_preview_group_box.setGeometry(QtCore.QRect(515, 20, 430, 360))
         self.url_preview_group_box.setObjectName("url_preview_group_box")
+        self.list_widget = QListWidget(self.url_preview_group_box)
+        layout = QtWidgets.QVBoxLayout(self.url_preview_group_box)
+        layout.addWidget(self.list_widget)
+        self.url_preview_group_box.setLayout(layout)
+
+        # SELECT/DESELECT BUTTON
+        self.selector_button = QtWidgets.QPushButton(self)
+        self.selector_button.setGeometry(QtCore.QRect(515, 410, 75, 25))
+        self.selector_button.setObjectName("selector_button")
+        self.selector_button.setFont(font)
+        self.selector_button.clicked.connect(self.__select)
+        self.selector_button.setEnabled(False)
 
         # SCRAPE BUTTON
         self.scrape_button = QtWidgets.QPushButton(self)
@@ -209,9 +246,12 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.url_preview_group_box.setTitle(entire_site.CRAWLED_URLS)
         self.label_url.setText(entire_site.URL)
         self.scrape_button.setText(general.DOWNLOAD)
-
-        self.crawl_button.setText(general.BUTTON_LOAD)
+        self.custom_urls_group_box.setTitle(entire_site.CUSTOM_URLS)
+        self.crawl_button.setText(general.BUTTON_CRAWL)
         self.scrape_button.setText(general.DOWNLOAD)
+        self.label_custom_url.setText(entire_site.URL)
+        self.add_button.setText(entire_site.ADD)
+        self.selector_button.setText(entire_site.DESELECT)
 
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
@@ -257,8 +297,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.acquisition.upadate_progress_bar()
 
     def __crawl(self):
-        # video_url
         self.url = self.input_url.text()
+        self.entire_website_controller.id_digest = None
         center_x = self.x() + self.width / 2
         center_y = self.y() + self.height / 2
         self.spinner.set_position(center_x, center_y)
@@ -269,12 +309,61 @@ class EntireWebsite(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
-        if self.entire_website_controller.url is None:
+        if self.entire_website_controller.id_digest is None:
             self.__init_worker()
-            self.acquisition_group_box.setEnabled(True)
+            self.custom_urls_group_box.setEnabled(True)
         else:
-            self.acquisition_group_box.setEnabled(True)
+            self.custom_urls_group_box.setEnabled(True)
             self.__start_scraped()
+
+    def __select(self):
+        if self.selector_button.text() == entire_site.DESELECT:
+            self.selector_button.setText(entire_site.SELECT)
+            for index in range(self.list_widget.count()):
+                item = self.list_widget.item(index)
+                if isinstance(item, QListWidgetItem):
+                    widget = self.list_widget.itemWidget(item)
+                    if isinstance(widget, QCheckBox):
+                        widget.setChecked(False)
+        else:
+            self.selector_button.setText(entire_site.DESELECT)
+            for index in range(self.list_widget.count()):
+                item = self.list_widget.item(index)
+                if isinstance(item, QListWidgetItem):
+                    widget = self.list_widget.itemWidget(item)
+                    if isinstance(widget, QCheckBox):
+                        widget.setChecked(True)
+
+    def __add(self):
+        try:
+            self.entire_website_controller.is_valid_url(self.input_custom_url.text())
+        except Exception as e:
+            title = entire_site.INVALID_URL
+            msg = Error.INVALID_URL
+            details = e
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Information, title, msg, str(details)
+            )
+            error_dlg.exec()
+        else:
+            if not self.__item_exists_in_list_widget(self.list_widget, self.input_custom_url.text()):
+                item = QListWidgetItem()
+                check_box = QCheckBox(self.input_custom_url.text())
+                item.setSizeHint(
+                    check_box.sizeHint())
+                check_box.setChecked(True)
+                self.list_widget.addItem(item)
+                self.list_widget.setItemWidget(item, check_box)
+
+    def __item_exists_in_list_widget(self, list_widget, text):
+        for index in range(list_widget.count()):
+            item = list_widget.item(index)
+            if isinstance(item, QListWidgetItem):
+                widget = list_widget.itemWidget(item)
+                if isinstance(widget, QCheckBox):
+                    if widget.text() == text:
+                        return True
+        return False
 
     def __scrape(self):
 
@@ -288,7 +377,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
-        if self.entire_website_controller.url is None:
+        if self.entire_website_controller.id_digest is None:
             self.__init_worker()
         else:
             self.__start_scraped()
@@ -307,9 +396,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
         urls = self.entire_website_controller.check_sitemap()
 
-        self.list_widget = QListWidget(self.url_preview_group_box)
-        layout = QtWidgets.QVBoxLayout()
-
+        self.list_widget.clear()
         for url in urls:
             item = QListWidgetItem()
             check_box = QCheckBox(url)
@@ -318,9 +405,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
             check_box.setChecked(True)
             self.list_widget.addItem(item)
             self.list_widget.setItemWidget(item, check_box)
-
-        layout.addWidget(self.list_widget)
-        self.url_preview_group_box.setLayout(layout)
+        self.scrape_button.setEnabled(True)
+        self.selector_button.setEnabled(True)
         self.spinner.stop()
         self.is_acquisition_running = False
 
@@ -345,8 +431,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
             [], self.acquisition_directory, self.case_info, len(internal_tasks)
         )
 
-        self.status.showMessage(Logger.DOWNLOAD_VIDEO)
-        self.acquisition.logger.info(Logger.DOWNLOAD_VIDEO)
+        self.status.showMessage(Logger.DOWNLOAD_WEBSITE)
+        self.acquisition.logger.info(Logger.DOWNLOAD_WEBSITE)
         self.acquisition.info.add_task(
             tasks.DOWNLOAD_WEBSITE, state.STARTED, status.PENDING
         )
@@ -400,15 +486,15 @@ class EntireWebsite(QtWidgets.QMainWindow):
         if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
             self.__open_acquisition_directory()
 
-    def __zip_and_remove(self, video_dir):
-        shutil.make_archive(video_dir, "zip", video_dir)
+    def __zip_and_remove(self, directory):
+        shutil.make_archive(directory, "zip", directory)
 
         try:
-            shutil.rmtree(video_dir)
+            shutil.rmtree(directory)
         except OSError as e:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
-                tasks.DOWNLOAD_VIDEO,
+                tasks.DOWNLOAD_WEBSITE,
                 Error.DELETE_PROJECT_FOLDER,
                 "Error: %s - %s." % (e.filename, e.strerror),
             )
@@ -425,9 +511,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
         else:  # platform == 'lin' || platform == 'other'
             subprocess.call(["xdg-open", self.acquisition_directory])
 
-    def __on_text_changed(self):
-        all_field_filled = all(input_field.text() for input_field in self.input_fields)
-        self.crawl_button.setEnabled(all_field_filled)
+    def __on_text_changed(self, input, button):
+        all_field_filled = bool(input.text())
+        button.setEnabled(all_field_filled)
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:

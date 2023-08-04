@@ -45,6 +45,8 @@ FETCH_PROFILE = "Fetching profile"
 LOGGED_IN = "Logged in with username: {}"
 SCRAPING_INSTAGRAM = "Scraping profile: {}"
 
-
 FETCH_VIDEO = "Fetching video"
 DOWNLOAD_VIDEO = "Downloading video"
+
+CRAWL_WEBSITE = "Crawling website"
+DOWNLOAD_WEBSITE = "Downloading website"

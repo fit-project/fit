@@ -22,7 +22,7 @@ class EntireWebsite:
 
     def set_url(self, url):
         self.url = url
-        self.id = self.__calculate_md5()
+        self.id_digest = self.__calculate_md5()
 
     def create_zip(self, path):
         for folder in os.listdir(path):
@@ -33,7 +33,8 @@ class EntireWebsite:
 
     def is_valid_url(self, url):
         result = urlparse(url)
-        return all([result.scheme, result.netloc])
+        if all([result.scheme, result.netloc]):
+            requests.get(url)
 
     def download(self):
         return
