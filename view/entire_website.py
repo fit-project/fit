@@ -11,10 +11,8 @@ import shutil
 import logging
 import subprocess
 
-import requests
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtWidgets import QLabel
+from PyQt6.QtWidgets import QListWidgetItem, QListWidget, QCheckBox
 
 from view.menu_bar import MenuBar as MenuBarView
 
@@ -52,7 +50,29 @@ class EntireWebsiteWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def run(self):
-        # todo
+        if self.entire_website_controller.id_digest is None:
+            if self.entire_website_controller.is_valid_url(self.input_url.text()):
+                self.entire_website_controller.set_url(self.input_url.text())
+                self.valid_url.emit()
+            else:
+                self.error.emit(
+                    {"title": entire_site.INVALID_URL, "msg": Error.INVALID_URL, "details": ""}
+                )
+        else:
+            try:
+                self.entire_website_controller.download()
+                # todo
+            except Exception as e:
+                self.error.emit(
+                    {
+                        "title": entire_site.INVALID_URL,
+                        "msg": Error.INVALID_URL,
+                        "details": e,
+                    }
+                )
+            else:
+                self.progress.emit()
+            self.scraped.emit()
         self.finished.emit()
 
 
@@ -141,12 +161,12 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.acquisition_group_box.setObjectName("acquisition_group_box")
 
         # LOAD BUTTON
-        self.load_button = QtWidgets.QPushButton(self)
-        self.load_button.setGeometry(QtCore.QRect(400, 410, 80, 25))
-        self.load_button.setObjectName("loadButton")
-        self.load_button.setFont(font)
-        self.load_button.clicked.connect(self.__load)
-        self.load_button.setEnabled(False)
+        self.crawl_button = QtWidgets.QPushButton(self)
+        self.crawl_button.setGeometry(QtCore.QRect(400, 410, 80, 25))
+        self.crawl_button.setObjectName("loadButton")
+        self.crawl_button.setFont(font)
+        self.crawl_button.clicked.connect(self.__crawl)
+        self.crawl_button.setEnabled(False)
 
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
@@ -190,7 +210,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.label_url.setText(entire_site.URL)
         self.scrape_button.setText(general.DOWNLOAD)
 
-        self.load_button.setText(general.BUTTON_LOAD)
+        self.crawl_button.setText(general.BUTTON_LOAD)
         self.scrape_button.setText(general.DOWNLOAD)
 
     def __init_worker(self):
@@ -236,7 +256,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __handle_progress(self):
         self.acquisition.upadate_progress_bar()
 
-    def __load(self):
+    def __crawl(self):
         # video_url
         self.url = self.input_url.text()
         center_x = self.x() + self.width / 2
@@ -279,13 +299,28 @@ class EntireWebsite(QtWidgets.QMainWindow):
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
 
-        self.__load_info()
+        self.__crawl_url()
 
-    def __load_info(self):
+    def __crawl_url(self):
         self.setEnabled(True)
         self.status.showMessage("")
-        # todo crawler
 
+        urls = self.entire_website_controller.check_sitemap()
+
+        self.list_widget = QListWidget(self.url_preview_group_box)
+        layout = QtWidgets.QVBoxLayout()
+
+        for url in urls:
+            item = QListWidgetItem()
+            check_box = QCheckBox(url)
+            item.setSizeHint(
+                check_box.sizeHint())
+            check_box.setChecked(True)
+            self.list_widget.addItem(item)
+            self.list_widget.setItemWidget(item, check_box)
+
+        layout.addWidget(self.list_widget)
+        self.url_preview_group_box.setLayout(layout)
         self.spinner.stop()
         self.is_acquisition_running = False
 
@@ -313,9 +348,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.status.showMessage(Logger.DOWNLOAD_VIDEO)
         self.acquisition.logger.info(Logger.DOWNLOAD_VIDEO)
         self.acquisition.info.add_task(
-            tasks.DOWNLOAD_VIDEO, state.STARTED, status.PENDING
+            tasks.DOWNLOAD_WEBSITE, state.STARTED, status.PENDING
         )
-        self.entire_website_controller.set_id()
 
         self.url_dir = os.path.join(
             self.acquisition_directory, self.entire_website_controller.id_digest
@@ -393,7 +427,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
     def __on_text_changed(self):
         all_field_filled = all(input_field.text() for input_field in self.input_fields)
-        self.load_button.setEnabled(all_field_filled)
+        self.crawl_button.setEnabled(all_field_filled)
 
     def __back_to_wizard(self):
         if self.is_acquisition_running is False:

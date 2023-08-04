@@ -186,7 +186,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
             self.completeChanged
         )
         self.radio_button_container2 = QtWidgets.QWidget(self)
-        self.radio_button_container2.setGeometry(QtCore.QRect(80, 160, 322, 112))
+        self.radio_button_container2.setGeometry(QtCore.QRect(80, 160, 650, 112))
         self.radio_button_container2.setObjectName("radio_button_container2")
         self.radio_buttons_hlayout2 = QtWidgets.QHBoxLayout(
             self.radio_button_container2

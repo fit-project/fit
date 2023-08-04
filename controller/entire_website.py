@@ -9,6 +9,10 @@
 import hashlib
 import os
 import shutil
+from urllib.parse import urlparse, urljoin
+
+import requests
+from bs4 import BeautifulSoup
 
 
 class EntireWebsite:
@@ -18,6 +22,7 @@ class EntireWebsite:
 
     def set_url(self, url):
         self.url = url
+        self.id = self.__calculate_md5()
 
     def create_zip(self, path):
         for folder in os.listdir(path):
@@ -26,8 +31,12 @@ class EntireWebsite:
                 shutil.make_archive(folder_path, "zip", folder_path)
                 shutil.rmtree(folder_path)
 
-    def set_id(self):
-        self.id = self.__calculate_md5()
+    def is_valid_url(self, url):
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+
+    def download(self):
+        return
 
     def __calculate_md5(self):
         md5 = hashlib.md5()
@@ -35,3 +44,36 @@ class EntireWebsite:
         md5.update(bytes)
         md5_id = md5.hexdigest()
         return md5_id
+
+    def check_sitemap(self):
+        sitemap_candidate = self.url + '/sitemap/'
+        response = requests.get(sitemap_candidate)
+        if response.status_code == 200:
+            return self.__crawl_links(response)
+
+        else:
+            response = requests.get(self.url)
+            if requests.get(self.url) == 200:
+                soup = BeautifulSoup(response.content, 'html.parser')
+                sitemaps = soup.find_all('link', rel='sitemap')
+                if sitemaps:
+                    for sitemap in sitemaps:
+                        response = requests.get(sitemap['href'])
+                        if response.status_code == 200:
+                            return self.__crawl_links(response)
+            else:
+                # crawl manually from the url
+                response = requests.get(self.url)
+                if response.status_code == 200:
+                    self.__crawl_links(response)
+
+    def __crawl_links(self, response):
+        urls = set()
+        soup = BeautifulSoup(response.content, 'html.parser')
+        anchor_tags = soup.find_all('a')
+        for tag in anchor_tags:
+            href = tag.get('href')
+            if href and not href.startswith('#'):
+                absolute_url = urljoin(self.url, href)
+                urls.add(absolute_url)
+        return urls
