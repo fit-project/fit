@@ -66,7 +66,7 @@ class EntireWebsite:
                 # crawl manually from the url
                 response = requests.get(self.url)
                 if response.status_code == 200:
-                    self.__crawl_links(response)
+                    return self.__crawl_links(response)
 
     def __crawl_links(self, response):
         urls = set()
