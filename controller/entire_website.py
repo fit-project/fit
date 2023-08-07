@@ -19,6 +19,7 @@ class EntireWebsite:
     def __init__(self):
         self.url = None
         self.id_digest = None
+        self.acquisition_dir = None
 
     def set_url(self, url):
         self.url = url
@@ -36,7 +37,16 @@ class EntireWebsite:
         if all([result.scheme, result.netloc]):
             requests.get(url)
 
-    def download(self):
+    def set_dir(self, acquisition_dir):
+        self.acquisition_dir = acquisition_dir
+
+    def download(self, port, selected_urls):
+        proxy_dict = {
+            "http": f"http://127.0.0.1:{port}",
+            "https": f"http://127.0.0.1:{port}"
+        }
+        for url in selected_urls:
+            requests.get(url, proxies=proxy_dict, verify=False)
         return
 
     def __calculate_md5(self):
@@ -69,13 +79,13 @@ class EntireWebsite:
                     return self.__crawl_links(response)
 
     def __crawl_links(self, response):
-        urls = set()
+        self.urls = set()
         soup = BeautifulSoup(response.content, 'html.parser')
         anchor_tags = soup.find_all('a')
-        urls.add(self.url)
+        self.urls.add(self.url)
         for tag in anchor_tags:
             href = tag.get('href')
             if href and not href.startswith('#'):
                 absolute_url = urljoin(self.url, href)
-                urls.add(absolute_url)
-        return urls
+                self.urls.add(absolute_url)
+        return self.urls

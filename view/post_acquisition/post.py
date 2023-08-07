@@ -9,6 +9,8 @@
 
 import os
 import logging
+
+import mitmproxy.log
 from PyQt6 import QtCore, QtWidgets
 
 from common.constants import (
@@ -47,9 +49,14 @@ class PostAcquisition(QtCore.QObject):
         self.generate_timestamp_report(folder, case_info, type)
 
     def calculate_acquisition_file_hash(self, folder):
+
         self.parent().set_message_on_the_statusbar(tasks.HASHFILE)
 
         files = [f.name for f in os.scandir(folder) if f.is_file()]
+
+        mitmproxy_logger = logging.getLogger('mitmproxy')
+        mitmproxy_logger.propagate = False
+
         for file in files:
             if file != "acquisition.hash":
                 filename = os.path.join(folder, file)

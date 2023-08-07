@@ -19,7 +19,7 @@ from view.verify_pec import VerifyPec as VerifyPecView
 
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 from view.video import Video as VideoView
-from view.entire_website import EntireWebsite as EntireWebsiteView
+from view.entire_website.entire_website import EntireWebsite as EntireWebsiteView
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -14,6 +14,7 @@ import subprocess
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QListWidgetItem, QListWidget, QCheckBox
 
+from view.entire_website.mitm import MitmProxyWorker
 from view.menu_bar import MenuBar as MenuBarView
 
 from view.error import Error as ErrorView
@@ -31,7 +32,7 @@ from common.constants import (
     error as Error,
 )
 from common.constants.view import general, entire_site
-from common.utility import get_platform
+from common.utility import get_platform, find_free_port
 
 logger_acquisition = logging.getLogger(__name__)
 
@@ -43,10 +44,15 @@ class EntireWebsiteWorker(QtCore.QObject):
     valid_url = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, entire_website_controller, input_url):
+    def __init__(self, entire_website_controller, input_url, selected_urls):
         super().__init__()
         self.entire_website_controller = entire_website_controller
         self.input_url = input_url
+        self.url_dir = None
+        self.selected_urls = selected_urls
+
+    def set_dir(self, dir):
+        self.url_dir = dir
 
     @QtCore.pyqtSlot()
     def run(self):
@@ -63,8 +69,11 @@ class EntireWebsiteWorker(QtCore.QObject):
                 self.valid_url.emit()
         else:
             try:
-                self.entire_website_controller.download()
-                # todo
+                port = find_free_port()
+                mitm_thread = MitmProxyWorker(port)
+                mitm_thread.set_dir(self.entire_website_controller.acquisition_dir)
+                mitm_thread.start()
+                self.entire_website_controller.download(port, self.selected_urls)
             except Exception as e:
                 self.error.emit(
                     {
@@ -85,6 +94,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.acquisition_directory = None
         self.acquisition_is_started = False
         self.is_enabled_timestamp = False
+        self.selected_urls = None
         self.spinner = Spinner()
         self.entire_website_controller = EntireWebsiteController()
 
@@ -256,7 +266,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
         self.worker = EntireWebsiteWorker(
-            self.entire_website_controller, self.input_url
+            self.entire_website_controller, self.input_url, self.selected_urls
         )
 
         self.worker.moveToThread(self.thread_worker)
@@ -395,7 +405,6 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.status.showMessage("")
 
         urls = self.entire_website_controller.check_sitemap()
-
         self.list_widget.clear()
         for url in urls:
             item = QListWidgetItem()
@@ -423,7 +432,16 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
         self.is_acquisition_running = True
 
-        internal_tasks = list()
+        self.selected_urls = []
+        for row in range(self.list_widget.count()):
+            item = self.list_widget.item(row)
+            check_box = self.list_widget.itemWidget(item)
+            if check_box.isChecked():
+                self.selected_urls.append(check_box.text())
+
+        internal_tasks = list(
+            filter(lambda task: task[0] is True, self.selected_urls)
+        )
 
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
@@ -437,21 +455,14 @@ class EntireWebsite(QtWidgets.QMainWindow):
             tasks.DOWNLOAD_WEBSITE, state.STARTED, status.PENDING
         )
 
-        self.url_dir = os.path.join(
-            self.acquisition_directory, self.entire_website_controller.id_digest
-        )
-        if not os.path.exists(self.url_dir):
-            os.makedirs(self.url_dir)
-
+        self.entire_website_controller.set_dir(self.acquisition_directory)
         self.__init_worker()
 
     def __hanlde_scraped(self):
-        row = self.acquisition.info.get_row(tasks.CRAWL)
+        row = self.acquisition.info.get_row(tasks.DOWNLOAD_WEBSITE)
         self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, "")
 
-        self.entire_website_controller.create_zip(self.url_dir)
-
-        self.__zip_and_remove(self.url_dir)
+        self.__zip_and_remove(os.path.join(self.acquisition_directory, 'acquisition_page'))
 
         self.acquisition.stop([], "", 1)
         self.acquisition.log_end_message()
