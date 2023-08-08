@@ -7,7 +7,10 @@
 # -----
 ######
 import hashlib
+import string
 import threading
+
+from bs4 import BeautifulSoup
 from mitmproxy import http
 
 import os.path
@@ -23,7 +26,14 @@ class Mitm:
             # write html to disk
             html_text = flow.response.content
             if len(html_text) > 0:
-                filename = self.__calculate_md5(flow.request.url)
+                soup = BeautifulSoup(html_text, "html.parser")
+                title = soup.title.string.strip()
+
+                # Clean the title to make it a valid filename
+                valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+                cleaned_title = "".join(c if c in valid_chars else "-" for c in title)
+
+                filename = f"{cleaned_title}-{self.__calculate_md5(flow.request.url)}"
                 filepath = os.path.join(self.acq_dir, filename)
 
                 if not os.path.exists(f"{filepath}.html"):
@@ -51,9 +61,10 @@ class Mitm:
             "text/javascript",
             "image/gif",
         ]
+
         if flow.response.headers.get("content-type", "").split(";")[0] in content_types:
             filename = os.path.basename(flow.request.url)
-
+            print("filename", filename)
             char_remov = ["?", "<", ">", "*", "|", '"', "\\", "/", ":"]
             for char in char_remov:
                 filename = filename.replace(char, "-")

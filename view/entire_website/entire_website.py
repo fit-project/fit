@@ -460,6 +460,11 @@ class EntireWebsite(QtWidgets.QMainWindow):
         )
 
         self.entire_website_controller.set_dir(self.acquisition_directory)
+        # external tasks
+        external_tasks = [tasks.PACKET_CAPTURE]
+        self.acquisition.start(
+            external_tasks, self.acquisition_directory, self.case_info
+        )
         self.__init_worker()
 
     def __hanlde_scraped(self):
@@ -469,8 +474,19 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.__zip_and_remove(
             os.path.join(self.acquisition_directory, "acquisition_page")
         )
+        # external tasks
+        external_tasks = [
+            tasks.PACKET_CAPTURE,
+            tasks.WHOIS,
+            tasks.NSLOOKUP,
+            tasks.HEADERS,
+            tasks.TRACEROUTE,
+            tasks.SSLKEYLOG,
+            tasks.SSLCERTIFICATE,
+            tasks.SCREEN_RECORDER,
+        ]
 
-        self.acquisition.stop([], "", 1)
+        self.acquisition.stop(external_tasks, self.url, len(external_tasks))
         self.acquisition.log_end_message()
         self.spinner.stop()
 

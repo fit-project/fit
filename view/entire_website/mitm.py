@@ -79,11 +79,10 @@ class MitmProxy:
         loggers = loggers + [
             logging.getLogger(name)
             for name in logging.root.manager.loggerDict
-            if name not in [__name__, "hashreport"]
+            if name not in [__name__, "hashreport", "mitmproxy"]
         ]
         log_confing = LogConfigTools()
         log_confing.disable_loggers(loggers)
-
         try:
             await master.run()
         except Exception as e:

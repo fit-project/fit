@@ -33,9 +33,7 @@ class EntireWebsite:
                 shutil.rmtree(folder_path)
 
     def is_valid_url(self, url):
-        result = urlparse(url)
-        if all([result.scheme, result.netloc]):
-            requests.get(url)
+        requests.get(url)
 
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
