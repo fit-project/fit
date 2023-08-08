@@ -7,7 +7,6 @@
 # -----
 ######
 import hashlib
-import logging
 import threading
 from mitmproxy import http
 
@@ -20,8 +19,7 @@ class Mitm:
         self.acq_dir = acq_dir
 
     def save_html(self, flow: mitmproxy.http.HTTPFlow):
-
-        if flow.response.headers.get('content-type', '').startswith('text/html'):
+        if flow.response.headers.get("content-type", "").startswith("text/html"):
             # write html to disk
             html_text = flow.response.content
             if len(html_text) > 0:
@@ -43,12 +41,20 @@ class Mitm:
 
     def save_content(self, flow: mitmproxy.http.HTTPFlow):
         # save every other resource in the acquisition dir
-        content_types = ["image/jpeg", "image/png", "application/json", "application/javascript",
-                         "audio/mpeg", "text/css", "text/javascript", "image/gif"]
-        if flow.response.headers.get('content-type', '').split(';')[0] in content_types:
+        content_types = [
+            "image/jpeg",
+            "image/png",
+            "application/json",
+            "application/javascript",
+            "audio/mpeg",
+            "text/css",
+            "text/javascript",
+            "image/gif",
+        ]
+        if flow.response.headers.get("content-type", "").split(";")[0] in content_types:
             filename = os.path.basename(flow.request.url)
 
-            char_remov = ["?", "<", ">", "*", "|", "\"", "\\", "/", ":"]
+            char_remov = ["?", "<", ">", "*", "|", '"', "\\", "/", ":"]
             for char in char_remov:
                 filename = filename.replace(char, "-")
 

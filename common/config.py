@@ -15,7 +15,6 @@ from controller.configurations.tabs.network.networktools import (
     NetworkTools as NetworkToolsController,
 )
 
-
 # Produce RFC 3339 timestamps
 logging.Formatter.formatTime = (
     lambda self, record, datefmt: datetime.datetime.fromtimestamp(
@@ -63,6 +62,7 @@ class LogConfigTools:
                 "view.video": {"handlers": ["facquisition"], "level": "INFO"},
                 "hashreport": {"handlers": ["fhashreport"], "level": "INFO"},
                 "view.mail": {"handlers": ["facquisition"], "level": "INFO"},
+                "view.entire_website": {"handlers": ["facquisition"], "level": "INFO"},
             },
             "root": {"handlers": ["null"], "propagate": False},
         }

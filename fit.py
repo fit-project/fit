@@ -50,7 +50,6 @@ if __name__ == "__main__":
     entire_website = EntireWebsiteView()
     entire_website.hide()
 
-
     def start_task(task, case_info):
         options = {}
         if task == "web":
@@ -70,7 +69,6 @@ if __name__ == "__main__":
 
         acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()
-
 
     # Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))

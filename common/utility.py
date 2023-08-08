@@ -218,7 +218,7 @@ def import_modules(start_path, start_module_name=""):
 
     for py_file in py_files:
         module_name = (
-                start_module_name + "." + os.path.split(py_file)[-1].rsplit(".", 1)[0]
+            start_module_name + "." + os.path.split(py_file)[-1].rsplit(".", 1)[0]
         )
         spec = util.spec_from_file_location(module_name, py_file)
         module = util.module_from_spec(spec)
@@ -259,5 +259,5 @@ def get_language():
 # search for the first free port to bind the proxy
 def find_free_port():
     sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
+    sock.bind(("127.0.0.1", 0))
     return sock.getsockname()[1]

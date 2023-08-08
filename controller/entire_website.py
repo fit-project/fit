@@ -43,7 +43,7 @@ class EntireWebsite:
     def download(self, port, selected_urls):
         proxy_dict = {
             "http": f"http://127.0.0.1:{port}",
-            "https": f"http://127.0.0.1:{port}"
+            "https": f"http://127.0.0.1:{port}",
         }
         for url in selected_urls:
             requests.get(url, proxies=proxy_dict, verify=False)
@@ -57,7 +57,7 @@ class EntireWebsite:
         return md5_id
 
     def check_sitemap(self):
-        sitemap_candidate = self.url + '/sitemap/'
+        sitemap_candidate = self.url + "/sitemap/"
         response = requests.get(sitemap_candidate)
         if response.status_code == 200:
             return self.__crawl_links(response)
@@ -65,11 +65,11 @@ class EntireWebsite:
         else:
             response = requests.get(self.url)
             if requests.get(self.url) == 200:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                sitemaps = soup.find_all('link', rel='sitemap')
+                soup = BeautifulSoup(response.content, "html.parser")
+                sitemaps = soup.find_all("link", rel="sitemap")
                 if sitemaps:
                     for sitemap in sitemaps:
-                        response = requests.get(sitemap['href'])
+                        response = requests.get(sitemap["href"])
                         if response.status_code == 200:
                             return self.__crawl_links(response)
             else:
@@ -80,12 +80,12 @@ class EntireWebsite:
 
     def __crawl_links(self, response):
         self.urls = set()
-        soup = BeautifulSoup(response.content, 'html.parser')
-        anchor_tags = soup.find_all('a')
+        soup = BeautifulSoup(response.content, "html.parser")
+        anchor_tags = soup.find_all("a")
         self.urls.add(self.url)
         for tag in anchor_tags:
-            href = tag.get('href')
-            if href and not href.startswith('#'):
+            href = tag.get("href")
+            if href and not href.startswith("#"):
                 absolute_url = urljoin(self.url, href)
                 self.urls.add(absolute_url)
         return self.urls

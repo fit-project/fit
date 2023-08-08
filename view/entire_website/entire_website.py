@@ -62,7 +62,11 @@ class EntireWebsiteWorker(QtCore.QObject):
 
             except Exception as e:
                 self.error.emit(
-                    {"title": entire_site.INVALID_URL, "msg": Error.INVALID_URL, "details": e}
+                    {
+                        "title": entire_site.INVALID_URL,
+                        "msg": Error.INVALID_URL,
+                        "details": e,
+                    }
                 )
             else:
                 self.entire_website_controller.set_url(self.input_url.text())
@@ -169,7 +173,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.crawl_button.clicked.connect(self.__crawl)
 
         self.crawl_button.setEnabled(False)
-        self.input_url.textChanged.connect(lambda input: self.__on_text_changed(self.input_url, self.crawl_button))
+        self.input_url.textChanged.connect(
+            lambda input: self.__on_text_changed(self.input_url, self.crawl_button)
+        )
 
         # CUSTOM URL GROUP BOX
         self.custom_urls_group_box = QtWidgets.QGroupBox(self.centralwidget)
@@ -201,7 +207,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.add_button.clicked.connect(self.__add)
         self.add_button.setEnabled(False)
         self.input_custom_url.textChanged.connect(
-            lambda input: self.__on_text_changed(self.input_custom_url, self.add_button))
+            lambda input: self.__on_text_changed(self.input_custom_url, self.add_button)
+        )
 
         self.status = QtWidgets.QStatusBar()
         self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
@@ -356,11 +363,12 @@ class EntireWebsite(QtWidgets.QMainWindow):
             )
             error_dlg.exec()
         else:
-            if not self.__item_exists_in_list_widget(self.list_widget, self.input_custom_url.text()):
+            if not self.__item_exists_in_list_widget(
+                self.list_widget, self.input_custom_url.text()
+            ):
                 item = QListWidgetItem()
                 check_box = QCheckBox(self.input_custom_url.text())
-                item.setSizeHint(
-                    check_box.sizeHint())
+                item.setSizeHint(check_box.sizeHint())
                 check_box.setChecked(True)
                 self.list_widget.addItem(item)
                 self.list_widget.setItemWidget(item, check_box)
@@ -376,7 +384,6 @@ class EntireWebsite(QtWidgets.QMainWindow):
         return False
 
     def __scrape(self):
-
         self.url = self.input_url.text()
         center_x = self.x() + self.width / 2
         center_y = self.y() + self.height / 2
@@ -409,8 +416,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         for url in urls:
             item = QListWidgetItem()
             check_box = QCheckBox(url)
-            item.setSizeHint(
-                check_box.sizeHint())
+            item.setSizeHint(check_box.sizeHint())
             check_box.setChecked(True)
             self.list_widget.addItem(item)
             self.list_widget.setItemWidget(item, check_box)
@@ -439,9 +445,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
             if check_box.isChecked():
                 self.selected_urls.append(check_box.text())
 
-        internal_tasks = list(
-            filter(lambda task: task[0] is True, self.selected_urls)
-        )
+        internal_tasks = list(filter(lambda task: task[0] is True, self.selected_urls))
 
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
@@ -462,7 +466,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
         row = self.acquisition.info.get_row(tasks.DOWNLOAD_WEBSITE)
         self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, "")
 
-        self.__zip_and_remove(os.path.join(self.acquisition_directory, 'acquisition_page'))
+        self.__zip_and_remove(
+            os.path.join(self.acquisition_directory, "acquisition_page")
+        )
 
         self.acquisition.stop([], "", 1)
         self.acquisition.log_end_message()
