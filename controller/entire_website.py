@@ -44,8 +44,7 @@ class EntireWebsite:
             "https": f"http://127.0.0.1:{port}",
         }
         for url in selected_urls:
-            requests.get(url, proxies=proxy_dict, verify=False)
-        return
+            response = requests.get(url, proxies=proxy_dict, verify=False)
 
     def __calculate_md5(self):
         md5 = hashlib.md5()
