@@ -426,7 +426,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
         urls = self.entire_website_controller.check_sitemap()
         self.list_widget.clear()
-        for url in urls:
+        for url in sorted(urls):
             item = QListWidgetItem()
             check_box = QCheckBox(url)
             item.setSizeHint(check_box.sizeHint())

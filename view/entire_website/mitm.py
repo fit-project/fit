@@ -8,7 +8,7 @@
 ######
 import asyncio
 import logging
-import time
+from pathlib import Path
 
 from PyQt6.QtCore import QThread
 from mitmproxy import ctx
