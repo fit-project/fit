@@ -50,3 +50,4 @@ DOWNLOAD_VIDEO = "Downloading video"
 
 CRAWL_WEBSITE = "Crawling website"
 DOWNLOAD_WEBSITE = "Downloading website"
+DOWNLOADED = "Downloaded page {}"

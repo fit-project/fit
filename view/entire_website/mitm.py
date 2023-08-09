@@ -8,6 +8,7 @@
 ######
 import asyncio
 import logging
+import time
 
 from PyQt6.QtCore import QThread
 from mitmproxy import ctx
@@ -68,7 +69,7 @@ class MitmProxy:
             mode=["regular"],
         )
         # Create a master object and add addons
-        master = DumpMaster(options=options)
+        master = DumpMaster(options=options, with_termlog=False, with_dumper=False)
         addons = [
             FlowWriterAddon(self.acquisition_directory),
             FlowReaderAddon(self.acquisition_directory),
@@ -96,10 +97,10 @@ class FlowReaderAddon:
         self.acq_dir = os.path.join(self.acquisition_directory, "acquisition_page")
         if not os.path.isdir(self.acq_dir):
             os.makedirs(self.acq_dir)
-        return
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         proxy_controller = MitmController(self.acq_dir)
+        proxy_controller.create_folders(flow)
         proxy_controller.save_resources(flow)
 
 
@@ -114,4 +115,3 @@ class FlowWriterAddon:
 
     def response(self, flow: http.HTTPFlow) -> None:
         self.w.add(flow)
-        return

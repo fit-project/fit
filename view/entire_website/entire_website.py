@@ -44,19 +44,23 @@ class EntireWebsiteWorker(QtCore.QObject):
     valid_url = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, entire_website_controller, input_url, selected_urls):
+    def __init__(
+        self, entire_website_controller, input_url, selected_urls, status, acquisition
+    ):
         super().__init__()
         self.entire_website_controller = entire_website_controller
         self.input_url = input_url
         self.url_dir = None
         self.selected_urls = selected_urls
+        self.status = status
+        self.acquisition = acquisition
 
     def set_dir(self, dir):
         self.url_dir = dir
 
     @QtCore.pyqtSlot()
     def run(self):
-        if self.entire_website_controller.id_digest is None:
+        if self.entire_website_controller.url is None:
             try:
                 self.entire_website_controller.is_valid_url(self.input_url.text())
 
@@ -72,22 +76,27 @@ class EntireWebsiteWorker(QtCore.QObject):
                 self.entire_website_controller.set_url(self.input_url.text())
                 self.valid_url.emit()
         else:
-            try:
-                port = find_free_port()
-                mitm_thread = MitmProxyWorker(port)
-                mitm_thread.set_dir(self.entire_website_controller.acquisition_dir)
-                mitm_thread.start()
-                self.entire_website_controller.download(port, self.selected_urls)
-            except Exception as e:
-                self.error.emit(
-                    {
-                        "title": entire_site.INVALID_URL,
-                        "msg": Error.INVALID_URL,
-                        "details": e,
-                    }
-                )
-            else:
-                self.progress.emit()
+            port = find_free_port()
+            mitm_thread = MitmProxyWorker(port)
+            mitm_thread.set_dir(self.entire_website_controller.acquisition_dir)
+            mitm_thread.start()
+            self.entire_website_controller.set_proxy(port)
+            for url in self.selected_urls:
+                try:
+                    self.entire_website_controller.download(url)
+                    self.status.showMessage(Logger.DOWNLOADED.format(url))
+                    self.acquisition.logger.info(Logger.DOWNLOADED.format(url))
+
+                except Exception as e:
+                    self.error.emit(
+                        {
+                            "title": entire_site.INVALID_URL,
+                            "msg": Error.INVALID_URL,
+                            "details": e,
+                        }
+                    )
+                else:
+                    self.progress.emit()
             self.scraped.emit()
         self.finished.emit()
 
@@ -273,7 +282,11 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
         self.worker = EntireWebsiteWorker(
-            self.entire_website_controller, self.input_url, self.selected_urls
+            self.entire_website_controller,
+            self.input_url,
+            self.selected_urls,
+            self.status,
+            self.acquisition,
         )
 
         self.worker.moveToThread(self.thread_worker)
@@ -315,7 +328,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
     def __crawl(self):
         self.url = self.input_url.text()
-        self.entire_website_controller.id_digest = None
+        self.entire_website_controller.url = None
         center_x = self.x() + self.width / 2
         center_y = self.y() + self.height / 2
         self.spinner.set_position(center_x, center_y)
@@ -326,7 +339,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
-        if self.entire_website_controller.id_digest is None:
+        if self.entire_website_controller.url is None:
             self.__init_worker()
             self.custom_urls_group_box.setEnabled(True)
         else:
@@ -394,7 +407,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(1000, loop.quit)
         loop.exec()
-        if self.entire_website_controller.id_digest is None:
+        if self.entire_website_controller.url is None:
             self.__init_worker()
         else:
             self.__start_scraped()
@@ -445,12 +458,10 @@ class EntireWebsite(QtWidgets.QMainWindow):
             if check_box.isChecked():
                 self.selected_urls.append(check_box.text())
 
-        internal_tasks = list(filter(lambda task: task[0] is True, self.selected_urls))
-
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
         self.acquisition.start(
-            [], self.acquisition_directory, self.case_info, len(internal_tasks)
+            [], self.acquisition_directory, self.case_info, len(self.selected_urls)
         )
 
         self.status.showMessage(Logger.DOWNLOAD_WEBSITE)

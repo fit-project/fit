@@ -9,7 +9,7 @@
 import hashlib
 import os
 import shutil
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -18,19 +18,10 @@ from bs4 import BeautifulSoup
 class EntireWebsite:
     def __init__(self):
         self.url = None
-        self.id_digest = None
         self.acquisition_dir = None
 
     def set_url(self, url):
         self.url = url
-        self.id_digest = self.__calculate_md5()
-
-    def create_zip(self, path):
-        for folder in os.listdir(path):
-            folder_path = os.path.join(path, folder)
-            if os.path.isdir(folder_path):
-                shutil.make_archive(folder_path, "zip", folder_path)
-                shutil.rmtree(folder_path)
 
     def is_valid_url(self, url):
         requests.get(url)
@@ -38,28 +29,23 @@ class EntireWebsite:
     def set_dir(self, acquisition_dir):
         self.acquisition_dir = acquisition_dir
 
-    def download(self, port, selected_urls):
-        proxy_dict = {
+    def set_proxy(self, port):
+        self.proxy_dict = {
             "http": f"http://127.0.0.1:{port}",
             "https": f"http://127.0.0.1:{port}",
         }
-        for url in selected_urls:
-            response = requests.get(url, proxies=proxy_dict, verify=False)
 
-    def __calculate_md5(self):
-        md5 = hashlib.md5()
-        bytes = self.url.encode("utf-8")
-        md5.update(bytes)
-        md5_id = md5.hexdigest()
-        return md5_id
+    def download(self, url):
+        requests.get(url, proxies=self.proxy_dict, verify=False)
 
     def check_sitemap(self):
+        # check if /sitemap exists
         sitemap_candidate = self.url + "/sitemap/"
         response = requests.get(sitemap_candidate)
         if response.status_code == 200:
             return self.__crawl_links(response)
 
-        else:
+        else:  # else, search for sitemap link inside the html
             response = requests.get(self.url)
             if requests.get(self.url) == 200:
                 soup = BeautifulSoup(response.content, "html.parser")
