@@ -171,12 +171,13 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.input_url = QtWidgets.QLineEdit(self.url_configuration_group_box)
         self.input_url.setGeometry(QtCore.QRect(50, 50, 350, 20))
         self.input_url.setFont(font)
+        self.input_url.textEdited.connect(self.__validate_input)
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
 
         # LOAD BUTTON
         self.crawl_button = QtWidgets.QPushButton(self)
-        self.crawl_button.setGeometry(QtCore.QRect(380, 130, 85, 25))
+        self.crawl_button.setGeometry(QtCore.QRect(370, 130, 85, 25))
         self.crawl_button.setObjectName("loadButton")
         self.crawl_button.setFont(font)
         self.crawl_button.clicked.connect(self.__crawl)
@@ -201,14 +202,15 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.input_custom_url = QtWidgets.QLineEdit(self.custom_urls_group_box)
         self.input_custom_url.setGeometry(QtCore.QRect(50, 50, 330, 20))
         self.input_custom_url.setFont(font)
+        self.input_custom_url.textEdited.connect(self.__validate_input)
         self.input_custom_url.setObjectName("input_custom_url")
         self.input_custom_url.setPlaceholderText(entire_site.PLACEHOLDER_CUSTOM_URL)
 
         # ADD BUTTON
         self.add_button = QtWidgets.QPushButton(self)
-        self.add_button.setGeometry(QtCore.QRect(440, 310, 20, 20))
+        self.add_button.setGeometry(QtCore.QRect(440, 313, 20, 20))
         self.add_button.setStyleSheet(
-            "QPushButton { border-radius: 10px; background-color: #4286f4; color: white; font-size: 20px; }"
+            "QPushButton { border-radius: 10px; background-color: #4286f4; color: white; font-size: 20px; padding-bottom: 4px; }"
             "QPushButton:hover { background-color: #1c62cc; }"
         )
         self.add_button.setObjectName("add_button")
@@ -266,6 +268,10 @@ class EntireWebsite(QtWidgets.QMainWindow):
             self.__are_post_acquisition_finished
         )
 
+    def __validate_input(self, text):
+        sender = self.sender()
+        sender.setText(text.replace(" ", ""))
+
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
         self.url_configuration_group_box.setTitle(entire_site.URL_CONFIGURATION)
@@ -274,7 +280,6 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.scrape_button.setText(general.DOWNLOAD)
         self.custom_urls_group_box.setTitle(entire_site.CUSTOM_URLS)
         self.crawl_button.setText(general.BUTTON_CRAWL)
-        self.scrape_button.setText(general.DOWNLOAD)
         self.label_custom_url.setText(entire_site.URL)
         self.add_button.setText(entire_site.ADD)
         self.selector_button.setText(entire_site.DESELECT)
