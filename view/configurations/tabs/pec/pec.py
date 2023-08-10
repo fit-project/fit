@@ -10,9 +10,8 @@
 import imaplib
 import smtplib
 
-
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QIntValidator
 from PyQt6.QtWidgets import QMessageBox, QLabel
 
 from view.clickable_label import ClickableLabel as ClickableLabelView
@@ -69,11 +68,14 @@ class Pec(QtWidgets.QWidget):
         self.label_pec_email = QtWidgets.QLabel(self.form_layout_widget_credential)
         self.label_pec_email.setObjectName("label_pec_email")
         self.horizontal_Layout_credential.addWidget(self.label_pec_email)
+
         self.pec_email = QtWidgets.QLineEdit(self.form_layout_widget_credential)
         self.pec_email.setEnabled(True)
+        self.pec_email.textEdited.connect(self.__validate_input)
         self.pec_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         self.pec_email.setObjectName("pec_email")
         self.horizontal_Layout_credential.addWidget(self.pec_email)
+
         self.label_password = QtWidgets.QLabel(self.form_layout_widget_credential)
         self.label_password.setObjectName("label_password")
         self.horizontal_Layout_credential.addWidget(self.label_password)
@@ -111,6 +113,7 @@ class Pec(QtWidgets.QWidget):
 
         self.imap_server = QtWidgets.QLineEdit(self.form_layout_widget_IMAP)
         self.imap_server.setEnabled(True)
+        self.imap_server.textEdited.connect(self.__validate_input)
         self.imap_server.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_SERVER)
         self.imap_server.setObjectName("imap_server")
         self.horizontal_layout_IMAP.addWidget(self.imap_server)
@@ -121,6 +124,8 @@ class Pec(QtWidgets.QWidget):
         self.imap_port = QtWidgets.QLineEdit(self.form_layout_widget_IMAP)
         self.imap_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
         self.imap_port.setObjectName("imap_port")
+        validator = QIntValidator()
+        self.imap_port.setValidator(validator)
         self.horizontal_layout_IMAP.addWidget(self.imap_port)
 
         self.verification_imap_button = QtWidgets.QPushButton(
@@ -156,6 +161,7 @@ class Pec(QtWidgets.QWidget):
         self.horizontal_layout_SMTP.addWidget(self.label_smtp_server)
         self.smtp_server = QtWidgets.QLineEdit(self.form_layout_widget_SMTP)
         self.smtp_server.setEnabled(True)
+        self.smtp_server.textEdited.connect(self.__validate_input)
         self.smtp_server.setPlaceholderText(search_pec.PLACEHOLDER_SMPT_SERVER)
         self.smtp_server.setObjectName("smtp_server")
         self.horizontal_layout_SMTP.addWidget(self.smtp_server)
@@ -166,6 +172,7 @@ class Pec(QtWidgets.QWidget):
         self.smtp_port = QtWidgets.QLineEdit(self.form_layout_widget_SMTP)
         self.smtp_port.setPlaceholderText(search_pec.PLACEHOLDER_SMPT_PORT)
         self.smtp_port.setObjectName("smtp_port")
+        self.smtp_port.setValidator(validator)
         self.horizontal_layout_SMTP.addWidget(self.smtp_port)
 
         self.verification_smtp_button = QtWidgets.QPushButton(
@@ -200,6 +207,10 @@ class Pec(QtWidgets.QWidget):
         self.verification_imap_button.setText(pec.VERIFY_IMAP)
         self.verification_smtp_button.setText(pec.VERIFY_SMTP)
         self.label_two_factor_auth.setText(pec.TWO_FACTOR_AUTH)
+
+    def __validate_input(self, text):
+        sender = self.sender()
+        sender.setText(text.replace(" ", ""))
 
     def __is_enabled_pec(self):
         self.group_box_credential.setEnabled(self.enabled_checkbox.isChecked())

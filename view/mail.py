@@ -29,7 +29,7 @@ from PyQt6.QtCore import (
     QTimer,
     pyqtSlot,
 )
-from PyQt6.QtGui import QFont, QDoubleValidator, QRegularExpressionValidator, QIcon
+from PyQt6.QtGui import QFont, QRegularExpressionValidator, QIcon, QIntValidator
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QLabel
 
@@ -256,6 +256,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_email = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_email.setGeometry(QRect(130, 30, 240, 20))
         self.input_email.setFont(font)
+        self.input_email.textEdited.connect(self.__validate_input)
         self.input_email.setPlaceholderText(search_pec.PLACEHOLDER_USERNAME)
         self.input_email.setObjectName("input_email")
         self.emails_to_validate.append(self.input_email.objectName())
@@ -280,6 +281,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_server = QtWidgets.QLineEdit(self.configuration_group_box)
         self.input_server.setGeometry(QRect(130, 100, 240, 20))
         self.input_server.setFont(font)
+        self.input_server.textEdited.connect(self.__validate_input)
         self.input_server.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_SERVER)
         self.input_server.setObjectName("input_server")
 
@@ -288,7 +290,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_port.setGeometry(QRect(130, 135, 240, 20))
         self.input_port.setFont(font)
         self.input_port.setPlaceholderText(search_pec.PLACEHOLDER_IMAP_PORT)
-        validator = QDoubleValidator()
+        validator = QIntValidator()
         self.input_port.setValidator(validator)
         self.input_port.setObjectName("input_port")
 
@@ -337,6 +339,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_from = QtWidgets.QLineEdit(self.centralwidget)
         self.input_from.setGeometry(QRect(180, 300, 240, 20))
         self.input_from.setFont(font)
+        self.input_from.textEdited.connect(self.__validate_input)
         self.input_from.setObjectName("input_sender")
         self.input_from.setPlaceholderText(search_pec.PLACEHOLDER_FROM)
 
@@ -348,6 +351,7 @@ class Mail(QtWidgets.QMainWindow):
         self.input_to = QtWidgets.QLineEdit(self.centralwidget)
         self.input_to.setGeometry(QRect(180, 335, 240, 20))
         self.input_to.setFont(font)
+        self.input_to.textEdited.connect(self.__validate_input)
         self.input_to.setObjectName("input_recipient")
         self.input_to.setPlaceholderText(search_pec.PLACEHOLDER_TO)
         self.input_to.editingFinished.connect(self.__on_editing_finished)
@@ -461,6 +465,10 @@ class Mail(QtWidgets.QMainWindow):
         self.search_button.setText(search_pec.SEARCH_BUTTON)
         self.download_button.setText(search_pec.DOWNLOAD_BUTTON)
         self.label_two_factor_auth.setText(mail.TWO_FACTOR_AUTH)
+
+    def __validate_input(self, text):
+        sender = self.sender()
+        sender.setText(text.replace(" ", ""))
 
     def __init_worker(self):
         self.thread_worker = QThread()

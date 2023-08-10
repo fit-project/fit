@@ -9,6 +9,7 @@
 import os
 import shutil
 import logging
+import string
 import subprocess
 import webbrowser
 
@@ -178,6 +179,7 @@ class Video(QtWidgets.QMainWindow):
         self.input_url.setGeometry(QtCore.QRect(100, 80, 290, 20))
         self.input_url.setFont(font)
         self.input_url.setObjectName("input_url")
+        self.input_url.textEdited.connect(self.__validate_input)
         self.input_url.setPlaceholderText(video.PLACEHOLDER_URL)
 
         # SUPPORTED SITES
@@ -346,6 +348,10 @@ class Video(QtWidgets.QMainWindow):
         self.load_button.setText(general.BUTTON_LOAD)
         self.scrape_button.setText(general.DOWNLOAD)
 
+    def __validate_input(self, text):
+        sender = self.sender()
+        sender.setText(text.replace(" ", ""))
+
     def __init_worker(self):
         self.thread_worker = QtCore.QThread()
         self.worker = VideoWorker(
@@ -458,7 +464,7 @@ class Video(QtWidgets.QMainWindow):
         else:
             pixmap = QPixmap()
             if thumbnail is False:
-                qimage = QImage('assets/images/no-preview.png')
+                qimage = QImage("assets/images/no-preview.png")
                 pixmap = QPixmap.fromImage(qimage)
             else:
                 response = requests.get(thumbnail)
