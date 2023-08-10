@@ -59,8 +59,8 @@ class WebEnginePage(QWebEnginePage):
     # When you click a link that has the target="_blank" attribute, QT calls the CreateWindow method in
     # QWebEnginePage to create a new tab/new window.
     def createWindow(
-        self,
-        _type,
+            self,
+            _type,
     ):
         page = WebEnginePage(self)
         self.new_page_after_link_with_target_blank_attribute.emit(page)
@@ -562,7 +562,7 @@ class Web(QtWidgets.QMainWindow):
             imgs_comb = np.vstack([i.resize(min_shape) for i in imgs])
             imgs_comb = Image.fromarray(imgs_comb)
 
-            whole_img_filename = screenshot_filename(full_page_folder, "full_page" + "")
+            whole_img_filename = screenshot_filename(self.screenshot_directory, "full_page" + "")
             if last:
                 whole_img_filename = os.path.join(
                     self.acquisition_directory, "screenshot.png"
