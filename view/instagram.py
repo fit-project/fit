@@ -19,7 +19,6 @@ from instaloader import (
     ProfileNotExistsException,
 )
 
-
 from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView
 from view.spinner import Spinner
@@ -37,7 +36,6 @@ from common.constants import (
     error as Error,
 )
 from common.constants.view import general, instagram, mail
-
 
 logger_acquisition = logging.getLogger(__name__)
 
@@ -188,6 +186,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.input_username = QtWidgets.QLineEdit(self.loging_configuration_group_box)
         self.input_username.setGeometry(QtCore.QRect(130, 30, 200, 20))
         self.input_username.setFont(font)
+        self.input_username.textEdited.connect(self.__validate_input)
         self.input_username.setPlaceholderText(instagram.PLACEHOLDER_USERNAME)
         self.input_username.setObjectName("input_username")
 
@@ -211,6 +210,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.input_profile = QtWidgets.QLineEdit(self.loging_configuration_group_box)
         self.input_profile.setGeometry(QtCore.QRect(130, 90, 200, 20))
         self.input_profile.setFont(font)
+        self.input_profile.textEdited.connect(self.__validate_input)
         self.input_profile.setPlaceholderText(instagram.PLACEHOLDER_PROFILE_NAME)
         self.input_profile.setObjectName("input_profile")
 
@@ -368,6 +368,10 @@ class Instagram(QtWidgets.QMainWindow):
         self.checkbox_follower.setText(instagram.FOLLOWERS)
         self.scrape_button.setText(general.BUTTON_SCRAPE)
         self.login_button.setText(general.BUTTON_LOGIN)
+
+    def __validate_input(self, text):
+        sender = self.sender()
+        sender.setText(text.replace(" ", ""))
 
     def __init_worker(self, checkbox, acquisition_group_box):
         self.thread_worker = QtCore.QThread()

@@ -8,7 +8,7 @@
 ######
 WINDOW_TITLE = "PEC Options"
 ENABLE = "Enable PEC"
-CREDENTIAL_CONFIGURATION = "Credential"
+CREDENTIAL_CONFIGURATION = "Credentials"
 LABEL_EMAIL = "Email"
 LABEL_PASSWORD = "Password"
 SEND_BUTTON = "Send"
