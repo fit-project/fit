@@ -466,7 +466,6 @@ class Report:
             full_screenshot_path = os.path.join(full_screenshot_path, url_folder[0])
             images = os.listdir(full_screenshot_path)
             main_screenshot = os.path.join(full_screenshot_path, images[0])
-            print("test", main_screenshot)
 
             files = os.listdir(screenshots_path)
             for file in files:
