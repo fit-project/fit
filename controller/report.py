@@ -62,13 +62,13 @@ class Report:
         logo = self.case_info.get("logo_bin", "")
         if logo is not None:
             logo = (
-                    '<div style="padding-bottom: 10px;"><img src="data:image/png;base64,'
-                    + base64.b64encode(logo).decode("utf-8")
-                    + '" height="'
-                    + self.case_info.get("logo_height", "")
-                    + '" width="'
-                    + self.case_info.get("logo_width", "")
-                    + '"></div>'
+                '<div style="padding-bottom: 10px;"><img src="data:image/png;base64,'
+                + base64.b64encode(logo).decode("utf-8")
+                + '" height="'
+                + self.case_info.get("logo_height", "")
+                + '" width="'
+                + self.case_info.get("logo_width", "")
+                + '"></div>'
             )
         else:
             logo = "<div></div>"
@@ -439,12 +439,12 @@ class Report:
     def __hash_reader(self):
         hash_text = ""
         with open(
-                os.path.join(
-                    self.cases_folder_path,
-                    "acquisition.hash",
-                ),
-                "r",
-                encoding="latin-1",
+            os.path.join(
+                self.cases_folder_path,
+                "acquisition.hash",
+            ),
+            "r",
+            encoding="latin-1",
         ) as f:
             for line in f:
                 hash_text += "<p>" + line + "</p>"
@@ -474,27 +474,27 @@ class Report:
                 if os.path.isfile(path):
                     if "full_page_" not in os.path.basename(file):
                         screenshot_text += (
-                                "<p>"
-                                '<a href="file://'
-                                + path
-                                + '">'
-                                + "Screenshot"
-                                + os.path.basename(file)
-                                + '</a><br><img src="'
-                                + path
-                                + '"></p><br><br>'
+                            "<p>"
+                            '<a href="file://'
+                            + path
+                            + '">'
+                            + "Screenshot"
+                            + os.path.basename(file)
+                            + '</a><br><img src="'
+                            + path
+                            + '"></p><br><br>'
                         )
 
             # main full page screenshot
             screenshot_text += (
-                    "<p>"
-                    '<a href="file://'
-                    + main_screenshot_file
-                    + '">'
-                    + self.REPORT.COMPLETE_SCREENSHOT
-                    + '</a><br><img src="'
-                    + main_screenshot
-                    + '"></p>'
+                "<p>"
+                '<a href="file://'
+                + main_screenshot_file
+                + '">'
+                + self.REPORT.COMPLETE_SCREENSHOT
+                + '</a><br><img src="'
+                + main_screenshot
+                + '"></p>'
             )
 
         return screenshot_text
@@ -508,10 +508,10 @@ class Report:
             hyperlink = self.REPORT.NOT_PRODUCED
         else:
             hyperlink = (
-                    '<a href="file://'
-                    + self.cases_folder_path
-                    + '">'
-                    + self.REPORT.VIDEO_LINK
-                    + "</a>"
+                '<a href="file://'
+                + self.cases_folder_path
+                + '">'
+                + self.REPORT.VIDEO_LINK
+                + "</a>"
             )
         return hyperlink

@@ -458,7 +458,7 @@ class Video(QtWidgets.QMainWindow):
         else:
             pixmap = QPixmap()
             if thumbnail is False:
-                qimage = QImage('assets/images/no-preview.png')
+                qimage = QImage("assets/images/no-preview.png")
                 pixmap = QPixmap.fromImage(qimage)
             else:
                 response = requests.get(thumbnail)
