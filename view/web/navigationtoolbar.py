@@ -191,11 +191,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
             self.enable_actions(filter=["stop"], enabled=False)
 
     def enable_screenshot_buttons(self, enabled=True):
-        if (
-            enabled
-            and self.parent().current_page_load_is_finished
-            and self.parent().acquisition_is_running is True
-        ):
+        if enabled and self.parent().acquisition_is_running is True:
             self.enable_actions(filter=self.screenshot_actions)
         else:
             self.enable_actions(filter=self.screenshot_actions, enabled=False)

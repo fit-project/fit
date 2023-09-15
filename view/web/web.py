@@ -93,6 +93,8 @@ class Browser(QWebEngineView):
             self.__handle_download_request
         )
         hostname = urlparse(self.url().toString()).hostname
+        if not hostname:
+            hostname = "unknown"
         self.page().save(
             os.path.join(acquisition_page_folder, hostname + ".html"),
             format=QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat,
@@ -136,7 +138,7 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_directory = None
         self.acquisition_page_folder = None
         self.screenshot_directory = None
-        self.current_page_load_is_finished = False
+
         self.log_confing = LogConfigTools()
         self.case_info = None
         self.__tasks = []
@@ -599,8 +601,6 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().reload()
 
     def add_new_tab(self, qurl=None, label="Blank", page=None):
-        self.current_page_load_is_finished = False
-
         if qurl is None:
             qurl = QtCore.QUrl("")
         self.browser = Browser()
@@ -697,7 +697,6 @@ class Web(QtWidgets.QMainWindow):
 
     def load_progress(self, progress):
         if progress == 100:
-            self.current_page_load_is_finished = True
             self.navtb.enable_screenshot_buttons()
 
     def __clear_cache(self):
@@ -707,7 +706,6 @@ class Web(QtWidgets.QMainWindow):
         cookie_store.deleteAllCookies()
 
     def __update_urlbar(self, q, browser=None):
-        self.current_page_load_is_finished = False
         self.navtb.enable_screenshot_buttons()
 
         if browser != self.tabs.currentWidget():

@@ -157,12 +157,18 @@ def traceroute(url, filename):
 
 
 def get_headers_information(url):
-    response = requests.get(url, verify=False)
+    __url = urlparse(url)
+    if not __url.netloc:
+        return "Don't find Network location part in the URL"
 
+    response = requests.get(url, verify=False)
     return response.headers
 
 
 def check_if_peer_certificate_exist(url):
+    __url = urlparse(url)
+    if not __url.netloc:
+        return False
     with requests.get(url, stream=True, timeout=10, verify=False) as response:
         try:
             response.raw.connection.sock.getpeercert()
