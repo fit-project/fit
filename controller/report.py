@@ -462,8 +462,16 @@ class Report:
                 self.cases_folder_path, "screenshot.png"
             )
 
-            url_folder = os.listdir(full_screenshot_path)
-            full_screenshot_path = os.path.join(full_screenshot_path, url_folder[0])
+            # url_folder = os.listdir(full_screenshot_path)
+            url_folder = [
+                file
+                for file in os.listdir(full_screenshot_path)
+                if os.path.isdir(os.path.join(full_screenshot_path, file))
+            ]
+
+            if url_folder:
+                full_screenshot_path = os.path.join(full_screenshot_path, url_folder[0])
+
             images = os.listdir(full_screenshot_path)
             main_screenshot = os.path.join(full_screenshot_path, images[0])
 
