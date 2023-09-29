@@ -30,6 +30,7 @@ from view.acquisition.tasks.task import AcquisitionTask
 from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView
 
+
 from common.constants import (
     tasks as Tasks,
     logger as Logger,
@@ -39,12 +40,26 @@ from common.constants import (
     details as Details,
 )
 from common.constants.view import general
+from common.constants.view.web import *
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
 from common.utility import screenshot_filename, get_version, get_platform
 
 logger = logging.getLogger(__name__)
+
+
+class InitSingletonClass(object):
+    def __new__(cls):
+        if not hasattr(cls, "instance"):
+            cls.instance = super(InitSingletonClass, cls).__new__(cls)
+            profile = QWebEngineProfile.defaultProfile()
+            cls.default_download_path = profile.downloadPath()
+            profile.clearAllVisitedLinks()
+            cookie_store = profile.cookieStore()
+            cookie_store.deleteAllCookies()
+
+        return cls.instance
 
 
 class WebEnginePage(QWebEnginePage):
@@ -73,9 +88,10 @@ class Browser(QWebEngineView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.singleton = InitSingletonClass()
 
     def reconnect(self):
-        self.selected_directory = os.path.expanduser("~/Downloads")
+        self.selected_directory = self.singleton.default_download_path
 
         self.page().profile().setDownloadPath(self.selected_directory)
         self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
@@ -113,7 +129,7 @@ class Browser(QWebEngineView):
 
     def __handle_download_request(self, download):
         if not os.path.isdir(self.selected_directory):
-            self.selected_directory = os.path.expanduser("~/Downloads")
+            self.selected_directory = self.singleton.default_download_path
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.Directory)
         file_dialog.setDirectory(self.selected_directory)
@@ -211,8 +227,6 @@ class Web(QtWidgets.QMainWindow):
         self.start_acquisition_is_finished = False
         self.start_acquisition_is_started = False
         self.stop_acquisition_is_started = False
-
-        self.__clear_cache()
 
         self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
             "configuration_general"
@@ -362,7 +376,6 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.showMessage("")
 
-        self.__clear_cache()
         profile = QWebEngineProfile.defaultProfile()
         profile.clearHttpCache()
 
@@ -699,12 +712,6 @@ class Web(QtWidgets.QMainWindow):
         if progress == 100:
             self.navtb.enable_screenshot_buttons()
 
-    def __clear_cache(self):
-        profile = QWebEngineProfile.defaultProfile()
-        profile.clearAllVisitedLinks()
-        cookie_store = profile.cookieStore()
-        cookie_store.deleteAllCookies()
-
     def __update_urlbar(self, q, browser=None):
         self.navtb.enable_screenshot_buttons()
 
@@ -743,6 +750,14 @@ class Web(QtWidgets.QMainWindow):
             self.deleteLater()
             self.wizard.reload_case_info()
             self.wizard.show()
+        else:
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Warning,
+                ACQUISITION_IS_RUNNING,
+                WAR_ACQUISITION_IS_RUNNING,
+                "",
+            )
+            error_dlg.exec()
 
     def closeEvent(self, event):
         event.ignore()
