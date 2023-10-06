@@ -73,7 +73,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # Set urlbar width seventy percent of primary screen
         self.urlbar.setMaximumWidth(
-            QtGui.QGuiApplication.primaryScreen().geometry().width() * 0.7
+            int(QtGui.QGuiApplication.primaryScreen().geometry().width() * 0.7)
         )
         self.addWidget(self.urlbar)
 

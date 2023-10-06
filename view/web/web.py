@@ -560,7 +560,7 @@ class Web(QtWidgets.QMainWindow):
                     loop.exec()
                     self.tabs.currentWidget().grab().save(filename)
 
-                progress += increment
+                progress += int(increment)
                 self.progress_bar.setValue(progress)
 
                 images.append(filename)
@@ -600,7 +600,7 @@ class Web(QtWidgets.QMainWindow):
                 self.__are_internal_tasks_completed()
 
             else:
-                self.progress_bar.setValue(100 - progress)
+                self.progress_bar.setValue(int(100 - progress))
                 self.__enable_all()
                 self.progress_bar.setHidden(True)
 

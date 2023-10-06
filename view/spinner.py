@@ -34,8 +34,8 @@ class Spinner(QDialog):
         self.setModal(True)
 
     def set_position(self, x, y):
-        widget_x = x - self.width / 2
-        widget_y = y - self.height / 2
+        widget_x = int(x - self.width / 2)
+        widget_y = int(y - self.height / 2)
         self.move(widget_x, widget_y)
 
     def start(self):
