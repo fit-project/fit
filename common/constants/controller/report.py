@@ -56,8 +56,11 @@ TITLECC = "La Catena di Custodia"
 CCDESCR = (
     "La catena di custodia è un concetto importante in ambito forense che descrive il "
     "controllo e la documentazione degli spostamenti e delle manipolazioni di una prova "
+    "durante un'indagine o un processo legale. La catena di custodia garantisce che la prova sia autentica, "
+    "non alterata e non contaminata, e che la sua integrità sia mantenuta dal momento della raccolta fino "
+    "all'utilizzo in tribunale. Mantenere una catena di custodia affidabile è fondamentale per garantire "
+    "che la prova sia valida e adatta a supportare le conclusioni nell'ambito giudiziario."
 )
-"durante un'indagine o un processo legale. La catena di custodia garantisce che la prova sia autentica, " "non alterata e non contaminata, e che la sua integrità sia mantenuta dal momento della raccolta fino " "all'utilizzo in tribunale. Mantenere una catena di custodia affidabile è fondamentale per garantire " "che la prova sia valida e adatta a supportare le conclusioni nell'ambito giudiziario."
 
 TITLEH = "Hash"
 HDESCR = (

@@ -7,12 +7,12 @@
 # -----
 ######
 TITLE = "Case Info"
-NAME = "Cliente/Caso*"
-LAWYER = "Avvocato"
-OPERATOR = "Operatore"
-PROCEEDING_TYPE = "Tipo procedimento"
-COURTHOUSE = "Tribunale"
-PROCEEDING_NUMBER = "Numero Procedimento"
+NAME = "Client/Case # *"
+LAWYER = "Lawyer"
+OPERATOR = "Operator"
+PROCEEDING_TYPE = "Proceeding Type"
+COURTHOUSE = "Courthouse"
+PROCEEDING_NUMBER = "Proceeding Number"
 NOTES = "Note"
 DIALOG_TITLE = " Case {} ID:{}"
 LOGO = "Logo"

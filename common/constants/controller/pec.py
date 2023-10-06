@@ -7,7 +7,7 @@
 # -----
 ######
 
-SUBJECT = "Report acquisizione {} caso: {} ID: {}"
+SUBJECT = "Acquisition Report {} case: {} ID: {}"
 BODY = (
-    "In allegato report e relativo timestamp dell'acquisizione {} relativa al caso: {}"
+    "Attached is the report and related timestamp for acquisition {} for case: {}"
 )
