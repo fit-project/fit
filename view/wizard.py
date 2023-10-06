@@ -41,14 +41,14 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form = CaseFormView(self.case_form_widget)
         self.form.setGeometry(QtCore.QRect(0, 0, 400, 250))
 
-        x = (
+        x = int((
             (self.case_form_widget.frameGeometry().width() / 2)
             - (self.form.frameGeometry().width() / 2)
             - 20
-        )
-        y = (self.case_form_widget.frameGeometry().height() / 2) - (
+        ))
+        y = int((self.case_form_widget.frameGeometry().height() / 2) - (
             self.form.frameGeometry().height() / 2
-        )
+        ))
         self.form.move(x, y)
 
         self.configuration_button = QtWidgets.QPushButton(self)
