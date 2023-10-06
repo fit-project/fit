@@ -105,12 +105,12 @@ class Base(QObject):
 
     def set_completed_progress_bar(self):
         if self.__progress_bar:
-            self.increment = 100 - self.__progress_bar.value()
+            self.increment = int(100 - self.__progress_bar.value())
             self.upadate_progress_bar()
 
     def upadate_progress_bar(self):
         if self.__progress_bar:
-            self.__progress_bar.setValue(self.__progress_bar.value() + self.increment)
+            self.__progress_bar.setValue(int(self.__progress_bar.value() + self.increment))
 
     def set_message_on_the_statusbar(self, message):
         if self.__status_bar:
