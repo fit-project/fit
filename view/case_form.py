@@ -251,9 +251,9 @@ class CaseForm(QtWidgets.QWidget):
     def __select_logo(self):
         file_name, _ = QFileDialog.getOpenFileName(
             self,
-            "Seleziona immagine",
+            "Select image",
             "",
-            "Immagini (*.png *.jpg *.bmp *.gif);;Tutti i file (*)",
+            "Images (*.png *.jpg *.bmp *.gif);;All files (*)",
         )
 
         if file_name:

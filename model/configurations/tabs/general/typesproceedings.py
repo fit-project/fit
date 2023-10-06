@@ -51,4 +51,4 @@ class TypesProceedings(Base):
             self.db.session.commit()
 
     def set_default_values(self):
-        self.add(["Penale", "Civile", "Extragiudiziale"])
+        self.add(["Civil", "Extrajudicial", "Penal"])

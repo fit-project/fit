@@ -55,7 +55,7 @@ class GenerateReport:
         subject,
         send_date,
         expiration_date,
-        integrità,
+        integrity,
         revoked,
         signature,
         provider_name,
@@ -64,7 +64,7 @@ class GenerateReport:
         ntp,
         eml_file_path,
     ):
-        case_index = subject.find("caso: ")
+        case_index = subject.find("case: ")
         case_slice_before = subject[:case_index]
         case_slice_after = subject[case_index:]
         subject = case_slice_before + "\n" + case_slice_after
@@ -114,7 +114,7 @@ class GenerateReport:
                 "======================================================================\n"
             )
             file.write(f"{REPORT_LABEL_INTEGRITY}\n")
-            file.write(f"{integrità}\n")
+            file.write(f"{integrity}\n")
             file.write(
                 "======================================================================\n"
             )

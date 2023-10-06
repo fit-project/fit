@@ -97,7 +97,7 @@ class SearchPec(QDialog):
         self.pec_tree.setObjectName("emails_tree")
         self.pec_tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
-        self.pec_tree.setHeaderLabel("Pec trovate")
+        self.pec_tree.setHeaderLabel("Pec found")
         self.root = QTreeWidgetItem(["Inbox"])
         self.pec_tree.addTopLevelItem(self.root)
         layout.addWidget(self.pec_tree)
@@ -381,12 +381,12 @@ class SearchPec(QDialog):
         uid_index = uid.find("UID:")
         timestamp_slice = uid[timestamp_index + len("ID:") + 1 : uid_index]
 
-        acquisition_index = uid.find("acquisizione")
-        case_index = uid.find("caso: ")
+        acquisition_index = uid.find("Acquisition Report")
+        case_index = uid.find("case: ")
         acquisition_slice = uid[
-            acquisition_index + len("acquisizione") + 1 : case_index
+            acquisition_index + len("Acquisition Report") + 1 : case_index
         ]
-        case_slice = uid[case_index + len("caso:") + 1 : timestamp_index]
+        case_slice = uid[case_index + len("case:") + 1 : timestamp_index]
 
         acquisition_slice = acquisition_slice.strip()
         timestamp_slice = timestamp_slice.strip()

@@ -7,17 +7,17 @@
 # -----
 ######
 
-N_FOLLOWERS = "Numero di followers: "
+N_FOLLOWERS = "Number of followers: "
 FOLLOWERS = "Followers: \n"
-N_FOLLOWEES = "Numero di followees: "
+N_FOLLOWEES = "Number of followees: "
 FOLLOWEES = "Followees: \n"
-VERIFIED = "Tipo di profilo: verificato"
-NO_VERIFIED = "Tipo di profilo: non verificato"
-FULL_NAME = "Nome completo: "
-PERSONAL = "Tipo di profilo: personale"
-TYPE = "Tipo di account: "
-BIO = "Biografia account: "
-N_POSTS = "Numero di post: "
+VERIFIED = "Profile Type: verified"
+NO_VERIFIED = "Profile Type: not verified"
+FULL_NAME = "Full Name: "
+PERSONAL = "Profile Type: personal"
+TYPE = "Account Type: "
+BIO = "Account Bio: "
+N_POSTS = "Number of posts: "
 HANDLE_429 = 'Instagram responded with HTTP error "429 - Too Many Requests".<br>\
             Please wait a few minutes (5/6) and do not run FIT multiple times in parallel or within short sequence.<br>\
             Also, do not use any Instagram App while FIT is running.'
