@@ -7,6 +7,7 @@
 # -----
 ######
 
+INITIALIZATED = "initializated"
 STARTED = "Started"
 FINISHED = "Finished"
 RUNNING = "Running"

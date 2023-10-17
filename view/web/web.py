@@ -222,6 +222,9 @@ class Web(QtWidgets.QMainWindow):
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)
         self.acquisition.completed.connect(self.__are_external_tasks_completed)
+        self.acquisition.screen_recorder_is_completed.connect(
+            self.__is_screen_recorder_completed
+        )
 
         self.acquisition_is_running = False
         self.start_acquisition_is_finished = False
@@ -298,9 +301,28 @@ class Web(QtWidgets.QMainWindow):
             # enable stop and info acquisition button
             self.navtb.enable_stop_and_info_acquisition_button()
 
+            # set acquisition info
+            self.acquisition.folder = self.acquisition_directory
+            self.acquisition.case_info = self.case_info
+
+            # start video
+            self.acquisition.start_task_screen_recorder()
+
+    def __is_screen_recorder_completed(self):
+        if self.start_acquisition_is_finished is False:
             # external tasks
-            tasks = [Tasks.SCREEN_RECORDER, Tasks.PACKET_CAPTURE]
-            self.acquisition.start(tasks, self.acquisition_directory, self.case_info)
+            tasks = [Tasks.PACKET_CAPTURE]
+            self.acquisition.start(tasks)
+        else:
+            self.__stop_acquisition_is_finished()
+
+    def __are_external_tasks_completed(self):
+        if self.start_acquisition_is_finished is False:
+            self.__start_acquisition_is_finished()
+        else:
+            # start internal tasks
+            self.take_full_page_screenshot(last=True)
+            self.save_page()
 
     def stop_acquisition(self):
         if self.start_acquisition_is_finished:
@@ -317,7 +339,6 @@ class Web(QtWidgets.QMainWindow):
                 Tasks.TRACEROUTE,
                 Tasks.SSLKEYLOG,
                 Tasks.SSLCERTIFICATE,
-                Tasks.SCREEN_RECORDER,
             ]
 
             # internal tasks
@@ -333,14 +354,6 @@ class Web(QtWidgets.QMainWindow):
     def acquisition_info(self):
         self.acquisition.info.show()
 
-    def __are_external_tasks_completed(self):
-        if self.start_acquisition_is_finished is False:
-            self.__start_acquisition_is_finished()
-        else:
-            # start internal tasks
-            self.take_full_page_screenshot(last=True)
-            self.save_page()
-
     def __are_internal_tasks_completed(self):
         status = [task.status for task in self.__tasks]
         status = list(set(status))
@@ -351,7 +364,7 @@ class Web(QtWidgets.QMainWindow):
             )
 
     def __are_post_acquisition_finished(self):
-        self.__stop_acquisition_is_finished()
+        self.acquisition.stop_task_screen_recorder()
 
     def __start_acquisition_is_finished(self):
         self.acquisition.set_completed_progress_bar()
