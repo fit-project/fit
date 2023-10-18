@@ -13,9 +13,13 @@ import os
 from PyQt6.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread
 from PyQt6.QtWidgets import QMessageBox
 
-from view.acquisition.base import Base
-from view.acquisition.tasks.task import AcquisitionTask
+
+from view.tasks.task import Task
 from view.error import Error as ErrorView
+
+from controller.configurations.tabs.packetcapture.packetcapture import (
+    PacketCapture as PacketCaptureCotroller,
+)
 
 from common.constants import logger, details, state, status, tasks
 from common.constants import tasks, error
@@ -23,6 +27,7 @@ from common.constants import tasks, error
 
 class PacketCapture(QObject):
     finished = pyqtSignal()
+    started = pyqtSignal()
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
@@ -36,6 +41,7 @@ class PacketCapture(QObject):
         )
 
     def start(self):
+        self.started.emit()
         try:
             self.sniffer.start()
         except Exception as e:
@@ -56,42 +62,69 @@ class PacketCapture(QObject):
         self.finished.emit()
 
 
-class AcquisitionPacketCapture(AcquisitionTask):
-    def __init__(self, name, state, status, parent: None):
-        super().__init__(name, state, status, parent)
-
-    def start(self, options):
-        self.th_packetcapture = QThread()
+class TaskPacketCapture(Task):
+    def __init__(
+        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+    ):
+        self.name = tasks.PACKET_CAPTURE
+        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        self.packetcapture_thread = QThread()
         self.packetcapture = PacketCapture()
-        self.packetcapture.set_options(options)
-        self.packetcapture.moveToThread(self.th_packetcapture)
+        self.packetcapture.moveToThread(self.packetcapture_thread)
 
-        self.th_packetcapture.started.connect(self.packetcapture.start)
-        self.packetcapture.finished.connect(self.th_packetcapture.quit)
-        self.packetcapture.finished.connect(self.packetcapture.deleteLater)
-        self.th_packetcapture.finished.connect(self.th_packetcapture.deleteLater)
-        self.th_packetcapture.finished.connect(self._thread_packetcapture_is_finished)
+        self.packetcapture_thread.started.connect(self.packetcapture.start)
 
-        self.th_packetcapture.start()
+        self.packetcapture.started.connect(self.__started)
+        self.packetcapture.finished.connect(self.__finished)
 
-        self.parent().logger.info(logger.NETWORK_PACKET_CAPTURE_STARTED)
-        self.parent().task_is_completed(
-            {
-                "name": tasks.PACKET_CAPTURE,
-                "details": details.NETWORK_PACKET_CAPTURE_STARTED,
-            }
+    @Task.options.getter
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, options):
+        folder = options["acquisition_directory"]
+        options = PacketCaptureCotroller().options
+        options["acquisition_directory"] = folder
+
+    def start(self):
+        self.update_task(state.STARTED, status.PENDING)
+        self.set_message_on_the_statusbar(logger.SCREEN_RECODER_STARTED)
+
+        self.packetcapture.set_options(self.options)
+        self.packetcapture_thread.start()
+
+    def __started(self):
+        self.update_task(
+            state.STARTED,
+            status.COMPLETED,
+            details.NETWORK_PACKET_CAPTURE_STARTED,
         )
+
+        self.upadate_progress_bar()
+        self.set_message_on_the_statusbar("")
+
+        self.logger.info(logger.NETWORK_PACKET_CAPTURE_STARTED)
+        self.started.emit()
 
     def stop(self):
+        self.update_task(state.STOPPED, status.PENDING)
+        self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STOPPED)
         self.packetcapture.stop()
 
-    def _thread_packetcapture_is_finished(self):
-        self.parent().logger.info(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
-        self.parent().task_is_completed(
-            {
-                "name": tasks.PACKET_CAPTURE,
-                "state": state.FINISHED,
-                "status": status.COMPLETED,
-                "details": details.NETWORK_PACKET_CAPTURE_COMPLETED,
-            }
+    def __finished(self):
+        self.logger.info(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
+        self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
+        self.upadate_progress_bar()
+        self.set_message_on_the_statusbar("")
+
+        self.update_task(
+            state.FINISHED,
+            status.COMPLETED,
+            details.NETWORK_PACKET_CAPTURE_COMPLETED,
         )
+
+        self.finished.emit()
+
+        self.packetcapture_thread.quit()
+        self.packetcapture_thread.wait()

@@ -19,7 +19,6 @@ from PyQt6.QtWidgets import QMessageBox
 from screeninfo import get_monitors
 
 from view.tasks.task import Task
-
 from view.error import Error as ErrorView
 
 from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
