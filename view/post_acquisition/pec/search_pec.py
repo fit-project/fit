@@ -42,6 +42,8 @@ from controller.pec import Pec as PecController
 
 from controller.configurations.tabs.pec.pec import Pec as PecConfigController
 
+
+from common.utility import resolve_path
 from common.constants.view.pec import pec, search_pec
 from common.constants.status import *
 from view.spinner import Spinner
@@ -81,7 +83,9 @@ class SearchPec(QDialog):
         )
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
 
         # PEC GROUP
         self.pec_group_box = QGroupBox(self.centralwidget)

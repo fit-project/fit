@@ -18,7 +18,7 @@ from controller.configurations.tabs.general.typesproceedings import (
     TypesProceedings as TypesProceedingsController,
 )
 
-from common.utility import get_logo, get_version, get_language
+from common.utility import get_logo, get_version, get_language, resolve_path
 from model.case import Case
 
 
@@ -78,7 +78,8 @@ class Report:
         zip_enum = self._zip_files_enum()
 
         # FILLING FRONT PAGE WITH DATA
-        front_index_path = os.path.join("assets", "templates", "front.html")
+
+        front_index_path = os.path.join(resolve_path("assets/templates"), "front.html")
         front_index = (
             open(front_index_path)
             .read()
@@ -94,7 +95,7 @@ class Report:
         # FILLING TEMPLATE WITH DATA
         if type == "web" and whois_text != self.REPORT.NOT_PRODUCED:
             content_index_path = os.path.join(
-                "assets", "templates", "template_web.html"
+                resolve_path("assets/templates"), "template_web.html"
             )
             content_index = (
                 open(content_index_path)
@@ -200,7 +201,7 @@ class Report:
 
         elif type == "web" and whois_text == self.REPORT.NOT_PRODUCED:
             content_index_path = os.path.join(
-                "assets", "templates", "template_web_no_whois.html"
+                resolve_path("assets/templates"), "template_web_no_whois.html"
             )
             content_index = (
                 open(content_index_path)
@@ -304,7 +305,7 @@ class Report:
 
         if type == "email" or type == "instagram" or type == "video":
             content_index_path = os.path.join(
-                "assets", "templates", "template_email.html"
+                resolve_path("assets/templates"), "template_email.html"
             )
             content_index = (
                 open(content_index_path)

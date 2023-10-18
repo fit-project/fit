@@ -24,7 +24,7 @@ from controller.configurations.tabs.network.networkcheck import NetworkControlle
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
-from common.utility import get_ntp_date_and_time, get_platform
+from common.utility import get_ntp_date_and_time, get_platform, resolve_path
 from common.constants.view import verify_pdf_timestamp, general
 
 
@@ -51,7 +51,9 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
             if "acquisition_directory" in options:
                 self.acquisition_directory = options["acquisition_directory"]
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
         self.setObjectName("verify_timestamp_window")
 
         self.centralwidget = QtWidgets.QWidget(self)

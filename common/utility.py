@@ -50,10 +50,21 @@ def get_platform():
     return platforms[sys.platform]
 
 
+def resolve_path(self, path):
+    if getattr(sys, "frozen", False):
+        # If the 'frozen' flag is set, we are in bundled-app mode!
+        resolved_path = os.path.abspath(os.path.join(sys._MEIPASS, path))
+    else:
+        # Normal development mode. Use os.getcwd() or __file__ as appropriate in your case...
+        resolved_path = os.path.abspath(os.path.join(os.getcwd(), path))
+
+    return resolved_path
+
+
 def check_internet_connection():
     try:
         parser = SafeConfigParser()
-        parser.read("assets/config.ini")
+        parser.read(resolve_path("assets/config.ini"))
         url = parser.get("fit_properties", "check_connection_url")
         urllib.request.urlopen(url)
         return True
@@ -68,7 +79,7 @@ def is_npcap_installed():
 
 def get_npcap_installer_url():
     parser = SafeConfigParser()
-    parser.read("assets/config.ini")
+    parser.read(resolve_path("assets/config.ini"))
     url = parser.get("fit_properties", "npcap_latest_version_url")
     installer_url = None
     with requests.get(url, stream=True, timeout=10, verify=False) as response:

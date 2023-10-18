@@ -42,6 +42,7 @@ from view.spinner import Spinner
 
 from controller.mail import Mail as MailController
 
+from common.utility import resolve_path
 from common.constants.view import mail, general
 from common.constants.view.pec import search_pec
 from common.constants import tasks as Tasks
@@ -439,7 +440,7 @@ class Mail(QtWidgets.QMainWindow):
         self.retranslateUi()
         QMetaObject.connectSlotsByName(self)
 
-        self.setWindowIcon(QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg")))
 
         # ACQUISITION
         self.acquisition = Acquisition(logger, self.progress_bar, self.status, self)

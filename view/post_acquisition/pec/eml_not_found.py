@@ -11,6 +11,8 @@ import os
 from PyQt6 import QtCore, QtWidgets, QtGui
 
 from view.post_acquisition.pec.search_pec import SearchPec as SearchPecView
+
+from common.utility import resolve_path
 from common.constants.view.pec import eml_not_found
 from common.constants.status import *
 
@@ -31,7 +33,9 @@ class EmlNotFound(QtWidgets.QDialog):
         self.resize(200, 100)
         self.setWindowTitle("Freezing Internet Tool")
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
         buttons = (
             QtWidgets.QDialogButtonBox.StandardButton.Yes
             | QtWidgets.QDialogButtonBox.StandardButton.No

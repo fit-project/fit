@@ -36,7 +36,7 @@ from common.constants import (
     error as Error,
 )
 from common.constants.view import general, video
-from common.utility import get_platform
+from common.utility import get_platform, resolve_path
 
 logger_acquisition = logging.getLogger(__name__)
 
@@ -123,7 +123,9 @@ class Video(QtWidgets.QMainWindow):
         self.wizard = wizard
         self.case_info = case_info
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
 
         # set font
         font = QtGui.QFont()
@@ -464,7 +466,7 @@ class Video(QtWidgets.QMainWindow):
         else:
             pixmap = QPixmap()
             if thumbnail is False:
-                qimage = QImage("assets/images/no-preview.png")
+                qimage = QImage(resolve_path("assets/images/no-preview.png"))
                 pixmap = QPixmap.fromImage(qimage)
             else:
                 response = requests.get(thumbnail)

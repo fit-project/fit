@@ -10,6 +10,7 @@
 import os
 from PyQt6 import QtGui, QtCore, QtWidgets
 
+from common.utility import resolve_path
 from common.constants.view import general
 
 
@@ -26,7 +27,7 @@ class TasksInfo(QtWidgets.QDialog):
         self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.setWindowTitle(general.INFO)
         self.icon = QtGui.QIcon(
-            os.path.join("../assets/svg/acquisition", "info-circle.svg")
+            os.path.join(resolve_path("assets/svg/acquisition"), "info-circle.svg")
         )
 
         self.table = QtWidgets.QTableWidget(self)

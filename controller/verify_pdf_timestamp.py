@@ -16,7 +16,7 @@ from controller.configurations.tabs.general.typesproceedings import (
     TypesProceedings as TypesProceedingsController,
 )
 
-from common.utility import get_logo, get_version, get_language
+from common.utility import get_logo, get_version, get_language, resolve_path
 
 
 class VerifyPDFTimestamp:
@@ -41,7 +41,7 @@ class VerifyPDFTimestamp:
         with open(info_file_path, "r") as f:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
-        front_html = os.path.join("assets/templates/front.html")
+        front_html = os.path.join(resolve_path("assets/templates"), "front.html")
         front_index = (
             open(front_html)
             .read()
@@ -77,7 +77,9 @@ class VerifyPDFTimestamp:
         else:
             t3descr = self.REPORT.VERIFI_KO
 
-        content_html = os.path.join("assets/templates/template_verification.html")
+        content_html = os.path.join(
+            resolve_path("assets/templates"), "template_verification.html"
+        )
         content_index = (
             open(content_html)
             .read()

@@ -11,6 +11,8 @@ import os
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from common.utility import resolve_path
+
 
 class NavigationToolBar(QtWidgets.QToolBar):
     def __init__(self, parent=None):
@@ -22,7 +24,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.acquisition_actions = ["start", "stop", "info"]
         self.screenshot_actions = ["camera", "select", "scroll"]
 
-        back_icon = QtGui.QIcon(os.path.join("assets/svg/toolbar", "back.svg"))
+        back_icon = QtGui.QIcon(
+            os.path.join(resolve_path("assets/svg/toolbar"), "back.svg")
+        )
         back_btn = QtGui.QAction(back_icon, "Back", self)
         back_btn.setStatusTip("Back to previous page")
         back_btn.setObjectName("back")
@@ -30,7 +34,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addAction(back_btn)
 
         next_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "forward.svg")),
+            QtGui.QIcon(
+                os.path.join(resolve_path("assets/svg/toolbar"), "forward.svg")
+            ),
             "Forward",
             self,
         )
@@ -40,7 +46,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addAction(next_btn)
 
         reload_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "reload.svg")),
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/toolbar"), "reload.svg")),
             "Reload",
             self,
         )
@@ -50,7 +56,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addAction(reload_btn)
 
         home_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "home.svg")), "Home", self
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/toolbar"), "home.svg")),
+            "Home",
+            self,
         )
         home_btn.setStatusTip("Go home")
         home_btn.setObjectName("home")
@@ -60,7 +68,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addSeparator()
 
         self.httpsicon = QtWidgets.QLabel()
-        pixmap = QtGui.QPixmap(os.path.join("assets/svg/toolbar", "lock-open.svg"))
+        pixmap = QtGui.QPixmap(
+            os.path.join(resolve_path("assets/svg/toolbar"), "lock-open.svg")
+        )
         self.httpsicon.setPixmap(
             pixmap.scaled(
                 16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio
@@ -78,7 +88,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
         self.addWidget(self.urlbar)
 
         stop_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "close.svg")), "Stop", self
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/toolbar"), "close.svg")),
+            "Stop",
+            self,
         )
         stop_btn.setStatusTip("Stop loading current page")
         stop_btn.setObjectName("close")
@@ -89,7 +101,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # START ACQUISITION ACTION
         self.start_acquisition_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "start.svg")),
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/toolbar"), "start.svg")),
             "Start Acquisition",
             self,
         )
@@ -100,7 +112,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # STOP ACQUISITION ACTION
         self.stop_acquisition_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "stop-disabled.svg")),
+            QtGui.QIcon(
+                os.path.join(resolve_path("assets/svg/toolbar"), "stop-disabled.svg")
+            ),
             "Stop Acquisition",
             self,
         )
@@ -112,7 +126,7 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # INFO ACQUISITION STATUS ACTION
         self.info_acquisition_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "info.svg")),
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/toolbar"), "info.svg")),
             "info Acquisition",
             self,
         )
@@ -125,7 +139,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # SCREENSHOT ACTION
         self.screenshot_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "camera-disabled.svg")),
+            QtGui.QIcon(
+                os.path.join(resolve_path("assets/svg/toolbar"), "camera-disabled.svg")
+            ),
             "Take a screenshot page",
             self,
         )
@@ -138,7 +154,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # SCREENSHOT SELECTED AREA
         self.screenshot_sl_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "select-disabled.svg")),
+            QtGui.QIcon(
+                os.path.join(resolve_path("assets/svg/toolbar"), "select-disabled.svg")
+            ),
             "Take a screenshot on the selected area",
             self,
         )
@@ -151,7 +169,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
 
         # SCREENSHOT FULL PAGE
         self.screenshot_fp_btn = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/svg/toolbar", "scroll-disabled.svg")),
+            QtGui.QIcon(
+                os.path.join(resolve_path("assets/svg/toolbar"), "scroll-disabled.svg")
+            ),
             "Take a full page screenshot",
             self,
         )
@@ -174,7 +194,9 @@ class NavigationToolBar(QtWidgets.QToolBar):
                         icon = action.objectName() + "-disabled.svg"
 
                     action.setIcon(
-                        QtGui.QIcon(os.path.join("assets/svg/toolbar", icon))
+                        QtGui.QIcon(
+                            os.path.join(resolve_path("assets/svg/toolbar"), icon)
+                        )
                     )
                     action.setEnabled(enabled)
 

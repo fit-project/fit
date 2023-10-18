@@ -44,7 +44,7 @@ from common.constants.view.web import *
 
 from common.settings import DEBUG
 from common.config import LogConfigTools
-from common.utility import screenshot_filename, get_version, get_platform
+from common.utility import screenshot_filename, get_version, get_platform, resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +178,9 @@ class Web(QtWidgets.QMainWindow):
         # Add custom menu on menu bar
         tab_menu = self.menu_bar.addMenu("&Tab")
         new_tab_action = QtGui.QAction(
-            QtGui.QIcon(os.path.join("assets/images", "ui-tab--plus.png")),
+            QtGui.QIcon(
+                os.path.join(resolve_path("assets/images"), "ui-tab--plus.png")
+            ),
             "New Tab",
             self,
         )
@@ -249,7 +251,9 @@ class Web(QtWidgets.QMainWindow):
         self.show()
 
         self.setWindowTitle("Freezing Internet Tool")
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
 
         # Enable/Disable other modules logger
         if not DEBUG:
@@ -734,7 +738,9 @@ class Web(QtWidgets.QMainWindow):
 
         if q.scheme() == "https":
             # Secure padlock icon
-            pixmap = QtGui.QPixmap(os.path.join("assets/svg/toolbar", "lock-close.svg"))
+            pixmap = QtGui.QPixmap(
+                os.path.join(resolve_path("assets/svg/toolbar"), "lock-close.svg")
+            )
             self.navtb.httpsicon.setPixmap(
                 pixmap.scaled(
                     16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio
@@ -743,7 +749,9 @@ class Web(QtWidgets.QMainWindow):
 
         else:
             # Insecure padlock icon
-            pixmap = QtGui.QPixmap(os.path.join("assets/svg/toolbar", "lock-open.svg"))
+            pixmap = QtGui.QPixmap(
+                os.path.join(resolve_path(resolve_path("assets/svg/toolbar"), "lock-open.svg")
+            )
             self.navtb.httpsicon.setPixmap(
                 pixmap.scaled(
                     16, 16, aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio

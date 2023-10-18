@@ -13,14 +13,17 @@ from configparser import SafeConfigParser
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QWizard
 
-from common.constants import error
-from common.constants.view import wizard, general
+
 from view.configuration import Configuration as ConfigurationView
 from view.case_form import CaseForm as CaseFormView
 from view.accordion import Accordion as AccordionView
 from view.error import Error as ErrorView
 
+from common.utility import resolve_path
+
 from common.constants.view.wizard import *
+from common.constants import error
+from common.constants.view import wizard, general
 
 
 class CaseInfoPage(QtWidgets.QWizardPage):
@@ -76,6 +79,8 @@ class SelectTaskPage(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
         super(SelectTaskPage, self).__init__(parent)
 
+        self.assets_path = resolve_path("assets/images/wizard/")
+
         self.setObjectName("SelectTask")
 
         # Create a button group for radio buttons
@@ -103,7 +108,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.web_vlayout.setContentsMargins(5, 5, 5, 5)
         self.web_vlayout.setObjectName("web_vlayout")
         self.web_img = QtWidgets.QLabel(self.web_radio_button_wrapper)
-        self.web_img.setStyleSheet("image: url(assets/images/wizard/web.png);")
+        self.web_img.setStyleSheet("image: url(" + self.assets_path + "web.png);")
         self.web_img.setText("")
         self.web_img.setObjectName("web_img")
         self.web_vlayout.addWidget(self.web_img)
@@ -146,7 +151,9 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.insta_vlayout.setObjectName("insta_vlayout")
         self.insta_img = QtWidgets.QLabel(self.insta_radio_button_wrapper)
         self.insta_img.setEnabled(True)
-        self.insta_img.setStyleSheet("image: url(assets/images/wizard/instagram.png);")
+        self.insta_img.setStyleSheet(
+            "image: url(" + self.assets_path + "instagram.png);"
+        )
         self.insta_img.setText("")
         self.insta_img.setObjectName("insta_img")
         self.insta_vlayout.addWidget(self.insta_img)
@@ -168,7 +175,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.video_vlayout.setObjectName("video_vlayout")
         self.video_img = QtWidgets.QLabel(self.video_radio_button_wrapper)
         self.video_img.setEnabled(True)
-        self.video_img.setStyleSheet("image: url(assets/images/wizard/video.png);")
+        self.video_img.setStyleSheet("image: url(" + self.assets_path + "video.png);")
         self.video_img.setText("")
         self.video_img.setObjectName("video_img")
         self.video_vlayout.addWidget(self.video_img)
@@ -216,7 +223,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.timestamp_img = QtWidgets.QLabel(self.timestamp_radio_button_wrapper)
         self.timestamp_img.setEnabled(False)
         self.timestamp_img.setStyleSheet(
-            "image: url(assets/images/wizard/timestamp.png);"
+            "image: url(" + self.assets_path + "timestamp.png);"
         )
         self.timestamp_img.setText("")
         self.timestamp_img.setObjectName("timestamp_img")
@@ -239,7 +246,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
         self.pec_vlayout.setObjectName("pec_vlayout")
         self.pec_img = QtWidgets.QLabel(self.pec_radio_button_wrapper)
         self.pec_img.setEnabled(False)
-        self.pec_img.setStyleSheet("image: url(assets/images/wizard/email.png);")
+        self.pec_img.setStyleSheet("image: url(" + self.assets_path + "/email.png);")
         self.pec_img.setText("")
         self.pec_img.setObjectName("pec_img")
         self.pec_vlayout.addWidget(self.pec_img)
@@ -304,7 +311,9 @@ class Wizard(QtWidgets.QWizard):
         self.setWindowFlags(
             self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
         )
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
 
         self.case_info_page = CaseInfoPage(self)
         self.select_task_page = SelectTaskPage(self)
@@ -383,7 +392,7 @@ class Wizard(QtWidgets.QWizard):
 
     def __get_version(self):
         parser = SafeConfigParser()
-        parser.read("assets/config.ini")
+        parser.read(resolve_path("assets/config.ini"))
         version = parser.get("fit_properties", "version")
 
         return version

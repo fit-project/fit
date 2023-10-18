@@ -12,7 +12,7 @@ import os
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 
-from common.utility import get_logo, get_version, get_language
+from common.utility import get_logo, get_version, get_language, resolve_path
 
 from controller.configurations.tabs.general.typesproceedings import (
     TypesProceedings as TypesProceedingsController,
@@ -42,7 +42,7 @@ class Html2Pdf:
             info_file = f.read()
         # FILLING FRONT PAGE WITH DATA
         front_index = (
-            open("assets/templates/front.html")
+            open(resolve_path("assets/templates/front.html"))
             .read()
             .format(
                 img=get_logo(),
@@ -72,7 +72,7 @@ class Html2Pdf:
             logo = "<div></div>"
 
         content_index = (
-            open("assets/templates/template_pec.html")
+            open(resolve_path("assets/templates/template_pec.html"))
             .read()
             .format(
                 title=self.REPORT.TITLE,
