@@ -130,9 +130,6 @@ class TaskScreenRecorder(Task):
             details.SCREEN_RECORDER_STARTED,
         )
 
-        self.upadate_progress_bar()
-        self.set_message_on_the_statusbar("")
-
         self.logger.info(logger.SCREEN_RECODER_STARTED)
         self.started.emit()
 
@@ -145,7 +142,6 @@ class TaskScreenRecorder(Task):
         self.logger.info(logger.SCREEN_RECODER_COMPLETED)
         self.set_message_on_the_statusbar(logger.SCREEN_RECODER_COMPLETED)
         self.upadate_progress_bar()
-        self.set_message_on_the_statusbar("")
 
         self.update_task(
             state.FINISHED,

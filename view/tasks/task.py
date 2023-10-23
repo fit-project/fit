@@ -80,7 +80,7 @@ class Task(QObject):
 
     def upadate_progress_bar(self):
         if self.progress_bar is not None:
-            self.progress_bar.setValue(self.progress_bar.value() + self.increment)
+            self.progress_bar.setValue(self.progress_bar.value() + int(self.increment))
 
     def set_message_on_the_statusbar(self, message):
         if self.status_bar is not None:

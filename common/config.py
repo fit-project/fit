@@ -58,7 +58,7 @@ class LogConfigTools:
                 },
             },
             "loggers": {
-                "view.web": {"handlers": ["facquisition"], "level": "INFO"},
+                "view.web.web": {"handlers": ["facquisition"], "level": "INFO"},
                 "view.instagram": {"handlers": ["facquisition"], "level": "INFO"},
                 "view.video": {"handlers": ["facquisition"], "level": "INFO"},
                 "hashreport": {"handlers": ["fhashreport"], "level": "INFO"},

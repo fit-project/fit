@@ -86,10 +86,11 @@ class TaskPacketCapture(Task):
         folder = options["acquisition_directory"]
         options = PacketCaptureCotroller().options
         options["acquisition_directory"] = folder
+        self._options = options
 
     def start(self):
         self.update_task(state.STARTED, status.PENDING)
-        self.set_message_on_the_statusbar(logger.SCREEN_RECODER_STARTED)
+        self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
 
         self.packetcapture.set_options(self.options)
         self.packetcapture_thread.start()
@@ -100,9 +101,6 @@ class TaskPacketCapture(Task):
             status.COMPLETED,
             details.NETWORK_PACKET_CAPTURE_STARTED,
         )
-
-        self.upadate_progress_bar()
-        self.set_message_on_the_statusbar("")
 
         self.logger.info(logger.NETWORK_PACKET_CAPTURE_STARTED)
         self.started.emit()
@@ -116,7 +114,6 @@ class TaskPacketCapture(Task):
         self.logger.info(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
         self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
         self.upadate_progress_bar()
-        self.set_message_on_the_statusbar("")
 
         self.update_task(
             state.FINISHED,
