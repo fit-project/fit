@@ -53,9 +53,18 @@ SSLCERTIFICATE_COMPLETED = "SSLCERTIFICATE completed"
 SSLCERTIFICATE_GET = "Get SSL CERTIFICATE"
 SSLCERTIFICATE_GET_FROM_URL = "Get SSL certificate from URL: {}"
 
+CALCULATE_HASHFILE_STARTED = "CALCULATE HASHFILE started"
+CALCULATE_HASHFILE_STOPPED = "CALCULATE HASHFILE stopped"
+CALCULATE_HASHFILE_COMPLETED = "CALCULATE HASHFILE completed"
 CALCULATE_HASHFILE = "Calculate acquisition file hash"
+
+GENERATE_PDF_REPORT = "Generate PDF Report"
+GENERATE_PDF_REPORT_STARTED = "GENERATE PDF REPORT started"
+GENERATE_PDF_REPORT_STOPPED = "GENERATE PDF REPORT stopped"
+GENERATE_PDF_REPORT_COMPLETED = "GENERATE PDF REPORT completed"
 GENERATE_PDF_REPORT_START = "Generate PDF Report start"
 GENERATE_PDF_REPORT_STOP = "Generate PDF Report stop"
+
 SCREENSHOT = "Save screenshot of current page"
 SAVE_PAGE = "Save all resource of current page"
 
@@ -66,7 +75,6 @@ SAVE_EMAILS = "Save all selected emails"
 FETCH_PROFILE = "Fetching profile"
 LOGGED_IN = "Logged in with username: {}"
 SCRAPING_INSTAGRAM = "Scraping profile: {}"
-
 
 FETCH_VIDEO = "Fetching video"
 DOWNLOAD_VIDEO = "Downloading video"
