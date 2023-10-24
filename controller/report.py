@@ -10,6 +10,7 @@ import base64
 import fnmatch
 import os
 
+from string import Template
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
@@ -78,18 +79,15 @@ class Report:
         zip_enum = self._zip_files_enum()
 
         # FILLING FRONT PAGE WITH DATA
+        with open(os.path.join(resolve_path("assets/templates"), "front.html")) as fh:
+            template = Template(fh.read())
 
-        front_index_path = os.path.join(resolve_path("assets/templates"), "front.html")
-        front_index = (
-            open(front_index_path)
-            .read()
-            .format(
-                img=get_logo(),
-                t1=self.REPORT.T1,
-                title=self.REPORT.TITLE,
-                report=self.REPORT.REPORT,
-                version=get_version(),
-            )
+        front_index = template.safe_substitute(
+            img=get_logo(),
+            t1=self.REPORT.T1,
+            title=self.REPORT.TITLE,
+            report=self.REPORT.REPORT,
+            version=get_version(),
         )
 
         # FILLING TEMPLATE WITH DATA
@@ -97,10 +95,10 @@ class Report:
             content_index_path = os.path.join(
                 resolve_path("assets/templates"), "template_web.html"
             )
-            content_index = (
-                open(content_index_path)
-                .read()
-                .format(
+            with open(os.path.join(content_index_path)) as fh:
+                template = Template(fh.read())
+
+                content_index = template.safe_substitute(
                     title=self.REPORT.TITLE,
                     index=self.REPORT.INDEX,
                     description=self.REPORT.DESCRIPTION.format(
@@ -183,7 +181,6 @@ class Report:
                     of=self.REPORT.OF,
                     logo=logo,
                 )
-            )
             pdf_options = {
                 "page-size": "Letter",
                 "margin-top": "1in",
@@ -191,6 +188,7 @@ class Report:
                 "margin-bottom": "1in",
                 "margin-left": "1in",
             }
+
             # create pdf front and content, merge them and remove merged files
             pisa.CreatePDF(
                 front_index, dest=self.output_front_result, options=pdf_options
@@ -203,10 +201,11 @@ class Report:
             content_index_path = os.path.join(
                 resolve_path("assets/templates"), "template_web_no_whois.html"
             )
-            content_index = (
-                open(content_index_path)
-                .read()
-                .format(
+
+            with open(os.path.join(content_index_path)) as fh:
+                template = Template(fh.read())
+
+                content_index = template.safe_substitute(
                     title=self.REPORT.TITLE,
                     index=self.REPORT.INDEX,
                     description=self.REPORT.DESCRIPTION.format(
@@ -286,7 +285,6 @@ class Report:
                     of=self.REPORT.OF,
                     logo=logo,
                 )
-            )
 
             pdf_options = {
                 "page-size": "Letter",
@@ -307,10 +305,11 @@ class Report:
             content_index_path = os.path.join(
                 resolve_path("assets/templates"), "template_email.html"
             )
-            content_index = (
-                open(content_index_path)
-                .read()
-                .format(
+
+            with open(os.path.join(content_index_path)) as fh:
+                template = Template(fh.read())
+
+                content_index = template.safe_substitute(
                     title=self.REPORT.TITLE,
                     index=self.REPORT.INDEX,
                     description=self.REPORT.DESCRIPTION.format(
@@ -366,7 +365,6 @@ class Report:
                     of=self.REPORT.OF,
                     logo=logo,
                 )
-            )
             # create pdf front and content, merge them and remove merged files
             pisa.CreatePDF(front_index, dest=self.output_front_result)
             pisa.CreatePDF(content_index, dest=self.output_content_result)
@@ -423,18 +421,19 @@ class Report:
             if fname.endswith(".zip"):
                 zip_dir = os.path.join(self.cases_folder_path, fname)
 
-        zip_folder = zipfile.ZipFile(zip_dir)
-        for zip_file in zip_folder.filelist:
-            size = zip_file.file_size
-            filename = zip_file.filename
-            if filename.count(".") > 1:
-                filename = filename.rsplit(".", 1)[0]
-            else:
-                pass
-            if size > 0:
-                zip_enum += "<p>" + filename + "</p>"
-                zip_enum += "<p>" + self.REPORT.SIZE + str(size) + " bytes</p>"
-                zip_enum += "<hr>"
+        if zip_dir:
+            zip_folder = zipfile.ZipFile(zip_dir)
+            for zip_file in zip_folder.filelist:
+                size = zip_file.file_size
+                filename = zip_file.filename
+                if filename.count(".") > 1:
+                    filename = filename.rsplit(".", 1)[0]
+                else:
+                    pass
+                if size > 0:
+                    zip_enum += "<p>" + filename + "</p>"
+                    zip_enum += "<p>" + self.REPORT.SIZE + str(size) + " bytes</p>"
+                    zip_enum += "<hr>"
         return zip_enum
 
     def __hash_reader(self):

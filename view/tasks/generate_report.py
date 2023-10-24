@@ -26,7 +26,7 @@ class GenerateReport(QObject):
     started = pyqtSignal()
 
     def set_options(self, options):
-        self.folder = options["url"]
+        self.folder = options["acquisition_directory"]
         self.type = options["type"]
         self.case_info = options["case_info"]
 

@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 
 
 from datetime import datetime, timezone
-from configparser import SafeConfigParser
+from configparser import SafeConfigParser, ConfigParser
 
 from whois import NICClient, extract_domain, IPV4_OR_V6
 import socket
@@ -84,7 +84,7 @@ def is_npcap_installed():
 
 
 def get_npcap_installer_url():
-    parser = SafeConfigParser()
+    parser = ConfigParser()
     parser.read(resolve_path("assets/config.ini"))
     url = parser.get("fit_properties", "npcap_latest_version_url")
     installer_url = None
@@ -260,7 +260,7 @@ def is_cmd(name):
 
 
 def get_version():
-    parser = SafeConfigParser()
+    parser = ConfigParser()
     parser.read("assets/config.ini")
     version = parser.get("fit_properties", "version")
 
