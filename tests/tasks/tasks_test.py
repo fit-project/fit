@@ -7,8 +7,8 @@ from view.acquisition.acquisition import Acquisition
 from view.tasks.info import TasksInfo
 
 from common.utility import resolve_path
-from tests.tasks.screenrecoder_test import ScreenRecorderTest
-from tests.tasks.packetcapture_test import PacketCaptureTest
+from tests.tasks.screenrecoder_test import TaskScreenRecorderTest
+from tests.tasks.packetcapture_test import TaskPacketCaptureTest
 
 
 logger = logging.getLogger("view.web.web")
@@ -23,19 +23,19 @@ if __name__ == "__main__":
     acquisition = Acquisition(logger, folder)
     tasks_info = TasksInfo()
 
-    ScreenRecorderTest.folder = folder
-    ScreenRecorderTest.acquisition = acquisition
-    ScreenRecorderTest.tasks_info = tasks_info
+    TaskScreenRecorderTest.folder = folder
+    TaskScreenRecorderTest.acquisition = acquisition
+    TaskScreenRecorderTest.tasks_info = tasks_info
 
-    PacketCaptureTest.folder = folder
-    PacketCaptureTest.acquisition = acquisition
-    PacketCaptureTest.tasks_info = tasks_info
+    TaskPacketCaptureTest.folder = folder
+    TaskPacketCaptureTest.acquisition = acquisition
+    TaskPacketCaptureTest.tasks_info = tasks_info
 
     acquisition.start()
 
     # Load each tasks
-    tc1 = unittest.TestLoader().loadTestsFromTestCase(ScreenRecorderTest)
-    tc2 = unittest.TestLoader().loadTestsFromTestCase(PacketCaptureTest)
+    tc1 = unittest.TestLoader().loadTestsFromTestCase(TaskScreenRecorderTest)
+    tc2 = unittest.TestLoader().loadTestsFromTestCase(TaskPacketCaptureTest)
 
     # Create a test suite combining all test classes
     Test1 = unittest.TestSuite([tc1, tc2])

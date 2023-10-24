@@ -11,7 +11,7 @@ from PyQt6.QtTest import QSignalSpy
 
 from view.acquisition.acquisition import Acquisition
 from view.tasks.info import TasksInfo
-from view.tasks.nettools.headers import TaskHeaders
+from view.tasks.nettools.sslcertificate import TaskSSLCertificate
 
 from common.utility import resolve_path
 from common.constants import state, status, tasks, logger as Logger
@@ -23,7 +23,7 @@ app = QApplication(sys.argv)
 logger = logging.getLogger("view.web.web")
 
 
-class TaskHeadersTest(unittest.TestCase):
+class TaskSSLCertificateTest(unittest.TestCase):
     folder = ""
     acquisition = None
     tasks_info = None
@@ -32,9 +32,8 @@ class TaskHeadersTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        options = {"url": "http://google.it"}
-
-        cls.task = TaskHeaders(
+        options = {"acquisition_directory": cls.folder, "url": "https://google.it"}
+        cls.task = TaskSSLCertificate(
             options,
             cls.acquisition.logger,
             cls.tasks_info,
@@ -46,12 +45,12 @@ class TaskHeadersTest(unittest.TestCase):
         cls.task.increment = cls.increment
 
     def test_00_init_headers_task(self):
-        self.assertEqual(self.task.name, tasks.HEADERS)
+        self.assertEqual(self.task.name, tasks.SSLCERTIFICATE)
         self.assertEqual(self.task.state, state.INITIALIZATED)
         self.assertEqual(self.task.status, status.DONE)
         self.assertEqual(self.task.progress_bar.value(), 0)
 
-        row = self.tasks_info.get_row(tasks.HEADERS)
+        row = self.tasks_info.get_row(tasks.SSLCERTIFICATE)
         if row >= 0:
             self.assertEqual(
                 self.task.state,
@@ -79,7 +78,7 @@ class TaskHeadersTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.HEADERS_STARTED,
+            Logger.SSLCERTIFICATE_STARTED,
         )
         self.assertEqual(self.task.progress_bar.value(), 0)
 
@@ -96,31 +95,33 @@ class TaskHeadersTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.HEADERS_COMPLETED,
+            Logger.SSLCERTIFICATE_COMPLETED,
         )
         self.assertEqual(
             self.task.progress_bar.value(),
             (self.intial_progress_bar_value + self.increment),
         )
 
-        self.assertTrue(os.path.exists(os.path.join(self.folder, "headers.txt")))
+        self.assertTrue(os.path.exists(os.path.join(self.folder, "server.cer")))
 
 
 if __name__ == "__main__":
-    folder = resolve_path("tests/tasks/headers_test_folder")
+    folder = resolve_path("tests/tasks/sslcertificate_test_folder")
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
     MainWindow = QtWidgets.QMainWindow()
 
-    TaskHeadersTest.folder = folder
-    TaskHeadersTest.acquisition = Acquisition(logger, folder)
-    TaskHeadersTest.tasks_info = TasksInfo()
-    TaskHeadersTest.window = Ui_MainWindow()
-    TaskHeadersTest.window.setupUi(MainWindow)
-    TaskHeadersTest.increment = TaskHeadersTest.acquisition.calculate_increment(1)
+    TaskSSLCertificateTest.folder = folder
+    TaskSSLCertificateTest.acquisition = Acquisition(logger, folder)
+    TaskSSLCertificateTest.tasks_info = TasksInfo()
+    TaskSSLCertificateTest.window = Ui_MainWindow()
+    TaskSSLCertificateTest.window.setupUi(MainWindow)
+    TaskSSLCertificateTest.increment = (
+        TaskSSLCertificateTest.acquisition.calculate_increment(1)
+    )
 
-    TaskHeadersTest.acquisition.start()
+    TaskSSLCertificateTest.acquisition.start()
 
     unittest.main()

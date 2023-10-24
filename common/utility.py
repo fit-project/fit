@@ -16,6 +16,8 @@ import ntplib
 
 import urllib.request
 from urllib.parse import urlparse
+
+
 from datetime import datetime, timezone
 from configparser import SafeConfigParser
 
@@ -23,7 +25,9 @@ from whois import NICClient, extract_domain, IPV4_OR_V6
 import socket
 
 import requests
+import urllib3
 
+urllib3.disable_warnings()
 
 from controller.configurations.tabs.language.language import (
     Language as LanguageController,
@@ -173,7 +177,6 @@ def get_headers_information(url):
     __url = urlparse(url)
     if not __url.netloc:
         return "Don't find Network location part in the URL"
-
     response = requests.get(url, verify=False)
     return response.headers
 

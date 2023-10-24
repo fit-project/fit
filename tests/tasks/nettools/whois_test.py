@@ -11,7 +11,7 @@ from PyQt6.QtTest import QSignalSpy
 
 from view.acquisition.acquisition import Acquisition
 from view.tasks.info import TasksInfo
-from view.tasks.nettools.headers import TaskHeaders
+from view.tasks.nettools.whois import TaskWhois
 
 from common.utility import resolve_path
 from common.constants import state, status, tasks, logger as Logger
@@ -23,7 +23,7 @@ app = QApplication(sys.argv)
 logger = logging.getLogger("view.web.web")
 
 
-class TaskHeadersTest(unittest.TestCase):
+class TaskWhoisTest(unittest.TestCase):
     folder = ""
     acquisition = None
     tasks_info = None
@@ -32,9 +32,9 @@ class TaskHeadersTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        options = {"url": "http://google.it"}
+        options = {"url": "https://google.it"}
 
-        cls.task = TaskHeaders(
+        cls.task = TaskWhois(
             options,
             cls.acquisition.logger,
             cls.tasks_info,
@@ -46,12 +46,12 @@ class TaskHeadersTest(unittest.TestCase):
         cls.task.increment = cls.increment
 
     def test_00_init_headers_task(self):
-        self.assertEqual(self.task.name, tasks.HEADERS)
+        self.assertEqual(self.task.name, tasks.WHOIS)
         self.assertEqual(self.task.state, state.INITIALIZATED)
         self.assertEqual(self.task.status, status.DONE)
         self.assertEqual(self.task.progress_bar.value(), 0)
 
-        row = self.tasks_info.get_row(tasks.HEADERS)
+        row = self.tasks_info.get_row(tasks.WHOIS)
         if row >= 0:
             self.assertEqual(
                 self.task.state,
@@ -79,7 +79,7 @@ class TaskHeadersTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.HEADERS_STARTED,
+            Logger.WHOIS_STARTED,
         )
         self.assertEqual(self.task.progress_bar.value(), 0)
 
@@ -96,31 +96,31 @@ class TaskHeadersTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.HEADERS_COMPLETED,
+            Logger.WHOIS_COMPLETED,
         )
         self.assertEqual(
             self.task.progress_bar.value(),
             (self.intial_progress_bar_value + self.increment),
         )
 
-        self.assertTrue(os.path.exists(os.path.join(self.folder, "headers.txt")))
+        self.assertTrue(os.path.exists(os.path.join(self.folder, "whois.txt")))
 
 
 if __name__ == "__main__":
-    folder = resolve_path("tests/tasks/headers_test_folder")
+    folder = resolve_path("tests/tasks/whois_test_folder")
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
     MainWindow = QtWidgets.QMainWindow()
 
-    TaskHeadersTest.folder = folder
-    TaskHeadersTest.acquisition = Acquisition(logger, folder)
-    TaskHeadersTest.tasks_info = TasksInfo()
-    TaskHeadersTest.window = Ui_MainWindow()
-    TaskHeadersTest.window.setupUi(MainWindow)
-    TaskHeadersTest.increment = TaskHeadersTest.acquisition.calculate_increment(1)
+    TaskWhoisTest.folder = folder
+    TaskWhoisTest.acquisition = Acquisition(logger, folder)
+    TaskWhoisTest.tasks_info = TasksInfo()
+    TaskWhoisTest.window = Ui_MainWindow()
+    TaskWhoisTest.window.setupUi(MainWindow)
+    TaskWhoisTest.increment = TaskWhoisTest.acquisition.calculate_increment(1)
 
-    TaskHeadersTest.acquisition.start()
+    TaskWhoisTest.acquisition.start()
 
     unittest.main()

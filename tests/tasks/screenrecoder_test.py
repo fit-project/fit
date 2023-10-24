@@ -24,7 +24,7 @@ app = QApplication(sys.argv)
 logger = logging.getLogger("view.web.web")
 
 
-class ScreenRecorderTest(unittest.TestCase):
+class TaskScreenRecorderTest(unittest.TestCase):
     folder = ""
     acquisition = None
     tasks_info = None
@@ -107,6 +107,8 @@ class ScreenRecorderTest(unittest.TestCase):
             (self.intial_progress_bar_value + self.increment),
         )
 
+        self.assertTrue(os.path.exists(self.task.options["filename"]))
+
 
 if __name__ == "__main__":
     folder = resolve_path("tests/tasks/screenrecorder_test_folder")
@@ -116,13 +118,15 @@ if __name__ == "__main__":
 
     MainWindow = QtWidgets.QMainWindow()
 
-    ScreenRecorderTest.folder = folder
-    ScreenRecorderTest.acquisition = Acquisition(logger, folder)
-    ScreenRecorderTest.tasks_info = TasksInfo()
-    ScreenRecorderTest.window = Ui_MainWindow()
-    ScreenRecorderTest.window.setupUi(MainWindow)
-    ScreenRecorderTest.increment = ScreenRecorderTest.acquisition.calculate_increment(1)
+    TaskScreenRecorderTest.folder = folder
+    TaskScreenRecorderTest.acquisition = Acquisition(logger, folder)
+    TaskScreenRecorderTest.tasks_info = TasksInfo()
+    TaskScreenRecorderTest.window = Ui_MainWindow()
+    TaskScreenRecorderTest.window.setupUi(MainWindow)
+    TaskScreenRecorderTest.increment = (
+        TaskScreenRecorderTest.acquisition.calculate_increment(1)
+    )
 
-    ScreenRecorderTest.acquisition.start()
+    TaskScreenRecorderTest.acquisition.start()
 
     unittest.main()

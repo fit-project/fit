@@ -23,7 +23,7 @@ app = QApplication(sys.argv)
 logger = logging.getLogger("view.web.web")
 
 
-class PacketCaptureTest(unittest.TestCase):
+class TaskPacketCaptureTest(unittest.TestCase):
     folder = ""
     acquisition = None
     tasks_info = None
@@ -109,6 +109,10 @@ class PacketCaptureTest(unittest.TestCase):
             (self.intial_progress_bar_value + self.increment),
         )
 
+        self.assertTrue(
+            os.path.exists(os.path.join(self.folder, self.task.options["filename"]))
+        )
+
 
 if __name__ == "__main__":
     folder = resolve_path("tests/tasks/packetcapture_test_folder")
@@ -118,13 +122,15 @@ if __name__ == "__main__":
 
     MainWindow = QtWidgets.QMainWindow()
 
-    PacketCaptureTest.folder = folder
-    PacketCaptureTest.acquisition = Acquisition(logger, folder)
-    PacketCaptureTest.tasks_info = TasksInfo()
-    PacketCaptureTest.window = Ui_MainWindow()
-    PacketCaptureTest.window.setupUi(MainWindow)
-    PacketCaptureTest.increment = PacketCaptureTest.acquisition.calculate_increment(1)
+    TaskPacketCaptureTest.folder = folder
+    TaskPacketCaptureTest.acquisition = Acquisition(logger, folder)
+    TaskPacketCaptureTest.tasks_info = TasksInfo()
+    TaskPacketCaptureTest.window = Ui_MainWindow()
+    TaskPacketCaptureTest.window.setupUi(MainWindow)
+    TaskPacketCaptureTest.increment = (
+        TaskPacketCaptureTest.acquisition.calculate_increment(1)
+    )
 
-    PacketCaptureTest.acquisition.start()
+    TaskPacketCaptureTest.acquisition.start()
 
     unittest.main()

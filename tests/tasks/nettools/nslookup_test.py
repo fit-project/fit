@@ -11,7 +11,7 @@ from PyQt6.QtTest import QSignalSpy
 
 from view.acquisition.acquisition import Acquisition
 from view.tasks.info import TasksInfo
-from view.tasks.nettools.headers import TaskHeaders
+from view.tasks.nettools.nslookup import TaskNslookup
 
 from common.utility import resolve_path
 from common.constants import state, status, tasks, logger as Logger
@@ -23,7 +23,7 @@ app = QApplication(sys.argv)
 logger = logging.getLogger("view.web.web")
 
 
-class TaskHeadersTest(unittest.TestCase):
+class TaskNslookupTest(unittest.TestCase):
     folder = ""
     acquisition = None
     tasks_info = None
@@ -34,7 +34,7 @@ class TaskHeadersTest(unittest.TestCase):
     def setUpClass(cls):
         options = {"url": "http://google.it"}
 
-        cls.task = TaskHeaders(
+        cls.task = TaskNslookup(
             options,
             cls.acquisition.logger,
             cls.tasks_info,
@@ -46,12 +46,12 @@ class TaskHeadersTest(unittest.TestCase):
         cls.task.increment = cls.increment
 
     def test_00_init_headers_task(self):
-        self.assertEqual(self.task.name, tasks.HEADERS)
+        self.assertEqual(self.task.name, tasks.NSLOOKUP)
         self.assertEqual(self.task.state, state.INITIALIZATED)
         self.assertEqual(self.task.status, status.DONE)
         self.assertEqual(self.task.progress_bar.value(), 0)
 
-        row = self.tasks_info.get_row(tasks.HEADERS)
+        row = self.tasks_info.get_row(tasks.NSLOOKUP)
         if row >= 0:
             self.assertEqual(
                 self.task.state,
@@ -79,7 +79,7 @@ class TaskHeadersTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.HEADERS_STARTED,
+            Logger.NSLOOKUP_STARTED,
         )
         self.assertEqual(self.task.progress_bar.value(), 0)
 
@@ -96,31 +96,31 @@ class TaskHeadersTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.HEADERS_COMPLETED,
+            Logger.NSLOOKUP_COMPLETED,
         )
         self.assertEqual(
             self.task.progress_bar.value(),
             (self.intial_progress_bar_value + self.increment),
         )
 
-        self.assertTrue(os.path.exists(os.path.join(self.folder, "headers.txt")))
+        self.assertTrue(os.path.exists(os.path.join(self.folder, "nslookup.txt")))
 
 
 if __name__ == "__main__":
-    folder = resolve_path("tests/tasks/headers_test_folder")
+    folder = resolve_path("tests/tasks/nslookup_test_folder")
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
     MainWindow = QtWidgets.QMainWindow()
 
-    TaskHeadersTest.folder = folder
-    TaskHeadersTest.acquisition = Acquisition(logger, folder)
-    TaskHeadersTest.tasks_info = TasksInfo()
-    TaskHeadersTest.window = Ui_MainWindow()
-    TaskHeadersTest.window.setupUi(MainWindow)
-    TaskHeadersTest.increment = TaskHeadersTest.acquisition.calculate_increment(1)
+    TaskNslookupTest.folder = folder
+    TaskNslookupTest.acquisition = Acquisition(logger, folder)
+    TaskNslookupTest.tasks_info = TasksInfo()
+    TaskNslookupTest.window = Ui_MainWindow()
+    TaskNslookupTest.window.setupUi(MainWindow)
+    TaskNslookupTest.increment = TaskNslookupTest.acquisition.calculate_increment(1)
 
-    TaskHeadersTest.acquisition.start()
+    TaskNslookupTest.acquisition.start()
 
     unittest.main()
