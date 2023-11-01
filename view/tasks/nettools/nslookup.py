@@ -79,9 +79,6 @@ class TaskNslookup(Task):
         self.update_task(state.STARTED, status.COMPLETED)
         self.started.emit()
 
-    def stop(self):
-        pass
-
     def __finished(self):
         self.logger.info(logger.NSLOOKUP_GET_INFO_URL.format(self.options["url"]))
         self.set_message_on_the_statusbar(logger.NSLOOKUP_COMPLETED)

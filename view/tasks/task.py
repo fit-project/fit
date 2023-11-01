@@ -78,6 +78,14 @@ class Task(QObject):
     def increment(self, increment):
         self._increment = increment
 
+    @property
+    def dependencies(self):
+        return self._dependencies
+
+    @dependencies.setter
+    def dependencies(self, dependencies):
+        self._dependencies = dependencies
+
     def upadate_progress_bar(self):
         if self.progress_bar is not None:
             self.progress_bar.setValue(self.progress_bar.value() + int(self.increment))

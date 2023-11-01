@@ -65,6 +65,24 @@ GENERATE_PDF_REPORT_COMPLETED = "GENERATE PDF REPORT completed"
 GENERATE_PDF_REPORT_START = "Generate PDF Report start"
 GENERATE_PDF_REPORT_STOP = "Generate PDF Report stop"
 
+TIMESTAMP_STARTED = "TIMESTAMP started"
+TIMESTAMP_STOPPED = "TIMESTAMP stopped"
+TIMESTAMP_COMPLETED = "TIMESTAMP completed"
+TIMESTAMP_APPLY = "Apply timestamp to {} from server {}"
+
+
+PEC_AND_DOWNLOAD_EML_STARTED = "Send report by PEC and Download EML started"
+PEC_AND_DOWNLOAD_EML_COMPLETED = "Send report by PEC and Download EML completed"
+PEC_STARTED = "Send report by PEC started"
+PEC_COMPLETED = "Send report by PEC completed status {}"
+PEC_SENT = "Sent report by PEC to {} status {}"
+PEC_HAS_NOT_BEEN_SENT_CANNOT_DOWNLOAD_EML = (
+    "PEC has not been sent cannot download the EML"
+)
+EML_STARTED = "EML download started"
+EML_COMPLETED = "EML download completed"
+EML_DOWNLOAD = "EML downloaded with status {}"
+
 SCREENSHOT = "Save screenshot of current page"
 SAVE_PAGE = "Save all resource of current page"
 

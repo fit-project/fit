@@ -28,6 +28,7 @@ from common.constants import tasks, error
 class PacketCapture(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
+    error = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
@@ -45,13 +46,13 @@ class PacketCapture(QObject):
         try:
             self.sniffer.start()
         except Exception as e:
-            error_dlg = ErrorView(
-                QMessageBox.Icon.Critical,
-                tasks.PACKET_CAPTURE,
-                error.PACKET_CAPTURE,
-                str(e),
+            self.error.emit(
+                {
+                    "title": tasks.PACKET_CAPTURE,
+                    "message": error.PACKET_CAPTURE,
+                    "details": str(e),
+                }
             )
-            error_dlg.exec()
 
     def stop(self):
         self.sniffer.stop()
@@ -76,6 +77,7 @@ class TaskPacketCapture(Task):
 
         self.packetcapture.started.connect(self.__started)
         self.packetcapture.finished.connect(self.__finished)
+        self.packetcapture.error.connect(self.__handle_error)
 
     @Task.options.getter
     def options(self):
@@ -87,6 +89,15 @@ class TaskPacketCapture(Task):
         options = PacketCaptureCotroller().options
         options["acquisition_directory"] = folder
         self._options = options
+
+    def __handle_error(self, error):
+        error_dlg = ErrorView(
+            QMessageBox.Icon.Critical,
+            error.get("title"),
+            error.get("message"),
+            error.get("details"),
+        )
+        error_dlg.exec()
 
     def start(self):
         self.update_task(state.STARTED, status.PENDING)

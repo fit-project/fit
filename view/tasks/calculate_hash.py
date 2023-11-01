@@ -78,9 +78,6 @@ class TaskCalculateHash(Task):
         self.update_task(state.STARTED, status.COMPLETED)
         self.started.emit()
 
-    def stop(self):
-        pass
-
     def __finished(self):
         self.logger.info(logger.CALCULATE_HASHFILE)
         self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_COMPLETED)

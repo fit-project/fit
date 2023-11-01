@@ -34,6 +34,7 @@ from common.constants.view import screenrecorder
 class ScreenRecorder(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
+    error = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
@@ -73,14 +74,13 @@ class ScreenRecorder(QObject):
                 self.out.write(frame)
 
         except:
-            error_dlg = ErrorView(
-                QMessageBox.Icon.Critical,
-                screenrecorder.SCREEN_RECODER,
-                error.SCREEN_RECODER,
-                str(sys.exc_info()[0]),
+            self.error.emit(
+                {
+                    "title": screenrecorder.SCREEN_RECODER,
+                    "message": error.SCREEN_RECODER,
+                    "details": str(sys.exc_info()[0]),
+                }
             )
-
-            error_dlg.exec()
 
         self.out.release()
 
@@ -104,6 +104,7 @@ class TaskScreenRecorder(Task):
         self.screenrecorder_thread.started.connect(self.screenrecorder.start)
         self.screenrecorder.started.connect(self.__started)
         self.screenrecorder.finished.connect(self.__finished)
+        self.screenrecorder.error.connect(self.__handle_error)
 
     @Task.options.getter
     def options(self):
@@ -115,6 +116,15 @@ class TaskScreenRecorder(Task):
         options = ScreenRecorderController().options
         options["filename"] = os.path.join(folder, options["filename"])
         self._options = options
+
+    def __handle_error(self, error):
+        error_dlg = ErrorView(
+            QMessageBox.Icon.Critical,
+            error.get("title"),
+            error.get("message"),
+            error.get("details"),
+        )
+        error_dlg.exec()
 
     def start(self):
         self.update_task(state.STARTED, status.PENDING)

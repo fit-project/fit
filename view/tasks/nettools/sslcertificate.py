@@ -64,9 +64,6 @@ class TaskSSLCertificate(Task):
         self.update_task(state.STARTED, status.COMPLETED)
         self.started.emit()
 
-    def stop(self):
-        pass
-
     def __finished(self, is_peer_certificate_exist):
         msg = logger.SSLCERTIFICATE_GET_FROM_URL.format(self.options["url"])
         if is_peer_certificate_exist is False:
