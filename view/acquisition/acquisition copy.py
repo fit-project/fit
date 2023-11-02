@@ -10,7 +10,12 @@
 import os
 from types import FunctionType
 
-from common.constants import logger, state as State, status as Status, tasks as Tasks
+from common.constants import logger
+from common.constants.view.tasks import (
+    labels as Tasks,
+    state as State,
+    status as Status,
+)
 
 
 from view.acquisition.base import Base, logging
@@ -223,7 +228,7 @@ class Acquisition(Base):
     def task_is_completed(self, options):
         name = None
         state = None
-        status = Status.COMPLETED
+        status = Status.SUCCESS
         details = ""
 
         if "name" not in options:
@@ -276,7 +281,7 @@ class Acquisition(Base):
     def screen_recorder_task_is_complete(self, options):
         name = None
         state = None
-        status = Status.COMPLETED
+        status = Status.SUCCESS
         details = ""
 
         if "name" not in options:

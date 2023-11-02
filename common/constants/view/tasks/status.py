@@ -7,9 +7,6 @@
 # -----
 ######
 
-INITIALIZATED = "initializated"
-STARTED = "Started"
-FINISHED = "Finished"
-RUNNING = "Running"
-PROGRESS = "In Progress"
-STOPPED = "Stopped"
+PENDING = "Pending"
+FAIL = "Fail"
+SUCCESS = "Success"

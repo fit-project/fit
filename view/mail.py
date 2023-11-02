@@ -45,7 +45,7 @@ from controller.mail import Mail as MailController
 from common.utility import resolve_path
 from common.constants.view import mail, general
 from common.constants.view.pec import search_pec
-from common.constants import tasks as Tasks
+from common.constants.view.tasks import labels as Tasks
 from common.constants import error, details as Details, logger as Logger
 
 logger = logging.getLogger(__name__)

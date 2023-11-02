@@ -18,6 +18,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap, QImage
 from PyQt6.QtWidgets import QLabel
+from common.constants.view.tasks import labels, state, status
 
 from view.menu_bar import MenuBar as MenuBarView
 
@@ -30,9 +31,6 @@ from controller.video import Video as VideoController
 from common.constants import (
     details as Details,
     logger as Logger,
-    tasks,
-    state,
-    status,
     error as Error,
 )
 from common.constants.view import general, video
@@ -546,7 +544,7 @@ class Video(QtWidgets.QMainWindow):
         self.status.showMessage(Logger.DOWNLOAD_VIDEO)
         self.acquisition.logger.info(Logger.DOWNLOAD_VIDEO)
         self.acquisition.info.add_task(
-            tasks.DOWNLOAD_VIDEO, state.STARTED, status.PENDING
+            labels.DOWNLOAD_VIDEO, state.STARTED, status.PENDING
         )
 
         if not os.path.exists(self.url_dir):
@@ -557,8 +555,8 @@ class Video(QtWidgets.QMainWindow):
         self.__init_worker()
 
     def __hanlde_scraped(self):
-        row = self.acquisition.info.get_row(tasks.DOWNLOAD_VIDEO)
-        self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, "")
+        row = self.acquisition.info.get_row(labels.DOWNLOAD_VIDEO)
+        self.acquisition.info.update_task(row, state.COMPLETED, status.SUCCESS, "")
 
         self.video_controller.create_zip(self.url_dir)
 
@@ -605,7 +603,7 @@ class Video(QtWidgets.QMainWindow):
         except OSError as e:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
-                tasks.DOWNLOAD_VIDEO,
+                labels.DOWNLOAD_VIDEO,
                 Error.DELETE_PROJECT_FOLDER,
                 "Error: %s - %s." % (e.filename, e.strerror),
             )

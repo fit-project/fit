@@ -10,9 +10,10 @@
 import logging
 
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from common.constants.view.tasks import labels, state, status
 
 from common.utility import get_headers_information
-from common.constants import logger, state, status, tasks
+from common.constants import logger
 
 from view.tasks.task import Task
 
@@ -38,10 +39,11 @@ class Headers(QObject):
 
 class TaskHeaders(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.HEADERS
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.HEADERS
 
         self.headers_thread = QThread()
         self.headers = Headers()
@@ -57,7 +59,7 @@ class TaskHeaders(Task):
         self.headers_thread.start()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
 
     def __finished(self):
@@ -65,7 +67,7 @@ class TaskHeaders(Task):
         self.set_message_on_the_statusbar(logger.HEADERS_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

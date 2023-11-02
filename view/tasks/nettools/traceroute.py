@@ -8,10 +8,11 @@
 ######
 import os
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from common.constants.view.tasks import labels, state, status
 from view.tasks.task import Task
 
 from common.utility import traceroute
-from common.constants import logger, state, status, tasks
+from common.constants import logger
 
 
 class Traceroute(QObject):
@@ -31,10 +32,11 @@ class Traceroute(QObject):
 
 class TaskTraceroute(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.TRACEROUTE
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.TRACEROUTE
 
         self.traceroute_thread = QThread()
         self.traceorute = Traceroute()
@@ -50,7 +52,7 @@ class TaskTraceroute(Task):
         self.traceroute_thread.start()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
 
     def __finished(self):
@@ -58,7 +60,7 @@ class TaskTraceroute(Task):
         self.set_message_on_the_statusbar(logger.TRACEROUTE_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

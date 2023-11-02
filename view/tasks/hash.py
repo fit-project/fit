@@ -11,14 +11,15 @@ import logging
 import os
 
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from common.constants.view.tasks import labels, state, status
 
 from common.utility import calculate_hash
-from common.constants import logger, state, status, tasks
+from common.constants import logger
 
 from view.tasks.task import Task
 
 
-class CalculateHash(QObject):
+class Hash(QObject):
     logger = logging.getLogger("hashreport")
     finished = pyqtSignal()
     started = pyqtSignal()
@@ -54,28 +55,36 @@ class CalculateHash(QObject):
         self.finished.emit()
 
 
-class TaskCalculateHash(Task):
+class TaskHash(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.HASHFILE
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
 
+        self.label = labels.HASHFILE
         self.calculate_hash_thread = QThread()
-        self.calculate_hash = CalculateHash()
+        self.calculate_hash = Hash()
         self.calculate_hash.moveToThread(self.calculate_hash_thread)
         self.calculate_hash_thread.started.connect(self.calculate_hash.start)
         self.calculate_hash.started.connect(self.__started)
         self.calculate_hash.finished.connect(self.__finished)
 
     def start(self):
-        self.update_task(state.STARTED, status.PENDING)
-        self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_STARTED)
-        self.calculate_hash.folder = self.options["acquisition_directory"]
-        self.calculate_hash_thread.start()
+        can_get_started = True
+
+        if self.dependencies:
+            can_get_started = self.task_handler.are_task_names_completed(
+                self.dependencies
+            )
+
+        if can_get_started:
+            self.update_task(state.STARTED, status.PENDING)
+            self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_STARTED)
+            self.calculate_hash.folder = self.options["acquisition_directory"]
+            self.calculate_hash_thread.start()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
 
     def __finished(self):
@@ -83,7 +92,7 @@ class TaskCalculateHash(Task):
         self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

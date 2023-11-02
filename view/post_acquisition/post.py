@@ -14,11 +14,10 @@ from PyQt6 import QtCore, QtWidgets
 from common.constants import (
     logger as Logger,
     details,
-    state,
-    status as Status,
     tasks,
     error,
 )
+from common.constants.view.tasks import state, status as Status
 from common.utility import calculate_hash
 
 from controller.report import Report as ReportController

@@ -10,6 +10,7 @@ import os
 import shutil
 import logging
 import subprocess
+from common.constants.view.tasks import state, status
 import common.utility
 from PyQt6 import QtCore, QtGui, QtWidgets
 from instaloader import (
@@ -31,8 +32,6 @@ from common.constants import (
     details as Details,
     logger as Logger,
     tasks,
-    state,
-    status,
     error as Error,
 )
 from common.constants.view import general, instagram, mail
@@ -547,7 +546,7 @@ class Instagram(QtWidgets.QMainWindow):
 
     def __hanlde_scraped(self):
         row = self.acquisition.info.get_row(tasks.SCRAPING_INSTAGRAM)
-        self.acquisition.info.update_task(row, state.FINISHED, status.COMPLETED, "")
+        self.acquisition.info.update_task(row, state.COMPLETED, status.SUCCESS, "")
 
         self.instagram_controller.create_zip(self.profile_dir)
 

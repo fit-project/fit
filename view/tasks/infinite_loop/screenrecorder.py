@@ -17,6 +17,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QMessageBox
 
 from screeninfo import get_monitors
+from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
 from view.error import Error as ErrorView
@@ -26,7 +27,7 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderController,
 )
 
-from common.constants import logger, details, state, status, tasks
+from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
 
@@ -94,10 +95,11 @@ class ScreenRecorder(QObject):
 
 class TaskScreenRecorder(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.SCREEN_RECORDER
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.SCREEN_RECORDER
         self.screenrecorder_thread = QThread()
         self.screenrecorder = ScreenRecorder()
         self.screenrecorder.moveToThread(self.screenrecorder_thread)
@@ -136,7 +138,7 @@ class TaskScreenRecorder(Task):
     def __started(self):
         self.update_task(
             state.STARTED,
-            status.COMPLETED,
+            status.SUCCESS,
             details.SCREEN_RECORDER_STARTED,
         )
 
@@ -154,8 +156,8 @@ class TaskScreenRecorder(Task):
         self.upadate_progress_bar()
 
         self.update_task(
-            state.FINISHED,
-            status.COMPLETED,
+            state.COMPLETED,
+            status.SUCCESS,
             details.SCREEN_RECORDER_COMPLETED,
         )
 

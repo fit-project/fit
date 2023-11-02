@@ -45,7 +45,7 @@ from controller.configurations.tabs.pec.pec import Pec as PecConfigController
 
 from common.utility import resolve_path
 from common.constants.view.pec import pec, search_pec
-from common.constants.status import *
+from common.constants.view.tasks.status import *
 from view.spinner import Spinner
 
 

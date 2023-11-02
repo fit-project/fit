@@ -10,33 +10,36 @@
 import typing
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from common.constants import state as STATE, status as STATUS
+from common.constants.view.tasks import status as STATUS
+from common.constants.view.tasks import state as STATE
+from view.tasks.tasks_handler import TasksHandler
 
 
 class Task(QObject):
     started = pyqtSignal()
     finished = pyqtSignal()
 
-    def __init__(self, options, logger, table, progress_bar, status_bar, parent):
+    def __init__(self, options, logger, progress_bar, status_bar, parent):
         super().__init__(parent)
         self.options = options
         self.logger = logger
-        self.table = table
         self.progress_bar = progress_bar
         self.status_bar = status_bar
 
         self.state = STATE.INITIALIZATED
-        self.status = STATUS.DONE
+        self.status = STATUS.SUCCESS
         self.details = ""
-        self.table.add_task(self.name, self.state, self.status, self.details)
+        self.dependencies = list()
+        self.task_handler = TasksHandler()
+        self.task_handler.add_task(self)
 
     @property
-    def name(self):
-        return self._name
+    def label(self):
+        return self._label
 
-    @name.setter
-    def name(self, name):
-        self._name = name
+    @label.setter
+    def label(self, label):
+        self._label = label
 
     @property
     def options(self):
@@ -86,6 +89,14 @@ class Task(QObject):
     def dependencies(self, dependencies):
         self._dependencies = dependencies
 
+    @property
+    def sub_tasks(self):
+        return self._sub_tasks
+
+    @sub_tasks.setter
+    def sub_tasks(self, sub_tasks):
+        self._sub_tasks = sub_tasks
+
     def upadate_progress_bar(self):
         if self.progress_bar is not None:
             self.progress_bar.setValue(self.progress_bar.value() + int(self.increment))
@@ -94,13 +105,7 @@ class Task(QObject):
         if self.status_bar is not None:
             self.status_bar.showMessage(message)
 
-    def update_table(self):
-        row = self.table.get_row(self.name)
-        if row >= 0:
-            self.table.update_task(row, self.state, self.status, self.details)
-
     def update_task(self, state, status, details=""):
         self.state = state
         self.status = status
         self.details = details
-        self.update_table()

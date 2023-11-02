@@ -21,6 +21,7 @@ from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
 from PyQt6.QtWidgets import QFileDialog
+from common.constants.view.tasks import state, status as Status
 
 from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
 from view.web.screenshot_select_area import SelectArea as SelectAreaView
@@ -34,8 +35,6 @@ from view.error import Error as ErrorView
 from common.constants import (
     tasks as Tasks,
     logger as Logger,
-    state,
-    status as Status,
     error,
     details as Details,
 )
@@ -361,7 +360,7 @@ class Web(QtWidgets.QMainWindow):
     def __are_internal_tasks_completed(self):
         status = [task.status for task in self.__tasks]
         status = list(set(status))
-        if len(status) == 1 and status[0] == Status.COMPLETED:
+        if len(status) == 1 and status[0] == Status.SUCCESS:
             # start post acquisition external tasks
             self.acquisition.post_acquisition.execute(
                 self.acquisition_directory, self.case_info, "web"
@@ -492,11 +491,11 @@ class Web(QtWidgets.QMainWindow):
             error_dlg.exec()
 
         row = self.acquisition.info.get_row(Tasks.SAVE_PAGE)
-        self.acquisition.info.update_task(row, state.FINISHED, Status.COMPLETED, "")
+        self.acquisition.info.update_task(row, state.COMPLETED, Status.SUCCESS, "")
         task = list(filter(lambda task: task.name == Tasks.SAVE_PAGE, self.__tasks))[0]
         self.acquisition.upadate_progress_bar()
-        task.state = state.FINISHED
-        task.status = Status.COMPLETED
+        task.state = state.COMPLETED
+        task.status = Status.SUCCESS
         self.__are_internal_tasks_completed()
 
     def take_screenshot(self):
@@ -607,13 +606,13 @@ class Web(QtWidgets.QMainWindow):
             if last:
                 row = self.acquisition.info.get_row(Tasks.SCREENSHOT)
                 self.acquisition.info.update_task(
-                    row, state.FINISHED, Status.COMPLETED, ""
+                    row, state.COMPLETED, Status.SUCCESS, ""
                 )
                 task = list(
                     filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks)
                 )[0]
-                task.state = state.FINISHED
-                task.status = Status.COMPLETED
+                task.state = state.COMPLETED
+                task.status = Status.SUCCESS
                 self.__are_internal_tasks_completed()
 
             else:

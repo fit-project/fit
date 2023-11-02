@@ -9,9 +9,10 @@
 
 import os
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
-from common.constants import logger, state, status, tasks, details
+from common.constants import logger, details
 
 from common.utility import (
     check_if_peer_certificate_exist,
@@ -42,10 +43,11 @@ class SSLCertificate(QObject):
 
 class TaskSSLCertificate(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.SSLCERTIFICATE
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.SSLCERTIFICATE
 
         self.sslcertificate_thread = QThread()
         self.sslcertificate = SSLCertificate()
@@ -61,7 +63,7 @@ class TaskSSLCertificate(Task):
         self.sslcertificate_thread.start()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
 
     def __finished(self, is_peer_certificate_exist):
@@ -74,7 +76,7 @@ class TaskSSLCertificate(Task):
         self.set_message_on_the_statusbar(logger.SSLCERTIFICATE_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

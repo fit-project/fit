@@ -39,9 +39,8 @@ class Acquisition:
         self.logger.info(logger.ACQUISITION_STARTED)
         self.logger.info(logger.NTP_ACQUISITION_TIME.format("start", self.get_time()))
 
-    def log_stop_message(self, url):
+    def log_stop_message(self):
         self.logger.info(logger.ACQUISITION_STOPPED)
-        self.logger.info(logger.ACQUISITION_URL.format(url))
         self.logger.info(logger.NTP_ACQUISITION_TIME.format("stop", self.get_time()))
 
     def log_end_message(self):

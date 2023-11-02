@@ -8,6 +8,7 @@
 ######
 
 import os
+from common.constants.view.tasks import state as State, status as Status
 
 from view.acquisition.acquisition import Acquisition
 from view.acquisition.tasks.task import AcquisitionTask
@@ -16,7 +17,7 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderController,
 )
 
-from common.constants import logger, state as State, status as Status, tasks as Tasks
+from common.constants import logger, tasks as Tasks
 
 
 class AcquisitionManager:

@@ -12,6 +12,7 @@ import os
 
 from PyQt6.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread
 from PyQt6.QtWidgets import QMessageBox
+from common.constants.view.tasks import labels, state, status
 
 
 from view.tasks.task import Task
@@ -21,8 +22,8 @@ from controller.configurations.tabs.packetcapture.packetcapture import (
     PacketCapture as PacketCaptureCotroller,
 )
 
-from common.constants import logger, details, state, status, tasks
-from common.constants import tasks, error
+from common.constants import logger, details
+from common.constants import error
 
 
 class PacketCapture(QObject):
@@ -48,7 +49,7 @@ class PacketCapture(QObject):
         except Exception as e:
             self.error.emit(
                 {
-                    "title": tasks.PACKET_CAPTURE,
+                    "title": labels.PACKET_CAPTURE,
                     "message": error.PACKET_CAPTURE,
                     "details": str(e),
                 }
@@ -65,10 +66,12 @@ class PacketCapture(QObject):
 
 class TaskPacketCapture(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.PACKET_CAPTURE
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.PACKET_CAPTURE
+
         self.packetcapture_thread = QThread()
         self.packetcapture = PacketCapture()
         self.packetcapture.moveToThread(self.packetcapture_thread)
@@ -109,7 +112,7 @@ class TaskPacketCapture(Task):
     def __started(self):
         self.update_task(
             state.STARTED,
-            status.COMPLETED,
+            status.SUCCESS,
             details.NETWORK_PACKET_CAPTURE_STARTED,
         )
 
@@ -127,8 +130,8 @@ class TaskPacketCapture(Task):
         self.upadate_progress_bar()
 
         self.update_task(
-            state.FINISHED,
-            status.COMPLETED,
+            state.COMPLETED,
+            status.SUCCESS,
             details.NETWORK_PACKET_CAPTURE_COMPLETED,
         )
 

@@ -7,14 +7,14 @@ import logging
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtTest import QSignalSpy
+from common.constants.view.tasks import labels, state, status
 
 
 from view.acquisition.acquisition import Acquisition
-from view.tasks.info import TasksInfo
-from view.tasks.timestamp import TaskTimestamp
+from view.tasks.report import TaskReport
 
 from common.utility import resolve_path
-from common.constants import state, status, tasks, logger as Logger
+from common.constants import logger as Logger
 
 from tests.tasks.tasks_ui import Ui_MainWindow
 
@@ -23,7 +23,7 @@ app = QApplication(sys.argv)
 logger = logging.getLogger("view.web.web")
 
 
-class TaskTimestampTest(unittest.TestCase):
+class TaskReportTest(unittest.TestCase):
     folder = ""
     acquisition = None
     tasks_info = None
@@ -32,20 +32,28 @@ class TaskTimestampTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.pdf_filename = "file_to_sign.txt"
-
-        file = open(os.path.join(cls.folder, cls.pdf_filename), "w")
-        file.write("This is not pdf file \n")
-        file.close()
-
+        case_info = {
+            "id": 1,
+            "name": "Go out",
+            "lawyer_name": "",
+            "operator": "",
+            "proceeding_type": 1,
+            "courthouse": "",
+            "proceeding_number": "",
+            "notes": "",
+            "logo_bin": "",
+            "logo": "",
+            "logo_height": "",
+            "logo_width": "",
+        }
         options = {
             "acquisition_directory": cls.folder,
-            "pdf_filename": cls.pdf_filename,
+            "type": "web",
+            "case_info": case_info,
         }
-        cls.task = TaskTimestamp(
+        cls.task = TaskReport(
             options,
             cls.acquisition.logger,
-            cls.tasks_info,
             cls.window.progressBar,
             cls.window.statusbar,
         )
@@ -54,21 +62,9 @@ class TaskTimestampTest(unittest.TestCase):
         cls.task.increment = cls.increment
 
     def test_00_init_headers_task(self):
-        self.assertEqual(self.task.name, tasks.TIMESTAMP)
+        self.assertEqual(self.task.label, labels.REPORTFILE)
         self.assertEqual(self.task.state, state.INITIALIZATED)
-        self.assertEqual(self.task.status, status.DONE)
-        self.assertEqual(self.task.progress_bar.value(), 0)
-
-        row = self.tasks_info.get_row(tasks.TIMESTAMP)
-        if row >= 0:
-            self.assertEqual(
-                self.task.state,
-                self.tasks_info.table.item(row, 1).text(),
-            )
-            self.assertEqual(
-                self.task.status,
-                self.tasks_info.table.item(row, 2).text(),
-            )
+        self.assertEqual(self.task.status, status.SUCCESS)
 
     def test_01_headers_task(self):
         spy = QSignalSpy(self.task.started)
@@ -84,7 +80,7 @@ class TaskTimestampTest(unittest.TestCase):
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.TIMESTAMP_STARTED,
+            Logger.GENERATE_PDF_REPORT_STARTED,
         )
         self.assertEqual(self.task.progress_bar.value(), 0)
 
@@ -96,37 +92,37 @@ class TaskTimestampTest(unittest.TestCase):
                 received = spy.wait(500)
 
         self.assertEqual(len(spy), 1)
-        self.assertEqual(self.task.state, state.FINISHED)
-        self.assertEqual(self.task.status, status.COMPLETED)
+        self.assertEqual(self.task.state, state.COMPLETED)
+        self.assertEqual(self.task.status, status.SUCCESS)
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),
-            Logger.TIMESTAMP_COMPLETED,
+            Logger.GENERATE_PDF_REPORT_COMPLETED,
         )
         self.assertEqual(
             self.task.progress_bar.value(),
             (self.intial_progress_bar_value + self.increment),
         )
 
-        self.assertTrue(os.path.exists(os.path.join(self.folder, "timestamp.tsr")))
-        self.assertTrue(os.path.exists(os.path.join(self.folder, "tsa.crt")))
+        self.assertTrue(
+            os.path.exists(os.path.join(self.folder, "acquisition_report.pdf"))
+        )
 
 
 if __name__ == "__main__":
-    folder = resolve_path("tests/tasks/timestamp_test_folder")
+    folder = resolve_path("tests/tasks/report_test_folder")
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
     MainWindow = QtWidgets.QMainWindow()
 
-    TaskTimestampTest.folder = folder
-    TaskTimestampTest.acquisition = Acquisition(logger, folder)
-    TaskTimestampTest.tasks_info = TasksInfo()
-    TaskTimestampTest.window = Ui_MainWindow()
-    TaskTimestampTest.window.setupUi(MainWindow)
-    TaskTimestampTest.increment = TaskTimestampTest.acquisition.calculate_increment(1)
+    TaskReportTest.folder = folder
+    TaskReportTest.acquisition = Acquisition(logger, folder)
+    TaskReportTest.window = Ui_MainWindow()
+    TaskReportTest.window.setupUi(MainWindow)
+    TaskReportTest.increment = TaskReportTest.acquisition.calculate_increment(1)
 
-    TaskTimestampTest.acquisition.start()
+    TaskReportTest.acquisition.start()
 
     unittest.main()

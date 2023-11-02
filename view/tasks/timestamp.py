@@ -13,6 +13,7 @@ import requests
 from rfc3161ng.api import RemoteTimestamper
 
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
 
@@ -20,7 +21,7 @@ from controller.configurations.tabs.timestamp.timestamp import (
     Timestamp as TimestampController,
 )
 
-from common.constants import logger, state, status, tasks
+from common.constants import logger
 
 
 class Timestamp(QObject):
@@ -68,10 +69,11 @@ class Timestamp(QObject):
 
 class TaskTimestamp(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.TIMESTAMP
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.TIMESTAMP
 
         self.timestamp_thread = QThread()
         self.timestamp = Timestamp()
@@ -79,7 +81,6 @@ class TaskTimestamp(Task):
         self.timestamp_thread.started.connect(self.timestamp.apply_timestamp)
         self.timestamp.started.connect(self.__started)
         self.timestamp.finished.connect(self.__finished)
-        self.dependencies = [tasks.REPORTFILE]
 
     @Task.options.getter
     def options(self):
@@ -95,17 +96,21 @@ class TaskTimestamp(Task):
         self._options = options
 
     def start(self):
-        self.timestamp.set_options(self.options)
-        self.update_task(state.STARTED, status.PENDING)
-        self.set_message_on_the_statusbar(logger.TIMESTAMP_STARTED)
-        self.timestamp_thread.start()
+        can_get_started = True
+        if self.dependencies:
+            can_get_started = self.task_handler.are_task_names_completed(
+                self.dependencies
+            )
+
+        if can_get_started:
+            self.timestamp.set_options(self.options)
+            self.update_task(state.STARTED, status.PENDING)
+            self.set_message_on_the_statusbar(logger.TIMESTAMP_STARTED)
+            self.timestamp_thread.start()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
-
-    def stop(self):
-        pass
 
     def __finished(self):
         self.logger.info(
@@ -116,7 +121,7 @@ class TaskTimestamp(Task):
         self.set_message_on_the_statusbar(logger.TIMESTAMP_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

@@ -7,6 +7,7 @@ import logging
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtTest import QSignalSpy
+from common.constants.view.tasks import labels, state, status
 
 
 from view.acquisition.acquisition import Acquisition
@@ -14,7 +15,7 @@ from view.tasks.info import TasksInfo
 from view.tasks.nettools.sslkeylog import TaskSSLKeyLog
 
 from common.utility import resolve_path
-from common.constants import state, status, tasks, logger as Logger
+from common.constants import logger as Logger
 
 from tests.tasks.tasks_ui import Ui_MainWindow
 
@@ -45,12 +46,12 @@ class TaskSSLKeyLogTest(unittest.TestCase):
         cls.task.increment = cls.increment
 
     def test_00_init_headers_task(self):
-        self.assertEqual(self.task.name, tasks.SSLKEYLOG)
+        self.assertEqual(self.task.label, labels.SSLKEYLOG)
         self.assertEqual(self.task.state, state.INITIALIZATED)
         self.assertEqual(self.task.status, status.DONE)
         self.assertEqual(self.task.progress_bar.value(), 0)
 
-        row = self.tasks_info.get_row(tasks.SSLKEYLOG)
+        row = self.tasks_info.get_row(labels.SSLKEYLOG)
         if row >= 0:
             self.assertEqual(
                 self.task.state,
@@ -87,8 +88,8 @@ class TaskSSLKeyLogTest(unittest.TestCase):
                 received = spy.wait(500)
 
         self.assertEqual(len(spy), 1)
-        self.assertEqual(self.task.state, state.FINISHED)
-        self.assertEqual(self.task.status, status.COMPLETED)
+        self.assertEqual(self.task.state, state.COMPLETED)
+        self.assertEqual(self.task.status, status.SUCCESS)
 
         self.assertEqual(
             self.task.status_bar.currentMessage(),

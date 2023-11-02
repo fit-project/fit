@@ -7,8 +7,7 @@
 # -----
 ######
 
-PENDING = "pending"
-FAIL = "Fail"
-SUCCESS = "Success"
-DONE = "Done"
+INITIALIZATED = "initializated"
+STARTED = "Started"
 COMPLETED = "Completed"
+STOPPED = "Stopped"

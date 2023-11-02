@@ -14,7 +14,7 @@ from view.tasks.pec.search_pec import SearchPec as SearchPecView
 
 from common.utility import resolve_path
 from common.constants.view.pec import eml_not_found
-from common.constants.status import *
+from common.constants.view.tasks.status import *
 
 
 class EmlNotFound(QtWidgets.QDialog):

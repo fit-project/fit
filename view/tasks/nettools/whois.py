@@ -10,10 +10,11 @@ import logging
 import logging.config
 
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from common.constants.view.tasks import labels, state, status
 from view.tasks.task import Task
 
 from common.utility import whois
-from common.constants import logger, state, status, tasks
+from common.constants import logger
 
 
 class Whois(QObject):
@@ -37,10 +38,11 @@ class Whois(QObject):
 
 class TaskWhois(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.WHOIS
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
+
+        self.label = labels.WHOIS
 
         self.whois_thread = QThread()
         self.whois = Whois()
@@ -56,7 +58,7 @@ class TaskWhois(Task):
         self.whois_thread.start()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
 
     def __finished(self):
@@ -64,7 +66,7 @@ class TaskWhois(Task):
         self.set_message_on_the_statusbar(logger.WHOIS_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

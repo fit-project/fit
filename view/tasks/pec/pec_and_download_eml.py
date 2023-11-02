@@ -9,15 +9,17 @@
 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QObject, pyqtSignal, QThread, QEventLoop, QTimer
+from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
+from view.tasks.class_names import *
 from view.error import Error as ErrorView
 
 from controller.pec import Pec as PecController
 from controller.configurations.tabs.pec.pec import Pec as PecConfigController
 
 from common.constants.view.pec import pec
-from common.constants import logger, state, status, tasks
+from common.constants import logger
 
 
 class PecAndDownloadEml(QObject):
@@ -93,11 +95,11 @@ class PecAndDownloadEml(QObject):
 
 class TaskPecAndDownloadEml(Task):
     def __init__(
-        self, options, logger, table, progress_bar=None, status_bar=None, parent=None
+        self, options, logger, progress_bar=None, status_bar=None, parent=None
     ):
-        self.name = tasks.PEC_AND_DOWNLOAD_EML
-        super().__init__(options, logger, table, progress_bar, status_bar, parent)
+        super().__init__(options, logger, progress_bar, status_bar, parent)
 
+        self.label = labels.PEC_AND_DOWNLOAD_EML
         self.pec_thread = QThread()
         self.pec = PecAndDownloadEml()
         self.pec.moveToThread(self.pec_thread)
@@ -106,13 +108,32 @@ class TaskPecAndDownloadEml(Task):
         self.pec.sentpec.connect(self.__is_pec_sent)
         self.pec.error.connect(self.__handle_error)
         self.pec.downloadedeml.connect(self.__is_eml_downloaded)
-        self.dependencies = [tasks.REPORTFILE, tasks.TIMESTAMP]
+        self.sub_tasks = [
+            {
+                "label": labels.PEC,
+                "state": self.state,
+                "status": self.status,
+            },
+            {
+                "label": labels.EML,
+                "state": self.state,
+                "status": self.status,
+            },
+        ]
 
     def start(self):
-        self.pec.set_options(self.options)
-        self.update_task(state.STARTED, status.PENDING)
-        self.set_message_on_the_statusbar(logger.PEC_AND_DOWNLOAD_EML_STARTED)
-        self.pec_thread.start()
+        can_get_started = True
+
+        if self.dependencies:
+            can_get_started = self.task_handler.are_task_names_completed(
+                self.dependencies
+            )
+
+        if can_get_started:
+            self.pec.set_options(self.options)
+            self.update_task(state.STARTED, status.PENDING)
+            self.set_message_on_the_statusbar(logger.PEC_AND_DOWNLOAD_EML_STARTED)
+            self.pec_thread.start()
 
     def __handle_error(self, error):
         error_dlg = ErrorView(
@@ -124,12 +145,17 @@ class TaskPecAndDownloadEml(Task):
         error_dlg.exec()
 
     def __started(self):
-        self.update_task(state.STARTED, status.COMPLETED)
+        self.update_task(state.STARTED, status.SUCCESS)
         self.started.emit()
 
     def __is_pec_sent(self, __status):
-        self.name = tasks.PEC
-        self.table.add_task(self.name, state.FINISHED, status.COMPLETED, __status)
+        sub_task_sent_pec = next(
+            (task for task in self.sub_tasks if task.label == labels.PEC), None
+        )
+        if sub_task_sent_pec:
+            sub_task_sent_pec.state = state.COMPLETED
+            sub_task_sent_pec.status = __status
+
         self.logger.info(
             logger.PEC_SENT.format(self.pec.options.get("pec_email"), __status)
         )
@@ -145,18 +171,23 @@ class TaskPecAndDownloadEml(Task):
             self.__finished()
 
     def __is_eml_downloaded(self, __status):
-        self.name = tasks.EML
-        self.table.add_task(self.name, state.FINISHED, status.COMPLETED, __status)
+        sub_task_download_eml = next(
+            (task for task in self.sub_tasks if task.label == labels.EML), None
+        )
+        if sub_task_download_eml:
+            sub_task_download_eml.state = state.COMPLETED
+            sub_task_download_eml.status = __status
+
         self.set_message_on_the_statusbar(logger.EML_DOWNLOAD.format(__status))
         self.upadate_progress_bar()
         self.__finished()
 
     def __finished(self):
-        self.name = tasks.PEC_AND_DOWNLOAD_EML
+        self.label = labels.PEC_AND_DOWNLOAD_EML
         self.set_message_on_the_statusbar(logger.PEC_AND_DOWNLOAD_EML_COMPLETED)
         self.upadate_progress_bar()
 
-        self.update_task(state.FINISHED, status.COMPLETED)
+        self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
 

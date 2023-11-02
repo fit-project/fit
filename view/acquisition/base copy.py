@@ -6,10 +6,11 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-from common.constants import logger, status as Status, state as State
+from common.constants import logger
 
 import logging.config
 from common.config import LogConfigTools
+from common.constants.view.tasks import state as State, status as Status
 import common.utility
 
 from PyQt6.QtCore import QObject
@@ -89,7 +90,7 @@ class Base(QObject):
         if len(self.__tasks) == self.total_internal_tasks:
             status = [task.status for task in self.__tasks]
             status = list(set(status))
-            if len(status) == 1 and status[0] == Status.COMPLETED:
+            if len(status) == 1 and status[0] == Status.SUCCESS:
                 is_completed = True
 
         return is_completed
