@@ -59,18 +59,10 @@ class TaskReport(Task):
         self.generate_report.finished.connect(self.__finished)
 
     def start(self):
-        can_get_started = True
-
-        if self.dependencies:
-            can_get_started = self.task_handler.are_task_names_completed(
-                self.dependencies
-            )
-
-        if can_get_started:
-            self.generate_report.set_options(self.options)
-            self.update_task(state.STARTED, status.PENDING)
-            self.set_message_on_the_statusbar(logger.GENERATE_PDF_REPORT_STARTED)
-            self.generate_report_thread.start()
+        self.generate_report.set_options(self.options)
+        self.update_task(state.STARTED, status.PENDING)
+        self.set_message_on_the_statusbar(logger.GENERATE_PDF_REPORT_STARTED)
+        self.generate_report_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)

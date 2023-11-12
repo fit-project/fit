@@ -70,18 +70,10 @@ class TaskHash(Task):
         self.calculate_hash.finished.connect(self.__finished)
 
     def start(self):
-        can_get_started = True
-
-        if self.dependencies:
-            can_get_started = self.task_handler.are_task_names_completed(
-                self.dependencies
-            )
-
-        if can_get_started:
-            self.update_task(state.STARTED, status.PENDING)
-            self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_STARTED)
-            self.calculate_hash.folder = self.options["acquisition_directory"]
-            self.calculate_hash_thread.start()
+        self.update_task(state.STARTED, status.PENDING)
+        self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_STARTED)
+        self.calculate_hash.folder = self.options["acquisition_directory"]
+        self.calculate_hash_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)

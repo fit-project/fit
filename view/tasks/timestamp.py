@@ -96,17 +96,10 @@ class TaskTimestamp(Task):
         self._options = options
 
     def start(self):
-        can_get_started = True
-        if self.dependencies:
-            can_get_started = self.task_handler.are_task_names_completed(
-                self.dependencies
-            )
-
-        if can_get_started:
-            self.timestamp.set_options(self.options)
-            self.update_task(state.STARTED, status.PENDING)
-            self.set_message_on_the_statusbar(logger.TIMESTAMP_STARTED)
-            self.timestamp_thread.start()
+        self.timestamp.set_options(self.options)
+        self.update_task(state.STARTED, status.PENDING)
+        self.set_message_on_the_statusbar(logger.TIMESTAMP_STARTED)
+        self.timestamp_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)

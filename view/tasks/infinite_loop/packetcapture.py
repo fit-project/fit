@@ -22,8 +22,10 @@ from controller.configurations.tabs.packetcapture.packetcapture import (
     PacketCapture as PacketCaptureCotroller,
 )
 
-from common.constants import logger, details
-from common.constants import error
+from common.constants import logger, details, error
+
+
+__is_infinite_loop__ = True
 
 
 class PacketCapture(QObject):

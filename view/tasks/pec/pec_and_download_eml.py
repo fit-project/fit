@@ -122,18 +122,10 @@ class TaskPecAndDownloadEml(Task):
         ]
 
     def start(self):
-        can_get_started = True
-
-        if self.dependencies:
-            can_get_started = self.task_handler.are_task_names_completed(
-                self.dependencies
-            )
-
-        if can_get_started:
-            self.pec.set_options(self.options)
-            self.update_task(state.STARTED, status.PENDING)
-            self.set_message_on_the_statusbar(logger.PEC_AND_DOWNLOAD_EML_STARTED)
-            self.pec_thread.start()
+        self.pec.set_options(self.options)
+        self.update_task(state.STARTED, status.PENDING)
+        self.set_message_on_the_statusbar(logger.PEC_AND_DOWNLOAD_EML_STARTED)
+        self.pec_thread.start()
 
     def __handle_error(self, error):
         error_dlg = ErrorView(

@@ -10,8 +10,7 @@
 import typing
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from common.constants.view.tasks import status as STATUS
-from common.constants.view.tasks import state as STATE
+from common.constants.view.tasks import status as Status, state as State
 from view.tasks.tasks_handler import TasksHandler
 
 
@@ -26,10 +25,9 @@ class Task(QObject):
         self.progress_bar = progress_bar
         self.status_bar = status_bar
 
-        self.state = STATE.INITIALIZATED
-        self.status = STATUS.SUCCESS
+        self.state = State.INITIALIZATED
+        self.status = Status.SUCCESS
         self.details = ""
-        self.dependencies = list()
         self.task_handler = TasksHandler()
         self.task_handler.add_task(self)
 
@@ -80,14 +78,6 @@ class Task(QObject):
     @increment.setter
     def increment(self, increment):
         self._increment = increment
-
-    @property
-    def dependencies(self):
-        return self._dependencies
-
-    @dependencies.setter
-    def dependencies(self, dependencies):
-        self._dependencies = dependencies
 
     @property
     def sub_tasks(self):

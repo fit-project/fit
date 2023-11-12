@@ -31,6 +31,8 @@ from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
 
+__is_infinite_loop__ = True
+
 
 class ScreenRecorder(QObject):
     finished = pyqtSignal()

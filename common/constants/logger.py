@@ -59,16 +59,33 @@ CALCULATE_HASHFILE_COMPLETED = "CALCULATE HASHFILE completed"
 CALCULATE_HASHFILE = "Calculate acquisition file hash"
 
 GENERATE_PDF_REPORT = "Generate PDF Report"
-GENERATE_PDF_REPORT_STARTED = "GENERATE PDF REPORT started"
-GENERATE_PDF_REPORT_STOPPED = "GENERATE PDF REPORT stopped"
-GENERATE_PDF_REPORT_COMPLETED = "GENERATE PDF REPORT completed"
-GENERATE_PDF_REPORT_START = "Generate PDF Report start"
-GENERATE_PDF_REPORT_STOP = "Generate PDF Report stop"
+GENERATE_PDF_REPORT_STARTED = "Generate PDF Report started"
+GENERATE_PDF_REPORT_STOPPED = "Generate PDF Report stopped"
+GENERATE_PDF_REPORT_COMPLETED = "Generate PDF Report completed"
+
+TAKE_FULL_PAGE_SCREENSHOT = "Take full page screenshot"
+TAKE_FULL_PAGE_SCREENSHOT_STARTED = "Take full page screenshot started"
+TAKE_FULL_PAGE_SCREENSHOT_STOPPED = "Take full page screenshot stopped"
+TAKE_FULL_PAGE_SCREENSHOT_COMPLETED = "Take full page screenshot completed"
+
+SAVE_PAGE = "Save page"
+SAVE_PAGE_STARTED = "Save page started"
+SAVE_PAGE_STOPPED = "Save page stopped"
+SAVE_PAGE_COMPLETED = "Save page completed"
+
+ZIP_AND_REMOVE_FOLDER = "Zip and remove folder"
+ZIP_AND_REMOVE_FOLDER_STARTED = "Zip and remove folder started"
+ZIP_AND_REMOVE_FOLDER_STOPPED = "Zip and remove folder stopped"
+ZIP_AND_REMOVE_FOLDER_COMPLETED = "Zip and remove folder completed"
+
 
 TIMESTAMP_STARTED = "TIMESTAMP started"
 TIMESTAMP_STOPPED = "TIMESTAMP stopped"
 TIMESTAMP_COMPLETED = "TIMESTAMP completed"
 TIMESTAMP_APPLY = "Apply timestamp to {} from server {}"
+
+PEC_AND_DOWNLOAD_EML_STARTED = "Send report by PEC and Download EML started"
+PEC_AND_DOWNLOAD_EML_COMPLETED = "Send report by PEC and Download EML completed"
 
 
 PEC_AND_DOWNLOAD_EML_STARTED = "Send report by PEC and Download EML started"
