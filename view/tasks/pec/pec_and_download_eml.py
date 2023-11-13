@@ -94,10 +94,8 @@ class PecAndDownloadEml(QObject):
 
 
 class TaskPecAndDownloadEml(Task):
-    def __init__(
-        self, options, logger, progress_bar=None, status_bar=None, parent=None
-    ):
-        super().__init__(options, logger, progress_bar, status_bar, parent)
+    def __init__(self, logger, progress_bar=None, status_bar=None, parent=None):
+        super().__init__(logger, progress_bar, status_bar, parent)
 
         self.label = labels.PEC_AND_DOWNLOAD_EML
         self.pec_thread = QThread()

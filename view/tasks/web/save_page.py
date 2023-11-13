@@ -20,48 +20,28 @@ from view.web.full_page_screenshot import FullPageScreenShot as WebFullPageScree
 from common.constants import logger
 
 
-class SavePage(QObject):
-    finished = pyqtSignal()
-    started = pyqtSignal()
-
-    def set_options(self, options):
-        self.folder = options["screenshot_directory"]
-        self.current_widget = options["current_widget"]
-
-    def start(self):
-        self.started.emit()
-        self.folder = os.path.join(self.folder, "acquisition_page")
-        if not os.path.isdir(self.folder):
-            os.makedirs(self.folder)
-
-        self.current_widget.saveResourcesFinished.connect(self.finished.emit)
-        self.current_widget.save_resources(self.acquisition_page_folder)
-
-
 class TaskSavePage(Task):
-    def __init__(
-        self, options, logger, progress_bar=None, status_bar=None, parent=None
-    ):
-        super().__init__(options, logger, progress_bar, status_bar, parent)
+    def __init__(self, logger, progress_bar=None, status_bar=None, parent=None):
+        super().__init__(logger, progress_bar, status_bar, parent)
 
         self.label = labels.SAVE_PAGE
 
-        self.save_page_thread = QThread()
-        self.save_page = SavePage()
-        self.save_page.moveToThread(self.save_page_thread)
-        self.save_page_thread.started.connect(self.save_page.start)
-        self.save_page.started.connect(self.__started)
-        self.save_page.finished.connect(self.__finished)
-
     def start(self):
-        self.save_page.set_options(self.options)
-        self.update_task(state.STARTED, status.PENDING)
-        self.set_message_on_the_statusbar(logger.SAVE_PAGE_STARTED)
-        self.save_page_thread.start()
-
-    def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
+        self.set_message_on_the_statusbar(logger.SAVE_PAGE_STARTED)
         self.started.emit()
+
+        self.acquisition_directory = self.options["acquisition_directory"]
+        self.current_widget = self.options["current_widget"]
+
+        acquisition_page_folder = os.path.join(
+            self.acquisition_directory, "acquisition_page"
+        )
+        if not os.path.isdir(acquisition_page_folder):
+            os.makedirs(acquisition_page_folder)
+
+        self.current_widget.saveResourcesFinished.connect(self.__finished)
+        self.current_widget.save_resources(acquisition_page_folder)
 
     def __finished(self):
         self.logger.info(logger.SAVE_PAGE)
@@ -71,6 +51,3 @@ class TaskSavePage(Task):
         self.update_task(state.COMPLETED, status.SUCCESS)
 
         self.finished.emit()
-
-        self.save_page_thread.quit()
-        self.save_page_thread.wait()

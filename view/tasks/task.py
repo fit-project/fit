@@ -18,9 +18,9 @@ class Task(QObject):
     started = pyqtSignal()
     finished = pyqtSignal()
 
-    def __init__(self, options, logger, progress_bar, status_bar, parent):
+    def __init__(self, logger, progress_bar, status_bar, parent):
         super().__init__(parent)
-        self.options = options
+
         self.logger = logger
         self.progress_bar = progress_bar
         self.status_bar = status_bar

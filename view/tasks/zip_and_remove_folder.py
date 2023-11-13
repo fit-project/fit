@@ -27,24 +27,28 @@ class ZipAndRemoveFolder(QObject):
     error = pyqtSignal(object)
 
     def set_options(self, options):
-        self.acquisition_page_folder = options["acquisition_page_folder"]
+        self.acquisition_content_directory = options["acquisition_content_directory"]
 
     def start(self):
         self.started.emit()
         shutil.make_archive(
-            self.acquisition_page_folder, "zip", self.acquisition_page_folder
+            self.acquisition_content_directory,
+            "zip",
+            self.acquisition_content_directory,
         )
 
-        has_files_downloads_folder = 0
-        downloads_folder = os.path.join(self.acquisition_page_folder, "downloads")
-        if not os.path.isdir(downloads_folder):
+        has_files_downloads_folder = []
+
+        downloads_folder = os.path.join(self.acquisition_content_directory, "downloads")
+        if os.path.isdir(downloads_folder):
             has_files_downloads_folder = os.listdir(downloads_folder)
 
         if len(has_files_downloads_folder) > 0:
             shutil.make_archive(downloads_folder, "zip", downloads_folder)
         try:
-            shutil.rmtree(self.acquisition_page_folder)
-            shutil.rmtree(downloads_folder)
+            shutil.rmtree(self.acquisition_content_directory)
+            if os.path.isdir(downloads_folder):
+                shutil.rmtree(downloads_folder)
             self.finished.emit()
 
         except OSError as e:
@@ -58,10 +62,8 @@ class ZipAndRemoveFolder(QObject):
 
 
 class TaskZipAndRemoveFolder(Task):
-    def __init__(
-        self, options, logger, progress_bar=None, status_bar=None, parent=None
-    ):
-        super().__init__(options, logger, progress_bar, status_bar, parent)
+    def __init__(self, logger, progress_bar=None, status_bar=None, parent=None):
+        super().__init__(logger, progress_bar, status_bar, parent)
 
         self.label = labels.ZIP_AND_REMOVE_FOLDER
 

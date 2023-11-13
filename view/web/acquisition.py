@@ -8,22 +8,34 @@
 ######
 
 from view.acquisition.acquisition import Acquisition
+from PyQt6.QtCore import pyqtSignal
 from view.tasks.class_names import *
 
 
 class WebAcquisition(Acquisition):
-    def __init__(self, options, logger, progress_bar, status_bar, parent=None):
-        super().__init__(options, logger, progress_bar, status_bar, parent)
+    task_screenrecorder_is_finished = pyqtSignal()
+
+    def __init__(self, logger, progress_bar, status_bar, parent=None):
+        super().__init__(logger, progress_bar, status_bar, parent)
 
         self.start_tasks = [SCREENRECORDER, PACKETCAPTURE]
         self.stop_tasks = [
             WHOIS,
             NSLOOKUP,
             HEADERS,
-            TRACEROUTE,
             SSLKEYLOG,
             SSLCERTIFICATE,
             PACKETCAPTURE,
             TAKE_FULL_PAGE_SCREENSHOT,
             SAVE_PAGE,
         ]
+
+        # self.stop_tasks = [TRACEROUTE]
+
+    def stop_screen_recorder(self):
+        task = self.tasks_manager.get_task(SCREENRECORDER)
+        if task:
+            task.finished.connect(self.task_screenrecorder_is_finished.emit)
+            task.stop()
+        else:
+            self.task_screenrecorder_is_finished.emit()

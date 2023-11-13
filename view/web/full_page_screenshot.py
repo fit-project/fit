@@ -19,11 +19,27 @@ from common.utility import screenshot_filename
 
 
 class FullPageScreenShot(QObject):
-    def __init__(self, current_widget, screenshot_directory=None, parent=None):
+    def __init__(
+        self,
+        current_widget,
+        acquisition_directory=None,
+        screenshot_directory=None,
+        parent=None,
+    ):
         super().__init__(parent)
 
         self.current_widget = current_widget
         self.screenshot_directory = screenshot_directory
+        self.acquisition_directory = acquisition_directory
+        self.is_running_task = False
+
+    @property
+    def is_running_task(self):
+        return self._is_running_task
+
+    @is_running_task.setter
+    def is_running_task(self, is_running_task):
+        self._is_running_task = is_running_task
 
     def take_screenshot(self):
         if self.screenshot_directory is not None:
@@ -79,26 +95,9 @@ class FullPageScreenShot(QObject):
             whole_img_filename = screenshot_filename(
                 self.screenshot_directory, "full_page" + ""
             )
-            if last:
+            if self.is_running_task:
                 whole_img_filename = os.path.join(
                     self.acquisition_directory, "screenshot.png"
                 )
 
             imgs_comb.save(whole_img_filename)
-
-            if last:
-                row = self.acquisition.info.get_row(Tasks.SCREENSHOT)
-                self.acquisition.info.update_task(
-                    row, state.COMPLETED, Status.SUCCESS, ""
-                )
-                task = list(
-                    filter(lambda task: task.name == Tasks.SCREENSHOT, self.__tasks)
-                )[0]
-                task.state = state.COMPLETED
-                task.status = Status.SUCCESS
-                self.__are_internal_tasks_completed()
-
-            else:
-                self.progress_bar.setValue(100 - progress)
-                self.__enable_all()
-                self.progress_bar.setHidden(True)

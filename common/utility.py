@@ -162,6 +162,7 @@ def traceroute(url, filename):
         print("Don't find Network location part in the URL")
     else:
         netloc = netloc.split(":")[0]
+
         with open(filename, "w") as f:
             with redirect_stdout(f):
                 ans, unans = scapy.sr(

@@ -101,7 +101,7 @@ class SnippingWidget(QtWidgets.QWidget):
         return int(x1), int(y1), int(x2), int(y2)
 
 
-class SelectArea(QtCore.QObject):
+class SelectAreaScreenshot(QtCore.QObject):
     finished = QtCore.pyqtSignal()  # give worker class a finished signal
 
     def __init__(self, filename, parent=None):

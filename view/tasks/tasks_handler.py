@@ -31,19 +31,18 @@ class TasksHandler(QObject):
             (task for task in self.__tasks if task.__class__.__name__ == name), None
         )
 
-    def are_task_names_completed(self, names):
+    def are_task_names_in_the_same_state(self, names, state):
         are_completed = False
         __state = list()
 
         for name in names:
             task = self.get_task(name)
-
             if task:
                 __state.append(task.state)
 
-            if __state:
-                __state = list(set(__state))
-                if len(__state) == 1 and __state[0] == state.COMPLETED:
-                    are_completed = True
+        if __state:
+            __state = list(set(__state))
+            if len(__state) == 1 and __state[0] == state:
+                are_completed = True
 
         return are_completed

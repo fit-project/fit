@@ -12,13 +12,14 @@ from PyQt6.QtWidgets import QApplication
 from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
 from view.web.web import Web as WebView
-from view.mail import Mail as MailView
-from view.instagram import Instagram as InstagramView
 
-from view.verify_pec import VerifyPec as VerifyPecView
+# from view.mail import Mail as MailView
+# from view.instagram import Instagram as InstagramView
 
-from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
-from view.video import Video as VideoView
+# from view.verify_pec import VerifyPec as VerifyPecView
+
+# from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
+# from view.video import Video as VideoView
 
 
 if __name__ == "__main__":
@@ -32,20 +33,20 @@ if __name__ == "__main__":
     web = WebView()
     web.hide()
 
-    mail = MailView()
-    mail.hide()
+    # mail = MailView()
+    # mail.hide()
 
-    insta = InstagramView()
-    insta.hide()
+    # insta = InstagramView()
+    # insta.hide()
 
-    timestamp = VerifyPDFTimestampView()
-    timestamp.hide()
+    # timestamp = VerifyPDFTimestampView()
+    # timestamp.hide()
 
-    pec = VerifyPecView()
-    pec.hide()
+    # pec = VerifyPecView()
+    # pec.hide()
 
-    video = VideoView()
-    video.hide()
+    # video = VideoView()
+    # video.hide()
 
     def start_task(task, case_info):
         options = {}

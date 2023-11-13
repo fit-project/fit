@@ -20,6 +20,7 @@ from common.utility import get_ntp_date_and_time
 from common.config import LogConfigTools
 
 from common.constants import logger
+from common.constants.view.tasks import state
 
 
 class Acquisition(QObject):
@@ -27,73 +28,95 @@ class Acquisition(QObject):
     start_tasks_is_finished = pyqtSignal()
     stop_tasks_is_finished = pyqtSignal()
 
-    def __init__(self, options, logger, progress_bar, status_bar, parent=None):
-        super.__init__(parent)
-        self.folder = options["acquisition_folder"]
+    def __init__(self, logger, progress_bar, status_bar, parent):
+        super().__init__(parent)
+        self.progress_bar = progress_bar
+        self.status_bar = status_bar
         self.logger = logger
+
         self.log_confing = LogConfigTools()
+        self.tasks_manager = TasksManager(parent)
+
         self.start_tasks = list()
         self.stop_tasks = list()
-        self.post_tasks = [ZIP_AND_REMOVE_FOLDER, HASH, TIMESTAMP, PEC_AND_DOWNLOAD_EML]
+        self.post_tasks = [
+            ZIP_AND_REMOVE_FOLDER,
+            HASH,
+            REPORT,
+            TIMESTAMP,
+            PEC_AND_DOWNLOAD_EML,
+        ]
 
+    @property
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, options):
+        self._options = options
+
+    def load_tasks(self):
         if self.logger.name == "view.web.web":
             self.log_confing.set_dynamic_loggers()
 
-        self.log_confing.change_filehandlers_path(self.folder)
+        self.log_confing.change_filehandlers_path(self.options["acquisition_directory"])
         logging.config.dictConfig(self.log_confing.config)
 
         __all_tasks = self.start_tasks + self.stop_tasks + self.post_tasks
-        self.tasks_manager = TasksManager(parent)
+
         self.tasks_manager.init_tasks(
-            __all_tasks, options, logger, progress_bar, status_bar
+            __all_tasks, self.logger, self.progress_bar, self.status_bar
         )
 
-        self.post_acquisition = PostAcquisition()
+        self.post_acquisition = PostAcquisition(self.parent())
         self.post_acquisition.finished.connect(self.post_acquisition_is_finished.emit)
 
     def start(self):
         self.log_start_message()
+        tasks = self.tasks_manager.get_tasks_from_class_name(self.start_tasks)
 
-        for name in self.start_tasks:
-            task = self.tasks_manager.get_task(name)
-            if task:
+        if len(tasks) == 0:
+            self.stop_tasks_is_finished.emit()
+        else:
+            for task in tasks:
                 task.started.connect(self.__started_task_handler)
+                task.options = self.options
                 task.increment = self.calculate_increment()
                 task.start()
-            else:
-                self.start_tasks.remove(name)
-
-        if len(self.start_tasks) == 0:
-            self.start_tasks_is_finished.emit()
 
     def __started_task_handler(self):
-        if self.tasks_manager.are_task_names_completed(self.start_tasks):
+        if self.tasks_manager.are_task_names_in_the_same_state(
+            self.start_tasks, state.STARTED
+        ):
             self.start_tasks_is_finished.emit()
 
     def stop(self):
         self.log_stop_message()
-        for name in self.stop_tasks:
-            task = self.tasks_manager.get_task(name)
-            if task:
+        tasks = self.tasks_manager.get_tasks_from_class_name(self.stop_tasks)
+        if len(tasks) == 0:
+            self.stop_tasks_is_finished.emit()
+        else:
+            for task in tasks:
                 task.finished.connect(self.__finished_task_handler)
+                task.options = self.options
                 task.increment = self.calculate_increment()
-                if getattr(task, "__is_infinite_loop__"):
+                if hasattr(task, "__is_infinite_loop__") and getattr(
+                    task, "__is_infinite_loop__"
+                ):
                     task.stop()
                 else:
                     task.start()
-            else:
-                self.stop_tasks.remove(name)
-
-        if len(self.stop_tasks) == 0:
-            self.stop_tasks_is_finished.emit()
 
     def __finished_task_handler(self):
-        if self.tasks_manager.are_task_names_completed(self.stop_tasks):
-            self.stop_tasks_is_finished.emit()
+        if self.tasks_manager.are_task_names_in_the_same_state(
+            self.stop_tasks, state.COMPLETED
+        ):
+            pass
+            # self.stop_tasks_is_finished.emit()
 
     def start_post_acquisition(self):
         self.post_acquisition.start_post_acquisition_sequence(
-            self.calculate_increment()
+            self.calculate_increment(), self.options
         )
 
     def log_start_message(self):
@@ -113,5 +136,10 @@ class Acquisition(QObject):
             NetworkControllerCheck().configuration["ntp_server"]
         )
 
-    def calculate_increment(self, tasks):
+    def calculate_increment(self):
         return 100 / len(self.tasks_manager.get_tasks())
+
+    def set_completed_progress_bar(self):
+        self.progress_bar.setValue(
+            self.progress_bar.value() + (100 - self.progress_bar.value())
+        )

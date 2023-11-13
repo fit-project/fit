@@ -62,7 +62,6 @@ class TasksManager(QObject):
                     and isclass(getattr(sys.modules[modname], class_name))
                     and bool(self.is_enabled_tasks(class_name))
                 ):
-                    print(class_name)
                     self.class_names_modules.setdefault(class_name, []).append(
                         sys.modules[modname]
                     )
@@ -109,7 +108,6 @@ class TasksManager(QObject):
     def init_tasks(
         self,
         task_list,
-        options,
         logger,
         progress_bar,
         status_bar,
@@ -118,13 +116,21 @@ class TasksManager(QObject):
             if key in task_list:
                 value = self.class_names_modules.get(key)[0]
                 task = getattr(value, key)
-                task = task(options, logger, progress_bar, status_bar)
+                task = task(logger, progress_bar, status_bar)
 
     def get_tasks(self):
         return self.task_handler.get_tasks()
 
-    def get_task(self, name):
+    def get_task_by_class_name(self, name):
         return self.task_handler.get_task(name)
 
-    def are_task_names_completed(self, tasks):
-        return self.task_handler.are_task_names_completed(tasks)
+    def get_tasks_from_class_name(self, names):
+        tasks = []
+        for name in names:
+            task = self.get_task_by_class_name(name)
+            if task:
+                tasks.append(task)
+        return tasks
+
+    def are_task_names_in_the_same_state(self, tasks, state):
+        return self.task_handler.are_task_names_in_the_same_state(tasks, state)

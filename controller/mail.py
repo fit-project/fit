@@ -185,8 +185,8 @@ class Mail:
         self.logs = self.logs + "\n" + logs_buffer.getvalue()
         sys.stderr = original_stderr
 
-    def write_logs(self, acquisition_folder):
-        with open(os.path.join(acquisition_folder, "imap_logs.log"), "w") as f:
+    def write_logs(self, acquisition_directory):
+        with open(os.path.join(acquisition_directory, "imap_logs.log"), "w") as f:
             f.write(self.logs)
 
     # unused methods
