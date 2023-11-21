@@ -8,7 +8,6 @@
 ######
 import os
 import json
-import json
 
 from configparser import SafeConfigParser
 
@@ -109,7 +108,6 @@ class SelectTaskPage(QtWidgets.QWizardPage):
             hlayout.setContentsMargins(0, 0, 0, 0)
 
             index = self.__add_task_buttons(buttons, group, container, hlayout, index)
-            print(index)
 
             rows += 1
 
