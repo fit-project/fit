@@ -111,8 +111,8 @@ class Acquisition(QObject):
         if self.tasks_manager.are_task_names_in_the_same_state(
             self.stop_tasks, state.COMPLETED
         ):
-            pass
-            # self.stop_tasks_is_finished.emit()
+            
+            self.stop_tasks_is_finished.emit()
 
     def start_post_acquisition(self):
         self.post_acquisition.start_post_acquisition_sequence(
