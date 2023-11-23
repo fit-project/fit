@@ -31,8 +31,6 @@ from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
 
-__is_infinite_loop__ = True
-
 
 class ScreenRecorder(QObject):
     finished = pyqtSignal()
@@ -100,6 +98,8 @@ class TaskScreenRecorder(Task):
         super().__init__(logger, progress_bar, status_bar, parent)
 
         self.label = labels.SCREEN_RECORDER
+        self.is_infinite_loop = True
+
         self.screenrecorder_thread = QThread()
         self.screenrecorder = ScreenRecorder()
         self.screenrecorder.moveToThread(self.screenrecorder_thread)

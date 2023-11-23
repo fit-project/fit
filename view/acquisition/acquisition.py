@@ -93,6 +93,7 @@ class Acquisition(QObject):
     def stop(self):
         self.log_stop_message()
         tasks = self.tasks_manager.get_tasks_from_class_name(self.stop_tasks)
+
         if len(tasks) == 0:
             self.stop_tasks_is_finished.emit()
         else:
@@ -100,9 +101,8 @@ class Acquisition(QObject):
                 task.finished.connect(self.__finished_task_handler)
                 task.options = self.options
                 task.increment = self.calculate_increment()
-                if hasattr(task, "__is_infinite_loop__") and getattr(
-                    task, "__is_infinite_loop__"
-                ):
+
+                if task.is_infinite_loop:
                     task.stop()
                 else:
                     task.start()
@@ -111,7 +111,6 @@ class Acquisition(QObject):
         if self.tasks_manager.are_task_names_in_the_same_state(
             self.stop_tasks, state.COMPLETED
         ):
-            
             self.stop_tasks_is_finished.emit()
 
     def start_post_acquisition(self):

@@ -139,12 +139,12 @@ class Web(QtWidgets.QMainWindow):
             "configuration_general"
         )
 
-        # Get timestamp parameters
-        self.configuration_timestamp = (
+        self.configuration_screenrecorder = (
             self.menu_bar.configuration_view.get_tab_from_name(
-                "configuration_timestamp"
+                "configuration_screenrecorder"
             )
         )
+
         self.add_new_tab(
             QtCore.QUrl(self.configuration_general.configuration["home_page_url"]),
             "Homepage",
@@ -174,8 +174,7 @@ class Web(QtWidgets.QMainWindow):
             # show progress bar
             self.progress_bar.setHidden(False)
 
-            # disable configuration and case menu
-            self.menu_bar.enable_actions(False)
+            self.__disable_all()
 
             self.acquisition_manager.options = {
                 "acquisition_directory": self.acquisition_directory,
@@ -183,6 +182,9 @@ class Web(QtWidgets.QMainWindow):
                 "type": "web",
                 "case_info": self.case_info,
                 "current_widget": self.tabs.currentWidget(),
+                "exclude_from_hash_calculation": [
+                    self.configuration_screenrecorder.options["filename"]
+                ],
             }
 
             self.acquisition_manager.load_tasks()
@@ -200,6 +202,9 @@ class Web(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.progress_bar.setValue(0)
 
+        self.__enable_all()
+
+        self.menu_bar.enable_actions(False)
         # disable start acquisition button
         self.navtb.enable_start_acquisition_button()
         # enable screenshot buttons

@@ -121,6 +121,9 @@ class TasksManager(QObject):
     def get_tasks(self):
         return self.task_handler.get_tasks()
 
+    def get_task(self, name):
+        return self.task_handler.get_task(name)
+
     def get_task_by_class_name(self, name):
         return self.task_handler.get_task(name)
 

@@ -21,6 +21,8 @@ class Task(QObject):
     def __init__(self, logger, progress_bar, status_bar, parent):
         super().__init__(parent)
 
+        self.is_infinite_loop = False
+
         self.logger = logger
         self.progress_bar = progress_bar
         self.status_bar = status_bar
@@ -82,6 +84,14 @@ class Task(QObject):
     @property
     def sub_tasks(self):
         return self._sub_tasks
+
+    @property
+    def is_infinite_loop(self):
+        return self._is_infinite_loop
+
+    @is_infinite_loop.setter
+    def is_infinite_loop(self, is_infinite_loop):
+        self._is_infinite_loop = is_infinite_loop
 
     @sub_tasks.setter
     def sub_tasks(self, sub_tasks):

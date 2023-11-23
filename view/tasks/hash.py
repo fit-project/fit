@@ -32,12 +32,20 @@ class Hash(QObject):
     def folder(self, folder):
         self._folder = folder
 
+    @property
+    def exclude_list(self):
+        return self._exclude_list
+
+    @exclude_list.setter
+    def exclude_list(self, exclude_list):
+        self._exclude_list = exclude_list
+
     def start(self):
         self.started.emit()
 
         files = [f.name for f in os.scandir(self.folder) if f.is_file()]
         for file in files:
-            if file != "acquisition.hash":
+            if file != "acquisition.hash" and file not in self.exclude_list:
                 filename = os.path.join(self.folder, file)
                 file_stats = os.stat(filename)
                 self.logger.info(file)
@@ -71,6 +79,12 @@ class TaskHash(Task):
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_STARTED)
         self.calculate_hash.folder = self.options["acquisition_directory"]
+        self.calculate_hash.exclude_list = list()
+        if "exclude_from_hash_calculation" in self.options:
+            self.calculate_hash.exclude_list = self.options[
+                "exclude_from_hash_calculation"
+            ]
+
         self.calculate_hash_thread.start()
 
     def __started(self):
