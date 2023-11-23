@@ -76,7 +76,7 @@ class Acquisition(QObject):
         tasks = self.tasks_manager.get_tasks_from_class_name(self.start_tasks)
 
         if len(tasks) == 0:
-            self.stop_tasks_is_finished.emit()
+            self.start_tasks_is_finished.emit()
         else:
             for task in tasks:
                 task.started.connect(self.__started_task_handler)
