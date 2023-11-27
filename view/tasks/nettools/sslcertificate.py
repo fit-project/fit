@@ -47,18 +47,20 @@ class TaskSSLCertificate(Task):
 
         self.label = labels.SSLCERTIFICATE
 
-        self.sslcertificate_thread = QThread()
-        self.sslcertificate = SSLCertificate()
-        self.sslcertificate.moveToThread(self.sslcertificate_thread)
-        self.sslcertificate_thread.started.connect(self.sslcertificate.start)
-        self.sslcertificate.started.connect(self.__started)
-        self.sslcertificate.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = SSLCertificate()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
-        self.sslcertificate.set_options(self.options)
+        self.worker.set_options(self.options)
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.SSLCERTIFICATE_STARTED)
-        self.sslcertificate_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -78,5 +80,10 @@ class TaskSSLCertificate(Task):
 
         self.finished.emit()
 
-        self.sslcertificate_thread.quit()
-        self.sslcertificate_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

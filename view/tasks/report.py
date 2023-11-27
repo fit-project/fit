@@ -49,18 +49,20 @@ class TaskReport(Task):
 
         self.label = labels.REPORTFILE
 
-        self.generate_report_thread = QThread()
-        self.generate_report = Report()
-        self.generate_report.moveToThread(self.generate_report_thread)
-        self.generate_report_thread.started.connect(self.generate_report.start)
-        self.generate_report.started.connect(self.__started)
-        self.generate_report.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = Report()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
-        self.generate_report.set_options(self.options)
+        self.worker.set_options(self.options)
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.GENERATE_PDF_REPORT_STARTED)
-        self.generate_report_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -75,5 +77,10 @@ class TaskReport(Task):
 
         self.finished.emit()
 
-        self.generate_report_thread.quit()
-        self.generate_report_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

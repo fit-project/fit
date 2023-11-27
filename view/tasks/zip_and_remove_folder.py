@@ -67,15 +67,15 @@ class TaskZipAndRemoveFolder(Task):
 
         self.label = labels.ZIP_AND_REMOVE_FOLDER
 
-        self.zip_and_remove_folder_thread = QThread()
-        self.zip_and_remove_folder = ZipAndRemoveFolder()
-        self.zip_and_remove_folder.moveToThread(self.zip_and_remove_folder_thread)
-        self.zip_and_remove_folder_thread.started.connect(
-            self.zip_and_remove_folder.start
-        )
-        self.zip_and_remove_folder.started.connect(self.__started)
-        self.zip_and_remove_folder.finished.connect(self.__finished)
-        self.zip_and_remove_folder.error.connect(self.__handle_error)
+        self.worker_thread = QThread()
+        self.worker = ZipAndRemoveFolder()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+        self.worker.error.connect(self.__handle_error)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def __handle_error(self, error):
         error_dlg = ErrorView(
@@ -88,10 +88,10 @@ class TaskZipAndRemoveFolder(Task):
         self.__finished(status.FAIL)
 
     def start(self):
-        self.zip_and_remove_folder.set_options(self.options)
+        self.worker.set_options(self.options)
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.ZIP_AND_REMOVE_FOLDER_STARTED)
-        self.zip_and_remove_folder_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -106,5 +106,10 @@ class TaskZipAndRemoveFolder(Task):
 
         self.finished.emit()
 
-        self.zip_and_remove_folder_thread.quit()
-        self.zip_and_remove_folder_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

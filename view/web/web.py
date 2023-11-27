@@ -236,6 +236,7 @@ class Web(QtWidgets.QMainWindow):
         self.tabs.currentWidget().reconnect_signal()
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
+        self.acquisition_manager.unload_tasks()
 
         # hidden progress bar
         self.progress_bar.setHidden(True)

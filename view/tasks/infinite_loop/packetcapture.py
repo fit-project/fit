@@ -70,15 +70,16 @@ class TaskPacketCapture(Task):
         self.label = labels.PACKET_CAPTURE
         self.is_infinite_loop = True
 
-        self.packetcapture_thread = QThread()
-        self.packetcapture = PacketCapture()
-        self.packetcapture.moveToThread(self.packetcapture_thread)
+        self.worker_thread = QThread()
+        self.worker = PacketCapture()
+        self.worker.moveToThread(self.worker_thread)
 
-        self.packetcapture_thread.started.connect(self.packetcapture.start)
+        self.worker_thread.started.connect(self.worker.start)
 
-        self.packetcapture.started.connect(self.__started)
-        self.packetcapture.finished.connect(self.__finished)
-        self.packetcapture.error.connect(self.__handle_error)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+        self.worker.error.connect(self.__handle_error)
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     @Task.options.getter
     def options(self):
@@ -104,8 +105,8 @@ class TaskPacketCapture(Task):
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STARTED)
 
-        self.packetcapture.set_options(self.options)
-        self.packetcapture_thread.start()
+        self.worker.set_options(self.options)
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(
@@ -120,7 +121,7 @@ class TaskPacketCapture(Task):
     def stop(self):
         self.update_task(state.STOPPED, status.PENDING)
         self.set_message_on_the_statusbar(logger.NETWORK_PACKET_CAPTURE_STOPPED)
-        self.packetcapture.stop()
+        self.worker.stop()
 
     def __finished(self):
         self.logger.info(logger.NETWORK_PACKET_CAPTURE_COMPLETED)
@@ -135,5 +136,10 @@ class TaskPacketCapture(Task):
 
         self.finished.emit()
 
-        self.packetcapture_thread.quit()
-        self.packetcapture_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

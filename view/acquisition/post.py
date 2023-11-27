@@ -31,8 +31,10 @@ class PostAcquisition(QObject):
             self.options["acquisition_content_directory"] = os.path.join(
                 self.options["acquisition_directory"], "acquisition_page"
             )
-        elif self.options["type"] == "mail":
-            pass
+        elif self.options["type"] == "email":
+            self.options["acquisition_content_directory"] = os.path.join(
+                self.options["acquisition_directory"], "acquisition_mail"
+            )
 
         task = self.task_handler.get_task(ZIP_AND_REMOVE_FOLDER)
         if task:
@@ -53,8 +55,8 @@ class PostAcquisition(QObject):
         task = self.task_handler.get_task(REPORT)
         if self.options["type"] == "web":
             self.options["pdf_filename"] = "acquisition_report.pdf"
-        elif self.options["type"] == "mail":
-            pass
+        elif self.options["type"] == "email":
+            self.options["pdf_filename"] = "acquisition_report.pdf"
         if task:
             task.finished.connect(self.__generate_timestamp_report)
             task.options = self.options

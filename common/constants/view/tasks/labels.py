@@ -25,16 +25,20 @@ SSLCERTIFICATE = "SSL Certificate"
 HASHFILE = "Calculate Hash File"
 REPORTFILE = "Generate PDF Report"
 TIMESTAMP = "Generate TIMESTAMP for the report"
-PEC_AND_DOWNLOAD_EML = "PEC and EML file"
 ZIP_AND_REMOVE_FOLDER = "Zip and remove folder"
-
-SAVE_EMAILS = "Save emails"
-LOGIN = "Login"
-FETCH_EMAILS = "Fetch Emails"
-
-
+# PEC TASK AND SUBTASK
+PEC_AND_DOWNLOAD_EML = "PEC and EML file"
 PEC = "Send the PDF Report by PEC"
 EML = "Download eml file"
+
+# MAIL TASKS AND SUBTASK
+MAIL_SCRAPER = "Mail Scraper"
+LOGGED_IN = "Logged in"
+LOGOUT = "Logout"
+DOWNLOAD_EMAILS = "Download emails"
+SEARCH_EMAILS = "Search Emails"
+
+
 INSTAGRAM = "Save instagram profile"
 FETCH_PROFILE = "Fetch profile"
 SCRAPING_INSTAGRAM = "Scrape profile"

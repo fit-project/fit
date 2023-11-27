@@ -100,13 +100,15 @@ class TaskScreenRecorder(Task):
         self.label = labels.SCREEN_RECORDER
         self.is_infinite_loop = True
 
-        self.screenrecorder_thread = QThread()
-        self.screenrecorder = ScreenRecorder()
-        self.screenrecorder.moveToThread(self.screenrecorder_thread)
-        self.screenrecorder_thread.started.connect(self.screenrecorder.start)
-        self.screenrecorder.started.connect(self.__started)
-        self.screenrecorder.finished.connect(self.__finished)
-        self.screenrecorder.error.connect(self.__handle_error)
+        self.worker_thread = QThread()
+        self.worker = ScreenRecorder()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+        self.worker.error.connect(self.__handle_error)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     @Task.options.getter
     def options(self):
@@ -132,8 +134,8 @@ class TaskScreenRecorder(Task):
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.SCREEN_RECODER_STARTED)
 
-        self.screenrecorder.set_options(self.options)
-        self.screenrecorder_thread.start()
+        self.worker.set_options(self.options)
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(
@@ -148,7 +150,7 @@ class TaskScreenRecorder(Task):
     def stop(self):
         self.update_task(state.STOPPED, status.PENDING)
         self.set_message_on_the_statusbar(logger.SCREEN_RECODER_STOPPED)
-        self.screenrecorder.stop()
+        self.worker.stop()
 
     def __finished(self):
         self.logger.info(logger.SCREEN_RECODER_COMPLETED)
@@ -163,5 +165,10 @@ class TaskScreenRecorder(Task):
 
         self.finished.emit()
 
-        self.screenrecorder_thread.quit()
-        self.screenrecorder_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

@@ -68,24 +68,24 @@ class TaskHash(Task):
         super().__init__(logger, progress_bar, status_bar, parent)
 
         self.label = labels.HASHFILE
-        self.calculate_hash_thread = QThread()
-        self.calculate_hash = Hash()
-        self.calculate_hash.moveToThread(self.calculate_hash_thread)
-        self.calculate_hash_thread.started.connect(self.calculate_hash.start)
-        self.calculate_hash.started.connect(self.__started)
-        self.calculate_hash.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = Hash()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.CALCULATE_HASHFILE_STARTED)
-        self.calculate_hash.folder = self.options["acquisition_directory"]
-        self.calculate_hash.exclude_list = list()
+        self.worker.folder = self.options["acquisition_directory"]
+        self.worker.exclude_list = list()
         if "exclude_from_hash_calculation" in self.options:
-            self.calculate_hash.exclude_list = self.options[
-                "exclude_from_hash_calculation"
-            ]
+            self.worker.exclude_list = self.options["exclude_from_hash_calculation"]
 
-        self.calculate_hash_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -100,5 +100,10 @@ class TaskHash(Task):
 
         self.finished.emit()
 
-        self.calculate_hash_thread.quit()
-        self.calculate_hash_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

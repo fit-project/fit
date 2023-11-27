@@ -103,9 +103,17 @@ EML_DOWNLOAD = "EML downloaded with status {}"
 SCREENSHOT = "Save screenshot of current page"
 SAVE_PAGE = "Save all resource of current page"
 
-FETCH_EMAILS = "Fetching e-mails, estimated time: {} minutes, {} e-mail(s) found "
-SEARCH_CRITERIA = "Search criteria: {}"
-SAVE_EMAILS = "Save all selected emails"
+
+MAIL_SCRAPER_STARTED = "Mail Scraper started"
+MAIL_SCRAPER_STOPPED = "Mail Scraper stopped"
+MAIL_SCRAPER_COMPLETED = "Mail Scraper completed"
+MAIL_SCRAPER_LOGGED_IN = "Logged with mail: {}  {}"
+MAIL_SCRAPER_SEARCH_EMAILS = "The email search is finished with status: {}"
+MAIL_SCRAPER_FETCH_EMAILS = (
+    "Fetching e-mails, estimated time: {} minutes, {} e-mail(s) found"
+)
+MAIL_SCRAPER_SEARCH_CRITERIA = "Start search emails whit criteria: {}"
+MAIL_SCRAPER_DOWNLOAD_EMAILS = "Downloaded all selected emails"
 
 FETCH_PROFILE = "Fetching profile"
 LOGGED_IN = "Logged in with username: {}"

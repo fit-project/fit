@@ -51,7 +51,38 @@ class Mail:
         self.password = ""
         self.__save_logs()
 
-    def get_mails_from_every_folder(self, params, status, acquisition):
+    def logout(self):
+        try:
+            self.mailbox.logout()
+            self.is_logged_in = False
+        except Exception as e:
+            raise Exception(e)
+
+    def get_search_statistics(self, search_criteria):
+        num_emails_test = (
+            1  # number of emails used to calculate the estimated fetching time
+        )
+        start_time = time.time()
+        self.mailbox.select(readonly=True)
+
+        stat, email_ids = self.mailbox.search(None, search_criteria)
+
+        emails = email_ids[0].split()
+        total_emails = len(emails)
+
+        selected_emails = email_ids[0].split()[:num_emails_test]
+
+        for email_id in selected_emails:
+            self.mailbox.fetch(email_id, "(BODY.PEEK[HEADER])")
+        end_time = time.time()
+        estimated_time = round(
+            ((end_time - start_time) * (total_emails / num_emails_test)) / 60, 2
+        )  # minutes
+
+        self.__save_logs()
+        return {"estimated_time": estimated_time, "total_emails": total_emails}
+
+    def get_mails_from_every_folder(self, search_criteria):
         # Retrieve every folder from the mailbox
         folders = []
         for folder in self.mailbox.list()[1]:
@@ -67,37 +98,17 @@ class Mail:
                 folders.append(name)
 
         # Scrape every message from the folders
-        scraped_emails = self.fetch_messages(folders, status, acquisition, params)
+        scraped_emails = self.fetch_messages(folders, search_criteria)
         self.__save_logs()
         return scraped_emails
 
-    def fetch_messages(self, folders, status, acquisition, params=None):
-        num_emails_test = (
-            1  # number of emails used to calculate the estimated fetching time
-        )
-        start_time = time.time()
+    def fetch_messages(self, folders, search_criteria=None):
         scraped_emails = {}
-
-        self.mailbox.select(readonly=True)
-        stat, email_ids = self.mailbox.search(None, params)
-        emails = email_ids[0].split()
-        total_emails = len(emails)
-        selected_emails = email_ids[0].split()[:num_emails_test]
-        for email_id in selected_emails:
-            self.mailbox.fetch(email_id, "(BODY.PEEK[HEADER])")
-        end_time = time.time()
-        estimated_time = round(
-            ((end_time - start_time) * (total_emails / num_emails_test)) / 60, 2
-        )  # minutes
-        status.showMessage(Logger.FETCH_EMAILS.format(estimated_time, total_emails))
-        acquisition.logger.info(
-            Logger.FETCH_EMAILS.format(estimated_time, total_emails)
-        )
 
         for folder in folders:
             try:
                 self.mailbox.select(folder, readonly=True)
-                type, data = self.mailbox.search(None, params)
+                type, data = self.mailbox.search(None, search_criteria)
 
                 # Fetch every message in specified folder
                 messages = data[0].split()

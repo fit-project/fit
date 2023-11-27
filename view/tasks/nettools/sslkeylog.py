@@ -40,18 +40,20 @@ class TaskSSLKeyLog(Task):
 
         self.label = labels.SSLKEYLOG
 
-        self.sslkeylog_thread = QThread()
-        self.sslkeylog = SSLKeyLog()
-        self.sslkeylog.moveToThread(self.sslkeylog_thread)
-        self.sslkeylog_thread.started.connect(self.sslkeylog.start)
-        self.sslkeylog.started.connect(self.__started)
-        self.sslkeylog.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = SSLKeyLog()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
-        self.sslkeylog.folder = self.options["acquisition_directory"]
+        self.worker.folder = self.options["acquisition_directory"]
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.SSLKEYLOG_STARTED)
-        self.sslkeylog_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -66,5 +68,10 @@ class TaskSSLKeyLog(Task):
 
         self.finished.emit()
 
-        self.sslkeylog_thread.quit()
-        self.sslkeylog_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

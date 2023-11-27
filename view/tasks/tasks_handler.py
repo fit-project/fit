@@ -8,7 +8,6 @@
 ######
 
 from PyQt6.QtCore import QObject, pyqtSignal
-from common.constants.view.tasks import state
 
 
 class TasksHandler(QObject):
@@ -30,6 +29,9 @@ class TasksHandler(QObject):
         return next(
             (task for task in self.__tasks if task.__class__.__name__ == name), None
         )
+
+    def clear_tasks(self):
+        self.__tasks = list()
 
     def are_task_names_in_the_same_state(self, names, state):
         are_completed = False

@@ -36,18 +36,20 @@ class TaskTraceroute(Task):
 
         self.label = labels.TRACEROUTE
 
-        self.traceroute_thread = QThread()
-        self.traceorute = Traceroute()
-        self.traceorute.moveToThread(self.traceroute_thread)
-        self.traceroute_thread.started.connect(self.traceorute.start)
-        self.traceorute.started.connect(self.__started)
-        self.traceorute.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = Traceroute()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
-        self.traceorute.set_options(self.options)
+        self.worker.set_options(self.options)
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.TRACEROUTE_STARTED)
-        self.traceroute_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -62,5 +64,10 @@ class TaskTraceroute(Task):
 
         self.finished.emit()
 
-        self.traceroute_thread.quit()
-        self.traceroute_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

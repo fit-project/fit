@@ -33,7 +33,7 @@ class WebAcquisition(Acquisition):
         # self.stop_tasks = [TRACEROUTE]
 
     def stop_screen_recorder(self):
-        task = self.tasks_manager.get_task([SCREENRECORDER])
+        task = self.tasks_manager.get_task(SCREENRECORDER)
         if task:
             task.finished.connect(self.task_screenrecorder_is_finished.emit)
             task.stop()

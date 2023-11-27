@@ -25,3 +25,6 @@ ZIP_AND_REMOVE_FOLDER = "TaskZipAndRemoveFolder"
 # WEB TASKS
 TAKE_FULL_PAGE_SCREENSHOT = "TaskTakeFullPageScreenShot"
 SAVE_PAGE = "TaskSavePage"
+
+# MAIL SCRAPER
+MAIL = "TaskMail"

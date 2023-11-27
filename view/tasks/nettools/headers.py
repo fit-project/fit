@@ -43,18 +43,20 @@ class TaskHeaders(Task):
 
         self.label = labels.HEADERS
 
-        self.headers_thread = QThread()
-        self.headers = Headers()
-        self.headers.moveToThread(self.headers_thread)
-        self.headers_thread.started.connect(self.headers.start)
-        self.headers.started.connect(self.__started)
-        self.headers.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = Headers()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.HEADERS_STARTED)
-        self.headers.url = self.options["url"]
-        self.headers_thread.start()
+        self.worker.url = self.options["url"]
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -69,5 +71,10 @@ class TaskHeaders(Task):
 
         self.finished.emit()
 
-        self.headers_thread.quit()
-        self.headers_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

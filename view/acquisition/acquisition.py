@@ -33,9 +33,12 @@ class Acquisition(QObject):
         self.progress_bar = progress_bar
         self.status_bar = status_bar
         self.logger = logger
+        self.options = dict()
 
         self.log_confing = LogConfigTools()
         self.tasks_manager = TasksManager(parent)
+
+        self.options = dict()
 
         self.start_tasks = list()
         self.stop_tasks = list()
@@ -46,6 +49,10 @@ class Acquisition(QObject):
             TIMESTAMP,
             PEC_AND_DOWNLOAD_EML,
         ]
+
+        self.post_acquisition = PostAcquisition(self.parent())
+        self.post_acquisition.finished.connect(self.post_acquisition_is_finished.emit)
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     @property
     def options(self):
@@ -68,8 +75,11 @@ class Acquisition(QObject):
             __all_tasks, self.logger, self.progress_bar, self.status_bar
         )
 
-        self.post_acquisition = PostAcquisition(self.parent())
-        self.post_acquisition.finished.connect(self.post_acquisition_is_finished.emit)
+    def unload_tasks(self):
+        for task in self.tasks_manager.get_tasks():
+            task.deleteLater()
+
+        self.tasks_manager.clear_tasks()
 
     def start(self):
         self.log_start_message()
@@ -142,3 +152,6 @@ class Acquisition(QObject):
         self.progress_bar.setValue(
             self.progress_bar.value() + (100 - self.progress_bar.value())
         )
+
+    def __destroyed_handler(self, __dict):
+        self.unload_tasks()

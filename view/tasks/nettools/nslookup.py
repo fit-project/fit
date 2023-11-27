@@ -50,12 +50,14 @@ class TaskNslookup(Task):
 
         self.label = labels.NSLOOKUP
 
-        self.nslookup_thread = QThread()
-        self.nslookup = Nslookup()
-        self.nslookup.moveToThread(self.nslookup_thread)
-        self.nslookup_thread.started.connect(self.nslookup.start)
-        self.nslookup.started.connect(self.__started)
-        self.nslookup.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = Nslookup()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     @Task.options.getter
     def options(self):
@@ -69,11 +71,11 @@ class TaskNslookup(Task):
         self._options = options
 
     def start(self):
-        self.nslookup.set_options(self.options)
+        self.worker.set_options(self.options)
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.NSLOOKUP_STARTED)
 
-        self.nslookup_thread.start()
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -88,5 +90,10 @@ class TaskNslookup(Task):
 
         self.finished.emit()
 
-        self.nslookup_thread.quit()
-        self.nslookup_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

@@ -42,18 +42,20 @@ class TaskWhois(Task):
 
         self.label = labels.WHOIS
 
-        self.whois_thread = QThread()
-        self.whois = Whois()
-        self.whois.moveToThread(self.whois_thread)
-        self.whois_thread.started.connect(self.whois.start)
-        self.whois.started.connect(self.__started)
-        self.whois.finished.connect(self.__finished)
+        self.worker_thread = QThread()
+        self.worker = Whois()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker.started.connect(self.__started)
+        self.worker.finished.connect(self.__finished)
+
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
 
     def start(self):
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.WHOIS_STARTED)
-        self.whois.url = self.options["url"]
-        self.whois_thread.start()
+        self.worker.url = self.options["url"]
+        self.worker_thread.start()
 
     def __started(self):
         self.update_task(state.STARTED, status.SUCCESS)
@@ -68,5 +70,10 @@ class TaskWhois(Task):
 
         self.finished.emit()
 
-        self.whois_thread.quit()
-        self.whois_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()

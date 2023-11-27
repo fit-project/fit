@@ -12,8 +12,8 @@ from PyQt6.QtWidgets import QApplication
 from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
 from view.web.web import Web as WebView
+from view.mail.mail import Mail as MailView
 
-# from view.mail import Mail as MailView
 # from view.instagram import Instagram as InstagramView
 
 # from view.verify_pec import VerifyPec as VerifyPecView
@@ -25,16 +25,12 @@ from view.web.web import Web as WebView
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    init = InitView()
+    # init = InitView()
 
     wizard = WizardView()
     wizard.init_wizard()
 
-    web = WebView()
-    web.hide()
-
-    # mail = MailView()
-    # mail.hide()
+    acquisition_window = None
 
     # insta = InstagramView()
     # insta.hide()
@@ -49,11 +45,12 @@ if __name__ == "__main__":
     # video.hide()
 
     def start_task(task, case_info):
+        global acquisition_window
         options = {}
         if task == "web":
-            acquisition_window = web
+            acquisition_window = WebView()
         elif task == "mail":
-            acquisition_window = mail
+            acquisition_window = MailView()
         elif task == "insta":
             acquisition_window = insta
         elif task == "timestamp":
@@ -69,6 +66,6 @@ if __name__ == "__main__":
     # Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
-    init.init_check()
+    # init.init_check()
     wizard.show()
     sys.exit(app.exec())

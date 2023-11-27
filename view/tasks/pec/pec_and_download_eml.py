@@ -98,14 +98,14 @@ class TaskPecAndDownloadEml(Task):
         super().__init__(logger, progress_bar, status_bar, parent)
 
         self.label = labels.PEC_AND_DOWNLOAD_EML
-        self.pec_thread = QThread()
-        self.pec = PecAndDownloadEml()
-        self.pec.moveToThread(self.pec_thread)
-        self.pec_thread.started.connect(self.pec.send)
-        self.pec.started.connect(self.__started)
-        self.pec.sentpec.connect(self.__is_pec_sent)
-        self.pec.error.connect(self.__handle_error)
-        self.pec.downloadedeml.connect(self.__is_eml_downloaded)
+        self.worker_thread = QThread()
+        self.worker = PecAndDownloadEml()
+        self.worker.moveToThread(self.worker_thread)
+        self.worker_thread.started.connect(self.worker.send)
+        self.worker.started.connect(self.__started)
+        self.worker.sentpec.connect(self.__is_pec_sent)
+        self.worker.error.connect(self.__handle_error)
+        self.worker.downloadedeml.connect(self.__is_eml_downloaded)
         self.sub_tasks = [
             {
                 "label": labels.PEC,
@@ -119,11 +119,13 @@ class TaskPecAndDownloadEml(Task):
             },
         ]
 
+        self.destroyed.connect(lambda: self.__destroyed_handler(self.__dict__))
+
     def start(self):
-        self.pec.set_options(self.options)
+        self.worker.set_options(self.options)
         self.update_task(state.STARTED, status.PENDING)
         self.set_message_on_the_statusbar(logger.PEC_AND_DOWNLOAD_EML_STARTED)
-        self.pec_thread.start()
+        self.worker_thread.start()
 
     def __handle_error(self, error):
         error_dlg = ErrorView(
@@ -147,15 +149,15 @@ class TaskPecAndDownloadEml(Task):
             sub_task_sent_pec.status = __status
 
         self.logger.info(
-            logger.PEC_SENT.format(self.pec.options.get("pec_email"), __status)
+            logger.PEC_SENT.format(self.worker.options.get("pec_email"), __status)
         )
         self.set_message_on_the_statusbar(
-            logger.PEC_SENT.format(self.pec.options.get("pec_email"), __status)
+            logger.PEC_SENT.format(self.worker.options.get("pec_email"), __status)
         )
         self.upadate_progress_bar()
 
         if __status == status.SUCCESS:
-            self.pec.download_eml()
+            self.worker.download_eml()
         else:
             self.logger.info(logger.PEC_HAS_NOT_BEEN_SENT_CANNOT_DOWNLOAD_EML)
             self.__finished()
@@ -181,5 +183,10 @@ class TaskPecAndDownloadEml(Task):
 
         self.finished.emit()
 
-        self.pec_thread.quit()
-        self.pec_thread.wait()
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+
+    def __destroyed_handler(self, _dict):
+        if self.worker_thread.isRunning():
+            self.worker_thread.quit()
+            self.worker_thread.wait()
