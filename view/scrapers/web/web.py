@@ -18,13 +18,14 @@ from PIL import Image
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 
+from view.scrapers.web.web_engine_view import WebEngineView, WebEnginePage
 
-from view.web.web_engine_view import WebEngineView, WebEnginePage
-
-from view.web.navigationtoolbar import NavigationToolBar as NavigationToolBarView
-from view.web.selected_area_screenshot import SelectAreaScreenshot
-from view.web.full_page_screenshot import FullPageScreenShot
-from view.web.acquisition import WebAcquisition
+from view.scrapers.web.navigationtoolbar import (
+    NavigationToolBar as NavigationToolBarView,
+)
+from view.scrapers.web.selected_area_screenshot import SelectAreaScreenshot
+from view.scrapers.web.full_page_screenshot import FullPageScreenShot
+from view.scrapers.web.acquisition import WebAcquisition
 from view.tasks.tasks_info import TasksInfo
 from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView

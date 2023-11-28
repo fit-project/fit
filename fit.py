@@ -11,9 +11,9 @@ from PyQt6.QtWidgets import QApplication
 
 from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
-from view.web.web import Web as WebView
-from view.mail.mail import Mail as MailView
-from view.instagram.instagram import Instagram as InstagramView
+from view.scrapers.web.web import Web as WebView
+from view.scrapers.mail.mail import Mail as MailView
+from view.scrapers.instagram.instagram import Instagram as InstagramView
 
 # from view.verify_pec import VerifyPec as VerifyPecView
 

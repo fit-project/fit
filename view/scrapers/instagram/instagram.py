@@ -11,9 +11,10 @@ import subprocess
 import logging
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from view.instagram.login_form import InstagramLoginForm
-from view.instagram.acquisition_form import InstagramAcquisitionForm
-from view.instagram.acquisition import InstagramAcquisition
+
+from view.scrapers.instagram.login_form import InstagramLoginForm
+from view.scrapers.instagram.acquisition_form import InstagramAcquisitionForm
+from view.scrapers.instagram.acquisition import InstagramAcquisition
 
 from view.menu_bar import MenuBar as MenuBarView
 from view.spinner import Spinner

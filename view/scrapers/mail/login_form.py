@@ -18,7 +18,7 @@ from PyQt6.QtCore import (
     QEventLoop,
     QTimer,
 )
-from view.mail.clickable_label import ClickableLabel
+from view.scrapers.mail.clickable_label import ClickableLabel
 
 
 from common.constants.view import mail, general

@@ -14,7 +14,9 @@ from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
-from view.web.full_page_screenshot import FullPageScreenShot as WebFullPageScreenShot
+from view.scrapers.web.full_page_screenshot import (
+    FullPageScreenShot as WebFullPageScreenShot,
+)
 
 
 from common.constants import logger

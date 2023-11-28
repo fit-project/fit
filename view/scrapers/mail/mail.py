@@ -17,11 +17,10 @@ from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QFont, QIcon
 
+from view.scrapers.mail.login_form import MailLoginForm
+from view.scrapers.mail.search_form import MailSearchForm
 
-from view.mail.login_form import MailLoginForm
-from view.mail.search_form import MailSearchForm
-
-from view.mail.acquisition import MailAcquisition
+from view.scrapers.mail.acquisition import MailAcquisition
 from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView
 from view.spinner import Spinner
