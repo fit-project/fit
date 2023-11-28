@@ -14,11 +14,11 @@ from view.wizard import Wizard as WizardView
 from view.scrapers.web.web import Web as WebView
 from view.scrapers.mail.mail import Mail as MailView
 from view.scrapers.instagram.instagram import Instagram as InstagramView
+from view.scrapers.video.video import Video as VideoView
 
 # from view.verify_pec import VerifyPec as VerifyPecView
 
 # from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
-# from view.video import Video as VideoView
 
 
 if __name__ == "__main__":
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         elif task == "timestamp":
             acquisition_window = timestamp
         elif task == "video":
-            acquisition_window = video
+            acquisition_window = VideoView()
         elif task == "pec":
             acquisition_window = pec
 
