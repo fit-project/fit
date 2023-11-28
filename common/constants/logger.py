@@ -115,9 +115,12 @@ MAIL_SCRAPER_FETCH_EMAILS = (
 MAIL_SCRAPER_SEARCH_CRITERIA = "Start search emails whit criteria: {}"
 MAIL_SCRAPER_DOWNLOAD_EMAILS = "Downloaded all selected emails"
 
-FETCH_PROFILE = "Fetching profile"
-LOGGED_IN = "Logged in with username: {}"
-SCRAPING_INSTAGRAM = "Scraping profile: {}"
+
+INSTAGRAM_SCRAPER_STARTED = "Instagram Scraper started"
+INSTAGRAM_SCRAPER_STOPPED = "Instagram Scraper stopped"
+INSTAGRAM_SCRAPER_COMPLETED = "Instagram Scraper completed"
+INSTAGRAM_SCRAPER_LOGGED_IN = "Logged with username: {} {}"
+INSTAGRAM_SCRAPER_SCRAPE = "Scraping profile: {}"
 
 FETCH_VIDEO = "Fetching video"
 DOWNLOAD_VIDEO = "Downloading video"

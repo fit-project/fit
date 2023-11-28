@@ -28,3 +28,6 @@ SAVE_PAGE = "TaskSavePage"
 
 # MAIL SCRAPER
 MAIL = "TaskMail"
+
+# INSTAGRAM SCRAPER
+INSTAGRAM = "TaskInstagram"

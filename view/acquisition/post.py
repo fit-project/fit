@@ -27,13 +27,17 @@ class PostAcquisition(QObject):
         self.__zip_and_remove()
 
     def __zip_and_remove(self):
-        if self.options["type"] == "web":
+        if self.options.get("type") == "web":
             self.options["acquisition_content_directory"] = os.path.join(
-                self.options["acquisition_directory"], "acquisition_page"
+                self.options.get("acquisition_directory"), "acquisition_page"
             )
-        elif self.options["type"] == "email":
+        elif self.options.get("type") == "email":
             self.options["acquisition_content_directory"] = os.path.join(
-                self.options["acquisition_directory"], "acquisition_mail"
+                self.options.get("acquisition_directory"), "acquisition_mail"
+            )
+        elif self.options.get("type") == "instagram":
+            self.options["acquisition_content_directory"] = self.options.get(
+                "profile_dir"
             )
 
         task = self.task_handler.get_task(ZIP_AND_REMOVE_FOLDER)
@@ -53,9 +57,11 @@ class PostAcquisition(QObject):
 
     def __generate_pdf_report(self):
         task = self.task_handler.get_task(REPORT)
-        if self.options["type"] == "web":
+        if self.options.get("type") == "web":
             self.options["pdf_filename"] = "acquisition_report.pdf"
-        elif self.options["type"] == "email":
+        elif self.options.get("type") == "email":
+            self.options["pdf_filename"] = "acquisition_report.pdf"
+        elif self.options.get("type") == "instagram":
             self.options["pdf_filename"] = "acquisition_report.pdf"
         if task:
             task.finished.connect(self.__generate_timestamp_report)

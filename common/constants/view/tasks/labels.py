@@ -38,10 +38,13 @@ LOGOUT = "Logout"
 DOWNLOAD_EMAILS = "Download emails"
 SEARCH_EMAILS = "Search Emails"
 
-
+# INSTAGRAM TASKS AND SUBTASK
+INSTAGRAM_SCRAPER = "Instagram Scraper"
 INSTAGRAM = "Save instagram profile"
 FETCH_PROFILE = "Fetch profile"
-SCRAPING_INSTAGRAM = "Scrape profile"
+SCRAPE_PROFILE = "Scrape profile"
+
+
 DOWNLOAD_VIDEO = "Save video"
 FETCH_VIDEO = "Fetch video URL"
 MAIL = "Save e-mail"

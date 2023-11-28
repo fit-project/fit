@@ -31,9 +31,6 @@ if __name__ == "__main__":
 
     acquisition_window = None
 
-    # insta = InstagramView()
-    # insta.hide()
-
     # timestamp = VerifyPDFTimestampView()
     # timestamp.hide()
 
@@ -50,7 +47,7 @@ if __name__ == "__main__":
             acquisition_window = WebView()
         elif task == "mail":
             acquisition_window = MailView()
-        elif task == "insta":
+        elif task == "instagram":
             acquisition_window = InstagramView()
         elif task == "timestamp":
             acquisition_window = timestamp
