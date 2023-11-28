@@ -15,7 +15,7 @@ from common.utility import traceroute
 from common.constants import logger
 
 
-class Traceroute(QObject):
+class TracerouteWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
 
@@ -37,7 +37,7 @@ class TaskTraceroute(Task):
         self.label = labels.TRACEROUTE
 
         self.worker_thread = QThread()
-        self.worker = Traceroute()
+        self.worker = TracerouteWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

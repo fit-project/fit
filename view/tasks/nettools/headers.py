@@ -18,7 +18,7 @@ from common.constants import logger
 from view.tasks.task import Task
 
 
-class Headers(QObject):
+class HeadersWorker(QObject):
     logger = logging.getLogger("headers")
     finished = pyqtSignal()
     started = pyqtSignal()
@@ -44,7 +44,7 @@ class TaskHeaders(Task):
         self.label = labels.HEADERS
 
         self.worker_thread = QThread()
-        self.worker = Headers()
+        self.worker = HeadersWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

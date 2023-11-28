@@ -13,7 +13,7 @@ import re
 from PyQt6.QtCore import QObject, pyqtSignal
 
 
-class MailDownload(QObject):
+class MailDownloadWorker(QObject):
     download_finished = pyqtSignal()
     progress = pyqtSignal()
     error = pyqtSignal(object)

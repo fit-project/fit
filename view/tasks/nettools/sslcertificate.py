@@ -21,7 +21,7 @@ from common.utility import (
 )
 
 
-class SSLCertificate(QObject):
+class SSLCertificateWorker(QObject):
     finished = pyqtSignal(bool)
     started = pyqtSignal()
 
@@ -48,7 +48,7 @@ class TaskSSLCertificate(Task):
         self.label = labels.SSLCERTIFICATE
 
         self.worker_thread = QThread()
-        self.worker = SSLCertificate()
+        self.worker = SSLCertificateWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

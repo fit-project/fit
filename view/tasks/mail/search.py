@@ -13,7 +13,7 @@ from common.constants.view.tasks import status
 from common.constants.view import mail
 
 
-class MailSearch(QObject):
+class MailSearchWorker(QObject):
     search_emails_finished = pyqtSignal(str, dict)
     search_statistics = pyqtSignal(dict)
     error = pyqtSignal(object)

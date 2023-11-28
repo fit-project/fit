@@ -32,7 +32,7 @@ from common.constants import error
 from common.constants.view import screenrecorder
 
 
-class ScreenRecorder(QObject):
+class ScreenRecorderWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
     error = pyqtSignal(object)
@@ -101,7 +101,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = ScreenRecorder()
+        self.worker = ScreenRecorderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

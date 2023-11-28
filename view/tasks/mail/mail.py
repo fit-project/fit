@@ -10,9 +10,9 @@
 from PyQt6.QtCore import pyqtSignal, QThread
 from PyQt6.QtWidgets import QMessageBox
 
-from view.tasks.mail.login import MailLogin
-from view.tasks.mail.search import MailSearch
-from view.tasks.mail.download import MailDownload
+from view.tasks.mail.login import MailLoginWorker
+from view.tasks.mail.search import MailSearchWorker
+from view.tasks.mail.download import MailDownloadWorker
 
 from view.tasks.task import Task
 from view.error import Error as ErrorView
@@ -68,7 +68,7 @@ class TaskMail(Task):
         self.started.emit()
 
     def login(self):
-        self.sub_task = MailLogin()
+        self.sub_task = MailLoginWorker()
         self.sub_task_thread = QThread()
         self.sub_task.moveToThread(self.sub_task_thread)
         self.sub_task_thread.started.connect(self.sub_task.login)
@@ -103,7 +103,7 @@ class TaskMail(Task):
         self.__quit_to_sub_task()
 
     def search(self):
-        self.sub_task = MailSearch()
+        self.sub_task = MailSearchWorker()
         self.sub_task_thread = QThread()
         self.sub_task.moveToThread(self.sub_task_thread)
         self.sub_task_thread.started.connect(self.sub_task.search)
@@ -154,7 +154,7 @@ class TaskMail(Task):
         )
 
     def download(self):
-        self.sub_task = MailDownload()
+        self.sub_task = MailDownloadWorker()
         self.sub_task_thread = QThread()
         self.sub_task.moveToThread(self.sub_task_thread)
         self.sub_task_thread.started.connect(self.sub_task.download)

@@ -25,7 +25,7 @@ from controller.configurations.tabs.packetcapture.packetcapture import (
 from common.constants import logger, details, error
 
 
-class PacketCapture(QObject):
+class PacketCaptureWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
     error = pyqtSignal(object)
@@ -71,7 +71,7 @@ class TaskPacketCapture(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = PacketCapture()
+        self.worker = PacketCaptureWorker()
         self.worker.moveToThread(self.worker_thread)
 
         self.worker_thread.started.connect(self.worker.start)

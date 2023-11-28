@@ -14,7 +14,7 @@ from common.constants.view import mail
 from common.constants import error
 
 
-class MailLogin(QObject):
+class MailLoginWorker(QObject):
     logged_in = pyqtSignal(str)
     error = pyqtSignal(object)
 

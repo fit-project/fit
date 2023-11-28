@@ -15,7 +15,7 @@ from view.tasks.task import Task
 from common.constants import logger
 
 
-class SSLKeyLog(QObject):
+class SSLKeyLogWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
 
@@ -41,7 +41,7 @@ class TaskSSLKeyLog(Task):
         self.label = labels.SSLKEYLOG
 
         self.worker_thread = QThread()
-        self.worker = SSLKeyLog()
+        self.worker = SSLKeyLogWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

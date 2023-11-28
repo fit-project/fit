@@ -22,7 +22,7 @@ from common.constants.view.pec import pec
 from common.constants import logger
 
 
-class PecAndDownloadEml(QObject):
+class PecAndDownloadEmlWorker(QObject):
     sentpec = pyqtSignal(str)
     downloadedeml = pyqtSignal(str)
     error = pyqtSignal(object)
@@ -99,7 +99,7 @@ class TaskPecAndDownloadEml(Task):
 
         self.label = labels.PEC_AND_DOWNLOAD_EML
         self.worker_thread = QThread()
-        self.worker = PecAndDownloadEml()
+        self.worker = PecAndDownloadEmlWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.send)
         self.worker.started.connect(self.__started)

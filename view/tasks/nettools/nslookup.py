@@ -20,7 +20,7 @@ from common.constants import logger
 from view.tasks.task import Task
 
 
-class Nslookup(QObject):
+class NslookupWorker(QObject):
     logger = logging.getLogger("nslookup")
     finished = pyqtSignal()
     started = pyqtSignal()
@@ -51,7 +51,7 @@ class TaskNslookup(Task):
         self.label = labels.NSLOOKUP
 
         self.worker_thread = QThread()
-        self.worker = Nslookup()
+        self.worker = NslookupWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

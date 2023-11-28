@@ -17,7 +17,7 @@ from common.utility import whois
 from common.constants import logger
 
 
-class Whois(QObject):
+class WhoisWorker(QObject):
     logger = logging.getLogger("whois")
     finished = pyqtSignal()
     started = pyqtSignal()
@@ -43,7 +43,7 @@ class TaskWhois(Task):
         self.label = labels.WHOIS
 
         self.worker_thread = QThread()
-        self.worker = Whois()
+        self.worker = WhoisWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
