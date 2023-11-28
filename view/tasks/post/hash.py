@@ -19,7 +19,7 @@ from common.constants import logger
 from view.tasks.task import Task
 
 
-class Hash(QObject):
+class HashWorker(QObject):
     logger = logging.getLogger("hashreport")
     finished = pyqtSignal()
     started = pyqtSignal()
@@ -69,7 +69,7 @@ class TaskHash(Task):
 
         self.label = labels.HASHFILE
         self.worker_thread = QThread()
-        self.worker = Hash()
+        self.worker = HashWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

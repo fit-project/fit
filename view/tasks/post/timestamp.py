@@ -24,7 +24,7 @@ from controller.configurations.tabs.timestamp.timestamp import (
 from common.constants import logger
 
 
-class Timestamp(QObject):
+class TimestampWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
 
@@ -74,7 +74,7 @@ class TaskTimestamp(Task):
         self.label = labels.TIMESTAMP
 
         self.worker_thread = QThread()
-        self.worker = Timestamp()
+        self.worker = TimestampWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.apply_timestamp)
         self.worker.started.connect(self.__started)

@@ -13,8 +13,7 @@ from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
 from view.web.web import Web as WebView
 from view.mail.mail import Mail as MailView
-
-# from view.instagram import Instagram as InstagramView
+from view.instagram.instagram import Instagram as InstagramView
 
 # from view.verify_pec import VerifyPec as VerifyPecView
 
@@ -52,7 +51,7 @@ if __name__ == "__main__":
         elif task == "mail":
             acquisition_window = MailView()
         elif task == "insta":
-            acquisition_window = insta
+            acquisition_window = InstagramView()
         elif task == "timestamp":
             acquisition_window = timestamp
         elif task == "video":

@@ -22,7 +22,7 @@ from common.utility import get_ntp_date_and_time
 from common.constants import logger
 
 
-class Report(QObject):
+class ReportWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
 
@@ -50,7 +50,7 @@ class TaskReport(Task):
         self.label = labels.REPORTFILE
 
         self.worker_thread = QThread()
-        self.worker = Report()
+        self.worker = ReportWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)

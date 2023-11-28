@@ -21,7 +21,7 @@ from common.constants import logger, error
 from common.constants.view.tasks import labels, state, status
 
 
-class ZipAndRemoveFolder(QObject):
+class ZipAndRemoveFolderWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
     error = pyqtSignal(object)
@@ -68,7 +68,7 @@ class TaskZipAndRemoveFolder(Task):
         self.label = labels.ZIP_AND_REMOVE_FOLDER
 
         self.worker_thread = QThread()
-        self.worker = ZipAndRemoveFolder()
+        self.worker = ZipAndRemoveFolderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
