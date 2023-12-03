@@ -262,14 +262,14 @@ def is_cmd(name):
 
 def get_version():
     parser = ConfigParser()
-    parser.read("assets/config.ini")
+    parser.read(resolve_path("assets/config.ini"))
     version = parser.get("fit_properties", "version")
 
     return version
 
 
 def get_logo():
-    logo_path = os.path.join("assets", "branding", "FIT-640.png")
+    logo_path = resolve_path(os.path.join("assets", "branding", "FIT-640.png"))
 
     return logo_path
 

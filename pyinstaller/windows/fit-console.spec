@@ -5,12 +5,12 @@ block_cipher = None
 
 
 a = Analysis(
-    ['..\\..\\fit.py'],
+    ["..\\..\\fit.py"],
     pathex=[],
     binaries=[],
-    datas=[('./whois/data', './whois/data')],
+    datas=[("./whois/data", "./whois/data"), ("../../assets", "./assets")],
     hiddenimports=[],
-    hookspath=['./pyinstaller/windows/hooks'],
+    hookspath=["./pyinstaller/windows/hooks"],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='fit',
+    name="fit",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['..\\icon.png'],
+    icon=["..\\icon.png"],
 )

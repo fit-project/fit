@@ -112,8 +112,10 @@ class TasksManager(QObject):
         progress_bar,
         status_bar,
     ):
+        print(self.class_names_modules.keys())
         for key in self.class_names_modules.keys():
             if key in task_list:
+                print(key)
                 value = self.class_names_modules.get(key)[0]
                 task = getattr(value, key)
                 task = task(logger, progress_bar, status_bar)
