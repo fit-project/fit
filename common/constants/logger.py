@@ -122,5 +122,11 @@ INSTAGRAM_SCRAPER_COMPLETED = "Instagram Scraper completed"
 INSTAGRAM_SCRAPER_LOGGED_IN = "Logged with username: {} {}"
 INSTAGRAM_SCRAPER_SCRAPE = "Scraping profile: {}"
 
-FETCH_VIDEO = "Fetching video"
-DOWNLOAD_VIDEO = "Downloading video"
+
+VIDEO_SCRAPER_STARTED = "Video Scraper started"
+VIDEO_SCRAPER_STOPPED = "Video Scraper stopped"
+VIDEO_SCRAPER_COMPLETED = "Video Scraper completed"
+VIDEO_SCRAPER_LOADED = "Loaded video from url {} with status {}"
+VIDEO_SCRAPER_LOAD_FINISHED = "Loading video finished with status {}"
+VIDEO_SCRAPER_DOWNLOADED = "Download video from url: {}"
+VIDEO_SCRAPER_DOWNLOAD_FININISHED = "Download video has finished"

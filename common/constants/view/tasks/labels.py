@@ -34,18 +34,14 @@ EML = "Download eml file"
 # MAIL TASKS AND SUBTASK
 MAIL_SCRAPER = "Mail Scraper"
 LOGGED_IN = "Logged in"
-LOGOUT = "Logout"
 DOWNLOAD_EMAILS = "Download emails"
 SEARCH_EMAILS = "Search Emails"
 
 # INSTAGRAM TASKS AND SUBTASK
 INSTAGRAM_SCRAPER = "Instagram Scraper"
-INSTAGRAM = "Save instagram profile"
-FETCH_PROFILE = "Fetch profile"
 SCRAPE_PROFILE = "Scrape profile"
 
-
-DOWNLOAD_VIDEO = "Save video"
-FETCH_VIDEO = "Fetch video URL"
-MAIL = "Save e-mail"
-YOUTUBE = "Save video"
+# VIDEO TASKS AND SUBTASK
+VIDEO_SCRAPER = "Video Scraper"
+DOWNLOAD_VIDEO = "Download video"
+LOAD_VIDEO = "Load video URL"

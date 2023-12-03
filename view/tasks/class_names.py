@@ -31,3 +31,6 @@ MAIL = "TaskMail"
 
 # INSTAGRAM SCRAPER
 INSTAGRAM = "TaskInstagram"
+
+# VIDEO SCRAPER
+VIDEO = "TaskVideo"

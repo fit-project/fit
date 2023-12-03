@@ -106,22 +106,22 @@ class VideoForm(QtWidgets.QWidget):
         self.checkbox_audio = QtWidgets.QCheckBox(self.acquisition_group_box)
         self.checkbox_audio.setGeometry(QtCore.QRect(180, 50, 100, 17))
         self.checkbox_audio.setFont(font)
-        self.checkbox_audio.setObjectName("checkbox_audio")
+        self.checkbox_audio.setObjectName("get_audio")
 
         self.checkbox_thumbnail = QtWidgets.QCheckBox(self.acquisition_group_box)
         self.checkbox_thumbnail.setGeometry(QtCore.QRect(180, 70, 100, 17))
         self.checkbox_thumbnail.setFont(font)
-        self.checkbox_thumbnail.setObjectName("checkbox_thumbnail")
+        self.checkbox_thumbnail.setObjectName("get_thumbnail")
 
         self.checkbox_subtitles = QtWidgets.QCheckBox(self.acquisition_group_box)
         self.checkbox_subtitles.setGeometry(QtCore.QRect(180, 90, 230, 17))
         self.checkbox_subtitles.setFont(font)
-        self.checkbox_subtitles.setObjectName("checkbox_subtitles")
+        self.checkbox_subtitles.setObjectName("get_subtitles")
 
         self.checkbox_comments = QtWidgets.QCheckBox(self.acquisition_group_box)
         self.checkbox_comments.setGeometry(QtCore.QRect(180, 110, 230, 17))
         self.checkbox_comments.setFont(font)
-        self.checkbox_comments.setObjectName("checkbox_comments")
+        self.checkbox_comments.setObjectName("get_comments")
 
         # LOAD BUTTON
         self.load_button = QtWidgets.QPushButton(self.parent())

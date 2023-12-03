@@ -39,6 +39,8 @@ class PostAcquisition(QObject):
             self.options["acquisition_content_directory"] = self.options.get(
                 "profile_dir"
             )
+        elif self.options.get("type") == "video":
+            self.options["acquisition_content_directory"] = self.options.get("url_dir")
 
         task = self.task_handler.get_task(ZIP_AND_REMOVE_FOLDER)
         if task:
@@ -62,6 +64,8 @@ class PostAcquisition(QObject):
         elif self.options.get("type") == "email":
             self.options["pdf_filename"] = "acquisition_report.pdf"
         elif self.options.get("type") == "instagram":
+            self.options["pdf_filename"] = "acquisition_report.pdf"
+        elif self.options.get("type") == "video":
             self.options["pdf_filename"] = "acquisition_report.pdf"
         if task:
             task.finished.connect(self.__generate_timestamp_report)
