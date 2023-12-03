@@ -30,7 +30,6 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.acquisition_directory = None
 
     def init(self, case_info, wizard, options=None):
-        self.__init__()
         self.wizard = wizard
         self.width = 600
         self.height = 230

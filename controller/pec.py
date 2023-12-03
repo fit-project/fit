@@ -50,9 +50,9 @@ class Pec:
         now = datetime.datetime.now()
         self.timestamp = now.timestamp()
         self.subject = SUBJECT.format(
-            str(self.acquisition_type), str(self.case_info), str(self.timestamp)
+            self.acquisition_type, self.case_info.get("name"), str(self.timestamp)
         )
-        body = BODY.format(str(self.acquisition_type), str(self.case_info))
+        body = BODY.format(self.acquisition_type, self.case_info.get("name"))
 
         # Make message
         msg = MIMEMultipart()

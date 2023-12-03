@@ -142,11 +142,11 @@ class TaskPecAndDownloadEml(Task):
 
     def __is_pec_sent(self, __status):
         sub_task_sent_pec = next(
-            (task for task in self.sub_tasks if task.label == labels.PEC), None
+            (task for task in self.sub_tasks if task.get("label") == labels.PEC), None
         )
         if sub_task_sent_pec:
-            sub_task_sent_pec.state = state.COMPLETED
-            sub_task_sent_pec.status = __status
+            sub_task_sent_pec["state"] = state.COMPLETED
+            sub_task_sent_pec["status"] = __status
 
         self.logger.info(
             logger.PEC_SENT.format(self.worker.options.get("pec_email"), __status)
@@ -164,11 +164,11 @@ class TaskPecAndDownloadEml(Task):
 
     def __is_eml_downloaded(self, __status):
         sub_task_download_eml = next(
-            (task for task in self.sub_tasks if task.label == labels.EML), None
+            (task for task in self.sub_tasks if task.get("label") == labels.EML), None
         )
         if sub_task_download_eml:
-            sub_task_download_eml.state = state.COMPLETED
-            sub_task_download_eml.status = __status
+            sub_task_download_eml["state"] = state.COMPLETED
+            sub_task_download_eml["status"] = __status
 
         self.set_message_on_the_statusbar(logger.EML_DOWNLOAD.format(__status))
         self.upadate_progress_bar()

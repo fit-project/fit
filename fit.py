@@ -16,29 +16,17 @@ from view.scrapers.mail.mail import Mail as MailView
 from view.scrapers.instagram.instagram import Instagram as InstagramView
 from view.scrapers.video.video import Video as VideoView
 
-# from view.verify_pec import VerifyPec as VerifyPecView
-
-# from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
+from view.verify_pec import VerifyPec as VerifyPecView
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # init = InitView()
-
+    init = InitView()
     wizard = WizardView()
     wizard.init_wizard()
-
     acquisition_window = None
-
-    # timestamp = VerifyPDFTimestampView()
-    # timestamp.hide()
-
-    # pec = VerifyPecView()
-    # pec.hide()
-
-    # video = VideoView()
-    # video.hide()
 
     def start_task(task, case_info):
         global acquisition_window
@@ -49,12 +37,12 @@ if __name__ == "__main__":
             acquisition_window = MailView()
         elif task == "instagram":
             acquisition_window = InstagramView()
-        elif task == "timestamp":
-            acquisition_window = timestamp
         elif task == "video":
             acquisition_window = VideoView()
-        elif task == "pec":
-            acquisition_window = pec
+        elif task == "verify_timestamp":
+            acquisition_window = VerifyPDFTimestampView()
+        elif task == "verify_pec":
+            acquisition_window = VerifyPecView()
 
         acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()

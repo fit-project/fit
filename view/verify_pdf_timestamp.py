@@ -29,17 +29,14 @@ from common.constants.view import verify_pdf_timestamp, general
 
 
 class VerifyPDFTimestamp(QtWidgets.QMainWindow):
-    stop_signal = QtCore.pyqtSignal()
-
     def __init__(self, *args, **kwargs):
         super(VerifyPDFTimestamp, self).__init__(*args, **kwargs)
 
+    def init(self, case_info, wizard, options=None):
         self.data = None  # acquisition_report.pdf
         self.tsr_in = None  # timestamp.tsr
         self.untrusted = None  # tsa.crt
 
-    def init(self, case_info, wizard, options=None):
-        self.__init__()
         self.wizard = wizard
         self.width = 690
         self.height = 250

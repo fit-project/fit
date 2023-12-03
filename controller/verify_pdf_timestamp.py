@@ -77,7 +77,9 @@ class VerifyPDFTimestamp:
         else:
             t3descr = self.REPORT.VERIFI_KO
 
-        with open(resolve_path("assets/templates"), "template_verification.html") as fh:
+        with open(
+            resolve_path(os.path.join("assets/templates", "template_verification.html"))
+        ) as fh:
             template = Template(fh.read())
 
         content_index = template.safe_substitute(

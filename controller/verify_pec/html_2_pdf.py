@@ -72,7 +72,9 @@ class Html2Pdf:
         else:
             logo = "<div></div>"
 
-        with open(resolve_path("assets/templates"), "template_pec.html") as fh:
+        with open(
+            resolve_path(os.path.join("assets/templates", "template_pec.html"))
+        ) as fh:
             template = Template(fh.read())
 
         content_index = template.safe_substitute(
