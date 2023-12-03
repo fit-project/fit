@@ -25,12 +25,11 @@ class WebAcquisition(Acquisition):
             HEADERS,
             SSLKEYLOG,
             SSLCERTIFICATE,
+            TRACEROUTE,
             PACKETCAPTURE,
             TAKE_FULL_PAGE_SCREENSHOT,
             SAVE_PAGE,
         ]
-
-        # self.stop_tasks = [TRACEROUTE]
 
     def stop_screen_recorder(self):
         task = self.tasks_manager.get_task(SCREENRECORDER)

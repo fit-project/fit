@@ -11,7 +11,7 @@ from common.constants.view.tasks import labels, state, status
 
 
 from view.acquisition.acquisition import Acquisition
-from view.tasks.info import TasksInfo
+from view.tasks.tasks_info import TasksInfo
 from view.tasks.nettools.traceroute import TaskTraceroute
 
 from common.utility import resolve_path
@@ -21,46 +21,31 @@ from tests.tasks.tasks_ui import Ui_MainWindow
 
 app = QApplication(sys.argv)
 
-logger = logging.getLogger("view.web.web")
-
 
 class TaskTracerouteTest(unittest.TestCase):
     folder = ""
-    acquisition = None
-    tasks_info = None
     window = None
-    increment = 0
+    increment = 100
 
     @classmethod
     def setUpClass(cls):
-        options = {"acquisition_directory": cls.folder, "url": "https://google.it"}
         cls.task = TaskTraceroute(
-            options,
-            cls.acquisition.logger,
-            cls.tasks_info,
+            logging.getLogger("view.scrapers.web.web"),
             cls.window.progressBar,
             cls.window.statusbar,
         )
 
+        cls.task.options = {
+            "acquisition_directory": cls.folder,
+            "url": "https://google.it",
+        }
         cls.intial_progress_bar_value = cls.window.progressBar.value()
         cls.task.increment = cls.increment
 
     def test_00_init_headers_task(self):
         self.assertEqual(self.task.label, labels.TRACEROUTE)
         self.assertEqual(self.task.state, state.INITIALIZATED)
-        self.assertEqual(self.task.status, status.DONE)
-        self.assertEqual(self.task.progress_bar.value(), 0)
-
-        row = self.tasks_info.get_row(labels.TRACEROUTE)
-        if row >= 0:
-            self.assertEqual(
-                self.task.state,
-                self.tasks_info.table.item(row, 1).text(),
-            )
-            self.assertEqual(
-                self.task.status,
-                self.tasks_info.table.item(row, 2).text(),
-            )
+        self.assertEqual(self.task.status, status.SUCCESS)
 
     def test_01_headers_task(self):
         spy = QSignalSpy(self.task.started)
@@ -115,12 +100,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
 
     TaskTracerouteTest.folder = folder
-    TaskTracerouteTest.acquisition = Acquisition(logger, folder)
-    TaskTracerouteTest.tasks_info = TasksInfo()
     TaskTracerouteTest.window = Ui_MainWindow()
     TaskTracerouteTest.window.setupUi(MainWindow)
-    TaskTracerouteTest.increment = TaskTracerouteTest.acquisition.calculate_increment(1)
-
-    TaskTracerouteTest.acquisition.start()
 
     unittest.main()
