@@ -13,6 +13,8 @@ from PyQt6.QtGui import QMovie
 from PyQt6.QtCore import QRect
 from PyQt6.QtWidgets import QWidget, QDialog, QLabel
 
+from common.utility import resolve_path
+
 
 class Spinner(QDialog):
     def __init__(self):
@@ -29,7 +31,7 @@ class Spinner(QDialog):
         self.centralwidget = QWidget(self)
         self.label = QLabel(self.centralwidget)
         self.label.setGeometry(QRect(0, 0, self.width, self.height))
-        self.movie = QMovie(os.path.join("assets/images/", "loader.gif"))
+        self.movie = QMovie(os.path.join(resolve_path("assets/images/"), "loader.gif"))
         self.label.setMovie(self.movie)
         self.setModal(True)
 

@@ -8,8 +8,7 @@
 ######
 import shutil
 
-from pathlib import Path
-from instaloader import Instaloader, Profile, instaloader
+from instaloader import Profile, instaloader
 import os
 
 from common.constants.controller import instagram

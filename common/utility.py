@@ -16,18 +16,24 @@ import ntplib
 
 import urllib.request
 from urllib.parse import urlparse
+
+
 from datetime import datetime, timezone
-from configparser import SafeConfigParser
+from configparser import SafeConfigParser, ConfigParser
 
 from whois import NICClient, extract_domain, IPV4_OR_V6
 import socket
+
 import requests
+import urllib3
+
+urllib3.disable_warnings()
 
 from controller.configurations.tabs.language.language import (
     Language as LanguageController,
 )
 
-requests.urllib3.disable_warnings()
+
 import ssl
 import scapy.all as scapy
 from contextlib import redirect_stdout
@@ -50,10 +56,21 @@ def get_platform():
     return platforms[sys.platform]
 
 
+def resolve_path(path):
+    if getattr(sys, "frozen", False):
+        # If the 'frozen' flag is set, we are in bundled-app mode!
+        resolved_path = os.path.abspath(os.path.join(sys._MEIPASS, path))
+    else:
+        # Normal development mode. Use os.getcwd() or __file__ as appropriate in your case...
+        resolved_path = os.path.abspath(os.path.join(os.getcwd(), path))
+
+    return resolved_path
+
+
 def check_internet_connection():
     try:
         parser = SafeConfigParser()
-        parser.read("assets/config.ini")
+        parser.read(resolve_path("assets/config.ini"))
         url = parser.get("fit_properties", "check_connection_url")
         urllib.request.urlopen(url)
         return True
@@ -67,8 +84,8 @@ def is_npcap_installed():
 
 
 def get_npcap_installer_url():
-    parser = SafeConfigParser()
-    parser.read("assets/config.ini")
+    parser = ConfigParser()
+    parser.read(resolve_path("assets/config.ini"))
     url = parser.get("fit_properties", "npcap_latest_version_url")
     installer_url = None
     with requests.get(url, stream=True, timeout=10, verify=False) as response:
@@ -145,6 +162,7 @@ def traceroute(url, filename):
         print("Don't find Network location part in the URL")
     else:
         netloc = netloc.split(":")[0]
+
         with open(filename, "w") as f:
             with redirect_stdout(f):
                 ans, unans = scapy.sr(
@@ -160,7 +178,6 @@ def get_headers_information(url):
     __url = urlparse(url)
     if not __url.netloc:
         return "Don't find Network location part in the URL"
-
     response = requests.get(url, verify=False)
     return response.headers
 
@@ -244,15 +261,15 @@ def is_cmd(name):
 
 
 def get_version():
-    parser = SafeConfigParser()
-    parser.read("assets/config.ini")
+    parser = ConfigParser()
+    parser.read(resolve_path("assets/config.ini"))
     version = parser.get("fit_properties", "version")
 
     return version
 
 
 def get_logo():
-    logo_path = os.path.join("assets", "branding", "FIT-640.png")
+    logo_path = resolve_path(os.path.join("assets", "branding", "FIT-640.png"))
 
     return logo_path
 

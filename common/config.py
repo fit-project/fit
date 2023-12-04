@@ -58,11 +58,23 @@ class LogConfigTools:
                 },
             },
             "loggers": {
-                "view.web": {"handlers": ["facquisition"], "level": "INFO"},
-                "view.instagram": {"handlers": ["facquisition"], "level": "INFO"},
-                "view.video": {"handlers": ["facquisition"], "level": "INFO"},
+                "view.scrapers.web.web": {
+                    "handlers": ["facquisition"],
+                    "level": "INFO",
+                },
+                "view.scrapers.mail.mail": {
+                    "handlers": ["facquisition"],
+                    "level": "INFO",
+                },
+                "view.scrapers.instagram.instagram": {
+                    "handlers": ["facquisition"],
+                    "level": "INFO",
+                },
+                "view.scrapers.video.video": {
+                    "handlers": ["facquisition"],
+                    "level": "INFO",
+                },
                 "hashreport": {"handlers": ["fhashreport"], "level": "INFO"},
-                "view.mail": {"handlers": ["facquisition"], "level": "INFO"},
             },
             "root": {"handlers": ["null"], "propagate": False},
         }

@@ -10,13 +10,14 @@
 import requests
 from configparser import SafeConfigParser
 from bs4 import BeautifulSoup
+from common.utility import resolve_path
 
 
 class Provider:
     def __init__(self, temp_x509):
         self.x509_file_path = temp_x509
         parser = SafeConfigParser()
-        parser.read("assets/config.ini")
+        parser.read(resolve_path("assets/config.ini"))
         self.url = parser.get("fit_properties", "pec_providers_url")
 
     def get_provider_name(self):

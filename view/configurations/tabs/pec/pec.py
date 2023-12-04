@@ -19,6 +19,8 @@ from view.error import Error as ErrorView
 
 from controller.configurations.tabs.pec.pec import Pec as PecController
 
+from common.utility import resolve_path
+
 from common.constants.view.pec import pec, search_pec
 from common.constants import error
 
@@ -139,7 +141,7 @@ class Pec(QtWidgets.QWidget):
         self.info_imap_img = QLabel(self)
         self.info_imap_img.setEnabled(True)
         self.info_imap_img.setPixmap(
-            QPixmap("assets/images/red-mark.png").scaled(20, 20)
+            QPixmap(resolve_path("assets/images/red-mark.png")).scaled(20, 20)
         )
         self.info_imap_img.setScaledContents(True)
         self.info_imap_img.setGeometry(QtCore.QRect(630, 192, 20, 20))
@@ -186,7 +188,7 @@ class Pec(QtWidgets.QWidget):
         self.info_smtp_img = QLabel(self)
         self.info_smtp_img.setEnabled(True)
         self.info_smtp_img.setPixmap(
-            QPixmap("assets/images/red-mark.png").scaled(20, 20)
+            QPixmap(resolve_path("assets/images/red-mark.png")).scaled(20, 20)
         )
         self.info_smtp_img.setScaledContents(True)
         self.info_smtp_img.setGeometry(QtCore.QRect(630, 222, 20, 20))
@@ -252,13 +254,13 @@ class Pec(QtWidgets.QWidget):
             server.login(self.pec_email.text(), self.password.text())
             server.logout()
             self.info_imap_img.setPixmap(
-                QPixmap("assets/images/green-mark.png").scaled(20, 20)
+                QPixmap(resolve_path("assets/images/green-mark.png")).scaled(20, 20)
             )
             self.info_imap_img.setVisible(True)
 
         except Exception as e:
             self.info_imap_img.setPixmap(
-                QPixmap("assets/images/red-mark.png").scaled(20, 20)
+                QPixmap(resolve_path("assets/images/red-mark.png")).scaled(20, 20)
             )
             self.info_imap_img.setVisible(True)
             error_dlg = ErrorView(
@@ -275,13 +277,13 @@ class Pec(QtWidgets.QWidget):
             server.login(self.pec_email.text(), self.password.text())
             server.quit()
             self.info_smtp_img.setPixmap(
-                QPixmap("assets/images/green-mark.png").scaled(20, 20)
+                QPixmap(resolve_path("assets/images/green-mark.png")).scaled(20, 20)
             )
             self.info_smtp_img.setVisible(True)
 
         except Exception as e:
             self.info_smtp_img.setPixmap(
-                QPixmap("assets/images/red-mark.png").scaled(20, 20)
+                QPixmap(resolve_path("assets/images/red-mark.png")).scaled(20, 20)
             )
             self.info_smtp_img.setVisible(True)
 

@@ -21,6 +21,7 @@ from controller.configurations.tabs.general.typesproceedings import (
 )
 
 from common.constants.view.case import *
+from common.utility import resolve_path
 
 
 class CaseForm(QtWidgets.QWidget):
@@ -152,7 +153,7 @@ class CaseForm(QtWidgets.QWidget):
         logo_label_layout.setContentsMargins(0, 0, 0, 0)
 
         self.logo_icon_info = QtGui.QIcon(
-            os.path.join("assets/svg/acquisition", "info-circle.svg")
+            os.path.join(resolve_path("assets/svg/acquisition"), "info-circle.svg")
         )
         self.label_icon_info = QtWidgets.QLabel(self)
         self.label_icon_info.setPixmap(self.logo_icon_info.pixmap(QtCore.QSize(16, 16)))

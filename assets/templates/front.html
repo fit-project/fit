@@ -4,37 +4,37 @@
     <meta charset="UTF-8">
     <title>{title:}</title>
     <style type="text/css">
-     img {{
+     img {
         width: 250;
         height: auto;
-        }}
-     .center {{
+        }
+     .center {
         display: block;
         text-align: center;
-        }}
+        }
 
-        p {{
+        p {
         font-family: "Times New Roman", Times, serif;
-        }}
+        }
 
 
-    @page {{
+    @page {
 
         size: a4 portrait;
         font-family: "Times New Roman", Times, serif;
         margin: 75pt;
 
-    }}
+    }
 
 
 
     </style>
 </head>
 <body>
-<img src={img:} class="center">
+<img src=$img class="center">
 
-<p class="center" style="font-size: 40pt">{t1:}</p>
-<p class="center" style="font-size: 30pt">{report:}</p>
-<p class="center" style="font-size: 23pt">{version:}</p>
+<p class="center" style="font-size: 40pt">$t1</p>
+<p class="center" style="font-size: 30pt">$report</p>
+<p class="center" style="font-size: 23pt">$version</p>
 </body>
 </html>

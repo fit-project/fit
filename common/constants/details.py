@@ -19,4 +19,4 @@ SSLCERTIFICATE_NOT_EXIST = "Certificate don't exist on URL: {}"
 ACQUISITION_FINISHED = (
     "The acquisition has finished successfully. Do you want to open the case directory?"
 )
-RETRY = "Server configuration is correct, check search criteria"
+RETRY = "Check search criteria"
