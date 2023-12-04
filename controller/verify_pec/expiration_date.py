@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-from common.utility import is_cmd, get_platform
+from common.utility import is_cmd, get_platform, resolve_path
 from email import policy
 from email.parser import BytesParser
 from datetime import datetime
@@ -21,7 +21,7 @@ class ExpirationDate:
         is_installed_openssl = is_cmd(openssl)
 
         if is_installed_openssl is False:
-            openssl = ".\ext_lib\openssl\{}\openssl".format(get_platform())
+            openssl = resolve_path("ext_lib/openssl/{}/openssl".format(get_platform()))
         # extract pem certificate from eml
         extract_pem = subprocess.run(
             [

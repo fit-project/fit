@@ -19,7 +19,7 @@ from controller.verify_pec.verify_pec import verifyPec as verifyPecController
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 
 from common.constants.view import verify_pec, general, verify_pdf_timestamp
-from common.utility import get_platform, get_ntp_date_and_time
+from common.utility import get_platform, get_ntp_date_and_time, resolve_path
 
 
 class VerifyPec(QtWidgets.QMainWindow):
@@ -30,14 +30,15 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.acquisition_directory = None
 
     def init(self, case_info, wizard, options=None):
-        self.__init__()
         self.wizard = wizard
         self.width = 600
         self.height = 230
         self.setFixedSize(self.width, self.height)
         self.case_info = case_info
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
         self.setObjectName("verify_pec_window")
 
         self.centralwidget = QtWidgets.QWidget(self)

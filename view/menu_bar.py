@@ -8,7 +8,6 @@
 ######
 
 
-import typing
 from PyQt6 import QtGui, QtWidgets
 
 

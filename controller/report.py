@@ -10,6 +10,7 @@ import base64
 import fnmatch
 import os
 
+from string import Template
 from xhtml2pdf import pisa
 from PyPDF2 import PdfMerger
 import zipfile
@@ -18,7 +19,7 @@ from controller.configurations.tabs.general.typesproceedings import (
     TypesProceedings as TypesProceedingsController,
 )
 
-from common.utility import get_logo, get_version, get_language
+from common.utility import get_logo, get_version, get_language, resolve_path
 from model.case import Case
 
 
@@ -78,28 +79,26 @@ class Report:
         zip_enum = self._zip_files_enum()
 
         # FILLING FRONT PAGE WITH DATA
-        front_index_path = os.path.join("assets", "templates", "front.html")
-        front_index = (
-            open(front_index_path)
-            .read()
-            .format(
-                img=get_logo(),
-                t1=self.REPORT.T1,
-                title=self.REPORT.TITLE,
-                report=self.REPORT.REPORT,
-                version=get_version(),
-            )
+        with open(os.path.join(resolve_path("assets/templates"), "front.html")) as fh:
+            template = Template(fh.read())
+
+        front_index = template.safe_substitute(
+            img=get_logo(),
+            t1=self.REPORT.T1,
+            title=self.REPORT.TITLE,
+            report=self.REPORT.REPORT,
+            version=get_version(),
         )
 
         # FILLING TEMPLATE WITH DATA
         if type == "web" and whois_text != self.REPORT.NOT_PRODUCED:
             content_index_path = os.path.join(
-                "assets", "templates", "template_web.html"
+                resolve_path("assets/templates"), "template_web.html"
             )
-            content_index = (
-                open(content_index_path)
-                .read()
-                .format(
+            with open(os.path.join(content_index_path)) as fh:
+                template = Template(fh.read())
+
+                content_index = template.safe_substitute(
                     title=self.REPORT.TITLE,
                     index=self.REPORT.INDEX,
                     description=self.REPORT.DESCRIPTION.format(
@@ -182,7 +181,6 @@ class Report:
                     of=self.REPORT.OF,
                     logo=logo,
                 )
-            )
             pdf_options = {
                 "page-size": "Letter",
                 "margin-top": "1in",
@@ -190,6 +188,7 @@ class Report:
                 "margin-bottom": "1in",
                 "margin-left": "1in",
             }
+
             # create pdf front and content, merge them and remove merged files
             pisa.CreatePDF(
                 front_index, dest=self.output_front_result, options=pdf_options
@@ -200,12 +199,13 @@ class Report:
 
         elif type == "web" and whois_text == self.REPORT.NOT_PRODUCED:
             content_index_path = os.path.join(
-                "assets", "templates", "template_web_no_whois.html"
+                resolve_path("assets/templates"), "template_web_no_whois.html"
             )
-            content_index = (
-                open(content_index_path)
-                .read()
-                .format(
+
+            with open(os.path.join(content_index_path)) as fh:
+                template = Template(fh.read())
+
+                content_index = template.safe_substitute(
                     title=self.REPORT.TITLE,
                     index=self.REPORT.INDEX,
                     description=self.REPORT.DESCRIPTION.format(
@@ -285,7 +285,6 @@ class Report:
                     of=self.REPORT.OF,
                     logo=logo,
                 )
-            )
 
             pdf_options = {
                 "page-size": "Letter",
@@ -309,12 +308,13 @@ class Report:
             or type == "entire_website"
         ):
             content_index_path = os.path.join(
-                "assets", "templates", "template_email.html"
+                resolve_path("assets/templates"), "template_email.html"
             )
-            content_index = (
-                open(content_index_path)
-                .read()
-                .format(
+
+            with open(os.path.join(content_index_path)) as fh:
+                template = Template(fh.read())
+
+                content_index = template.safe_substitute(
                     title=self.REPORT.TITLE,
                     index=self.REPORT.INDEX,
                     description=self.REPORT.DESCRIPTION.format(
@@ -370,7 +370,6 @@ class Report:
                     of=self.REPORT.OF,
                     logo=logo,
                 )
-            )
             # create pdf front and content, merge them and remove merged files
             pisa.CreatePDF(front_index, dest=self.output_front_result)
             pisa.CreatePDF(content_index, dest=self.output_content_result)
@@ -427,18 +426,19 @@ class Report:
             if fname.endswith(".zip"):
                 zip_dir = os.path.join(self.cases_folder_path, fname)
 
-        zip_folder = zipfile.ZipFile(zip_dir)
-        for zip_file in zip_folder.filelist:
-            size = zip_file.file_size
-            filename = zip_file.filename
-            if filename.count(".") > 1:
-                filename = filename.rsplit(".", 1)[0]
-            else:
-                pass
-            if size > 0:
-                zip_enum += "<p>" + filename + "</p>"
-                zip_enum += "<p>" + self.REPORT.SIZE + str(size) + " bytes</p>"
-                zip_enum += "<hr>"
+        if zip_dir:
+            zip_folder = zipfile.ZipFile(zip_dir)
+            for zip_file in zip_folder.filelist:
+                size = zip_file.file_size
+                filename = zip_file.filename
+                if filename.count(".") > 1:
+                    filename = filename.rsplit(".", 1)[0]
+                else:
+                    pass
+                if size > 0:
+                    zip_enum += "<p>" + filename + "</p>"
+                    zip_enum += "<p>" + self.REPORT.SIZE + str(size) + " bytes</p>"
+                    zip_enum += "<hr>"
         return zip_enum
 
     def __hash_reader(self):
@@ -460,45 +460,42 @@ class Report:
         screenshots_path = os.path.join(self.cases_folder_path, "screenshot")
 
         if os.path.isdir(screenshots_path):
-            main_screenshot_path = os.path.join(
+            full_screenshot_path = os.path.join(
                 self.cases_folder_path, "screenshot", "full_page"
             )
             main_screenshot_file = os.path.join(
                 self.cases_folder_path, "screenshot.png"
             )
 
-            files = os.listdir(main_screenshot_path)
-            path = os.path.join(main_screenshot_path, files[0])
-            images = os.listdir(path)
-            main_screenshot = os.path.join(path, images[0])
+            # url_folder = os.listdir(full_screenshot_path)
+            url_folder = [
+                file
+                for file in os.listdir(full_screenshot_path)
+                if os.path.isdir(os.path.join(full_screenshot_path, file))
+            ]
+
+            if url_folder:
+                full_screenshot_path = os.path.join(full_screenshot_path, url_folder[0])
+
+            images = os.listdir(full_screenshot_path)
+            main_screenshot = os.path.join(full_screenshot_path, images[0])
 
             files = os.listdir(screenshots_path)
             for file in files:
                 path = os.path.join(self.cases_folder_path, "screenshot", file)
-                path = os.path.join(self.cases_folder_path, "screenshot", file)
                 if os.path.isfile(path):
-                    screenshot_text += (
-                        "<p>"
-                        '<a href="file://'
-                        + path
-                        + '">'
-                        + "Screenshot"
-                        + os.path.basename(file)
-                        + '</a><br><img src="'
-                        + path
-                        + '"></p><br><br>'
-                    )
-                    screenshot_text += (
-                        "<p>"
-                        '<a href="file://'
-                        + path
-                        + '">'
-                        + "Screenshot"
-                        + os.path.basename(file)
-                        + '</a><br><img src="'
-                        + path
-                        + '"></p><br><br>'
-                    )
+                    if "full_page_" not in os.path.basename(file):
+                        screenshot_text += (
+                            "<p>"
+                            '<a href="file://'
+                            + path
+                            + '">'
+                            + "Screenshot"
+                            + os.path.basename(file)
+                            + '</a><br><img src="'
+                            + path
+                            + '"></p><br><br>'
+                        )
 
             # main full page screenshot
             screenshot_text += (

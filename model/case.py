@@ -11,6 +11,7 @@ from pathlib import Path
 from model.db import Db
 
 import os
+import re
 
 from sqlalchemy import ForeignKey, Column, Integer, String, Text, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
@@ -96,6 +97,14 @@ class Case(Base):
                 for d in os.listdir(acquisition_type_directory)
                 if os.path.isdir(os.path.join(acquisition_type_directory, d))
             ]
+
+            # get only directories with the right "name". This resolve issue 109
+            acquisition_directories = list(
+                filter(
+                    lambda item: bool(re.search("^acquisition_(\d+)$", item)) == True,
+                    acquisition_directories,
+                )
+            )
 
             # select the highest number in sufix name
             index = max(
