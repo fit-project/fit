@@ -95,8 +95,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_form = InstagramAcquisitionForm(self.centralwidget)
         self.acquisition_form.scrape_button.clicked.connect(self.__scrape)
 
-        # print(methods_to_execute)
-
         self.retranslateUi()
 
         # ACQUISITION
