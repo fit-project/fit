@@ -15,10 +15,13 @@ from view.scrapers.web.web import Web as WebView
 from view.scrapers.mail.mail import Mail as MailView
 from view.scrapers.instagram.instagram import Instagram as InstagramView
 from view.scrapers.video.video import Video as VideoView
+from view.scrapers.entire_website.entire_website import (
+    EntireWebsite as EntireWebsiteView,
+)
 
 from view.verify_pec import VerifyPec as VerifyPecView
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
-from view.entire_website.entire_website import EntireWebsite as EntireWebsiteView
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
