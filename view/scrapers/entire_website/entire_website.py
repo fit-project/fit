@@ -14,7 +14,7 @@ import subprocess
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QListWidgetItem, QListWidget, QCheckBox
 
-from view.entire_website.mitm import MitmProxyWorker
+from view.scrapers.entire_website.mitm import MitmProxyWorker
 from view.menu_bar import MenuBar as MenuBarView
 
 from view.error import Error as ErrorView
