@@ -42,6 +42,8 @@ if __name__ == "__main__":
             acquisition_window = InstagramView()
         elif task == "video":
             acquisition_window = VideoView()
+        elif task == "entire_website":
+            acquisition_window = EntireWebsiteView()
         elif task == "verify_timestamp":
             acquisition_window = VerifyPDFTimestampView()
         elif task == "verify_pec":

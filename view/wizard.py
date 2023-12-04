@@ -41,17 +41,14 @@ class CaseInfoPage(QtWidgets.QWizardPage):
         self.form = CaseFormView(self.case_form_widget)
         self.form.setGeometry(QtCore.QRect(0, 0, 400, 250))
 
-        x = int(
-            (
-                (self.case_form_widget.frameGeometry().width() / 2)
-                - (self.form.frameGeometry().width() / 2)
-                - 20
-            )
-        )
-        y = int(
-            (self.case_form_widget.frameGeometry().height() / 2)
-            - (self.form.frameGeometry().height() / 2)
-        )
+        x = int((
+            (self.case_form_widget.frameGeometry().width() / 2)
+            - (self.form.frameGeometry().width() / 2)
+            - 20
+        ))
+        y = int((self.case_form_widget.frameGeometry().height() / 2) - (
+            self.form.frameGeometry().height() / 2
+        ))
         self.form.move(x, y)
 
         self.configuration_button = QtWidgets.QPushButton(self)
@@ -105,7 +102,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
             if rows == 0:
                 container.setGeometry(QtCore.QRect(80, 40, 650, 112))
             elif rows == 1:
-                container.setGeometry(QtCore.QRect(80, 160, 322, 112))
+                container.setGeometry(QtCore.QRect(80, 160, 487, 112))
 
             hlayout = QtWidgets.QHBoxLayout(container)
             hlayout.setContentsMargins(0, 0, 0, 0)
