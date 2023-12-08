@@ -65,7 +65,6 @@ class MitmProxy:
             tcp_hosts=[".*"],
             udp_hosts=[".*"],
             rawtcp=True,
-            rawudp=True,
             mode=["regular"],
         )
         # Create a master object and add addons

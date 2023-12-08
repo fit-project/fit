@@ -27,7 +27,10 @@ class PostAcquisition(QObject):
         self.__zip_and_remove()
 
     def __zip_and_remove(self):
-        if self.options.get("type") == "web":
+        if (
+            self.options.get("type") == "web"
+            or self.options.get("type") == "entire_website"
+        ):
             self.options["acquisition_content_directory"] = os.path.join(
                 self.options.get("acquisition_directory"), "acquisition_page"
             )
@@ -59,7 +62,10 @@ class PostAcquisition(QObject):
 
     def __generate_pdf_report(self):
         task = self.task_handler.get_task(REPORT)
-        if self.options.get("type") == "web":
+        if (
+            self.options.get("type") == "web"
+            or self.options.get("type") == "entire_website"
+        ):
             self.options["pdf_filename"] = "acquisition_report.pdf"
         elif self.options.get("type") == "email":
             self.options["pdf_filename"] = "acquisition_report.pdf"

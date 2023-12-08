@@ -7,6 +7,7 @@
 # -----
 ######
 INVALID_URL = "Invalid URL"
+SITEMAP_ERROR = "Sitemap Error"
 PLACEHOLDER_URL = "https://github.com/fit-project/"
 PLACEHOLDER_CUSTOM_URL = "https://github.com/fit-project/fit"
 URL_CONFIGURATION = "URL configuration"
@@ -18,3 +19,5 @@ ADD_URL = "Add URL"
 ADD = "+"
 DESELECT = "Deselect all"
 SELECT = "Select all"
+NO_URLS_FOUND = "Not other URLs found"
+NO_URLS_FOUND_MSG = "Not other URLs found associated with the {}"

@@ -20,3 +20,4 @@ ACQUISITION_FINISHED = (
     "The acquisition has finished successfully. Do you want to open the case directory?"
 )
 RETRY = "Check search criteria"
+CHECK_URL = "Check load website URL"
