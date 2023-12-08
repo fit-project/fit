@@ -246,8 +246,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
                 check_box.setChecked(True)
                 self.form.list_widget.addItem(item)
                 self.form.list_widget.setItemWidget(item, check_box)
-                self.spinner.stop()
-                self.__enable_all(True)
+
+            self.spinner.stop()
+            self.__enable_all(True)
 
     def __item_exists_in_list_widget(self, list_widget, text):
         for index in range(list_widget.count()):
@@ -283,12 +284,12 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.__enable_all(True)
         self.form.list_widget.clear()
         self.form.input_custom_url.setText("")
-
-        self.progress_bar.setHidden(True)
-        self.status.showMessage("")
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
+
+        self.progress_bar.setHidden(True)
+        self.status.showMessage("")
 
         self.__show_finish_acquisition_dialog()
 

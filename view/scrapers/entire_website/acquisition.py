@@ -11,7 +11,6 @@ import inspect
 
 from view.acquisition.acquisition import Acquisition
 from PyQt6.QtCore import pyqtSignal
-from PyQt6 import QtCore
 from view.tasks.class_names import *
 
 

@@ -73,8 +73,11 @@ class LogConfigTools:
                     "handlers": ["facquisition"],
                     "level": "INFO",
                 },
+                "view.scrapers.entire_website.entire_website": {
+                    "handlers": ["facquisition"],
+                    "level": "INFO",
+                },
                 "hashreport": {"handlers": ["fhashreport"], "level": "INFO"},
-                "view.entire_website": {"handlers": ["facquisition"], "level": "INFO"},
             },
             "root": {"handlers": ["null"], "propagate": False},
         }
