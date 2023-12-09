@@ -301,7 +301,12 @@ class Report:
                 content_index, dest=self.output_content_result, options=pdf_options
             )
 
-        if type == "email" or type == "instagram" or type == "video":
+        if (
+            type == "email"
+            or type == "instagram"
+            or type == "video"
+            or type == "entire_website"
+        ):
             content_index_path = os.path.join(
                 resolve_path("assets/templates"), "template_email.html"
             )

@@ -102,7 +102,7 @@ class SelectTaskPage(QtWidgets.QWizardPage):
             if rows == 0:
                 container.setGeometry(QtCore.QRect(80, 40, 650, 112))
             elif rows == 1:
-                container.setGeometry(QtCore.QRect(80, 160, 322, 112))
+                container.setGeometry(QtCore.QRect(80, 160, 487, 112))
 
             hlayout = QtWidgets.QHBoxLayout(container)
             hlayout.setContentsMargins(0, 0, 0, 0)

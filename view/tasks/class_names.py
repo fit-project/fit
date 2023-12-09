@@ -34,3 +34,6 @@ INSTAGRAM = "TaskInstagram"
 
 # VIDEO SCRAPER
 VIDEO = "TaskVideo"
+
+# ENTIRE WEBSITE SCRAPER
+ENTIRE_WEBSITE = "TaskEntireWebsite"

@@ -9,15 +9,7 @@
 import typing
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QFont, QRegularExpressionValidator, QIcon, QIntValidator
-from PyQt6.QtCore import (
-    QRegularExpression,
-    QDate,
-    Qt,
-    QRect,
-    QMetaObject,
-    QEventLoop,
-    QTimer,
-)
+from PyQt6.QtCore import QRegularExpression, Qt, QRect
 from view.scrapers.mail.clickable_label import ClickableLabel
 
 

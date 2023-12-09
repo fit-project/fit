@@ -26,6 +26,8 @@ HASHFILE = "Calculate Hash File"
 REPORTFILE = "Generate PDF Report"
 TIMESTAMP = "Generate TIMESTAMP for the report"
 ZIP_AND_REMOVE_FOLDER = "Zip and remove folder"
+
+
 # PEC TASK AND SUBTASK
 PEC_AND_DOWNLOAD_EML = "PEC and EML file"
 PEC = "Send the PDF Report by PEC"
@@ -34,8 +36,8 @@ EML = "Download eml file"
 # MAIL TASKS AND SUBTASK
 MAIL_SCRAPER = "Mail Scraper"
 LOGGED_IN = "Logged in"
-DOWNLOAD_EMAILS = "Download emails"
-SEARCH_EMAILS = "Search Emails"
+DOWNLOAD_EMAILS = "Download EMAILs"
+SEARCH_EMAILS = "Search EMAILs"
 
 # INSTAGRAM TASKS AND SUBTASK
 INSTAGRAM_SCRAPER = "Instagram Scraper"
@@ -45,3 +47,9 @@ SCRAPE_PROFILE = "Scrape profile"
 VIDEO_SCRAPER = "Video Scraper"
 DOWNLOAD_VIDEO = "Download video"
 LOAD_VIDEO = "Load video URL"
+
+# ENTIRE WEBSITE TASKS AND SUBTASK
+ENTIRE_WEBSITE_SCRAPER = "Entire Website Scraper"
+CHECK_IS_VALID_URL = "Check is valid URL"
+GET_SITEMAP = "Get Sitemap"
+DOWNLOAD_URLS = "Download URLs"
