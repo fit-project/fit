@@ -79,7 +79,13 @@ class MitmProxy:
         loggers = loggers + [
             logging.getLogger(name)
             for name in logging.root.manager.loggerDict
-            if name not in [__name__, "hashreport", "mitmproxy"]
+            if name
+            not in [
+                __name__,
+                "hashreport",
+                "mitmproxy",
+                "view.scrapers.entire_website.entire_website",
+            ]
         ]
         log_confing = LogConfigTools()
         log_confing.disable_loggers(loggers)

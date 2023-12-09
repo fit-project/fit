@@ -117,4 +117,5 @@ ENTIRE_WEBSITE_SCRAPER_CHECK_IS_VALID_URL_FININISHED = (
 ENTIRE_WEBSITE_SCRAPER_URLS = "Get sitemap is finished with status: {}"
 ENTIRE_WEBSITE_SCRAPER_DOWNLOADED = "Download entire website from url: {}"
 ENTIRE_WEBSITE_DOWNLOAD_FININISHED = "Download entire website has finished"
+ENTIRE_WEBSITE_ALL_PAGES_HAVE_BEEN_DOWNLOADED = "All pages have been downloaded"
 DOWNLOADED = "Downloaded page {}"

@@ -101,13 +101,15 @@ class EntireWebsiteForm(QtWidgets.QWidget):
         # ADD BUTTON
         self.add_button = QtWidgets.QPushButton(self.custom_urls_group_box)
         self.add_button.setGeometry(QtCore.QRect(390, 50, 20, 20))
+        # self.add_button.setStyleSheet(
+        #     "QPushButton { border-radius: 10px; background-color: #4286f4; color: white; font-size: 20px; padding-bottom: 4px; }"
+        #     "QPushButton:hover { background-color: #1c62cc; }"
+        # )
         self.add_button.setStyleSheet(
-            "QPushButton { border-radius: 10px; background-color: #4286f4; color: white; font-size: 20px; padding-bottom: 4px; }"
-            "QPushButton:hover { background-color: #1c62cc; }"
+            "QPushButton {font-size: 20px;padding-bottom: 4px; }"
         )
         self.add_button.setObjectName("add_button")
         self.add_button.setFont(font)
-        self.add_button.setEnabled(False)
         self.input_custom_url.textChanged.connect(
             lambda input: self.__on_text_changed(self.input_custom_url, self.add_button)
         )
@@ -123,6 +125,20 @@ class EntireWebsiteForm(QtWidgets.QWidget):
         layout.addWidget(self.list_widget)
         self.url_preview_group_box.setLayout(layout)
 
+        # SELECT/DESELECT BUTTON
+        self.selector_button = QtWidgets.QPushButton(self.parent())
+        self.selector_button.setGeometry(QtCore.QRect(515, 385, 75, 25))
+        self.selector_button.setObjectName("selector_button")
+        self.selector_button.setFont(font)
+        self.selector_button.setEnabled(False)
+
+        # SCRAPE BUTTON
+        self.scrape_button = QtWidgets.QPushButton(self.parent())
+        self.scrape_button.setGeometry(QtCore.QRect(875, 385, 70, 25))
+        self.scrape_button.setObjectName("scrapeButton")
+        self.scrape_button.setFont(font)
+        self.scrape_button.setEnabled(False)
+
         self.retranslateUi()
 
     def retranslateUi(self):
@@ -133,6 +149,8 @@ class EntireWebsiteForm(QtWidgets.QWidget):
         self.load_website_button.setText(general.BUTTON_LOAD_WEBSITE)
         self.label_custom_url.setText(entire_site.URL)
         self.add_button.setText(entire_site.ADD)
+        self.scrape_button.setText(general.DOWNLOAD)
+        self.selector_button.setText(entire_site.DESELECT)
 
         self.load_from_sitemap_radio_button.setText(entire_site.LOAD_FROM_SITEMAP)
         self.load_from_domain_radio_button.setText(entire_site.LOAD_FROM_DOMAIN)
@@ -140,19 +158,23 @@ class EntireWebsiteForm(QtWidgets.QWidget):
     def enable_custom_urls(self, enable):
         self.custom_urls_group_box.setEnabled(enable)
 
+    def enable_preview_buttons(self, enable):
+        self.selector_button.setEnabled(enable)
+        self.scrape_button.setEnabled(enable)
+
     def set_default(self):
+        self.list_widget.clear()
         self.input_custom_url.setText("")
         self.set_url_preview_group_box_title()
-        self.list_widget.clear()
 
-    def set_url_preview_group_box_title(self, urls_number=None):
-        if urls_number is None:
-            self.url_preview_group_box.setTitle(entire_site.URL_CONFIGURATION)
-        else:
+    def set_url_preview_group_box_title(self):
+        if self.list_widget.count():
             title = entire_site.URL_CONFIGURATION + " (Found: {} Url)".format(
-                urls_number
+                self.list_widget.count()
             )
             self.url_preview_group_box.setTitle(title)
+        else:
+            self.url_preview_group_box.setTitle(entire_site.URL_CONFIGURATION)
 
     def __validate_input(self, text):
         sender = self.sender()
@@ -165,6 +187,8 @@ class EntireWebsiteForm(QtWidgets.QWidget):
     def __switch_load_type(self):
         self.input_url.setText("")
         self.set_default()
+        self.enable_custom_urls(False)
+        self.enable_preview_buttons(False)
         if self.sender().objectName() == "load_from_domain":
             self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
         elif self.sender().objectName() == "load_from_sitemap":

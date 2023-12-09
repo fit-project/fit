@@ -84,22 +84,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
         self.form.load_website_button.clicked.connect(self.__load_website)
         self.form.add_button.clicked.connect(self.__add_url)
-
-        # SELECT/DESELECT BUTTON
-        self.selector_button = QtWidgets.QPushButton(self)
-        self.selector_button.setGeometry(QtCore.QRect(515, 410, 75, 25))
-        self.selector_button.setObjectName("selector_button")
-        self.selector_button.setFont(font)
-        self.selector_button.setEnabled(False)
-        self.selector_button.clicked.connect(self.__select)
-
-        # SCRAPE BUTTON
-        self.scrape_button = QtWidgets.QPushButton(self)
-        self.scrape_button.setGeometry(QtCore.QRect(875, 410, 70, 25))
-        self.scrape_button.setObjectName("scrapeButton")
-        self.scrape_button.setFont(font)
-        self.scrape_button.clicked.connect(self.__download)
-        self.scrape_button.setEnabled(False)
+        self.form.selector_button.clicked.connect(self.__select)
+        self.form.scrape_button.clicked.connect(self.__download)
 
         self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
             "configuration_general"
@@ -127,8 +113,6 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
     def retranslateUi(self):
         self.setWindowTitle(general.MAIN_WINDOW_TITLE)
-        self.scrape_button.setText(general.DOWNLOAD)
-        self.selector_button.setText(entire_site.DESELECT)
 
     def __load_website(self):
         self.__enable_all(False)
@@ -220,14 +204,13 @@ class EntireWebsite(QtWidgets.QMainWindow):
                     self.form.list_widget.addItem(item)
                     self.form.list_widget.setItemWidget(item, check_box)
 
-                self.form.set_url_preview_group_box_title(len(urls))
-                self.scrape_button.setEnabled(True)
-                self.selector_button.setEnabled(True)
+                self.form.set_url_preview_group_box_title()
+                self.form.enable_preview_buttons(True)
                 self.form.enable_custom_urls(True)
 
     def __select(self):
-        if self.selector_button.text() == entire_site.DESELECT:
-            self.selector_button.setText(entire_site.SELECT)
+        if self.form.selector_button.text() == entire_site.DESELECT:
+            self.form.selector_button.setText(entire_site.SELECT)
             for index in range(self.form.list_widget.count()):
                 item = self.form.list_widget.item(index)
                 if isinstance(item, QListWidgetItem):
@@ -235,7 +218,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
                     if isinstance(widget, QCheckBox):
                         widget.setChecked(False)
         else:
-            self.selector_button.setText(entire_site.DESELECT)
+            self.form.selector_button.setText(entire_site.DESELECT)
             for index in range(self.form.list_widget.count()):
                 item = self.form.list_widget.item(index)
                 if isinstance(item, QListWidgetItem):
@@ -260,6 +243,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
                 check_box.setChecked(True)
                 self.form.list_widget.addItem(item)
                 self.form.list_widget.setItemWidget(item, check_box)
+
+            self.form.set_url_preview_group_box_title()
 
             self.spinner.stop()
             self.__enable_all(True)
