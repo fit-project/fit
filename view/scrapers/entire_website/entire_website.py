@@ -206,7 +206,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
                 self.form.set_url_preview_group_box_title()
                 self.form.enable_preview_buttons(True)
-                self.form.enable_custom_urls(True)
+                self.form.enable_custom_urls_group_box(True)
 
     def __select(self):
         if self.form.selector_button.text() == entire_site.DESELECT:
@@ -273,7 +273,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
             if check_box.isChecked():
                 self.selected_urls.append(check_box.text())
 
-        self.increment = 100 / len(self.selected_urls)
+        if len(self.selected_urls) > 0:
+            self.increment = 100 / len(self.selected_urls)
 
         self.acquisition_manager.options["urls"] = self.selected_urls
         self.acquisition_manager.download()
@@ -281,8 +282,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __acquisition_is_finished(self):
         self.spinner.stop()
         self.__enable_all(True)
-        self.form.list_widget.clear()
-        self.form.input_custom_url.setText("")
+        self.form.set_default()
+        self.form.enable_custom_urls_group_box(False)
+        self.form.enable_preview_buttons(False)
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()

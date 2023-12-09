@@ -155,7 +155,7 @@ class EntireWebsiteForm(QtWidgets.QWidget):
         self.load_from_sitemap_radio_button.setText(entire_site.LOAD_FROM_SITEMAP)
         self.load_from_domain_radio_button.setText(entire_site.LOAD_FROM_DOMAIN)
 
-    def enable_custom_urls(self, enable):
+    def enable_custom_urls_group_box(self, enable):
         self.custom_urls_group_box.setEnabled(enable)
 
     def enable_preview_buttons(self, enable):
@@ -187,7 +187,7 @@ class EntireWebsiteForm(QtWidgets.QWidget):
     def __switch_load_type(self):
         self.input_url.setText("")
         self.set_default()
-        self.enable_custom_urls(False)
+        self.enable_custom_urls_group_box(False)
         self.enable_preview_buttons(False)
         if self.sender().objectName() == "load_from_domain":
             self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
