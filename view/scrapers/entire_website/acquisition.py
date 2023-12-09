@@ -39,6 +39,14 @@ class EntireWebsiteAcquisition(Acquisition):
 
     def get_sitemap(self):
         if self.task_entire_websiste:
+            if (
+                self.task_entire_websiste.receivers(
+                    self.task_entire_websiste.sitemap_finished
+                )
+                > 0
+            ):
+                self.task_entire_websiste.sitemap_finished.disconnect()
+
             self.task_entire_websiste.sitemap_finished.connect(
                 self.sitemap_finished.emit
             )

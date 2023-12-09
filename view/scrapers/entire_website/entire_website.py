@@ -133,11 +133,11 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __load_website(self):
         self.__enable_all(False)
         self.__start_spinner()
+        self.form.set_default()
 
         if self.is_task_started is False:
             self.__start_task()
         else:
-            self.acquisition_manager.options["start_url"] = self.form.input_url.text()
             self.acquisition_manager.check_is_valid_url(self.form.input_url.text())
 
     def __is_valid_url(self, __status):
@@ -146,6 +146,19 @@ class EntireWebsite(QtWidgets.QMainWindow):
                 loop = QtCore.QEventLoop()
                 QtCore.QTimer.singleShot(1000, loop.quit)
                 loop.exec()
+                self.acquisition_manager.options[
+                    "start_url"
+                ] = self.form.input_url.text()
+
+                radio_buttons = self.form.load_type_widget.findChildren(
+                    QtWidgets.QRadioButton
+                )
+                for radio_button in radio_buttons:
+                    if radio_button.isChecked():
+                        self.acquisition_manager.options[
+                            "load_type"
+                        ] = radio_button.objectName()
+
                 self.acquisition_manager.get_sitemap()
             elif self.acquisition_manager.caller_function_name == "__add_url":
                 self.__add_url(True)
@@ -207,6 +220,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
                     self.form.list_widget.addItem(item)
                     self.form.list_widget.setItemWidget(item, check_box)
 
+                self.form.set_url_preview_group_box_title(len(urls))
                 self.scrape_button.setEnabled(True)
                 self.selector_button.setEnabled(True)
                 self.form.enable_custom_urls(True)

@@ -32,6 +32,7 @@ class EntireWebsiteSitemapWorker(QObject):
         urls = set()
         try:
             controller.set_url(self.options.get("url"))
+            controller.set_load_type(self.options.get("load_type"))
             urls = controller.get_sitemap()
 
         except Exception as e:

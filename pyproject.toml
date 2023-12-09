@@ -29,6 +29,7 @@ screeninfo = "^0.8.1"
 yt-dlp = "^2023.3.4"
 youtube-comment-downloader = "^0.1.68"
 mitmproxy = "^10.1.5"
+lxml = "^4.9.3"
 
 [tool.poetry.dev-dependencies]
 

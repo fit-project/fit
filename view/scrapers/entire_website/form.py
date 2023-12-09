@@ -45,9 +45,30 @@ class EntireWebsiteForm(QtWidgets.QWidget):
         self.input_url.setObjectName("input_url")
         self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
 
+        self.load_type_widget = QtWidgets.QWidget(self.url_configuration_group_box)
+        self.load_type_widget.setGeometry(QtCore.QRect(19, 90, 130, 42))
+        self.load_type_vlayout = QtWidgets.QVBoxLayout(self.load_type_widget)
+        self.load_type_vlayout.setContentsMargins(0, 0, 0, 0)
+        self.load_from_domain_radio_button = QtWidgets.QRadioButton(
+            parent=self.load_type_widget
+        )
+        self.load_from_domain_radio_button.setChecked(True)
+        self.load_from_domain_radio_button.setObjectName("load_from_domain")
+        self.load_from_domain_radio_button.clicked.connect(self.__switch_load_type)
+        self.load_type_vlayout.addWidget(self.load_from_domain_radio_button)
+
+        self.load_from_sitemap_radio_button = QtWidgets.QRadioButton(
+            parent=self.load_type_widget
+        )
+        self.load_from_sitemap_radio_button.setObjectName("load_from_sitemap")
+        self.load_from_sitemap_radio_button.clicked.connect(self.__switch_load_type)
+        self.load_type_vlayout.addWidget(self.load_from_sitemap_radio_button)
+
         # LOAD BUTTON
-        self.load_website_button = QtWidgets.QPushButton(self.parent())
-        self.load_website_button.setGeometry(QtCore.QRect(370, 130, 85, 25))
+        self.load_website_button = QtWidgets.QPushButton(
+            self.url_configuration_group_box
+        )
+        self.load_website_button.setGeometry(QtCore.QRect(330, 110, 85, 25))
         self.load_website_button.setObjectName("loadButton")
         self.load_website_button.setFont(font)
 
@@ -113,8 +134,25 @@ class EntireWebsiteForm(QtWidgets.QWidget):
         self.label_custom_url.setText(entire_site.URL)
         self.add_button.setText(entire_site.ADD)
 
+        self.load_from_sitemap_radio_button.setText(entire_site.LOAD_FROM_SITEMAP)
+        self.load_from_domain_radio_button.setText(entire_site.LOAD_FROM_DOMAIN)
+
     def enable_custom_urls(self, enable):
         self.custom_urls_group_box.setEnabled(enable)
+
+    def set_default(self):
+        self.input_custom_url.setText("")
+        self.set_url_preview_group_box_title()
+        self.list_widget.clear()
+
+    def set_url_preview_group_box_title(self, urls_number=None):
+        if urls_number is None:
+            self.url_preview_group_box.setTitle(entire_site.URL_CONFIGURATION)
+        else:
+            title = entire_site.URL_CONFIGURATION + " (Found: {} Url)".format(
+                urls_number
+            )
+            self.url_preview_group_box.setTitle(title)
 
     def __validate_input(self, text):
         sender = self.sender()
@@ -123,3 +161,11 @@ class EntireWebsiteForm(QtWidgets.QWidget):
     def __on_text_changed(self, input, button):
         all_field_filled = bool(input.text())
         button.setEnabled(all_field_filled)
+
+    def __switch_load_type(self):
+        self.input_url.setText("")
+        self.set_default()
+        if self.sender().objectName() == "load_from_domain":
+            self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
+        elif self.sender().objectName() == "load_from_sitemap":
+            self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_SITEMAP_URL)
