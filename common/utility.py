@@ -91,6 +91,10 @@ def get_npcap_installer_url():
     with requests.get(url, stream=True, timeout=10, verify=False) as response:
         try:
             version = response.json()["name"]
+            if version == "":
+                version = response.json()["tag_name"]
+                version = "npcap {}".format(version[1:])
+
             version = version.lower()
             version = version.replace(" ", "-")
             installer_url = parser.get("fit_properties", "npcap_installer_url")
