@@ -28,6 +28,7 @@ if __name__ == "__main__":
 
     init = InitView()
     init.init_check()
+    # TO-DO we wait until init is done
     wizard = WizardView()
     wizard.init_wizard()
     acquisition_window = None
