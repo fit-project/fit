@@ -27,6 +27,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     init = InitView()
+    init.init_check()
     wizard = WizardView()
     wizard.init_wizard()
     acquisition_window = None
