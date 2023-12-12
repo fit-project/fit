@@ -28,7 +28,7 @@ from common.constants.view.tasks import status
 from common.constants import details, logger
 
 from common.constants.view import general, entire_site
-from common.utility import get_platform
+from common.utility import get_platform, resolve_path
 
 
 class EntireWebsite(QtWidgets.QMainWindow):
@@ -44,7 +44,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.wizard = wizard
         self.case_info = case_info
 
-        self.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+        self.setWindowIcon(
+            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
+        )
 
         # set font
         font = QtGui.QFont()
