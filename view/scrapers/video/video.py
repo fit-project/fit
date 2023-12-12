@@ -166,7 +166,7 @@ class Video(QtWidgets.QMainWindow):
 
             # check if audio only is available for download
             if not audio_available:
-                self.checkbox_audio.setEnabled(False)
+                self.form.checkbox_audio.setEnabled(False)
 
             # get the list of supported quality
             unique_items = set()
