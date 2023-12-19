@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Wizard</class>
- <widget class="QWizard" name="Wizard">
+ <class>fit_wizard</class>
+ <widget class="QWizard" name="fit_wizard">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -23,14 +23,14 @@
    </size>
   </property>
   <property name="mouseTracking">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>FIT</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/icon/FIT.png</normaloff>:/icon/FIT.png</iconset>
+    <normaloff>../images/FIT.svg</normaloff>../images/FIT.svg</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -41,8 +41,8 @@
   <property name="wizardStyle">
    <enum>QWizard::ClassicStyle</enum>
   </property>
-  <widget class="QWizardPage" name="wizardPage1">
-   <widget class="QGroupBox" name="groupBox">
+  <widget class="QWizardPage" name="case_info_page">
+   <widget class="QGroupBox" name="group_box_case">
     <property name="geometry">
      <rect>
       <x>150</x>
@@ -60,25 +60,25 @@
        <height>308</height>
       </rect>
      </property>
-     <layout class="QFormLayout" name="formLayout">
+     <layout class="QFormLayout" name="form_case">
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
       <property name="horizontalSpacing">
-       <number>-1</number>
+       <number>6</number>
       </property>
       <property name="verticalSpacing">
-       <number>-1</number>
+       <number>6</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_name">
         <property name="text">
          <string>Caso/Cliente</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="name">
         <property name="minimumSize">
          <size>
           <width>44</width>
@@ -88,34 +88,34 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label_lawyer_name">
         <property name="text">
          <string>Avvocato</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_2"/>
+       <widget class="QLineEdit" name="lawyer_name"/>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_operator">
         <property name="text">
          <string>Operatore</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit_3"/>
+       <widget class="QLineEdit" name="operator"/>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="label_proceeding_type">
         <property name="text">
          <string>Procedimento</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QComboBox" name="comboBox_2">
+       <widget class="QComboBox" name="proceeding_type">
         <property name="minimumSize">
          <size>
           <width>44</width>
@@ -125,56 +125,39 @@
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="label_courthouse">
         <property name="text">
          <string>Tribunale</string>
         </property>
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="courthouse"/>
       </item>
       <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="label_proceeding_number">
         <property name="text">
          <string>Numero Procedimento</string>
         </property>
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QLineEdit" name="lineEdit_4"/>
+       <widget class="QLineEdit" name="proceeding_number"/>
       </item>
-      <item row="6" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Logo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="scaledContents">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="pixmap">
-           <pixmap>:/icon-info/red-mark.png</pixmap>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_logo">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Logo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
-      <item row="6" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout">
+      <item row="7" column="1">
+       <layout class="QHBoxLayout" name="logo_layout">
         <item>
-         <widget class="QLineEdit" name="lineEdit_5">
+         <widget class="QLineEdit" name="logo">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -184,7 +167,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="logo_button">
           <property name="maximumSize">
            <size>
             <width>25</width>
@@ -207,20 +190,20 @@
         </item>
        </layout>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_8">
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_notes">
         <property name="text">
          <string>Note</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
-       <widget class="QTextEdit" name="textEdit"/>
+      <item row="8" column="1">
+       <widget class="QTextEdit" name="notes"/>
       </item>
      </layout>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="configuration_button">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -234,7 +217,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QWizardPage" name="wizardPage2">
+  <widget class="QWizardPage" name="select_task_page">
    <property name="minimumSize">
     <size>
      <width>800</width>
@@ -247,7 +230,7 @@
      <height>492</height>
     </size>
    </property>
-   <widget class="QWidget" name="widget" native="true">
+   <widget class="QWidget" name="buttons_container_widget" native="true">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -265,7 +248,7 @@
        <height>121</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="row_1">
       <property name="spacing">
        <number>10</number>
       </property>
@@ -282,7 +265,7 @@
        <number>10</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer_row_1_left">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -298,7 +281,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QFrame" name="frame_3">
+       <widget class="QFrame" name="frame_web">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -338,7 +321,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_8">
+         <layout class="QVBoxLayout" name="vlayout_web">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -346,7 +329,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_22">
+           <widget class="QLabel" name="label_web">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -363,7 +346,10 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>web.png</pixmap>
+             <pixmap>../images/taks/web.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -371,7 +357,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_13">
+           <widget class="QRadioButton" name="web">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -385,7 +371,7 @@
              </size>
             </property>
             <property name="text">
-             <string>VERIFY TIMESTAMP</string>
+             <string>WEB</string>
             </property>
            </widget>
           </item>
@@ -394,7 +380,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_4">
+       <widget class="QFrame" name="frame_mail">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -434,7 +420,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_13">
+         <layout class="QVBoxLayout" name="vlayout_mail">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -442,7 +428,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_26">
+           <widget class="QLabel" name="label_mail">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -459,7 +445,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/tasks/images/taks/web.png</pixmap>
+             <pixmap>../images/taks/mail.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -467,7 +453,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_17">
+           <widget class="QRadioButton" name="mail">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -481,7 +467,7 @@
              </size>
             </property>
             <property name="text">
-             <string>VERIFY TIMESTAMP</string>
+             <string>MAIL</string>
             </property>
            </widget>
           </item>
@@ -490,7 +476,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_6">
+       <widget class="QFrame" name="frame_instagram">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -530,7 +516,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_14">
+         <layout class="QVBoxLayout" name="vlayout_instagram">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -538,7 +524,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_27">
+           <widget class="QLabel" name="label_instagram">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -555,7 +541,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
+             <pixmap>../images/taks/instagram.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -563,7 +549,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_18">
+           <widget class="QRadioButton" name="instagram">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -577,7 +563,7 @@
              </size>
             </property>
             <property name="text">
-             <string>VERIFY TIMESTAMP</string>
+             <string>INSTAGRAM</string>
             </property>
            </widget>
           </item>
@@ -586,7 +572,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_7">
+       <widget class="QFrame" name="frame_video">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -626,7 +612,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_19">
+         <layout class="QVBoxLayout" name="vlayout_video">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -634,7 +620,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_28">
+           <widget class="QLabel" name="label_video">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -651,7 +637,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
+             <pixmap>../images/taks/video.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -659,7 +645,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_19">
+           <widget class="QRadioButton" name="video">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -673,7 +659,7 @@
              </size>
             </property>
             <property name="text">
-             <string>VERIFY TIMESTAMP</string>
+             <string>VIDEO</string>
             </property>
            </widget>
           </item>
@@ -682,7 +668,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
+       <spacer name="horizontalSpacer_row_1_right">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -705,7 +691,7 @@
        <height>111</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <layout class="QHBoxLayout" name="row_2">
       <property name="spacing">
        <number>10</number>
       </property>
@@ -722,7 +708,7 @@
        <number>10</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer_5">
+       <spacer name="horizontalSpacer_row_2_left">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -738,7 +724,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QFrame" name="frame_12">
+       <widget class="QFrame" name="frame_entire_website">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -778,7 +764,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_11">
+         <layout class="QVBoxLayout" name="vlayout_entire_website">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -786,7 +772,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_33">
+           <widget class="QLabel" name="label_entire_website">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -803,7 +789,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
+             <pixmap>../images/taks/entire_website.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -811,7 +797,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_24">
+           <widget class="QRadioButton" name="entire_website">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -825,7 +811,7 @@
              </size>
             </property>
             <property name="text">
-             <string>VERIFY TIMESTAMP</string>
+             <string>ENTIRE WEBSITE</string>
             </property>
            </widget>
           </item>
@@ -834,7 +820,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_13">
+       <widget class="QFrame" name="frame_verify_timestamp">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -874,7 +860,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_22">
+         <layout class="QVBoxLayout" name="vlayout_verify_timestamp">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -882,7 +868,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_34">
+           <widget class="QLabel" name="label_verify_timestamp">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -899,7 +885,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
+             <pixmap>../images/taks/verify_timestamp.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -907,7 +893,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_25">
+           <widget class="QRadioButton" name="verify_timestamp">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -930,7 +916,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_14">
+       <widget class="QFrame" name="frame_verify_pec">
         <property name="minimumSize">
          <size>
           <width>160</width>
@@ -970,7 +956,7 @@
            <height>101</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_23">
+         <layout class="QVBoxLayout" name="vlayout_verify_pec">
           <property name="leftMargin">
            <number>5</number>
           </property>
@@ -978,7 +964,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_35">
+           <widget class="QLabel" name="label_verify_pec">
             <property name="minimumSize">
              <size>
               <width>155</width>
@@ -995,7 +981,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
+             <pixmap>../images/taks/verify_pec.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -1003,7 +989,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_26">
+           <widget class="QRadioButton" name="verify_pec">
             <property name="minimumSize">
              <size>
               <width>157</width>
@@ -1017,7 +1003,7 @@
              </size>
             </property>
             <property name="text">
-             <string>VERIFY TIMESTAMP</string>
+             <string>VERIFY PEC</string>
             </property>
            </widget>
           </item>
@@ -1026,103 +1012,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_15">
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <widget class="QWidget" name="verticalLayoutWidget_23">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>161</width>
-           <height>101</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>161</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>161</width>
-           <height>101</height>
-          </size>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_24">
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>10</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_36">
-            <property name="minimumSize">
-             <size>
-              <width>155</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>155</width>
-              <height>68</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_27">
-            <property name="minimumSize">
-             <size>
-              <width>157</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>157</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>VERIFY TIMESTAMP</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_6">
+       <spacer name="horizontalSpacer_row_2_right">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -1145,7 +1035,7 @@
        <height>111</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <layout class="QHBoxLayout" name="row_3">
       <property name="spacing">
        <number>10</number>
       </property>
@@ -1162,7 +1052,7 @@
        <number>10</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer_7">
+       <spacer name="horizontalSpacer_row_3_left">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -1178,391 +1068,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QFrame" name="frame_16">
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <widget class="QWidget" name="verticalLayoutWidget_24">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>161</width>
-           <height>101</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>161</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>161</width>
-           <height>101</height>
-          </size>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_25">
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>10</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_37">
-            <property name="minimumSize">
-             <size>
-              <width>155</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>155</width>
-              <height>68</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_28">
-            <property name="minimumSize">
-             <size>
-              <width>157</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>157</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>VERIFY TIMESTAMP</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="frame_17">
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <widget class="QWidget" name="verticalLayoutWidget_25">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>161</width>
-           <height>101</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>161</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>161</width>
-           <height>101</height>
-          </size>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_26">
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>10</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_38">
-            <property name="minimumSize">
-             <size>
-              <width>155</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>155</width>
-              <height>68</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_29">
-            <property name="minimumSize">
-             <size>
-              <width>157</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>157</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>VERIFY TIMESTAMP</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="frame_18">
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <widget class="QWidget" name="verticalLayoutWidget_26">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>161</width>
-           <height>101</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>161</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>161</width>
-           <height>101</height>
-          </size>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_27">
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>10</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_39">
-            <property name="minimumSize">
-             <size>
-              <width>155</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>155</width>
-              <height>68</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_30">
-            <property name="minimumSize">
-             <size>
-              <width>157</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>157</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>VERIFY TIMESTAMP</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="frame_19">
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <widget class="QWidget" name="verticalLayoutWidget_27">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>161</width>
-           <height>101</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>161</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>161</width>
-           <height>101</height>
-          </size>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_28">
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>10</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_40">
-            <property name="minimumSize">
-             <size>
-              <width>155</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>155</width>
-              <height>68</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>:/icon-info/www.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_31">
-            <property name="minimumSize">
-             <size>
-              <width>157</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>157</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>VERIFY TIMESTAMP</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_8">
+       <spacer name="horizontalSpacer_row_3_right">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -1577,7 +1083,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="case_summary_button">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -1592,9 +1098,7 @@
    </widget>
   </widget>
  </widget>
- <resources>
-  <include location="wizard.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <designerdata>
   <property name="gridDeltaX">

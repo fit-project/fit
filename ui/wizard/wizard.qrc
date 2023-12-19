@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="icon"/>
-  <qresource prefix="tasks">
-    <file>web.png</file>
-  </qresource>
-</RCC>
