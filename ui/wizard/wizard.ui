@@ -51,6 +51,11 @@
       <height>388</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <widget class="QWidget" name="formLayoutWidget">
      <property name="geometry">
       <rect>
@@ -144,17 +149,7 @@
       <item row="5" column="1">
        <widget class="QLineEdit" name="proceeding_number"/>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_logo">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Logo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="scaledContents">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
+      <item row="6" column="1">
        <layout class="QHBoxLayout" name="logo_layout">
         <item>
          <widget class="QLineEdit" name="logo">
@@ -190,15 +185,51 @@
         </item>
        </layout>
       </item>
-      <item row="8" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="label_notes">
         <property name="text">
          <string>Note</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="7" column="1">
        <widget class="QTextEdit" name="notes"/>
+      </item>
+      <item row="6" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_logo">
+          <property name="maximumSize">
+           <size>
+            <width>64</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Logo</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap>../images/info.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -206,11 +237,16 @@
    <widget class="QPushButton" name="configuration_button">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>320</x>
       <y>430</y>
       <width>125</width>
       <height>32</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Configuration</string>
@@ -360,15 +396,20 @@
            <widget class="QRadioButton" name="web">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>150</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>WEB</string>
@@ -456,15 +497,20 @@
            <widget class="QRadioButton" name="mail">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>MAIL</string>
@@ -552,15 +598,20 @@
            <widget class="QRadioButton" name="instagram">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>INSTAGRAM</string>
@@ -648,15 +699,20 @@
            <widget class="QRadioButton" name="video">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>VIDEO</string>
@@ -800,15 +856,20 @@
            <widget class="QRadioButton" name="entire_website">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>ENTIRE WEBSITE</string>
@@ -896,15 +957,20 @@
            <widget class="QRadioButton" name="verify_timestamp">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>VERIFY TIMESTAMP</string>
@@ -992,15 +1058,20 @@
            <widget class="QRadioButton" name="verify_pec">
             <property name="minimumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>157</width>
+              <width>151</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>VERIFY PEC</string>
@@ -1086,11 +1157,16 @@
    <widget class="QPushButton" name="case_summary_button">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>320</x>
       <y>430</y>
       <width>120</width>
       <height>32</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Case summary</string>
