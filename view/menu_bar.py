@@ -11,7 +11,7 @@
 from PyQt6 import QtGui, QtWidgets
 
 
-from view.case import Case as CaseView
+from view.case_form_dialog import CaseFormDialog
 from view.configuration import Configuration as ConfigurationView
 
 
@@ -22,7 +22,7 @@ class MenuBar(QtWidgets.QMenuBar):
         self.configuration_view = ConfigurationView(self)
         self.configuration_view.hide()
 
-        self.case_view = CaseView(case_info, self)
+        self.case_view = CaseFormDialog(case_info, self)
         self.case_view.hide()
 
     def add_default_actions(self):

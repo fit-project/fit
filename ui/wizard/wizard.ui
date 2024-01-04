@@ -65,7 +65,7 @@
        <height>308</height>
       </rect>
      </property>
-     <layout class="QFormLayout" name="form_case">
+     <layout class="QFormLayout" name="case_form_layout">
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
@@ -95,6 +95,9 @@
           <width>197</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -190,7 +193,17 @@
        </widget>
       </item>
       <item row="6" column="1">
-       <layout class="QHBoxLayout" name="logo_layout">
+       <layout class="QHBoxLayout" name="logo_layout_path">
+        <item>
+         <widget class="QLabel" name="logo_preview">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QLineEdit" name="logo">
           <property name="minimumSize">
@@ -205,12 +218,12 @@
          <widget class="QPushButton" name="logo_button">
           <property name="maximumSize">
            <size>
-            <width>25</width>
+            <width>70</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="text">
-           <string>...</string>
+           <string>Browse...</string>
           </property>
           <property name="autoDefault">
            <bool>false</bool>
@@ -219,7 +232,7 @@
            <bool>false</bool>
           </property>
           <property name="flat">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -236,7 +249,7 @@
        <widget class="QTextEdit" name="notes"/>
       </item>
       <item row="6" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="label_logo_layout">
         <item>
          <widget class="QLabel" name="label_logo">
           <property name="maximumSize">

@@ -30,7 +30,7 @@ if __name__ == "__main__":
     init.init_check()
     # TO-DO we wait until init is done
     wizard = WizardView()
-    wizard.init_wizard()
+
     acquisition_window = None
 
     def start_task(task, case_info):
