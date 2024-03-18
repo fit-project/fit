@@ -17,6 +17,7 @@ class MetadataCertification(QtWidgets.QWizard):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = MetadataCertification()
     MainWindow.show()
