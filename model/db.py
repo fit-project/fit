@@ -9,11 +9,13 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+import macos_application_location
+import os
+import sys
 
 class Db:
     def __init__(self) -> None:
-        self._engine = create_engine("sqlite:///fit.db", echo=False)
+        self._engine = create_engine("sqlite:///" + self.__resolve_executable_path("fit.db"), echo=False)
         _Session = sessionmaker(bind=self._engine)
         self._session = _Session()
 
@@ -24,3 +26,21 @@ class Db:
     @property
     def session(self):
         return self._session
+    
+
+    def __resolve_executable_path(self, path):
+        if getattr(sys, "frozen", False):
+
+            if sys.platform == "win32":
+                resolve_executable_path = os.path.abspath(os.path.join(os.getcwd(), path))
+            elif sys.platform == "darwin":
+                resolve_executable_path = os.path.abspath(
+                    os.path.join(str(macos_application_location.get().parent), path)
+                )
+            else:
+                resolve_executable_path = os.path.abspath(os.path.join(os.getcwd(), path))
+        else:
+            # Normal development mode. Use os.getcwd() or __file__ as appropriate in your case...
+            resolve_executable_path = os.path.abspath(os.path.join(os.getcwd(), path))
+
+        return resolve_executable_path
