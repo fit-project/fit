@@ -7,7 +7,11 @@
 # -----
 ######
 
+import logging
+
+logging.getLogger("scapy").setLevel(logging.CRITICAL)
 import scapy.all as scapy
+
 import os
 
 from PyQt6.QtCore import QObject, QEventLoop, QTimer, pyqtSignal, QThread

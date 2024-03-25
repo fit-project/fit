@@ -35,7 +35,11 @@ from controller.configurations.tabs.language.language import (
 
 
 import ssl
+import logging
+
+logging.getLogger("scapy").setLevel(logging.CRITICAL)
 import scapy.all as scapy
+
 from contextlib import redirect_stdout
 
 from nslookup import Nslookup
