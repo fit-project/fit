@@ -19,6 +19,8 @@ LOGO = "Logo"
 LOGO_INFO = "Minimum width: {}px, Format: {}, Background: {}"
 SELECT_EMPTY_LOGO = "Browse..."
 SELECT_FULL_LOGO = "Change..."
+SELECT_PROCEEDING_TYPE = "Select proceeding type..."
+SELECT_CASE_NAME = "Select case or insert new one..."
 
 CHECK_SELECTED_LOGO = "Check logo file"
 ERR_SELECTED_LOGO_FORMAT = "The allowed formats are {}. Selected image format is {}"

@@ -7,7 +7,10 @@
 # -----
 ######
 import sys
-from PyQt6.QtWidgets import QApplication
+import os
+
+from PyQt6 import QtWidgets, QtGui
+from common.utility import resolve_path
 
 from view.init import Init as InitView
 from view.wizard import Wizard as WizardView
@@ -22,9 +25,11 @@ from view.scrapers.entire_website.entire_website import (
 from view.verify_pec import VerifyPec as VerifyPecView
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
+# os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
 
     init = InitView()
     init.init_check()

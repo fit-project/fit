@@ -10,7 +10,7 @@ import os
 import string
 from PIL import Image
 
-from PyQt6 import QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
 from view.error import Error as ErrorView
@@ -24,7 +24,7 @@ from common.constants.view.case import *
 
 
 class CaseFormManager:
-    def __init__(self, form_layout):
+    def __init__(self, form):
         self.controller = CaseController()
         self.cases = self.controller.cases
         self.proceedings = TypesProceedingsController().proceedings
@@ -34,52 +34,41 @@ class CaseFormManager:
         self.logo_height = ""
         self.logo_width = ""
 
-        self.form_layout = form_layout
-        self.field_role_items = [
-            self.form_layout.itemAt(i) for i in range(self.form_layout.count())
-        ]
+        self.form = form
+        self.name = self.form.findChild(QtWidgets.QComboBox, "name")
+        self.proceeding_type = self.form.findChild(
+            QtWidgets.QComboBox, "proceeding_type"
+        )
 
-        self.name = None
-        self.proceeding_type = None
+        self.logo_preview = None
 
         self.__set_logo_info()
-
-        self.__set_current_cases()
         self.__set_current_proceeding_type()
+        self.set_current_cases()
 
-    def __get_widget_from_object_name(self, object_name):
-        __widget = None
-
-        for item in self.field_role_items:
-            if isinstance(item, QtWidgets.QWidgetItem):
-                if item.widget().objectName() == object_name:
-                    __widget = item.widget()
-                    break
-            elif isinstance(item, QtWidgets.QHBoxLayout):
-                if (
-                    object_name == "logo"
-                    and item.itemAt(1).widget().objectName() == "logo"
-                ):
-                    __widget = item.itemAt(1).widget()
-                    break
-                elif item.itemAt(0).widget().objectName() == object_name:
-                    __widget = item.widget()
-                    break
-
-        return __widget
+        self.name.currentTextChanged.connect(self.__validate_input)
 
     def __set_logo_info(self):
-        for item in self.field_role_items:
-            if (
-                isinstance(item, QtWidgets.QHBoxLayout)
-                and item.objectName() == "logo_layout_path"
-            ):
-                self.logo_preview = item.itemAt(0).widget()
-                self.logo_preview.setVisible(False)
-                self.logo_path = item.itemAt(1).widget()
-                self.logo_button = item.itemAt(2).widget()
+        logo_container = self.form.findChild(QtWidgets.QFrame, "logo_container")
+
+        for item in logo_container.children():
+            if isinstance(item, QtWidgets.QLineEdit):
+                self.logo_path = item
+            elif isinstance(item, QtWidgets.QPushButton):
+                self.logo_button = item
                 self.logo_button.clicked.connect(self.__select_logo)
-                break
+            elif isinstance(item, QtWidgets.QHBoxLayout):
+                self.logo_layout = item
+            elif isinstance(item, QtWidgets.QLabel):
+                self.logo_label = item
+
+        self.logo_label.setToolTip(
+            LOGO_INFO.format(
+                self.logo_minimum_width,
+                "/".join(self.logo_formats),
+                "/".join(self.logo_background),
+            )
+        )
 
     def __check_selected_logo(self, file_name):
         err_msg = ""
@@ -134,6 +123,7 @@ class CaseFormManager:
     def __validate_input(self, text):
         valid_text = self.__remove_chars(text)
         self.name.setEditText(valid_text)
+        self.set_case_information()
 
     def __remove_chars(self, text):
         valid_characters = string.ascii_letters + string.digits + "_-"
@@ -148,27 +138,30 @@ class CaseFormManager:
     def set_index_from_case_id(self, case_id):
         self.name.setCurrentIndex(self.name.findData(case_id))
 
-    def __set_current_cases(self):
-        item = self.__get_widget_from_object_name("name")
-        if isinstance(item, QtWidgets.QComboBox):
-            self.name = item
-            self.name.editTextChanged.connect(self.__validate_input)
-            self.name.clear()
-            for case in self.cases:
-                self.name.addItem(case["name"], case["id"])
-            self.name.setCurrentIndex(-1)
+    def set_current_cases(self):
+        self.name.clear()
+        self.name.lineEdit().setPlaceholderText(SELECT_CASE_NAME)
+
+        for case in self.cases:
+            self.name.addItem(case["name"], case["id"])
+
+        self.name.setCurrentIndex(-1)
 
     def __set_current_proceeding_type(self):
-        item = self.__get_widget_from_object_name("proceeding_type")
-        if isinstance(item, QtWidgets.QComboBox):
-            self.proceeding_type = item
-            self.proceeding_type.clear()
-            for proceedings in self.proceedings:
-                self.proceeding_type.addItem(proceedings["name"], proceedings["id"])
+        self.proceeding_type.clear()
+        self.proceeding_type.lineEdit().setPlaceholderText(SELECT_PROCEEDING_TYPE)
+        self.proceeding_type.lineEdit().setReadOnly(True)
 
-            self.proceeding_type.setCurrentIndex(-1)
+        for proceedings in self.proceedings:
+            self.proceeding_type.addItem(proceedings["name"], proceedings["id"])
+
+        self.proceeding_type.setCurrentIndex(-1)
 
     def __set_logo_preview(self, data):
+        if self.logo_preview is None:
+            self.logo_preview = QtWidgets.QLabel()
+            self.logo_layout.insertWidget(0, self.logo_preview)
+
         qp = QtGui.QPixmap()
         qp.loadFromData(data)
 
@@ -182,12 +175,13 @@ class CaseFormManager:
         qp = qp.scaledToHeight(self.logo_path.height())
         self.logo_preview.setPixmap(qp)
         self.logo_path.setVisible(False)
-        self.logo_preview.setVisible(True)
         self.logo_button.setText(SELECT_FULL_LOGO)
 
     def __unset_logo_preview(self):
-        self.logo_preview.setPixmap(QtGui.QPixmap())
-        self.logo_preview.setVisible(False)
+        if self.logo_preview is not None:
+            self.logo_preview.setPixmap(QtGui.QPixmap())
+            self.logo_preview.setVisible(False)
+
         self.logo_height = ""
         self.logo_width = ""
         self.logo_path.setText("")
@@ -199,6 +193,7 @@ class CaseFormManager:
             (item for item in self.cases if item["name"] == self.name.currentText()),
             None,
         )
+
         if case_info is not None:
             for keyword, value in case_info.items():
                 if keyword == "logo_bin":
@@ -207,14 +202,15 @@ class CaseFormManager:
                     else:
                         self.__unset_logo_preview()
 
-                item = self.__get_widget_from_object_name(keyword)
+                item = self.form.findChild(QtCore.QObject, keyword)
+
                 if item is not None:
                     if isinstance(item, QtWidgets.QLineEdit) is not False:
                         if value is not None:
                             item.setText(str(value))
-                    if isinstance(item, QtWidgets.QTextEdit) is not False:
+                    if isinstance(item, QtWidgets.QPlainTextEdit) is not False:
                         if value is not None:
-                            item.setText(str(value))
+                            item.setPlainText(str(value))
                     if isinstance(item, QtWidgets.QComboBox):
                         if keyword in "proceeding_type":
                             proceeding_type = next(
@@ -235,14 +231,17 @@ class CaseFormManager:
             self.__clear_case_information()
 
     def __clear_case_information(self):
-        for item in self.field_role_items:
-            if isinstance(item, QtWidgets.QWidgetItem):
-                if isinstance(item.widget(), QtWidgets.QLineEdit) or isinstance(
-                    item.widget(), QtWidgets.QTextEdit
-                ):
-                    item.widget().setText("")
-                elif isinstance(item.widget(), QtWidgets.QLineEdit):
-                    item.widget().setCurrentIndex(-1)
+
+        for item in self.form.children():
+            if isinstance(item, QtWidgets.QLineEdit):
+                item.setText("")
+            elif isinstance(item, QtWidgets.QPlainTextEdit):
+                item.setPlainText("")
+            elif (
+                isinstance(item, QtWidgets.QComboBox)
+                and item.objectName() == "proceeding_type"
+            ):
+                item.setCurrentIndex(-1)
 
         self.__unset_logo_preview()
 
@@ -252,8 +251,7 @@ class CaseFormManager:
         )
 
         for keyword in self.controller.keys:
-            item = self.__get_widget_from_object_name(keyword)
-
+            item = self.form.findChild(QtCore.QObject, keyword)
             if item is not None:
                 if isinstance(item, QtWidgets.QComboBox):
                     item = item.currentText()
@@ -277,7 +275,7 @@ class CaseFormManager:
                     else:
                         item = ""
 
-                elif isinstance(item, QtWidgets.QTextEdit) is not False:
+                elif isinstance(item, QtWidgets.QPlainTextEdit) is not False:
                     if item.toPlainText():
                         item = item.toPlainText()
                     else:

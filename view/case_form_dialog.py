@@ -27,11 +27,11 @@ class CaseFormDialog(QtWidgets.QDialog):
         self.case_info = case_info
 
         case_name = self.case_info.get("name")
-        case_form_layout = self.findChild(QtWidgets.QFormLayout, "case_form_layout")
-        self.form_manager = CaseFormManager(case_form_layout)
+        self.form_manager = CaseFormManager(self.findChild(QtWidgets.QFrame, "form"))
 
         self.name = self.findChild(QtWidgets.QComboBox, "name")
         self.name.setCurrentText(case_name)
+        self.name.lineEdit().setReadOnly(True)
 
         if case_name not in self.form_manager.controller.names:
             self.form_manager.cases.append(self.case_info)
