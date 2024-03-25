@@ -179,3 +179,4 @@ pyrightconfig.json
 fit.db
 fit.db-shm
 fit.db-wal
+.DS_Store
