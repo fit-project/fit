@@ -9,10 +9,12 @@
 
 import os
 
-from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
+from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 
 from view.error import Error as ErrorView
+from view.clickable_label import ClickableLabel
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
+
 
 from common.utility import *
 from common.constants.view.init import *
@@ -149,3 +151,35 @@ class Init(QtCore.QObject):
                         str(e),
                     )
                     error_dlg.exec()
+
+        if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
+            dialog = QtWidgets.QDialog()
+            uic.loadUi(resolve_path("ui/dialog/fit-new-version.ui"), dialog)
+
+            parser = ConfigParser()
+            parser.read(resolve_path("assets/config.ini"))
+            url = parser.get("fit_properties", "fit_latest_download_url")
+
+            # HIDE STANDARD TITLE BAR
+            dialog.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+            dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
+            # CLOSE BUTTON
+            close_app_button = dialog.findChild(QtWidgets.QPushButton, "closeButton")
+            close_app_button.clicked.connect(dialog.close)
+
+            # CLOSE BUTTON
+            layout = dialog.findChild(QtWidgets.QVBoxLayout, "contentBoxLayout")
+            text = dialog.findChild(QtWidgets.QLabel, "text")
+
+            text.setText(FIT_NEW_VERSION_MSG)
+            label_url = ClickableLabel(url)
+            label_url.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+            font = QtGui.QFont()
+            font.setPointSize(18)
+            label_url.setFont(font)
+            label_url.setText(FIT_NEW_VERSION_DOWNLOAD)
+
+            layout.addWidget(label_url)
+
+            dialog.exec()

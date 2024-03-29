@@ -193,7 +193,7 @@ class Wizard(QtWidgets.QMainWindow):
     def __get_version(self):
         parser = ConfigParser()
         parser.read(resolve_path("assets/config.ini"))
-        version = parser.get("fit_properties", "version")
+        version = parser.get("fit_properties", "tag_name")
 
         return version
 
