@@ -9,10 +9,13 @@
 
 from importlib import util
 import distutils.spawn
+from distutils.version import LooseVersion, StrictVersion
 import os
 import sys
 import hashlib
 import ntplib
+
+import re
 
 import urllib.request
 from urllib.parse import urlparse
@@ -103,6 +106,30 @@ def get_npcap_installer_url():
             version = version.replace(" ", "-")
             installer_url = parser.get("fit_properties", "npcap_installer_url")
             return installer_url + version + ".exe"
+        except Exception as e:
+            raise Exception(e)
+
+
+def is_there_a_new_portable_version():
+    parser = ConfigParser()
+    parser.read(resolve_path("assets/config.ini"))
+    url = parser.get("fit_properties", "fit_latest_version_url")
+
+    with requests.get(url, stream=True, timeout=10, verify=False) as response:
+        try:
+            remote_tag_name = response.json()["tag_name"]
+            local_tag_name = parser.get("fit_properties", "tag_name")
+
+            remote_tag_name = re.findall(r"(?:(\d+\.(?:\d+\.)*\d+))", remote_tag_name)
+            local_tag_name = re.findall(r"(?:(\d+\.(?:\d+\.)*\d+))", local_tag_name)
+
+            if (
+                len(remote_tag_name) == 1
+                and len(local_tag_name) == 1
+                and StrictVersion(remote_tag_name[0]) > StrictVersion(local_tag_name[0])
+            ):
+                return True
+            return False
         except Exception as e:
             raise Exception(e)
 
