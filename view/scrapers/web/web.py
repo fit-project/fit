@@ -31,6 +31,9 @@ from view.menu_bar import MenuBar as MenuBarView
 from view.error import Error as ErrorView
 
 
+from controller.case import Case as CaseController
+
+
 from common.constants.view import general
 from common.constants.view.web import *
 from common.constants import logger, details
@@ -154,13 +157,11 @@ class Web(QtWidgets.QMainWindow):
     def start_acquisition(self):
         self.acquisition_is_running = True
 
-        self.acquisition_directory = (
-            self.menu_bar.case_view.form.controller.create_acquisition_directory(
-                "web",
-                self.configuration_general.configuration["cases_folder_path"],
-                self.case_info["name"],
-                self.tabs.currentWidget().url().toString(),
-            )
+        self.acquisition_directory = CaseController().create_acquisition_directory(
+            "web",
+            self.configuration_general.configuration["cases_folder_path"],
+            self.case_info["name"],
+            self.tabs.currentWidget().url().toString(),
         )
 
         if self.acquisition_directory is not None:
