@@ -325,7 +325,7 @@ Content App */
        <string notr="true">font-size: 18px;</string>
       </property>
       <property name="text">
-       <string/>
+       <string>Lorem ipsum dolor sit amet</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignHCenter|Qt::AlignTop</set>
