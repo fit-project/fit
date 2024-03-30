@@ -20,3 +20,6 @@ WAR_NPCAP_NOT_INSTALLED = "Seems <strong>Npcap</strong> it's not installed in yo
 FIT_NEW_VERSION_TITLE = "New version of FIT"
 FIT_NEW_VERSION_MSG = "There is a new version of FIT.<br>You can download it from here:"
 FIT_NEW_VERSION_DOWNLOAD = "FIT download"
+
+USER_IS_NOT_ADMIN_TITLE = "User Privilege"
+USER_IS_NOT_ADMIN_MSG = 'Seems <strong>FIT</strong> is running without admin/root privileges.<br><strong style="color:red">Without this privileges FIT\'s functionality is very limited.</strong><br><br>Do you want exit and restart it whit admin/root privileges?'

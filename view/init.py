@@ -14,10 +14,12 @@ from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 from view.error import Error as ErrorView
 from view.clickable_label import ClickableLabel
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
+from controller.configurations.tabs.network.networktools import NetworkTools
 
 
 from common.utility import *
 from common.constants.view.init import *
+from common.constants.view.general import *
 
 
 class DownloadAndInstallNpcap(QtWidgets.QDialog):
@@ -102,6 +104,33 @@ class Init(QtCore.QObject):
     def __quit(self):
         sys.exit(1)
 
+    def __enable_functionality(self):
+        configuration = NetworkTools().configuration
+        if configuration.get("traceroute") is False:
+            configuration["traceroute"] = True
+            NetworkTools().configuration = configuration
+
+        options = PacketCapture().options
+        if options.get("enabled") is False:
+            options["enabled"] = True
+            PacketCapture().options = options
+
+        self.__quit()
+
+    def __disable_functionality(self, dialog=None):
+        if dialog:
+            dialog.close()
+
+        configuration = NetworkTools().configuration
+        if configuration.get("traceroute") is True:
+            configuration["traceroute"] = False
+            NetworkTools().configuration = configuration
+
+        options = PacketCapture().options
+        if options.get("enabled") is True:
+            options["enabled"] = False
+            PacketCapture().options = options
+
     def init_check(self):
         # Check internet connection
         if check_internet_connection() is False:
@@ -115,6 +144,43 @@ class Init(QtCore.QObject):
             error_dlg.buttonClicked.connect(self.__quit)
 
             error_dlg.exec()
+
+        if is_admin() is False:
+            dialog = QtWidgets.QDialog()
+            uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), dialog)
+
+            # HIDE STANDARD TITLE BAR
+            dialog.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+            dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
+            # TITLE
+            title = dialog.findChild(QtWidgets.QLabel, "titleRightInfo")
+            title.setText(USER_IS_NOT_ADMIN_TITLE)
+
+            # CLOSE BUTTON
+            close_app_button = dialog.findChild(QtWidgets.QPushButton, "closeButton")
+            close_app_button.hide()
+
+            # LEFT BUTTON
+            left_button = dialog.findChild(QtWidgets.QPushButton, "left_button")
+            left_button.setText(YES)
+            left_button.clicked.connect(self.__enable_functionality)
+
+            # RIGHT BUTTON
+            right_button = dialog.findChild(QtWidgets.QPushButton, "right_button")
+            right_button.setText(NO)
+            right_button.clicked.connect(lambda: self.__disable_functionality(dialog))
+
+            # TEXT
+            text = dialog.findChild(QtWidgets.QLabel, "text")
+
+            text.setText(USER_IS_NOT_ADMIN_MSG)
+            text.setStyleSheet("font-size: 13px;")
+
+            contentBox = dialog.findChild(QtWidgets.QFrame, "contentBox")
+            contentBox.adjustSize()
+
+            dialog.exec()
 
         # If os is win check
         if get_platform() == "win":
@@ -153,8 +219,9 @@ class Init(QtCore.QObject):
                     error_dlg.exec()
 
         if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
+
             dialog = QtWidgets.QDialog()
-            uic.loadUi(resolve_path("ui/dialog/fit-new-version.ui"), dialog)
+            uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), dialog)
 
             parser = ConfigParser()
             parser.read(resolve_path("assets/config.ini"))
@@ -164,12 +231,22 @@ class Init(QtCore.QObject):
             dialog.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
             dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
+            # TITLE
+            title = dialog.findChild(QtWidgets.QLabel, "titleRightInfo")
+            title.setText(FIT_NEW_VERSION_TITLE)
+
             # CLOSE BUTTON
             close_app_button = dialog.findChild(QtWidgets.QPushButton, "closeButton")
             close_app_button.clicked.connect(dialog.close)
 
-            # CLOSE BUTTON
+            # HIDE NAVIGATION BUTTON
+            navigationButtons = dialog.findChild(QtWidgets.QFrame, "navigationButtons")
+            navigationButtons.hide()
+
+            # LAYOUT
             layout = dialog.findChild(QtWidgets.QVBoxLayout, "contentBoxLayout")
+
+            # TEXT LABEL
             text = dialog.findChild(QtWidgets.QLabel, "text")
 
             text.setText(FIT_NEW_VERSION_MSG)
@@ -181,5 +258,8 @@ class Init(QtCore.QObject):
             label_url.setText(FIT_NEW_VERSION_DOWNLOAD)
 
             layout.addWidget(label_url)
+
+            contentBox = dialog.findChild(QtWidgets.QFrame, "contentBox")
+            contentBox.adjustSize()
 
             dialog.exec()

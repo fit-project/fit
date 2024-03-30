@@ -9,9 +9,10 @@
 
 from importlib import util
 import distutils.spawn
-from distutils.version import LooseVersion, StrictVersion
+from distutils.version import StrictVersion
 import os
 import sys
+import ctypes
 import hashlib
 import ntplib
 
@@ -61,6 +62,15 @@ def get_platform():
         return "other"
 
     return platforms[sys.platform]
+
+
+def is_admin():
+    is_admin = False
+    try:
+        is_admin = os.getuid() == 0
+    except AttributeError:
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+    return is_admin
 
 
 def resolve_path(path):
