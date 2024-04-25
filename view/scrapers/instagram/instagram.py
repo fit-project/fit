@@ -19,6 +19,8 @@ from view.scrapers.instagram.acquisition import InstagramAcquisition
 from view.menu_bar import MenuBar as MenuBarView
 from view.spinner import Spinner
 
+from controller.case import Case as CaseController
+
 from common.utility import get_platform, resolve_path
 
 from common.constants.view.tasks import status
@@ -150,13 +152,11 @@ class Instagram(QtWidgets.QMainWindow):
     def __start_task(self):
         if self.acquisition_directory is None:
             # Create acquisition directory
-            self.acquisition_directory = (
-                self.menu_bar.case_view.form.controller.create_acquisition_directory(
-                    "instagram",
-                    self.configuration_general.configuration["cases_folder_path"],
-                    self.case_info["name"],
-                    self.login_form.input_profile.text(),
-                )
+            self.acquisition_directory = CaseController().create_acquisition_directory(
+                "instagram",
+                self.configuration_general.configuration["cases_folder_path"],
+                self.case_info["name"],
+                self.login_form.input_profile.text(),
             )
 
         if self.acquisition_directory is not None:

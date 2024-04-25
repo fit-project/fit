@@ -62,6 +62,5 @@ if __name__ == "__main__":
     # Wizard sends a signal when finish button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
-    # init.init_check()
     wizard.show()
     sys.exit(app.exec())

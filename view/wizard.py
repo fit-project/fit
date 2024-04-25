@@ -189,6 +189,7 @@ class Wizard(QtWidgets.QMainWindow):
 
         # Send signal to main loop to start the acquisition window
         self.finished.emit(self.selcted_task, self.case_info)
+        self.hide()
 
     def __get_version(self):
         parser = ConfigParser()
