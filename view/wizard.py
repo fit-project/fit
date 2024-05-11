@@ -41,6 +41,11 @@ class Wizard(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
+        # GET CUSTOM BAR
+        self.custom_bar = self.findChild(QtWidgets.QFrame, "leftBox")
+
+        self.custom_bar.mouseMoveEvent = self.move_window
+
         # SETTING BUTTON
         self.configuration_button = self.findChild(
             QtWidgets.QPushButton, "settingsTopButton"
@@ -52,14 +57,6 @@ class Wizard(QtWidgets.QMainWindow):
             QtWidgets.QPushButton, "minimizeButton"
         )
         self.minimize_app_button.clicked.connect(lambda: self.showMinimized())
-
-        # MAXIMIZE BUTTON
-        self.maximize_restore_app_button = self.findChild(
-            QtWidgets.QPushButton, "maximizeRestoreButton"
-        )
-        self.maximize_restore_app_button.clicked.connect(
-            lambda: self.__maximize_restore_app()
-        )
 
         # CLOSE BUTTON
         self.close_app_button = self.findChild(QtWidgets.QPushButton, "closeButton")
@@ -107,16 +104,16 @@ class Wizard(QtWidgets.QMainWindow):
     def __case_summary(self):
         CaseFormDialog(self.case_info).exec()
 
-    def __maximize_restore_app(self):
-        icon = resolve_path("ui/icons/icon_maximize.png")
-
-        if self.isMaximized():
-            self.showNormal()
-        else:
-            self.showMaximized()
-            icon = resolve_path("ui/icons/icon_restore.png")
-
         self.maximize_restore_app_button.setIcon(QtGui.QIcon(resolve_path(icon)))
+
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPosition().toPoint()
+
+    def move_window(self, event):
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
 
     def __next_page(self):
         if self.pages.currentIndex() == 0:
