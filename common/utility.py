@@ -69,7 +69,11 @@ def is_admin():
     try:
         is_admin = os.getuid() == 0
     except AttributeError:
-        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        if get_platform() == "win":
+            import windows_tools.users as users
+
+            is_admin = users.is_user_local_admin(os.getlogin())
+
     return is_admin
 
 
