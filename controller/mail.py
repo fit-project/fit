@@ -15,7 +15,7 @@ import email.message
 import re
 import sys
 import time
-
+import locale
 import pyzmail
 
 from common.constants import error, details as Details, logger as Logger
@@ -155,8 +155,10 @@ class Mail:
         if subject != "":
             criteria.append(f'(SUBJECT "{subject}")')
 
+        locale.setlocale(locale.LC_ALL, "en_US")
+
         criteria.append(
-            f'(SINCE {from_date.strftime("%d-%b-%Y")} BEFORE {to_date.strftime("%d-%b-%Y")})'
+            f'(SINCE "{from_date.strftime("%d-%b-%Y")}" BEFORE "{to_date.strftime("%d-%b-%Y")}")'
         )
 
         # combine the search criteria

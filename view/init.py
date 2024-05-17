@@ -12,6 +12,7 @@ import os
 from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 
 from view.error import Error as ErrorView
+from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
@@ -140,45 +141,23 @@ class Init(QtCore.QObject):
                 ERR_INTERNET_DISCONNECTED,
                 "",
             )
-
-            error_dlg.buttonClicked.connect(self.__quit)
+            error_dlg.message.setStyleSheet("font-size: 13px;")
+            error_dlg.right_button.clicked.connect(self.__quit)
 
             error_dlg.exec()
 
         if is_admin() is False:
-            dialog = QtWidgets.QDialog()
-            uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), dialog)
 
-            # HIDE STANDARD TITLE BAR
-            dialog.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-            dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
-
-            # TITLE
-            title = dialog.findChild(QtWidgets.QLabel, "titleRightInfo")
-            title.setText(USER_IS_NOT_ADMIN_TITLE)
-
-            # CLOSE BUTTON
-            close_app_button = dialog.findChild(QtWidgets.QPushButton, "closeButton")
-            close_app_button.hide()
-
-            # LEFT BUTTON
-            left_button = dialog.findChild(QtWidgets.QPushButton, "left_button")
-            left_button.setText(YES)
-            left_button.clicked.connect(self.__enable_functionality)
-
-            # RIGHT BUTTON
-            right_button = dialog.findChild(QtWidgets.QPushButton, "right_button")
-            right_button.setText(NO)
-            right_button.clicked.connect(lambda: self.__disable_functionality(dialog))
-
-            # TEXT
-            text = dialog.findChild(QtWidgets.QLabel, "text")
-
-            text.setText(USER_IS_NOT_ADMIN_MSG)
-            text.setStyleSheet("font-size: 13px;")
-
-            contentBox = dialog.findChild(QtWidgets.QFrame, "contentBox")
-            contentBox.adjustSize()
+            dialog = Dialog(
+                USER_IS_NOT_ADMIN_TITLE,
+                USER_IS_NOT_ADMIN_MSG,
+            )
+            dialog.message.setStyleSheet("font-size: 13px;")
+            dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+            dialog.right_button.clicked.connect(
+                lambda: self.__disable_functionality(dialog)
+            )
+            dialog.left_button.clicked.connect(self.__enable_functionality)
 
             dialog.exec()
 

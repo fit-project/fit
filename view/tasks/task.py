@@ -7,8 +7,8 @@
 # -----
 ######
 
-import typing
 from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QStatusBar, QLabel
 
 from common.constants.view.tasks import status as Status, state as State
 from view.tasks.tasks_handler import TasksHandler
@@ -103,7 +103,10 @@ class Task(QObject):
 
     def set_message_on_the_statusbar(self, message):
         if self.status_bar is not None:
-            self.status_bar.showMessage(message)
+            if isinstance(self.status_bar, QStatusBar):
+                self.status_bar.showMessage(message)
+            elif isinstance(self.status_bar, QLabel):
+                self.status_bar.setText(message)
 
     def update_task(self, state, status, details=""):
         self.state = state

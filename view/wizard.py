@@ -43,7 +43,6 @@ class Wizard(QtWidgets.QMainWindow):
 
         # GET CUSTOM BAR
         self.custom_bar = self.findChild(QtWidgets.QFrame, "leftBox")
-
         self.custom_bar.mouseMoveEvent = self.move_window
 
         # SETTING BUTTON
@@ -103,8 +102,6 @@ class Wizard(QtWidgets.QMainWindow):
 
     def __case_summary(self):
         CaseFormDialog(self.case_info).exec()
-
-        self.maximize_restore_app_button.setIcon(QtGui.QIcon(resolve_path(icon)))
 
     def mousePressEvent(self, event):
         self.dragPos = event.globalPosition().toPoint()
