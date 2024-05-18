@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-# import sslkeylog
+
 import os
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from common.constants.view.tasks import labels, state, status
@@ -29,8 +29,7 @@ class SSLKeyLogWorker(QObject):
 
     def start(self):
         self.started.emit()
-        # sslkeylog.set_keylog(os.path.join(self.folder, "sslkey.log"))
-
+        os.environ["SSLKEYLOGFILE"] = os.path.join(self.folder, "sslkey.log")
         self.finished.emit()
 
 
