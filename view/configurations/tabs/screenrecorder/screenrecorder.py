@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtWidgets
 
 from view.configurations.tabs.screenrecorder.codec import Codec as CodecView
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
-    ScreenRecorder as ScreenRecorderController,
+    ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
 __is_tab__ = True
@@ -22,7 +22,7 @@ class ScreenRecorder(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(ScreenRecorder, self).__init__(parent)
 
-        self.controller = ScreenRecorderController()
+        self.controller = ScreenRecorderConfigurationController()
         self.options = self.controller.options
 
         self.setObjectName("configuration_screenrecorder")

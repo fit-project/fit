@@ -21,7 +21,7 @@ from controller.configurations.tabs.packetcapture.packetcapture import (
     PacketCapture as PacketCaptureCotroller,
 )
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
-    ScreenRecorder as ScreenRecorderController,
+    ScreenRecorder as ScreenRecorderConfigurationController,
 )
 from controller.configurations.tabs.timestamp.timestamp import (
     Timestamp as TimestampController,
@@ -81,7 +81,7 @@ class TasksManager(QObject):
                 task == class_names.PACKETCAPTURE
                 and PacketCaptureCotroller().options["enabled"] is False
                 or task == class_names.SCREENRECORDER
-                and ScreenRecorderController().options["enabled"] is False
+                and ScreenRecorderConfigurationController().options["enabled"] is False
                 or task == class_names.TIMESTAMP
                 and TimestampController().options["enabled"] is False
                 or task == class_names.PEC_AND_DOWNLOAD_EML

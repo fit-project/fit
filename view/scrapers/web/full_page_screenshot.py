@@ -15,7 +15,7 @@ from PIL import Image
 from PyQt6.QtCore import QObject, QEventLoop, QTimer, pyqtSignal
 
 
-from common.utility import screenshot_filename
+from view.util import screenshot_filename
 
 
 class FullPageScreenShot(QObject):

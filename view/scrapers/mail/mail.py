@@ -23,15 +23,14 @@ from view.dialog import Dialog, DialogButtonTypes
 from view.error import Error as ErrorView
 from view.spinner import Spinner
 
-from view.util import validate_mail, enable_all, get_version
+from view.util import validate_mail, enable_all
 
 from controller.configurations.tabs.general.general import (
-    General as GeneralConfigurationTab,
+    General as GeneralConfigurationController,
 )
 from controller.case import Case as CaseController
 
-from common.utility import resolve_path
-from common.utility import get_platform
+from common.utility import resolve_path, get_version, get_platform
 
 from common.constants.view.tasks import status
 from common.constants import error, details
@@ -257,7 +256,7 @@ class Mail(QtWidgets.QMainWindow):
             # Create acquisition directory
             self.acquisition_directory = CaseController().create_acquisition_directory(
                 "email",
-                GeneralConfigurationTab().configuration["cases_folder_path"],
+                GeneralConfigurationController().configuration["cases_folder_path"],
                 self.case_info["name"],
                 self.server_configuration.findChild(
                     QtWidgets.QLineEdit, "login"

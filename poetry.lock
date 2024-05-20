@@ -2470,19 +2470,6 @@ pymysql = ["pymysql"]
 sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
-name = "sslkeylog"
-version = "0.4.0"
-description = "Log SSL/TLS keys for decrypting SSL/TLS connections"
-optional = false
-python-versions = "*"
-files = [
-    {file = "sslkeylog-0.4.0.tar.gz", hash = "sha256:53aa145b6c595c2afb62f12fb96af2dc464a650287e99298ed0a9894e5f9af2d"},
-]
-
-[package.extras]
-dev = ["flake8", "mock", "pytest", "pytest-metadata", "six", "sphinx (==4.*)"]
-
-[[package]]
 name = "svglib"
 version = "1.5.1"
 description = "A pure-Python library for reading and converting SVG"
@@ -2887,4 +2874,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "59b06296e2b54b38eaeff65a81790eeba76f9dfa1517dc62a98e6c76ea7163c7"
+content-hash = "3bb8214f9a53ce42f0aac884da1285baf5b045cd7df305550d5bd19aba8ed2fa"

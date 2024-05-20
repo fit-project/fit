@@ -22,6 +22,14 @@ from common.config import LogConfigTools
 from common.constants import logger
 from common.constants.view.tasks import state
 
+from enum import Enum
+
+
+class AcquisitionStatus(Enum):
+    UNSTARTED = 1
+    STARTED = 2
+    STOPED = 3
+
 
 class Acquisition(QObject):
     post_acquisition_is_finished = pyqtSignal()

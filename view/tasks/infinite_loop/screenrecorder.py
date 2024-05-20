@@ -24,7 +24,7 @@ from view.error import Error as ErrorView
 
 from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
-    ScreenRecorder as ScreenRecorderController,
+    ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
 from common.constants import logger, details
@@ -117,7 +117,7 @@ class TaskScreenRecorder(Task):
     @options.setter
     def options(self, options):
         folder = options["acquisition_directory"]
-        options = ScreenRecorderController().options
+        options = ScreenRecorderConfigurationController().options
         options["filename"] = os.path.join(folder, options["filename"])
         self._options = options
 

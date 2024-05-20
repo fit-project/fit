@@ -7,9 +7,17 @@
 # -----
 ######
 
+import os
+import subprocess
+from datetime import datetime
+
 from PyQt6 import QtCore, QtWidgets, QtGui
+from view.configuration import Configuration as ConfigurationView
+from view.dialog import Dialog, DialogButtonTypes
+
 from configparser import ConfigParser
-from common.utility import resolve_path
+from common.utility import resolve_path, get_platform
+from common.constants import logger, details
 
 
 def validate_mail(mail):
@@ -32,9 +40,40 @@ def enable_all(items, enable):
             item.setEnabled(enable)
 
 
-def get_version():
-    parser = ConfigParser()
-    parser.read(resolve_path("assets/config.ini"))
-    version = parser.get("fit_properties", "tag_name")
+def screenshot_filename(path, basename, extention=".png"):
+    return os.path.join(
+        path,
+        basename + "_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S.%f") + extention,
+    )
 
-    return version
+
+def show_configuration_dialog(self):
+    ConfigurationView().exec()
+
+
+def show_finish_acquisition_dialog(acquisition_directory):
+
+    dialog = Dialog(
+        logger.ACQUISITION_FINISHED,
+        details.ACQUISITION_FINISHED,
+    )
+    dialog.message.setStyleSheet("font-size: 13px;")
+    dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+    dialog.right_button.clicked.connect(dialog.close)
+    dialog.left_button.clicked.connect(
+        lambda: __open_acquisition_directory(dialog, acquisition_directory)
+    )
+
+    dialog.exec()
+
+
+def __open_acquisition_directory(dialog, acquisition_directory):
+    platform = get_platform()
+    if platform == "win":
+        os.startfile(acquisition_directory)
+    elif platform == "osx":
+        subprocess.call(["open", acquisition_directory])
+    else:  # platform == 'lin' || platform == 'other'
+        subprocess.call(["xdg-open", acquisition_directory])
+
+    dialog.close()

@@ -7,7 +7,7 @@
 # -----
 ######
 
-from view.acquisition.acquisition import Acquisition
+from view.acquisition.acquisition import Acquisition, AcquisitionStatus
 from PyQt6.QtCore import pyqtSignal
 from view.tasks.class_names import *
 
