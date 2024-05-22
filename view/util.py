@@ -13,10 +13,10 @@ from datetime import datetime
 
 from PyQt6 import QtCore, QtWidgets, QtGui
 from view.configuration import Configuration as ConfigurationView
+from view.case_form_dialog import CaseFormDialog
 from view.dialog import Dialog, DialogButtonTypes
 
-from configparser import ConfigParser
-from common.utility import resolve_path, get_platform
+from common.utility import get_platform
 from common.constants import logger, details
 
 
@@ -47,7 +47,11 @@ def screenshot_filename(path, basename, extention=".png"):
     )
 
 
-def show_configuration_dialog(self):
+def show_case_info_dialog(case_info):
+    CaseFormDialog(case_info).exec()
+
+
+def show_configuration_dialog():
     ConfigurationView().exec()
 
 

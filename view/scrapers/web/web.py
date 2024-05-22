@@ -16,6 +16,7 @@ from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 from view.scrapers.web.web_engine_view import WebEngineView, WebEnginePage
 from view.util import (
     show_configuration_dialog,
+    show_case_info_dialog,
     show_finish_acquisition_dialog,
     screenshot_filename,
 )
@@ -122,6 +123,8 @@ class Web(QtWidgets.QMainWindow):
     def init(self, case_info, wizard, options=None):
         self.wizard = wizard
         self.case_info = case_info
+
+        self.caseButton.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 
         # ACQUISITION
         self.acquisition_manager = WebAcquisition(
