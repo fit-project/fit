@@ -8,6 +8,8 @@
 ######
 
 from PyQt6 import QtCore, QtWidgets
+from view.configurations.tab import Tab
+
 from controller.configurations.tabs.packetcapture.packetcapture import (
     PacketCapture as PacketCaptureController,
 )
@@ -16,58 +18,58 @@ from common.utility import is_npcap_installed, get_platform
 __is_tab__ = True
 
 
-class PacketCapture(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(PacketCapture, self).__init__(parent)
+class PacketCapture(Tab):
+    def __init__(self, tab: QtWidgets.QWidget, name: str):
+        super().__init__(tab, name)
 
-        self.controller = PacketCaptureController()
-        self.options = self.controller.options
+        self.__options = PacketCaptureController().options
 
-        self.setObjectName("configuration_packetcapture")
-
-        self.initUI()
-        self.retranslateUi()
+        self.__init_ui()
         self.__set_current_config_values()
 
-    def initUI(self):
-        # ENABLE CHECKBOX
-        self.enabled_checkbox = QtWidgets.QCheckBox("Packet Capture Recorder", self)
-        self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
-        self.enabled_checkbox.stateChanged.connect(self._is_enabled_packet_capture)
+    def __init_ui(self):
+        # ENABLE PACKET CAPTURE RECORDER
+        self.enable_packet_capture_recorder = self.tab.findChild(
+            QtWidgets.QCheckBox, "enable_packet_capture_recorder"
+        )
+
+        self.enable_packet_capture_recorder.stateChanged.connect(
+            self._is_enabled_packet_capture
+        )
         if get_platform() == "win":
-            self.enabled_checkbox.setEnabled(is_npcap_installed())
+            self.enable_packet_capture_recorder.setEnabled(is_npcap_installed())
 
-        self.enabled_checkbox.setObjectName("enabled")
-
-        # FILE NAME
-        self.group_box_filename = QtWidgets.QGroupBox(self)
-        self.group_box_filename.setGeometry(QtCore.QRect(10, 90, 661, 91))
-        self.group_box_filename.setObjectName("group_box_filename")
-        self.filename = QtWidgets.QLineEdit(self.group_box_filename)
-        self.filename.setGeometry(QtCore.QRect(20, 40, 601, 22))
-        self.filename.setObjectName("filename")
-
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("PacketCapture", "Packet Capture Options"))
-        self.group_box_filename.setTitle(_translate("PacketCapture", "File Name"))
+        # PACKET CAPTURE RECORDER FILENAME
+        self.packet_capture_recorder_filename = self.tab.findChild(
+            QtWidgets.QLineEdit, "packet_capture_recorder_filename"
+        )
 
     def _is_enabled_packet_capture(self):
-        self.group_box_filename.setEnabled(self.enabled_checkbox.isChecked())
+        self.packet_capture_recorder_filename.setEnabled(
+            self.enable_packet_capture_recorder.isChecked()
+        )
 
     def __set_current_config_values(self):
-        enabled = self.controller.options["enabled"]
+        enabled = self.__options["enabled"]
         if get_platform() == "win":
             if is_npcap_installed() is False and enabled == True:
                 enabled = False
 
-        self.enabled_checkbox.setChecked(enabled)
-        self.filename.setText(self.controller.options["filename"])
+        self.enable_packet_capture_recorder.setChecked(enabled)
+        self.packet_capture_recorder_filename.setText(self.__options["filename"])
         self._is_enabled_packet_capture()
 
     def __get_current_values(self):
-        for keyword in self.options:
-            item = self.findChild(QtCore.QObject, keyword)
+        for keyword in self.__options:
+            __keyword = keyword
+
+            # REMAPPING KEYWORD
+            if keyword == "enabled":
+                __keyword = "enable_packet_capture_recorder"
+            elif keyword == "filename":
+                __keyword = "packet_capture_recorder_filename"
+
+            item = self.tab.findChild(QtCore.QObject, __keyword)
 
             if item is not None:
                 if isinstance(item, QtWidgets.QLineEdit) is not False and item.text():
@@ -75,11 +77,8 @@ class PacketCapture(QtWidgets.QWidget):
                 elif isinstance(item, QtWidgets.QCheckBox):
                     item = item.isChecked()
 
-                self.options[keyword] = item
+                self.__options[keyword] = item
 
-    def accept(self) -> None:
+    def accept(self):
         self.__get_current_values()
-        self.controller.options = self.options
-
-    def reject(self) -> None:
-        pass
+        PacketCaptureController().options = self.__options

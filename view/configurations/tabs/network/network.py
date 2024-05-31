@@ -113,6 +113,3 @@ class Network(Tab):
         self.__get_current_values()
         NetworkToolsController().configuration = self.__configuration_network_tools
         NetworkCheckController().configuration = self.__configuration_network_check
-
-    def reject(self) -> None:
-        pass
