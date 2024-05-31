@@ -24,7 +24,7 @@ from common.utility import resolve_path
 from common.constants.view.pec import pec, search_pec
 from common.constants import error
 
-__is_tab__ = True
+__is_tab__ = False
 
 
 class Pec(QtWidgets.QWidget):

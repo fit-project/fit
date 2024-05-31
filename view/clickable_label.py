@@ -14,19 +14,19 @@ from PyQt6.QtCore import Qt
 
 
 class ClickableLabel(QLabel):
-    def __init__(self, url, parent=None):
+    def __init__(self, url, text, parent=None):
         super().__init__(parent)
-        self.setStyleSheet("color: #0067C0;")
 
         self.url = url
+        self.setText(text)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             webbrowser.open(self.url)
 
     def enterEvent(self, event):
-        self.setStyleSheet("color: #0067C0; text-decoration: underline;")
+        self.setStyleSheet("text-decoration: underline;")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def leaveEvent(self, event):
-        self.setStyleSheet("color: #0067C0; text-decoration: none;")
+        self.setStyleSheet("text-decoration: none;")

@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import os
-from PyQt6 import QtCore, QtWidgets, QtGui, uic
+
+from PyQt6 import QtCore, QtWidgets, uic
 from common.utility import resolve_path
 from common.constants.view.general import *
 from enum import Enum

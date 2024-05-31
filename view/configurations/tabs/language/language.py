@@ -7,67 +7,51 @@
 # -----
 ######
 
-from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtWidgets import QComboBox
+
+from PyQt6 import QtWidgets
+from view.configurations.tab import Tab
+
 
 from controller.configurations.tabs.language.language import (
     Language as LanguageController,
 )
 
+from common.constants.view.configurations.language import *
+
+
+import os
+
 __is_tab__ = True
 
 
-class Language(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(Language, self).__init__(parent)
+class Language(Tab):
 
-        self.controller = LanguageController()
-        self.options = self.controller.options
+    def __init__(self, tab: QtWidgets.QWidget, name: str):
+        super().__init__(tab, name)
 
-        self.setObjectName("configuration_language")
-
-        self.initUI()
-        self.retranslateUi()
+        self.__options = LanguageController().options
+        self.__init_ui()
         self.__set_current_config_values()
 
-    def initUI(self):
-        # LANGUAGE
-        self.group_box_language = QtWidgets.QGroupBox(self)
-        self.group_box_language.setGeometry(QtCore.QRect(10, 90, 661, 91))
-        self.group_box_language.setObjectName("group_box_language")
+    def __init_ui(self):
 
-        self.language = QComboBox(self.group_box_language)
-        self.language.addItem("Italian")
-        self.language.addItem("English")
-        self.language.setGeometry(QtCore.QRect(20, 40, 601, 22))
-        self.language.setObjectName("language")
+        # REPORT LANGUAGE
+        self.report_language = self.tab.findChild(
+            QtWidgets.QComboBox, "report_language"
+        )
 
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Language", "Language Options"))
-        self.group_box_language.setTitle(_translate("Language", "Report Language"))
+        self.report_language.addItem(ITALIAN)
+        self.report_language.addItem(ENGLISH)
+
+        self.report_language.lineEdit().setReadOnly(True)
+        self.report_language.lineEdit().setPlaceholderText(REPORT_LANGUAGE)
 
     def __set_current_config_values(self):
-        self.language.setCurrentText(self.controller.options["language"])
+        self.report_language.setCurrentText(self.__options["language"])
 
     def __get_current_values(self):
-        for keyword in self.options:
-            item = self.findChild(QtCore.QObject, keyword)
+        self.__options["language"] = self.report_language.currentText()
 
-            if item is not None:
-                if (
-                    isinstance(item, QtWidgets.QComboBox) is not False
-                    and item.currentText()
-                ):
-                    item = item.currentText()
-                elif isinstance(item, QtWidgets.QCheckBox):
-                    item = item.isChecked()
-
-                self.options[keyword] = item
-
-    def accept(self) -> None:
+    def accept(self):
         self.__get_current_values()
-        self.controller.options = self.options
-
-    def reject(self) -> None:
-        pass
+        LanguageController().options = self.__options

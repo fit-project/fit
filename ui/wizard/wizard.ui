@@ -987,7 +987,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>1</number>
+                      <number>0</number>
                      </property>
                      <widget class="QWidget" name="page1">
                       <widget class="QFrame" name="case_info">
@@ -2497,7 +2497,7 @@ Button */
                   <property name="font">
                    <font>
                     <family>Segoe UI</family>
-                    <pointsize>11</pointsize>
+                    <pointsize>-1</pointsize>
                     <weight>50</weight>
                     <italic>false</italic>
                     <bold>false</bold>
