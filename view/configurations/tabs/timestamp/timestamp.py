@@ -8,6 +8,8 @@
 ######
 
 from PyQt6 import QtCore, QtWidgets
+from view.configurations.tab import Tab
+
 from controller.configurations.tabs.timestamp.timestamp import (
     Timestamp as TimestampController,
 )
@@ -15,69 +17,60 @@ from controller.configurations.tabs.timestamp.timestamp import (
 __is_tab__ = True
 
 
-class Timestamp(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(Timestamp, self).__init__(parent)
+class Timestamp(Tab):
+    def __init__(self, tab: QtWidgets.QWidget, name: str):
+        super().__init__(tab, name)
 
-        self.controller = TimestampController()
-        self.options = self.controller.options
+        self.__options = TimestampController().options
 
-        self.setObjectName("configuration_timestamp")
-
-        self.initUI()
-        self.retranslateUi()
+        self.__init_ui()
         self.__set_current_config_values()
 
-    def initUI(self):
-        # ENABLE CHECKBOX
-        self.enabled_checkbox = QtWidgets.QCheckBox("Timestamp application", self)
-        self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
-        self.enabled_checkbox.stateChanged.connect(
-            self._is_enabled_timestamp_application
+    def __init_ui(self):
+        # ENABLE TIMESTAMP
+        self.enable_timestamp = self.tab.findChild(
+            QtWidgets.QCheckBox, "enable_timestamp"
         )
-        self.enabled_checkbox.setObjectName("enabled")
 
-        # SERVER GROUPBOX
-        self.group_box_server = QtWidgets.QGroupBox(self)
-        self.group_box_server.setGeometry(QtCore.QRect(10, 90, 670, 150))
-        self.group_box_server.setObjectName("group_box_server")
+        self.enable_timestamp.stateChanged.connect(self._is_enabled_timestamp)
 
-        # SERVER NAME GROUPBOX
-        self.group_box_server_name = QtWidgets.QGroupBox(self)
-        self.group_box_server_name.setGeometry(QtCore.QRect(30, 120, 300, 80))
-        self.group_box_server_name.setObjectName("group_box_server_name")
-        self.server_name = QtWidgets.QLineEdit(self.group_box_server_name)
-        self.server_name.setGeometry(QtCore.QRect(20, 40, 250, 22))
-        self.server_name.setObjectName("server_name")
+        # TIMESTAMP SETTINGS BOX
+        self.timestamp_settings = self.tab.findChild(
+            QtWidgets.QFrame, "timestamp_settings"
+        )
 
-        # CERT URL GROUPBOX
-        self.group_box_cert_url = QtWidgets.QGroupBox(self)
-        self.group_box_cert_url.setGeometry(QtCore.QRect(350, 120, 300, 80))
-        self.group_box_cert_url.setObjectName("group_box_cert_url")
-        self.cert_url = QtWidgets.QLineEdit(self.group_box_cert_url)
-        self.cert_url.setGeometry(QtCore.QRect(20, 40, 250, 22))
-        self.cert_url.setObjectName("cert_url")
+        # TIMESTAMP SERVER NAME
+        self.timestamp_server_name = self.tab.findChild(
+            QtWidgets.QLineEdit, "timestamp_server_name"
+        )
 
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Timestamp", "Timestamp Options"))
-        self.group_box_server.setTitle(_translate("Timestamp", "Server"))
-        self.group_box_server_name.setTitle(_translate("Timestamp", "Server Name"))
-        self.group_box_cert_url.setTitle(_translate("Timestamp", "Certificate Url"))
+        # TIMESTAMP CERTIFICATE URL
+        self.timestamp_certificate_url = self.tab.findChild(
+            QtWidgets.QLineEdit, "timestamp_certificate_url"
+        )
 
-    def _is_enabled_timestamp_application(self):
-        self.group_box_server_name.setEnabled(self.enabled_checkbox.isChecked())
-        self.group_box_cert_url.setEnabled(self.enabled_checkbox.isChecked())
+    def _is_enabled_timestamp(self):
+        self.timestamp_settings.setEnabled(self.enable_timestamp.isChecked())
 
     def __set_current_config_values(self):
-        self.enabled_checkbox.setChecked(self.controller.options["enabled"])
-        self.server_name.setText(self.controller.options["server_name"])
-        self.cert_url.setText(self.controller.options["cert_url"])
-        self._is_enabled_timestamp_application()
+        self.enable_timestamp.setChecked(self.__options["enabled"])
+        self.timestamp_server_name.setText(self.__options["server_name"])
+        self.timestamp_certificate_url.setText(self.__options["cert_url"])
+        self._is_enabled_timestamp()
 
     def __get_current_values(self):
-        for keyword in self.options:
-            item = self.findChild(QtCore.QObject, keyword)
+        for keyword in self.__options:
+            __keyword = keyword
+
+            # REMAPPING KEYWORD
+            if keyword == "enabled":
+                __keyword = "enable_timestamp"
+            elif keyword == "server_name":
+                __keyword = "timestamp_server_name"
+            elif keyword == "cert_url":
+                __keyword = "timestamp_certificate_url"
+
+            item = self.tab.findChild(QtCore.QObject, __keyword)
 
             if item is not None:
                 if isinstance(item, QtWidgets.QLineEdit) is not False and item.text():
@@ -85,11 +78,8 @@ class Timestamp(QtWidgets.QWidget):
                 elif isinstance(item, QtWidgets.QCheckBox):
                     item = item.isChecked()
 
-                self.options[keyword] = item
+                self.__options[keyword] = item
 
-    def accept(self) -> None:
+    def accept(self):
         self.__get_current_values()
-        self.controller.options = self.options
-
-    def reject(self) -> None:
-        pass
+        TimestampController().options = self.__options

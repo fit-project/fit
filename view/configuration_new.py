@@ -103,15 +103,7 @@ class Configuration(QtWidgets.QDialog):
                         classname2objectname.__dict__.get(class_name.upper())
                     )
 
-                    if (
-                        ui_tab
-                        and class_name == "General"
-                        or class_name == "Language"
-                        or class_name == "Network"
-                        or class_name == "PacketCapture"
-                        or class_name == "Pec"
-                        or class_name == "ScreenRecorder"
-                    ):
+                    if ui_tab:
                         tab_class = getattr(sys.modules[modname], class_name)
                         tab = tab_class(
                             ui_tab, tabs.__dict__.get(ui_tab.objectName().upper())
