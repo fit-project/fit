@@ -22,6 +22,4 @@ IMAP_FOUND_EMAILS = "Emails found"
 TWO_FACTOR_AUTH_URL = (
     "https://github.com/fit-project/fit/wiki/Two-Factor-Authentication"
 )
-TWO_FACTOR_AUTH = (
-    "In case you enabled Two Factor Authentication (2FA), please read this guide"
-)
+TWO_FACTOR_AUTH = "In case you enabled 2FA, please read this guide"

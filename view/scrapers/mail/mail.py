@@ -15,8 +15,7 @@ from PyQt6 import QtCore, QtWidgets, QtGui, uic
 
 
 from view.scrapers.mail.acquisition import MailAcquisition
-from view.scrapers.mail.clickable_label import ClickableLabel
-
+from view.clickable_label import ClickableLabel as ClickableLabelView
 from view.error import Error as ErrorView
 from view.spinner import Spinner
 
@@ -75,9 +74,9 @@ class Mail(QtWidgets.QMainWindow):
 
         # SET VERSION
         self.version.setText("v" + get_version())
-
-        self.label_two_factor_auth = ClickableLabel()
-        self.server_configuration_vlayout.addWidget(self.label_two_factor_auth)
+        self.server_configuration_vlayout.addWidget(
+            ClickableLabelView(mail.TWO_FACTOR_AUTH_URL, mail.TWO_FACTOR_AUTH)
+        )
 
         # SERVER INPUT FIELDS
         self.server_configuration_fields = self.server_configuration.findChildren(
@@ -121,11 +120,7 @@ class Mail(QtWidgets.QMainWindow):
 
         # DOWNLOAD BUTTON
         self.download_button.clicked.connect(self.__download)
-        self.__retranslate_ui()
-
-    def __retranslate_ui(self):
         self.download_button.setText(search_pec.DOWNLOAD_BUTTON)
-        self.label_two_factor_auth.setText(mail.TWO_FACTOR_AUTH)
 
     def mousePressEvent(self, event):
         self.dragPos = event.globalPosition().toPoint()

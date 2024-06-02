@@ -940,6 +940,12 @@ Button */
                 </property>
                 <item>
                  <widget class="QFrame" name="leftContent">
+                  <property name="maximumSize">
+                   <size>
+                    <width>350</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
                   <layout class="QVBoxLayout" name="verticalLayout_9">
                    <property name="leftMargin">
                     <number>0</number>
@@ -948,7 +954,7 @@ Button */
                     <number>0</number>
                    </property>
                    <property name="rightMargin">
-                    <number>5</number>
+                    <number>0</number>
                    </property>
                    <property name="bottomMargin">
                     <number>0</number>
@@ -1366,7 +1372,7 @@ Button */
                           </property>
                           <property name="dateTime">
                            <datetime>
-                            <hour>20</hour>
+                            <hour>19</hour>
                             <minute>0</minute>
                             <second>0</second>
                             <year>1999</year>

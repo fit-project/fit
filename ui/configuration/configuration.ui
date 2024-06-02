@@ -1018,7 +1018,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>4</number>
+                      <number>2</number>
                      </property>
                      <widget class="QWidget" name="general">
                       <property name="maximumSize">
@@ -1537,7 +1537,7 @@ Button */
                           <item>
                            <widget class="QLabel" name="enable_network_tools_box_title">
                             <property name="text">
-                             <string>ENABLE NETWORK TOOLS</string>
+                             <string>Enable network tools</string>
                             </property>
                             <property name="margin">
                              <number>0</number>
@@ -1603,7 +1603,7 @@ Button */
                           <item>
                            <widget class="QLabel" name="network_check_box_title">
                             <property name="text">
-                             <string>NETWORK CHECK</string>
+                             <string>Network check</string>
                             </property>
                             <property name="scaledContents">
                              <bool>false</bool>
