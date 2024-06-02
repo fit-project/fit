@@ -24,6 +24,11 @@ from view.error import Error as ErrorView
 from view.spinner import Spinner
 
 
+from controller.configurations.tabs.general.general import (
+    General as GeneralConfigurationController,
+)
+
+
 from common.constants.view.tasks import status
 from common.constants import details, logger
 
@@ -89,10 +94,6 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.form.selector_button.clicked.connect(self.__select)
         self.form.scrape_button.clicked.connect(self.__download)
 
-        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
-            "configuration_general"
-        )
-
         self.acquisition_manager = EntireWebsiteAcquisition(
             logging.getLogger(__name__),
             self.progress_bar,
@@ -132,18 +133,18 @@ class EntireWebsite(QtWidgets.QMainWindow):
                 loop = QtCore.QEventLoop()
                 QtCore.QTimer.singleShot(1000, loop.quit)
                 loop.exec()
-                self.acquisition_manager.options[
-                    "start_url"
-                ] = self.form.input_url.text()
+                self.acquisition_manager.options["start_url"] = (
+                    self.form.input_url.text()
+                )
 
                 radio_buttons = self.form.load_type_widget.findChildren(
                     QtWidgets.QRadioButton
                 )
                 for radio_button in radio_buttons:
                     if radio_button.isChecked():
-                        self.acquisition_manager.options[
-                            "load_type"
-                        ] = radio_button.objectName()
+                        self.acquisition_manager.options["load_type"] = (
+                            radio_button.objectName()
+                        )
 
                 self.acquisition_manager.get_sitemap()
             elif self.acquisition_manager.caller_function_name == "__add_url":
@@ -158,7 +159,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
             self.acquisition_directory = (
                 self.menu_bar.case_view.form.controller.create_acquisition_directory(
                     "entire_website",
-                    self.configuration_general.configuration["cases_folder_path"],
+                    GeneralConfigurationController().configuration["cases_folder_path"],
                     self.case_info["name"],
                     self.form.input_url.text(),
                 )

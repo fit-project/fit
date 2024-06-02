@@ -22,6 +22,10 @@ from view.menu_bar import MenuBar as MenuBarView
 
 from view.spinner import Spinner
 
+from controller.configurations.tabs.general.general import (
+    General as GeneralConfigurationController,
+)
+
 
 from common.constants import details, logger
 from common.constants.view import general
@@ -92,10 +96,6 @@ class Video(QtWidgets.QMainWindow):
         self.download_button.setFont(font)
         self.download_button.clicked.connect(self.__download)
         self.download_button.setEnabled(False)
-
-        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
-            "configuration_general"
-        )
 
         # ACQUISITION
         self.is_acquisition_running = False
@@ -196,7 +196,7 @@ class Video(QtWidgets.QMainWindow):
             self.acquisition_directory = (
                 self.menu_bar.case_view.form.controller.create_acquisition_directory(
                     "video",
-                    self.configuration_general.configuration["cases_folder_path"],
+                    GeneralConfigurationController().configuration["cases_folder_path"],
                     self.case_info["name"],
                     self.form.input_url.text(),
                 )

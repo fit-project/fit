@@ -21,6 +21,10 @@ from view.spinner import Spinner
 
 from controller.case import Case as CaseController
 
+from controller.configurations.tabs.general.general import (
+    General as GeneralConfigurationController,
+)
+
 from common.utility import get_platform, resolve_path
 
 from common.constants.view.tasks import status
@@ -79,17 +83,6 @@ class Instagram(QtWidgets.QMainWindow):
         self.progress_bar.setHidden(True)
         self.status.addPermanentWidget(self.progress_bar)
         self.setStatusBar(self.status)
-
-        self.configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
-            "configuration_general"
-        )
-
-        # Get timestamp parameters
-        self.configuration_timestamp = (
-            self.menu_bar.configuration_view.get_tab_from_name(
-                "configuration_timestamp"
-            )
-        )
 
         self.login_form = InstagramLoginForm(self.centralwidget)
         self.login_form.login_button.clicked.connect(self.__login)
@@ -154,7 +147,7 @@ class Instagram(QtWidgets.QMainWindow):
             # Create acquisition directory
             self.acquisition_directory = CaseController().create_acquisition_directory(
                 "instagram",
-                self.configuration_general.configuration["cases_folder_path"],
+                GeneralConfigurationController().configuration["cases_folder_path"],
                 self.case_info["name"],
                 self.login_form.input_profile.text(),
             )
