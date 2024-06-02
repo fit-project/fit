@@ -7,54 +7,73 @@
 # -----
 ######
 
-from PyQt6 import QtCore, QtGui, QtWidgets
-
 import sys
-import re
-
-
-import view.configurations
 import pkgutil
 from inspect import isclass
 from importlib import import_module
+
+from PyQt6 import QtCore, QtWidgets, uic
+
+import view.configurations
+from view.configurations import classname2objectname
+
+from common.constants.view.configurations import tabs
+from common.utility import resolve_path, get_version
+
+from ui.configuration import resources
 
 
 class Configuration(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Configuration, self).__init__(parent)
 
-        self.setObjectName("ConfigurationView")
-        self.resize(722, 480)
+        self.__tabs = list()
+        self.__init_ui()
 
-        self.setWindowFlags(
-            self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
-        )
-        self.tabs = QtWidgets.QTabWidget(self)
-        self.tabs.setGeometry(QtCore.QRect(0, 0, 721, 431))
-        self.tabs.setObjectName("tabs")
+    def __init_ui(self):
+        uic.loadUi(resolve_path("ui/configuration/dialog.ui"), self)
 
-        self.load_tabs()
-        self.retranslateUi()
+        # HIDE STANDARD TITLE BAR
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        self.buttonBox = QtWidgets.QDialogButtonBox(self)
-        self.buttonBox.setGeometry(QtCore.QRect(520, 440, 192, 28))
-        self.buttonBox.setStandardButtons(
-            QtWidgets.QDialogButtonBox.StandardButton.Cancel
-            | QtWidgets.QDialogButtonBox.StandardButton.Save
-        )
+        # SET TOP BAR
+        self.topBarLeftBox.mouseMoveEvent = self.move_window
+        self.minimizeButton.clicked.connect(self.showMinimized)
+        self.closeButton.clicked.connect(self.close)
 
-        self.buttonBox.setObjectName("buttonBox")
+        # SET VERSION
+        self.version.setText("v" + get_version())
 
-        self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.reject)
+        # CANCEL BUTTON
+        self.cancel_button.clicked.connect(self.reject)
+        # SAVE BUTTON
+        self.save_button.clicked.connect(self.accept)
 
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Configuration", "Fit Configuration"))
+        self.__load_tabs()
+        for tab in self.__tabs:
+            self.menuTabs.addTopLevelItem(QtWidgets.QTreeWidgetItem([tab.name]))
 
-    def load_tabs(self):
+        self.tabs.setCurrentIndex(0)
+        self.menuTabs.topLevelItem(0).setSelected(True)
+
+        self.menuTabs.itemClicked.connect(self.__on_tab_clicked)
+
+    def __on_tab_clicked(self, item, column):
+        self.tabs.setCurrentIndex(self.menuTabs.indexOfTopLevelItem(item))
+
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPosition().toPoint()
+
+    def move_window(self, event):
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
+
+    def __load_tabs(self):
         package = view.configurations
-        class_names_modules = {}
+
         for importer, modname, ispkg in pkgutil.walk_packages(
             path=package.__path__, prefix=package.__name__ + ".", onerror=lambda x: None
         ):
@@ -73,34 +92,27 @@ class Configuration(QtWidgets.QDialog):
                 ]
 
                 if class_name:
-                    class_names_modules.setdefault(class_name[0], []).append(
-                        sys.modules[modname]
+                    class_name = class_name[0]
+                    ui_tab = self.__dict__.get(
+                        classname2objectname.__dict__.get(class_name.upper())
                     )
 
-        ordered_keys = sorted(class_names_modules.keys())
-        for key in ordered_keys:
-            for value in class_names_modules[key]:
-                tab = getattr(value, key)
-                tab = tab()
-                self.tabs.addTab(tab, tab.windowTitle())
+                    if ui_tab:
+                        tab_class = getattr(sys.modules[modname], class_name)
+                        tab = tab_class(
+                            ui_tab, tabs.__dict__.get(ui_tab.objectName().upper())
+                        )
+                        self.__tabs.append(tab)
 
-    def accept(self) -> None:
-        for index in range(self.tabs.count()):
-            tab = self.tabs.widget(index)
+    def accept(self):
+
+        for tab in self.__tabs:
             tab.accept()
 
         return super().accept()
 
-    def get_tab_from_name(self, name):
-        for index in range(self.tabs.count()):
-            tab = self.tabs.widget(index)
-
-            if tab.objectName() == name:
-                return tab
-
-    def reject(self) -> None:
-        for index in range(self.tabs.count()):
-            tab = self.tabs.widget(index)
+    def reject(self):
+        for tab in self.__tabs:
             tab.reject()
 
         return super().reject()
