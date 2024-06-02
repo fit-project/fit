@@ -109,6 +109,7 @@ class Configuration(QtWidgets.QDialog):
                         or class_name == "Language"
                         or class_name == "Network"
                         or class_name == "PacketCapture"
+                        or class_name == "Pec"
                     ):
                         tab_class = getattr(sys.modules[modname], class_name)
                         tab = tab_class(
