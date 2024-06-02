@@ -599,7 +599,7 @@ Button */
               <number>0</number>
              </property>
              <item>
-              <widget class="QFrame" name="leftBox">
+              <widget class="QFrame" name="topBarLeftBox">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -725,15 +725,6 @@ Button */
                  <height>28</height>
                 </size>
                </property>
-               <property name="font">
-                <font>
-                 <family>Segoe UI</family>
-                 <pointsize>11</pointsize>
-                 <weight>50</weight>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
                <property name="styleSheet">
                 <string notr="true">font-size:18px;</string>
                </property>
@@ -759,6 +750,35 @@ Button */
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
+                <item>
+                 <widget class="QPushButton" name="caseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../icons/icon_case.png</normaloff>../icons/icon_case.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <widget class="QPushButton" name="settingsTopButton">
                   <property name="minimumSize">
@@ -1346,7 +1366,7 @@ Button */
                           </property>
                           <property name="dateTime">
                            <datetime>
-                            <hour>22</hour>
+                            <hour>20</hour>
                             <minute>0</minute>
                             <second>0</second>
                             <year>1999</year>
@@ -1749,15 +1769,6 @@ color:red !important;
                     <width>120</width>
                     <height>16</height>
                    </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Segoe UI</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
                   </property>
                   <property name="text">
                    <string>By: fit-project.org</string>

@@ -8,9 +8,7 @@
 ######
 
 
-import os
 import logging
-import subprocess
 
 from datetime import timedelta
 from PyQt6 import QtCore, QtWidgets, QtGui, uic
@@ -18,12 +16,17 @@ from PyQt6 import QtCore, QtWidgets, QtGui, uic
 
 from view.scrapers.mail.acquisition import MailAcquisition
 from view.scrapers.mail.clickable_label import ClickableLabel
-from view.dialog import Dialog, DialogButtonTypes
 
 from view.error import Error as ErrorView
 from view.spinner import Spinner
 
-from view.util import validate_mail, enable_all
+from view.util import (
+    show_configuration_dialog,
+    show_case_info_dialog,
+    show_finish_acquisition_dialog,
+    enable_all,
+    validate_mail,
+)
 
 from controller.configurations.tabs.general.general import (
     General as GeneralConfigurationController,
@@ -34,12 +37,9 @@ from common.utility import resolve_path, get_version, get_platform
 
 from common.constants.view.tasks import status
 from common.constants import error, details
-
-from common.constants.view import mail, general
+from common.constants.view import mail
 from common.constants.view.pec import search_pec
 from common.constants.view.web import *
-from common.constants import logger
-
 
 from ui.mail import resources
 
@@ -61,46 +61,20 @@ class Mail(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        # GET CUSTOM BAR
-        self.custom_bar = self.findChild(QtWidgets.QFrame, "leftBox")
-        self.custom_bar.mouseMoveEvent = self.move_window
+        # SET TOP BAR
+        self.topBarLeftBox.mouseMoveEvent = self.move_window
+        self.settingsTopButton.clicked.connect(show_configuration_dialog)
+        self.minimizeButton.clicked.connect(lambda: self.showMinimized())
+        self.closeButton.clicked.connect(lambda: self.close())
 
-        # SETTING BUTTON
-        self.configuration_button = self.findChild(
-            QtWidgets.QPushButton, "settingsTopButton"
-        )
-        # self.configuration_button.clicked.connect(self.__configuration)
+        # HIDE PROGRESS BAR
+        self.progress_bar.setHidden(True)
 
-        # MINIMIZE BUTTON
-        self.minimize_app_button = self.findChild(
-            QtWidgets.QPushButton, "minimizeButton"
-        )
-        self.minimize_app_button.clicked.connect(lambda: self.showMinimized())
-
-        # CLOSE BUTTON
-        self.close_app_button = self.findChild(QtWidgets.QPushButton, "closeButton")
-        self.close_app_button.clicked.connect(lambda: self.close())
-
-        # PROGRESS BAR
-        self.progress_bar = self.findChild(QtWidgets.QProgressBar, "progress_bar")
-        self.progress_bar.hide()
-
-        # STATUS MESSAGE
-        self.status = self.findChild(QtWidgets.QLabel, "status_message")
-        self.status.hide()
+        # HIDE STATUS MESSAGE
+        self.status_message.setHidden(True)
 
         # SET VERSION
-        self.version = self.findChild(QtWidgets.QLabel, "version")
         self.version.setText("v" + get_version())
-
-        # SERVER CONFIGURATION
-        self.server_configuration = self.findChild(
-            QtWidgets.QFrame, "server_configuration"
-        )
-
-        self.server_configuration_vlayout = self.findChild(
-            QtWidgets.QVBoxLayout, "server_configuration_vlayout"
-        )
 
         self.label_two_factor_auth = ClickableLabel()
         self.server_configuration_vlayout.addWidget(self.label_two_factor_auth)
@@ -117,58 +91,35 @@ class Mail(QtWidgets.QMainWindow):
                 field.textEdited.connect(self.__validate_input)
 
         # LOGIN BUTTON
-        self.login_button = self.server_configuration.findChild(QtWidgets.QPushButton)
         self.login_button.clicked.connect(self.__login)
         self.login_button.setEnabled(False)
 
         # SEARCH CRITERIA
-        self.search_criteria = self.findChild(QtWidgets.QFrame, "search_criteria")
         enable_all(self.search_criteria.children(), False)
 
         # SEARCH DATE FROM
-        self.search_date_from = self.search_criteria.findChild(
-            QtWidgets.QDateEdit, "search_date_from"
-        )
         self.search_date_from.setDate(QtCore.QDate.currentDate().addDays(-14))
 
         # SEARCH DATE TO
-        self.search_date_to = self.search_criteria.findChild(
-            QtWidgets.QDateEdit, "search_date_to"
-        )
         self.search_date_to.setDate(QtCore.QDate.currentDate())
 
         # SEARCH EMAIL FROM
-        self.search_email_from = self.search_criteria.findChild(
-            QtWidgets.QLineEdit, "search_email_from"
-        )
         self.search_email_from.textChanged.connect(self.__is_valid_search_mail)
         self.search_email_from.editingFinished.connect(self.__enable_search_button)
 
         # SEARCH EMAIL TO
-        self.search_email_to = self.search_criteria.findChild(
-            QtWidgets.QLineEdit, "search_email_to"
-        )
         self.search_email_to.textChanged.connect(self.__is_valid_search_mail)
         self.search_email_to.editingFinished.connect(self.__enable_search_button)
 
-        # SEARCH EMAIL SUBJECT
-        self.search_email_subject = self.search_criteria.findChild(
-            QtWidgets.QLineEdit, "search_email_subject"
-        )
-
         # SEARCH BUTTON
-        self.search_button = self.search_criteria.findChild(QtWidgets.QPushButton)
         self.search_button.clicked.connect(self.__search)
 
         # EMAIL FOUNDED
-        self.select_email = self.findChild(QtWidgets.QFrame, "select_email")
         enable_all(self.select_email.children(), False)
-        self.emails_tree = self.select_email.findChild(QtWidgets.QTreeWidget)
         self.emails_tree.setHeaderLabel("")
         self.emails_tree.itemChanged.connect(self.__on_item_changed)
 
         # DOWNLOAD BUTTON
-        self.download_button = self.select_email.findChild(QtWidgets.QPushButton)
         self.download_button.clicked.connect(self.__download)
         self.__retranslate_ui()
 
@@ -192,10 +143,12 @@ class Mail(QtWidgets.QMainWindow):
         self.case_info = case_info
         self.wizard = wizard
 
+        self.caseButton.clicked.connect(lambda: show_case_info_dialog(self.case_info))
+
         self.acquisition_manager = MailAcquisition(
             logging.getLogger(__name__),
             self.progress_bar,
-            self.status,
+            self.status_message,
             self,
         )
 
@@ -402,37 +355,11 @@ class Mail(QtWidgets.QMainWindow):
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
 
-        self.__show_finish_acquisition_dialog()
+        show_finish_acquisition_dialog(self.acquisition_directory)
 
         self.acquisition_directory = None
         self.is_task_started = False
         self.is_acquisition_running = False
-
-    def __show_finish_acquisition_dialog(self):
-
-        dialog = Dialog(
-            logger.ACQUISITION_FINISHED,
-            details.ACQUISITION_FINISHED,
-        )
-        dialog.message.setStyleSheet("font-size: 13px;")
-        dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-        dialog.right_button.clicked.connect(dialog.close)
-        dialog.left_button.clicked.connect(
-            lambda: self.__open_acquisition_directory(dialog)
-        )
-
-        dialog.exec()
-
-    def __open_acquisition_directory(self, dialog):
-        platform = get_platform()
-        if platform == "win":
-            os.startfile(self.acquisition_directory)
-        elif platform == "osx":
-            subprocess.call(["open", self.acquisition_directory])
-        else:  # platform == 'lin' || platform == 'other'
-            subprocess.call(["xdg-open", self.acquisition_directory])
-
-        dialog.close()
 
     def __is_valid_search_mail(self, text):
         self.is_valid_mail = validate_mail(text)
