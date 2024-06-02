@@ -757,15 +757,6 @@ Button */
                  <height>28</height>
                 </size>
                </property>
-               <property name="font">
-                <font>
-                 <family>Segoe UI</family>
-                 <pointsize>-1</pointsize>
-                 <weight>50</weight>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
                <property name="styleSheet">
                 <string notr="true">font-size:18px;</string>
                </property>
@@ -1697,15 +1688,6 @@ QTabBar::tab:!selected {
                     <width>120</width>
                     <height>16</height>
                    </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Segoe UI</family>
-                    <pointsize>-1</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
                   </property>
                   <property name="text">
                    <string>By: fit-project.org</string>
