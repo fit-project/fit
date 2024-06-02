@@ -31,7 +31,7 @@ class Configuration(QtWidgets.QDialog):
         self.__init_ui()
 
     def __init_ui(self):
-        uic.loadUi(resolve_path("ui/configuration/dialog.ui"), self)
+        uic.loadUi(resolve_path("ui/configuration/configuration.ui"), self)
 
         # HIDE STANDARD TITLE BAR
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
