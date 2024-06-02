@@ -1002,7 +1002,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>4</number>
+                      <number>5</number>
                      </property>
                      <widget class="QWidget" name="general">
                       <property name="maximumSize">
@@ -2403,18 +2403,91 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
                       </widget>
                      </widget>
                      <widget class="QWidget" name="screen_recorder">
-                      <widget class="QLabel" name="label_5">
+                      <widget class="QFrame" name="screen_recorder_configuration">
                        <property name="geometry">
                         <rect>
-                         <x>210</x>
-                         <y>160</y>
-                         <width>141</width>
-                         <height>21</height>
+                         <x>0</x>
+                         <y>0</y>
+                         <width>600</width>
+                         <height>411</height>
                         </rect>
                        </property>
-                       <property name="text">
-                        <string>Screen Recorder</string>
+                       <property name="maximumSize">
+                        <size>
+                         <width>600</width>
+                         <height>16777215</height>
+                        </size>
                        </property>
+                       <layout class="QVBoxLayout" name="screen_recorder_configuration_layout">
+                        <property name="leftMargin">
+                         <number>20</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>20</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>20</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>20</number>
+                        </property>
+                        <item>
+                         <layout class="QVBoxLayout" name="screen_recorder_configuration_box">
+                          <item>
+                           <widget class="QCheckBox" name="enable_screen_recorder">
+                            <property name="text">
+                             <string>Enable screen recoder</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="verticalSpacer_10">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Fixed</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="screen_recorder_filename">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>30</height>
+                             </size>
+                            </property>
+                            <property name="styleSheet">
+                             <string notr="true">background-color: rgb(33, 37, 43);</string>
+                            </property>
+                            <property name="placeholderText">
+                             <string>filename.avi</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="verticalSpacer_9">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </item>
+                       </layout>
                       </widget>
                      </widget>
                      <widget class="QWidget" name="timestamp">

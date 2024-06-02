@@ -8,9 +8,8 @@
 ######
 
 from PyQt6 import QtCore, QtWidgets
+from view.configurations.tab import Tab
 
-
-from view.configurations.tabs.screenrecorder.codec import Codec as CodecView
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
@@ -18,70 +17,53 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
 __is_tab__ = True
 
 
-class ScreenRecorder(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(ScreenRecorder, self).__init__(parent)
+class ScreenRecorder(Tab):
+    def __init__(self, tab: QtWidgets.QWidget, name: str):
+        super().__init__(tab, name)
 
-        self.controller = ScreenRecorderConfigurationController()
-        self.options = self.controller.options
+        self.__options = ScreenRecorderConfigurationController().options
 
-        self.setObjectName("configuration_screenrecorder")
-
-        self.initUI()
-        self.retranslateUi()
+        self.__init_ui()
         self.__set_current_config_values()
 
-    def initUI(self):
-        # ENABLE CHECKBOX
-        self.enabled_checkbox = QtWidgets.QCheckBox("Enable Screen Recorder", self)
-        self.enabled_checkbox.setGeometry(QtCore.QRect(10, 30, 270, 70))
-        self.enabled_checkbox.stateChanged.connect(self._is_enabled_screen_recorder)
-        self.enabled_checkbox.setObjectName("enabled")
-
-        # FPS
-        self.group_box_fps = QtWidgets.QGroupBox(self)
-        self.group_box_fps.setGeometry(QtCore.QRect(10, 90, 160, 70))
-        self.group_box_fps.setObjectName("group_box_fps")
-        self.fps = QtWidgets.QSpinBox(self.group_box_fps)
-        self.fps.setGeometry(QtCore.QRect(20, 30, 80, 22))
-        self.fps.setObjectName("fps")
-
-        # CODEC
-        self.group_box_codec = CodecView(self)
-        self.group_box_codec.codec.setObjectName("codec_id")
-
-        # FILE NAME
-        self.group_box_filename = QtWidgets.QGroupBox(self)
-        self.group_box_filename.setGeometry(QtCore.QRect(10, 190, 661, 91))
-        self.group_box_filename.setObjectName("group_box_filename_sr")
-        self.filename = QtWidgets.QLineEdit(self.group_box_filename)
-        self.filename.setGeometry(QtCore.QRect(20, 40, 601, 22))
-        self.filename.setObjectName("filename")
-
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Codec", "Screen Recorder Options"))
-        self.group_box_fps.setTitle(
-            _translate("ConfigurationView", "Frame per Second (fps)")
+    def __init_ui(self):
+        # ENABLE SCREEN RECORDER
+        self.enable_screen_recorder = self.tab.findChild(
+            QtWidgets.QCheckBox, "enable_screen_recorder"
         )
-        self.group_box_filename.setTitle(_translate("ConfigurationView", "File Name"))
+
+        self.enable_screen_recorder.stateChanged.connect(
+            self._is_enabled_screen_recorder
+        )
+
+        # PACKET CAPTURE RECORDER FILENAME
+        self.screen_recorder_filename = self.tab.findChild(
+            QtWidgets.QLineEdit, "screen_recorder_filename"
+        )
 
     def _is_enabled_screen_recorder(self):
-        self.group_box_fps.setEnabled(self.enabled_checkbox.isChecked())
-        self.group_box_codec.setEnabled(self.enabled_checkbox.isChecked())
-        self.group_box_filename.setEnabled(self.enabled_checkbox.isChecked())
+        self.screen_recorder_filename.setEnabled(
+            self.enable_screen_recorder.isChecked()
+        )
 
     def __set_current_config_values(self):
-        self.enabled_checkbox.setChecked(self.options["enabled"])
-        self.fps.setValue(self.options["fps"])
-        self.group_box_codec.set_index_from_codec_id(self.options["codec_id"])
-        self.filename.setText(self.options["filename"])
+        self.enable_screen_recorder.setChecked(self.__options["enabled"])
+        self.screen_recorder_filename.setText(self.__options["filename"])
 
         self._is_enabled_screen_recorder()
 
     def __get_current_values(self):
-        for keyword in self.options:
-            item = self.findChild(QtCore.QObject, keyword)
+        for keyword in self.__options:
+
+            __keyword = keyword
+
+            # REMAPPING KEYWORD
+            if keyword == "enabled":
+                __keyword = "enable_screen_recorder"
+            elif keyword == "filename":
+                __keyword = "screen_recorder_filename"
+
+            item = self.tab.findChild(QtCore.QObject, __keyword)
 
             if item is not None:
                 if (
@@ -96,11 +78,8 @@ class ScreenRecorder(QtWidgets.QWidget):
                 elif isinstance(item, QtWidgets.QCheckBox):
                     item = item.isChecked()
 
-                self.options[keyword] = item
+                self.__options[keyword] = item
 
-    def accept(self) -> None:
+    def accept(self):
         self.__get_current_values()
-        self.controller.options = self.options
-
-    def reject(self) -> None:
-        pass
+        ScreenRecorderConfigurationController().options = self.__options
