@@ -696,15 +696,12 @@ Button */
                   </property>
                   <property name="font">
                    <font>
-                    <family>Segoe UI</family>
+                    <family>Segoe UI Semibold</family>
                     <pointsize>12</pointsize>
-                    <weight>9</weight>
+                    <weight>7</weight>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">font: 75 12pt &quot;Segoe UI&quot;;</string>
                   </property>
                   <property name="text">
                    <string>Mail Scraper</string>
@@ -942,7 +939,7 @@ Button */
                  <widget class="QFrame" name="leftContent">
                   <property name="maximumSize">
                    <size>
-                    <width>350</width>
+                    <width>370</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1139,7 +1136,7 @@ Button */
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_11">
                       <property name="spacing">
-                       <number>-1</number>
+                       <number>6</number>
                       </property>
                       <property name="leftMargin">
                        <number>12</number>
@@ -1184,6 +1181,12 @@ Button */
                           </property>
                           <property name="text">
                            <string>From date</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::AutoText</enum>
+                          </property>
+                          <property name="wordWrap">
+                           <bool>false</bool>
                           </property>
                          </widget>
                         </item>
@@ -1372,7 +1375,7 @@ Button */
                           </property>
                           <property name="dateTime">
                            <datetime>
-                            <hour>19</hour>
+                            <hour>18</hour>
                             <minute>0</minute>
                             <second>0</second>
                             <year>1999</year>
@@ -1811,8 +1814,22 @@ color:red !important;
                   <property name="maximumSize">
                    <size>
                     <width>200</width>
-                    <height>16777215</height>
+                    <height>20</height>
                    </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QProgressBar
+{
+    color: #ffffff;
+    border-style: outset;
+border-width: 2px;
+    border-radius: 5px;
+    text-align: left;
+}
+QProgressBar::chunk
+{
+    background-color:#e06133;
+}</string>
                   </property>
                   <property name="value">
                    <number>24</number>
@@ -1842,6 +1859,10 @@ color:red !important;
                     <width>300</width>
                     <height>0</height>
                    </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">font-size:14px;
+color:#ffffff;</string>
                   </property>
                   <property name="text">
                    <string>status message</string>
@@ -1919,7 +1940,7 @@ color:red !important;
  </widget>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../../Modern_GUI_PyDracula_PySide6_or_PyQt6/resources.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

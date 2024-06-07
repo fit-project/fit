@@ -753,15 +753,12 @@ Button */
                   </property>
                   <property name="font">
                    <font>
-                    <family>Segoe UI</family>
+                    <family>Segoe UI Semibold</family>
                     <pointsize>12</pointsize>
-                    <weight>9</weight>
+                    <weight>7</weight>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">font: 75 12pt &quot;Segoe UI&quot;;</string>
                   </property>
                   <property name="text">
                    <string>Freezing Internet Tool</string>
@@ -1306,8 +1303,8 @@ Button */
                                <widget class="QLabel" name="label">
                                 <property name="maximumSize">
                                  <size>
-                                  <width>16</width>
-                                  <height>16</height>
+                                  <width>20</width>
+                                  <height>20</height>
                                  </size>
                                 </property>
                                 <property name="text">
@@ -1317,7 +1314,7 @@ Button */
                                  <pixmap>../icons/info-circle.png</pixmap>
                                 </property>
                                 <property name="scaledContents">
-                                 <bool>true</bool>
+                                 <bool>false</bool>
                                 </property>
                                </widget>
                               </item>
@@ -1331,7 +1328,7 @@ Button */
                                 </property>
                                 <property name="maximumSize">
                                  <size>
-                                  <width>1677721</width>
+                                  <width>120</width>
                                   <height>16777215</height>
                                  </size>
                                 </property>

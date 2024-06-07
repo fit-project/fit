@@ -728,15 +728,12 @@ Button */
                   </property>
                   <property name="font">
                    <font>
-                    <family>Segoe UI</family>
+                    <family>Segoe UI Semibold</family>
                     <pointsize>12</pointsize>
-                    <weight>9</weight>
+                    <weight>7</weight>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">font: 75 12pt &quot;Segoe UI&quot;;</string>
                   </property>
                   <property name="text">
                    <string>Web Scraper</string>
@@ -1431,8 +1428,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/camera.png</normaloff>
-                      <disabledon>../images/toolbar/camera-disabled.png</disabledon>../images/toolbar/camera.png</iconset>
+                      <normalon>../images/toolbar/camera.png</normalon>
+                      <disabledon>../images/toolbar/camera-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -1725,8 +1723,22 @@ QTabBar::tab:!selected {
                   <property name="maximumSize">
                    <size>
                     <width>200</width>
-                    <height>16777215</height>
+                    <height>20</height>
                    </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QProgressBar
+{
+    color: #ffffff;
+    border-style: outset;
+border-width: 2px;
+    border-radius: 5px;
+    text-align: left;
+}
+QProgressBar::chunk
+{
+    background-color:#e06133;
+}</string>
                   </property>
                   <property name="value">
                    <number>24</number>
@@ -1837,7 +1849,7 @@ color:#ffffff;</string>
  </widget>
  <resources>
   <include location="resources.qrc"/>
-  <include location="../../../Modern_GUI_PyDracula_PySide6_or_PyQt6/resources.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
