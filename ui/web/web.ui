@@ -1431,7 +1431,8 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/camera.png</normaloff>../images/toolbar/camera.png</iconset>
+                      <normaloff>../images/toolbar/camera.png</normaloff>
+                      <disabledon>../images/toolbar/camera-disabled.png</disabledon>../images/toolbar/camera.png</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
