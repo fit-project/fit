@@ -26,6 +26,8 @@ from common.constants.view.wizard import *
 from common.constants import error
 from common.constants.view import wizard, general
 
+MAX_WIDTH_QCHECKBOX_TEXT = 120
+
 
 class Wizard(QtWidgets.QMainWindow):
     finished = QtCore.pyqtSignal(str, dict)
@@ -83,12 +85,39 @@ class Wizard(QtWidgets.QMainWindow):
         # PAGE1 CASE INFO FORM
         self.form_manager = CaseFormManager(self.findChild(QtWidgets.QFrame, "form"))
         self.form_manager.name.currentTextChanged.connect(self.__enable_next_button)
-
         # PAGE2 SELECT TASK
         self.tasks = self.findChildren(QtWidgets.QCheckBox)
+
+        current_max_width_qcheckbox_text = 0
+        current_max_qcheckbox_text = None
+        current_max_qcheckbox_font = None
+
         for task in self.tasks:
             task.setAttribute(QtCore.Qt.WidgetAttribute.WA_MacShowFocusRect, 0)
             task.clicked.connect(self.__task_clicked)
+            current_width_text = self.__calculate_width_from_text(
+                task.font(), task.text()
+            )
+            if current_width_text > MAX_WIDTH_QCHECKBOX_TEXT:
+                if current_width_text > current_max_width_qcheckbox_text:
+                    current_max_width_qcheckbox_text = current_width_text
+                    current_max_qcheckbox_text = task.text()
+                    current_max_qcheckbox_font = task.font()
+
+        if current_max_width_qcheckbox_text > MAX_WIDTH_QCHECKBOX_TEXT:
+            while current_max_width_qcheckbox_text > MAX_WIDTH_QCHECKBOX_TEXT:
+                current_font_size = current_max_qcheckbox_font.pointSize()
+                current_max_qcheckbox_font.setPointSize(current_font_size - 1)
+                current_max_width_qcheckbox_text = self.__calculate_width_from_text(
+                    current_max_qcheckbox_font, current_max_qcheckbox_text
+                )
+
+            for task in self.tasks:
+                task.setStyleSheet(
+                    "QCheckBox {font-size:"
+                    + str(current_max_qcheckbox_font.pointSize())
+                    + "px; }"
+                )
 
         # SUMMARY BUTTON
         self.case_summary_button = self.findChild(
@@ -111,6 +140,11 @@ class Wizard(QtWidgets.QMainWindow):
             self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
             self.dragPos = event.globalPosition().toPoint()
             event.accept()
+
+    def __calculate_width_from_text(self, font, text):
+        fm = QtGui.QFontMetrics(font)
+
+        return fm.horizontalAdvance(text)
 
     def __next_page(self):
         if self.pages.currentIndex() == 0:
