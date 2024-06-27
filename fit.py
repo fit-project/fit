@@ -7,7 +7,6 @@
 # -----
 ######
 import sys
-import os
 
 from PyQt6 import QtWidgets, QtGui
 from common.utility import resolve_path
@@ -25,11 +24,15 @@ from view.scrapers.entire_website.entire_website import (
 from view.verify_pec import VerifyPec as VerifyPecView
 from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
 
-# os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
+
+    if "Segoe UI" not in QtGui.QFontDatabase.families():
+        QtGui.QFontDatabase.addApplicationFont(
+            resolve_path("ui/font/SegoeUI/Segoe UI.ttf")
+        )
 
     init = InitView()
     init.init_check()
