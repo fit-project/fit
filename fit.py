@@ -31,6 +31,11 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
 
+    if "Segoe UI" not in QtGui.QFontDatabase.families():
+        QtGui.QFontDatabase.addApplicationFont(
+            resolve_path("ui/font/SegoeUI/Segoe UI.ttf")
+        )
+
     init = InitView()
     init.init_check()
     # TO-DO we wait until init is done

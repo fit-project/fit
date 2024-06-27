@@ -65,9 +65,9 @@ Left Menu */
 	background-color: rgb(33, 37, 43);
 }
 
-#titleLeftApp { font: 63 12px &quot;Segoe UI Semibold&quot;; }
+#titleLeftApp { font: 63 12px &quot;Segoe UI&quot;; }
 #titleLeftDescription { font: 8px &quot;Segoe UI&quot;; color: rgb(189, 147, 249); }
-#titleRightInfo { font: 63 13px &quot;Segoe UI Semibold&quot;; }
+#titleRightInfo { font: 13px &quot;Segoe UI&quot;; }
 /* MENUS */
 #topMenu .QPushButton {	
 	background-position: left center;
