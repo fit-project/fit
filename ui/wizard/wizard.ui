@@ -21,15 +21,6 @@
    <string>FIT Wizard</string>
   </property>
   <widget class="QWidget" name="styleSheet">
-   <property name="font">
-    <font>
-     <family>Segoe UI</family>
-     <pointsize>12</pointsize>
-     <weight>50</weight>
-     <italic>false</italic>
-     <bold>false</bold>
-    </font>
-   </property>
    <property name="styleSheet">
     <string notr="true">
 
@@ -42,7 +33,7 @@ DARK THEME - DRACULA COLOR BASED
 
 QWidget{
 	color: rgb(221, 221, 221);
-	font: 12pt &quot;Segoe UI&quot;;
+	font: 13px &quot;Segoe UI&quot;;
 }
 
 /* /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,9 +65,9 @@ Left Menu */
 	background-color: rgb(33, 37, 43);
 }
 
-#titleLeftApp { font: 63 12pt &quot;Segoe UI Semibold&quot;; }
-#titleLeftDescription { font: 8pt &quot;Segoe UI&quot;; color: rgb(189, 147, 249); }
-#titleRightInfo { font: 63 12pt &quot;Segoe UI Semibold&quot;; }
+#titleLeftApp { font: 63 12px &quot;Segoe UI Semibold&quot;; }
+#titleLeftDescription { font: 8px &quot;Segoe UI&quot;; color: rgb(189, 147, 249); }
+#titleRightInfo { font: 63 13px &quot;Segoe UI Semibold&quot;; }
 /* MENUS */
 #topMenu .QPushButton {	
 	background-position: left center;
@@ -751,15 +742,6 @@ Button */
                     <height>45</height>
                    </size>
                   </property>
-                  <property name="font">
-                   <font>
-                    <family>Segoe UI Semibold</family>
-                    <pointsize>12</pointsize>
-                    <weight>7</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Freezing Internet Tool</string>
                   </property>
@@ -1069,15 +1051,6 @@ Button */
                                <height>16777215</height>
                               </size>
                              </property>
-                             <property name="font">
-                              <font>
-                               <family>Segoe UI</family>
-                               <pointsize>12</pointsize>
-                               <weight>50</weight>
-                               <italic>false</italic>
-                               <bold>false</bold>
-                              </font>
-                             </property>
                              <property name="autoFillBackground">
                               <bool>false</bool>
                              </property>
@@ -1155,15 +1128,6 @@ Button */
                                <width>300</width>
                                <height>16777215</height>
                               </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Segoe UI</family>
-                               <pointsize>12</pointsize>
-                               <weight>50</weight>
-                               <italic>false</italic>
-                               <bold>false</bold>
-                              </font>
                              </property>
                              <property name="mouseTracking">
                               <bool>true</bool>
@@ -1331,15 +1295,6 @@ Button */
                                   <width>120</width>
                                   <height>16777215</height>
                                  </size>
-                                </property>
-                                <property name="font">
-                                 <font>
-                                  <family>Segoe UI</family>
-                                  <pointsize>12</pointsize>
-                                  <weight>50</weight>
-                                  <italic>false</italic>
-                                  <bold>false</bold>
-                                 </font>
                                 </property>
                                 <property name="cursor">
                                  <cursorShape>PointingHandCursor</cursorShape>
@@ -2284,15 +2239,6 @@ Button */
                              <height>30</height>
                             </size>
                            </property>
-                           <property name="font">
-                            <font>
-                             <family>Segoe UI</family>
-                             <pointsize>12</pointsize>
-                             <weight>50</weight>
-                             <italic>false</italic>
-                             <bold>false</bold>
-                            </font>
-                           </property>
                            <property name="cursor">
                             <cursorShape>PointingHandCursor</cursorShape>
                            </property>
@@ -2368,15 +2314,6 @@ Button */
                           <height>30</height>
                          </size>
                         </property>
-                        <property name="font">
-                         <font>
-                          <family>Segoe UI</family>
-                          <pointsize>12</pointsize>
-                          <weight>50</weight>
-                          <italic>false</italic>
-                          <bold>false</bold>
-                         </font>
-                        </property>
                         <property name="cursor">
                          <cursorShape>PointingHandCursor</cursorShape>
                         </property>
@@ -2414,15 +2351,6 @@ Button */
                           <width>80</width>
                           <height>30</height>
                          </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Segoe UI</family>
-                          <pointsize>12</pointsize>
-                          <weight>50</weight>
-                          <italic>false</italic>
-                          <bold>false</bold>
-                         </font>
                         </property>
                         <property name="cursor">
                          <cursorShape>PointingHandCursor</cursorShape>
