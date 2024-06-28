@@ -32,21 +32,12 @@ class Dialog(QtWidgets.QDialog):
         self.__set_message(message)
         self.__set_details(details)
         self.__set_buttons_message()
-        self.contentBox.adjustSize()
-        self.setMinimumWidth(self.contentBox.width())
-        self.contentTopBg.setMinimumWidth(self.contentBox.width())
+        self.content_box.adjustSize()
+        self.setMinimumWidth(self.content_box.width())
+        self.content_top_bg.setMinimumWidth(self.content_box.width())
 
     def __init_ui(self):
         uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), self)
-        self.title = self.findChild(QtWidgets.QLabel, "titleRightInfo")
-        self.close_button = self.findChild(QtWidgets.QPushButton, "closeButton")
-        self.left_button = self.findChild(QtWidgets.QPushButton, "left_button")
-        self.right_button = self.findChild(QtWidgets.QPushButton, "right_button")
-        self.message = self.findChild(QtWidgets.QLabel, "message")
-        self.details = self.findChild(QtWidgets.QLabel, "details")
-        self.icon_severity = self.findChild(QtWidgets.QLabel, "icon_severity")
-        self.contentBox = self.findChild(QtWidgets.QFrame, "contentBox")
-        self.contentTopBg = self.findChild(QtWidgets.QFrame, "contentTopBg")
 
     def set_buttons_type(self, buttons_type):
         if buttons_type == DialogButtonTypes.MESSAGE:
@@ -55,7 +46,7 @@ class Dialog(QtWidgets.QDialog):
             self.__set_buttons_question()
 
     def __set_title(self, title):
-        self.title.setText(title)
+        self.title_right_info.setText(title)
 
     def __set_icon_severity(self, severity):
         if severity is not None:

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>newVersionDialog</class>
- <widget class="QDialog" name="newVersionDialog">
+ <class>multipurpose_dialog</class>
+ <widget class="QDialog" name="multipurpose_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -30,19 +30,18 @@
 	color: rgb(221, 221, 221);
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Content App */
-#contentTopBg{	
+/* Content App */
+#content_top_bg{	
 	background-color: rgb(33, 37, 43);
 }
 
 /* Top Buttons */
-#rightButtons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
-#rightButtons .QPushButton:hover { background-color: rgb(44, 49, 57); border-style: solid; border-radius: 4px; }
-#rightButtons .QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; border-radius: 4px; }
+#right_buttons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
+#right_buttons .QPushButton:hover { background-color: rgb(44, 49, 57); border-style: solid; border-radius: 4px; }
+#right_buttons .QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; border-radius: 4px; }
 </string>
   </property>
-  <widget class="QFrame" name="contentBox">
+  <widget class="QFrame" name="content_box">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -60,7 +59,7 @@ Content App */
    <property name="styleSheet">
     <string notr="true">background-color: rgb(40, 44, 52);</string>
    </property>
-   <layout class="QVBoxLayout" name="contentBoxLayout">
+   <layout class="QVBoxLayout" name="content_box_layout">
     <property name="leftMargin">
      <number>12</number>
     </property>
@@ -74,7 +73,7 @@ Content App */
      <number>12</number>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="content_box_horizontal_layout">
       <property name="bottomMargin">
        <number>0</number>
       </property>
@@ -133,7 +132,7 @@ Content App */
      </layout>
     </item>
     <item>
-     <spacer name="verticalSpacer">
+     <spacer name="vertical_spacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
@@ -146,7 +145,7 @@ Content App */
      </spacer>
     </item>
     <item>
-     <widget class="QFrame" name="navigationButtons">
+     <widget class="QFrame" name="navigation_buttons">
       <property name="maximumSize">
        <size>
         <width>16777215</width>
@@ -167,7 +166,7 @@ Content App */
         <number>0</number>
        </property>
        <item>
-        <spacer name="leftSpacer">
+        <spacer name="left_spacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -190,15 +189,6 @@ Content App */
            <height>30</height>
           </size>
          </property>
-         <property name="font">
-          <font>
-           <family>Segoe UI</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
@@ -211,7 +201,7 @@ Content App */
         </widget>
        </item>
        <item>
-        <spacer name="betweenSpacer">
+        <spacer name="between_spacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -237,15 +227,6 @@ Content App */
            <height>30</height>
           </size>
          </property>
-         <property name="font">
-          <font>
-           <family>Segoe UI</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
@@ -265,7 +246,7 @@ Content App */
     </item>
    </layout>
   </widget>
-  <widget class="QFrame" name="contentTopBg">
+  <widget class="QFrame" name="content_top_bg">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -309,7 +290,7 @@ Content App */
      <number>0</number>
     </property>
     <item>
-     <widget class="QFrame" name="leftBox">
+     <widget class="QFrame" name="left_box">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -339,7 +320,7 @@ Content App */
         <number>0</number>
        </property>
        <item>
-        <widget class="QFrame" name="logoContainer">
+        <widget class="QFrame" name="logo_container">
          <property name="minimumSize">
           <size>
            <width>60</width>
@@ -366,7 +347,7 @@ Content App */
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="topLogo">
+           <widget class="QLabel" name="top_logo">
             <property name="minimumSize">
              <size>
               <width>42</width>
@@ -391,7 +372,7 @@ Content App */
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="titleRightInfo">
+        <widget class="QLabel" name="title_right_info">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -404,17 +385,8 @@ Content App */
            <height>45</height>
           </size>
          </property>
-         <property name="font">
-          <font>
-           <family>Segoe UI</family>
-           <pointsize>12</pointsize>
-           <weight>9</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
          <property name="styleSheet">
-          <string notr="true">font: 75 12pt &quot;Segoe UI&quot;;</string>
+          <string notr="true">font: 12pt;</string>
          </property>
          <property name="text">
           <string>TITLE</string>
@@ -428,7 +400,7 @@ Content App */
      </widget>
     </item>
     <item alignment="Qt::AlignRight">
-     <widget class="QFrame" name="rightButtons">
+     <widget class="QFrame" name="right_buttons">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -458,7 +430,7 @@ Content App */
         <number>0</number>
        </property>
        <item>
-        <widget class="QPushButton" name="closeButton">
+        <widget class="QPushButton" name="close_button">
          <property name="minimumSize">
           <size>
            <width>28</width>

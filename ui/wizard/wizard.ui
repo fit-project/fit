@@ -26,11 +26,10 @@
 
 QWidget{
 	color: rgb(221, 221, 221);
-	font: 13px &quot;Segoe UI&quot;;
+	font: 13px;
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Tooltip */
+/* Tooltip */
 QToolTip {
 	color: #e06133;
 	background-color: rgba(33, 37, 43, 180);
@@ -52,7 +51,7 @@ QToolTip {
 }
 
 /* Title Menu */
-#title_right_info { font: 13px &quot;Segoe UI&quot;; }
+#title_right_info { font: 13px; }
 #title_right_info { padding-left: 10px; }
 
 
