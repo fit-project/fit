@@ -37,10 +37,14 @@ class Configuration(QtWidgets.QDialog):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        # SET TOP BAR
-        self.topBarLeftBox.mouseMoveEvent = self.move_window
-        self.minimizeButton.clicked.connect(self.showMinimized)
-        self.closeButton.clicked.connect(self.close)
+        # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
+
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
+
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
 
         # SET VERSION
         self.version.setText("v" + get_version())
@@ -52,15 +56,15 @@ class Configuration(QtWidgets.QDialog):
 
         self.__load_tabs()
         for tab in self.__tabs:
-            self.menuTabs.addTopLevelItem(QtWidgets.QTreeWidgetItem([tab.name]))
+            self.menu_tabs.addTopLevelItem(QtWidgets.QTreeWidgetItem([tab.name]))
 
         self.tabs.setCurrentIndex(0)
-        self.menuTabs.topLevelItem(0).setSelected(True)
+        self.menu_tabs.topLevelItem(0).setSelected(True)
 
-        self.menuTabs.itemClicked.connect(self.__on_tab_clicked)
+        self.menu_tabs.itemClicked.connect(self.__on_tab_clicked)
 
     def __on_tab_clicked(self, item, column):
-        self.tabs.setCurrentIndex(self.menuTabs.indexOfTopLevelItem(item))
+        self.tabs.setCurrentIndex(self.menu_tabs.indexOfTopLevelItem(item))
 
     def mousePressEvent(self, event):
         self.dragPos = event.globalPosition().toPoint()

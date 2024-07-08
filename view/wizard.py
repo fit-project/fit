@@ -8,23 +8,19 @@
 ######
 
 
-from configparser import ConfigParser
-
 from PyQt6 import QtCore, QtWidgets, uic
 
-from ui.wizard import resources
-
-
-from view.configuration import Configuration as ConfigurationView
 from view.case_form_manager import CaseFormManager
-from view.case_form_dialog import CaseFormDialog
 from view.error import Error as ErrorView
 
-from common.utility import resolve_path
+from view.util import show_configuration_dialog, show_case_info_dialog
 
-from common.constants.view.wizard import *
 from common.constants import error
 from common.constants.view import wizard
+from common.utility import resolve_path, get_version
+
+
+from ui.wizard import resources
 
 
 class Wizard(QtWidgets.QMainWindow):
@@ -44,29 +40,28 @@ class Wizard(QtWidgets.QMainWindow):
         # CUSTOM TOP BAR
         self.left_box.mouseMoveEvent = self.move_window
 
-        # CONFIGURATION BUTTON
-        self.configuration_button.clicked.connect(self.__configuration)
-
         # MINIMIZE BUTTON
-        self.minimize_button.clicked.connect(lambda: self.showMinimized())
+        self.minimize_button.clicked.connect(self.showMinimized)
 
         # CLOSE BUTTON
-        self.close_button.clicked.connect(lambda: self.close())
+        self.close_button.clicked.connect(self.close)
+
+        # CONFIGURATION BUTTON
+        self.configuration_button.clicked.connect(show_configuration_dialog)
 
         # PAGES
         self.pages.setCurrentIndex(0)
 
         # NEXT BUTTON
         self.next_button.setEnabled(False)
-        self.next_button.clicked.connect(lambda: self.__next_page())
+        self.next_button.clicked.connect(self.__next_page)
 
         # BACK BUTTON
-        self.back_button.clicked.connect(lambda: self.__back_page())
+        self.back_button.clicked.connect(self.__back_page)
         self.back_button.hide()
 
         # SET VERSION
-        self.version = self.findChild(QtWidgets.QLabel, "version")
-        self.version.setText("v" + self.__get_version())
+        self.version.setText("v" + get_version())
 
         # PAGE1 CASE INFO FORM
         self.form_manager = CaseFormManager(self.form)
@@ -80,14 +75,8 @@ class Wizard(QtWidgets.QMainWindow):
             task.clicked.connect(self.__task_clicked)
 
         # SUMMARY BUTTON
-        self.case_summary_button.clicked.connect(self.__case_summary)
+        self.case_summary_button.clicked.connect(show_case_info_dialog)
         self.case_summary_button.hide()
-
-    def __configuration(self):
-        ConfigurationView().exec()
-
-    def __case_summary(self):
-        CaseFormDialog(self.case_info).exec()
 
     def mousePressEvent(self, event):
         self.dragPos = event.globalPosition().toPoint()
@@ -170,10 +159,3 @@ class Wizard(QtWidgets.QMainWindow):
         # Send signal to main loop to start the acquisition window
         self.finished.emit(self.selcted_task, self.case_info)
         self.hide()
-
-    def __get_version(self):
-        parser = ConfigParser()
-        parser.read(resolve_path("assets/config.ini"))
-        version = parser.get("fit_properties", "tag_name")
-
-        return version
