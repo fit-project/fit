@@ -67,11 +67,17 @@ class Web(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        # SET TOP BAR
-        self.topBarLeftBox.mouseMoveEvent = self.move_window
-        self.settingsTopButton.clicked.connect(show_configuration_dialog)
-        self.minimizeButton.clicked.connect(lambda: self.showMinimized())
-        self.closeButton.clicked.connect(lambda: self.close())
+       # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
+
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
+
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
+
+        # CONFIGURATION BUTTON
+        self.configuration_button.clicked.connect(show_configuration_dialog)
 
         # HIDE PROGRESS BAR
         self.progress_bar.setHidden(True)
@@ -124,7 +130,7 @@ class Web(QtWidgets.QMainWindow):
         self.wizard = wizard
         self.case_info = case_info
 
-        self.caseButton.clicked.connect(lambda: show_case_info_dialog(self.case_info))
+        self.case_button.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 
         # ACQUISITION
         self.acquisition_manager = WebAcquisition(
