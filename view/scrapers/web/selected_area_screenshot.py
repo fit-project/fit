@@ -9,28 +9,26 @@
 
 import time
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PIL import ImageGrab, Image
+from PIL import ImageGrab
 
 
 # Refer to https://github.com/harupy/snipping-tool
 class SnippingWidget(QtWidgets.QWidget):
     is_snipping = False
 
-    def __init__(self, parent=None, app=None):
+    def __init__(self, parent=None):
         super(SnippingWidget, self).__init__()
         self.parent = parent
         self.setWindowFlags(
             QtCore.Qt.WindowType.WindowStaysOnTopHint
             | QtCore.Qt.WindowType.FramelessWindowHint
         )
-        self.showFullScreen()
 
-        self.screen = app.primaryScreen()
-        self.setGeometry(0, 0, self.screen.size().width(), self.screen.size().height())
+        self.setGeometry(0, 0, self.screen().size().width(), self.screen().size().height())
         self.begin = QtCore.QPoint()
         self.end = QtCore.QPoint()
         self.onSnippingCompleted = None
-        self.scale_factor = app.devicePixelRatio()
+        self.scale_factor = self.screen().devicePixelRatio()
 
     def start(self):
         SnippingWidget.is_snipping = True
@@ -105,9 +103,9 @@ class SelectAreaScreenshot(QtCore.QObject):
     finished = QtCore.pyqtSignal()  # give worker class a finished signal
 
     def __init__(self, filename, parent=None):
-        QtCore.QObject.__init__(self, parent=parent)
+        super(SelectAreaScreenshot, self, ).__init__(parent=parent)
         self.filename = filename
-        self.snippingWidget = SnippingWidget(app=QtWidgets.QApplication.instance())
+        self.snippingWidget = SnippingWidget()
         self.snippingWidget.onSnippingCompleted = self.__on_snipping_completed
 
     def __on_snipping_completed(self, frame):

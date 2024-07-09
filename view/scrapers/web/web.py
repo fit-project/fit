@@ -260,6 +260,7 @@ class Web(QtWidgets.QMainWindow):
         elif self.acquisition_status == AcquisitionStatus.STARTED:
             self.__enable_screenshot_buttons(True)
             self.__enable_navigation_buttons(True)
+            self.setEnabled(True)
         elif self.acquisition_status == AcquisitionStatus.STOPED:
             self.setEnabled(False)
 
