@@ -433,6 +433,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                 </property>
                 <item>
                  <widget class="QPushButton" name="case_button">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -450,7 +453,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_case.png</normaloff>../icons/icon_case.png</iconset>
+                    <normalon>../icons/icon_case.png</normalon>
+                    <disabledon>../icons/icon_case-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -485,7 +490,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_settings.png</normaloff>../icons/icon_settings.png</iconset>
+                    <normalon>../icons/icon_settings.png</normalon>
+                    <disabledon>../icons/icon_settings-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -520,7 +527,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_minimize.png</normaloff>../icons/icon_minimize.png</iconset>
+                    <normalon>../icons/icon_minimize.png</normalon>
+                    <disabledon>../icons/icon_minimize-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -532,6 +541,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                 </item>
                 <item>
                  <widget class="QPushButton" name="close_button">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -555,7 +567,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_close.png</normaloff>../icons/icon_close.png</iconset>
+                    <normalon>../icons/icon_close.png</normalon>
+                    <disabledon>../icons/icon_close-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -695,8 +709,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/back.png</normaloff>
-                      <normalon>../images/toolbar/back.png</normalon>../images/toolbar/back.png</iconset>
+                      <normalon>../images/toolbar/back.png</normalon>
+                      <disabledon>../images/toolbar/back-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -722,7 +737,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/forward.png</normaloff>../images/toolbar/forward.png</iconset>
+                      <normalon>../images/toolbar/forward.png</normalon>
+                      <disabledon>../images/toolbar/forward-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -767,6 +784,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                   </item>
                   <item>
                    <widget class="QPushButton" name="home_button">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="maximumSize">
                      <size>
                       <width>25</width>
@@ -781,7 +801,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/home.png</normaloff>../images/toolbar/home.png</iconset>
+                      <normalon>../images/toolbar/home.png</normalon>
+                      <disabledon>../images/toolbar/home-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -892,7 +914,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/close.png</normaloff>../images/toolbar/close.png</iconset>
+                      <normalon>../images/toolbar/close.png</normalon>
+                      <disabledon>../images/toolbar/close-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
