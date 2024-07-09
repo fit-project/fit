@@ -21,32 +21,15 @@
    <string>FIT Mail Scaper</string>
   </property>
   <widget class="QWidget" name="styleSheet">
-   <property name="font">
-    <font>
-     <family>Segoe UI</family>
-     <pointsize>12</pointsize>
-     <weight>50</weight>
-     <italic>false</italic>
-     <bold>false</bold>
-    </font>
-   </property>
    <property name="styleSheet">
     <string notr="true">
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-
-SET APP STYLESHEET - FULL STYLES HERE
-DARK THEME - DRACULA COLOR BASED
-
-///////////////////////////////////////////////////////////////////////////////////////////////// */
-
 QWidget{
 	color: rgb(221, 221, 221);
-	font: 12pt &quot;Segoe UI&quot;;
+	font: 13px;
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Tooltip */
+/* Tooltip */
 QToolTip {
 	color: #e06133;
 	background-color: rgba(33, 37, 43, 180);
@@ -61,74 +44,34 @@ QToolTip {
 	margin: 0px;
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Bg App */
-#bgApp {	
+/* Bg App*/
+#bg_app {	
 	background-color: rgb(40, 44, 52);
 	border: 1px solid rgb(44, 49, 58);
 }
 
+/* Title Menu */
+#title_right_info { font: 13px; }
+#title_right_info { padding-left: 10px; }
 
-#titleLeftApp { font: 63 12pt &quot;Segoe UI Semibold&quot;; }
-#titleLeftDescription { font: 8pt &quot;Segoe UI&quot;; color: rgb(189, 147, 249); }
-#titleRightInfo { font: 63 12pt &quot;Segoe UI Semibold&quot;; padding-left: 10px; }
-
-/* Btn Close */
-#extraCloseColumnBtn { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
-#extraCloseColumnBtn:hover { background-color: rgb(196, 161, 249); border-style: solid; border-radius: 4px; }
-#extraCloseColumnBtn:pressed { background-color: rgb(180, 141, 238); border-style: solid; border-radius: 4px; }
-
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Content App */
-#contentTopBg{	
+/* Content App */
+#content_top_bg{	
 	background-color: rgb(33, 37, 43);
 }
-#contentBottom{
+#content_bottom{
 	border-top: 3px solid rgb(44, 49, 58);
 }
 
 /* Top Buttons */
-#rightButtons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
-#rightButtons .QPushButton:hover { background-color: rgb(44, 49, 57); border-style: solid; border-radius: 4px; }
-#rightButtons .QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; border-radius: 4px; }
+#right_buttons_container .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
+#right_buttons_container .QPushButton:hover { background-color: rgb(44, 49, 57); border-style: solid; border-radius: 4px; }
+#right_buttons_container .QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; border-radius: 4px; }
 
-#loginButton .QPushButton {background-color: rgb(52, 59, 72); }
-#loginButton .QPushButton:hover { background-color: rgb(44, 49, 57);}
-#loginButton .QPushButton:pressed { background-color: rgb(44, 49, 57);}
-#loginButton .QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 255, 10%) }
-
-#logoCaseButton{background-color: rgb(52, 59, 72); }
-#logoCaseButton:hover { background-color: rgb(44, 49, 57);}
-#logoCaseButton:pressed { background-color: rgb(44, 49, 57);}
-#logoCaseButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 255, 10%) }
-
-
-/* Theme Settings */
-#extraRightBox { background-color: rgb(44, 49, 58); }
-#themeSettingsTopDetail { background-color: rgb(189, 147, 249); }
 
 /* Bottom Bar */
-#bottomBar { background-color: rgb(44, 49, 58); }
-#bottomBar QLabel { font-size: 11px; color: rgb(113, 126, 149); padding-left: 10px; padding-right: 10px; padding-bottom: 2px; }
+#bottom_bar { background-color: rgb(44, 49, 58); }
+#bottom_bar QLabel { font-size: 11px; color: rgb(113, 126, 149); padding-left: 10px; padding-right: 10px; padding-bottom: 2px; }
 
-/* CONTENT SETTINGS */
-/* MENUS */
-#contentSettings .QPushButton {	
-	background-position: left center;
-    background-repeat: no-repeat;
-	border: none;
-	border-left: 22px solid transparent;
-	background-color:transparent;
-	text-align: left;
-	padding-left: 44px;
-}
-#contentSettings .QPushButton:hover {
-	background-color: rgb(40, 44, 52);
-}
-#contentSettings .QPushButton:pressed {	
-	background-color: rgb(189, 147, 249);
-	color: rgb(255, 255, 255);
-}
 
 #content .QLabel:disabled {color: rgba(255, 255, 255, 10%) }
 #content .QDateEdit:disabled {color: rgba(255, 255, 255, 10%) }
@@ -228,8 +171,7 @@ QDateEdit::down-button {
     border-top-color: rgb(52, 59, 72);
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-LineEdit */
+/* LineEdit */
 QLineEdit {
 	background-color: rgb(33, 37, 43);
 	border-radius: 5px;
@@ -245,18 +187,15 @@ QLineEdit:focus {
 	border: 2px solid rgb(91, 101, 124);
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-QDateEdit */
-QDateEdit
-{
+/* QDateEdit */
+QDateEdit {
 	background-color: rgb(33, 37, 43);
 	border-radius: 5px;
 	border: 2px solid rgb(33, 37, 43);
 	padding-left: 10px;
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-ScrollBars */
+/* ScrollBars */
 QScrollBar:horizontal {
     border: none;
     background: rgb(52, 59, 72);
@@ -287,12 +226,10 @@ QScrollBar::sub-line:horizontal {
     subcontrol-position: left;
     subcontrol-origin: margin;
 }
-QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal
-{
+QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal{
      background: none;
 }
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
-{
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
      background: none;
 }
  QScrollBar:vertical {
@@ -333,8 +270,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
      background: none;
  }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-CheckBox */
+
 QTreeView::indicator {
     border: 3px solid rgb(52, 59, 72);
 	width: 15px;
@@ -356,8 +292,7 @@ QTreeView::item{
     padding-bottom: 2px;
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-RadioButton */
+/* RadioButton */
 QRadioButton::indicator {
     border: 3px solid rgb(52, 59, 72);
 	width: 15px;
@@ -373,8 +308,7 @@ QRadioButton::indicator:checked {
 	border: 3px solid rgb(52, 59, 72);	
 }
 
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-ComboBox */
+/* ComboBox */
 QComboBox{
 	background-color: rgb(33, 37, 43);
 	border-radius: 5px;
@@ -411,89 +345,7 @@ QComboBox QAbstractItemView {
      padding:10px;
 	selection-background-color: rgb(33, 37, 43);
 }
-
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Sliders */
-QSlider::groove:horizontal {
-    border-radius: 5px;
-    height: 10px;
-	margin: 0px;
-	background-color: rgb(52, 59, 72);
-}
-QSlider::groove:horizontal:hover {
-	background-color: rgb(55, 62, 76);
-}
-QSlider::handle:horizontal {
-    background-color: rgb(189, 147, 249);
-    border: none;
-    height: 10px;
-    width: 10px;
-    margin: 0px;
-	border-radius: 5px;
-}
-QSlider::handle:horizontal:hover {
-    background-color: rgb(195, 155, 255);
-}
-QSlider::handle:horizontal:pressed {
-    background-color: rgb(255, 121, 198);
-}
-
-QSlider::groove:vertical {
-    border-radius: 5px;
-    width: 10px;
-    margin: 0px;
-	background-color: rgb(52, 59, 72);
-}
-QSlider::groove:vertical:hover {
-	background-color: rgb(55, 62, 76);
-}
-QSlider::handle:vertical {
-    background-color: rgb(189, 147, 249);
-	border: none;
-    height: 10px;
-    width: 10px;
-    margin: 0px;
-	border-radius: 5px;
-}
-QSlider::handle:vertical:hover {
-    background-color: rgb(195, 155, 255);
-}
-QSlider::handle:vertical:pressed {
-    background-color: rgb(255, 121, 198);
-}
-
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-CommandLinkButton */
-QCommandLinkButton {	
-	color: rgb(255, 121, 198);
-	border-radius: 5px;
-	padding: 5px;
-	color: rgb(255, 170, 255);
-}
-QCommandLinkButton:hover {	
-	color: rgb(255, 170, 255);
-	background-color: rgb(44, 49, 60);
-}
-QCommandLinkButton:pressed {	
-	color: rgb(189, 147, 249);
-	background-color: rgb(52, 58, 71);
-}
-
-/* /////////////////////////////////////////////////////////////////////////////////////////////////
-Button */
-#pagesContainer QPushButton {
-	border: 2px solid rgb(52, 59, 72);
-	border-radius: 5px;	
-	background-color: rgb(52, 59, 72);
-}
-#pagesContainer QPushButton:hover {
-	background-color: rgb(57, 65, 80);
-	border: 2px solid rgb(61, 70, 86);
-}
-#pagesContainer QPushButton:pressed {	
-	background-color: rgb(35, 40, 49);
-	border: 2px solid rgb(43, 50, 61);
-}</string>
+</string>
    </property>
    <layout class="QVBoxLayout" name="appMargins">
     <property name="spacing">
@@ -512,7 +364,7 @@ Button */
      <number>10</number>
     </property>
     <item>
-     <widget class="QFrame" name="bgApp">
+     <widget class="QFrame" name="bg_app">
       <property name="styleSheet">
        <string notr="true"/>
       </property>
@@ -539,7 +391,7 @@ Button */
         <number>0</number>
        </property>
        <item>
-        <widget class="QFrame" name="contentBox">
+        <widget class="QFrame" name="content_box">
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -563,7 +415,7 @@ Button */
            <number>0</number>
           </property>
           <item>
-           <widget class="QFrame" name="contentTopBg">
+           <widget class="QFrame" name="content_top_bg">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -599,7 +451,7 @@ Button */
               <number>0</number>
              </property>
              <item>
-              <widget class="QFrame" name="topBarLeftBox">
+              <widget class="QFrame" name="left_box">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -629,7 +481,7 @@ Button */
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QFrame" name="logoContainer">
+                 <widget class="QFrame" name="logo_container">
                   <property name="minimumSize">
                    <size>
                     <width>60</width>
@@ -656,7 +508,7 @@ Button */
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="topLogo">
+                    <widget class="QLabel" name="top_logo">
                      <property name="minimumSize">
                       <size>
                        <width>42</width>
@@ -681,7 +533,7 @@ Button */
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="titleRightInfo">
+                 <widget class="QLabel" name="title_right_info">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -693,15 +545,6 @@ Button */
                     <width>16777215</width>
                     <height>45</height>
                    </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Segoe UI Semibold</family>
-                    <pointsize>12</pointsize>
-                    <weight>7</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
                   </property>
                   <property name="text">
                    <string>Mail Scraper</string>
@@ -715,7 +558,7 @@ Button */
               </widget>
              </item>
              <item alignment="Qt::AlignRight">
-              <widget class="QFrame" name="rightButtons">
+              <widget class="QFrame" name="right_buttons_container">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -748,7 +591,7 @@ Button */
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="caseButton">
+                 <widget class="QPushButton" name="case_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -777,7 +620,7 @@ Button */
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="settingsTopButton">
+                 <widget class="QPushButton" name="configuration_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -812,7 +655,7 @@ Button */
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="minimizeButton">
+                 <widget class="QPushButton" name="minimize_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -847,7 +690,7 @@ Button */
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="closeButton">
+                 <widget class="QPushButton" name="close_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -888,7 +731,7 @@ Button */
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="contentBottom">
+           <widget class="QFrame" name="content_bottom">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -936,7 +779,7 @@ Button */
                  <number>10</number>
                 </property>
                 <item>
-                 <widget class="QFrame" name="leftContent">
+                 <widget class="QFrame" name="left_content">
                   <property name="maximumSize">
                    <size>
                     <width>370</width>
@@ -970,15 +813,6 @@ Button */
                       </property>
                       <item>
                        <widget class="QLabel" name="sever_configuration_title">
-                        <property name="font">
-                         <font>
-                          <family>Segoe UI</family>
-                          <pointsize>12</pointsize>
-                          <weight>50</weight>
-                          <italic>false</italic>
-                          <bold>false</bold>
-                         </font>
-                        </property>
                         <property name="styleSheet">
                          <string notr="true"/>
                         </property>
@@ -1049,7 +883,7 @@ Button */
                        </widget>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="loginButtonLayout">
+                       <layout class="QHBoxLayout" name="login_button_layout">
                         <property name="bottomMargin">
                          <number>10</number>
                         </property>
@@ -1082,15 +916,6 @@ Button */
                             <width>150</width>
                             <height>16777215</height>
                            </size>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <family>Segoe UI</family>
-                            <pointsize>12</pointsize>
-                            <weight>50</weight>
-                            <italic>false</italic>
-                            <bold>false</bold>
-                           </font>
                           </property>
                           <property name="cursor">
                            <cursorShape>PointingHandCursor</cursorShape>
@@ -1155,15 +980,6 @@ Button */
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
-                        <property name="font">
-                         <font>
-                          <family>Segoe UI</family>
-                          <pointsize>12</pointsize>
-                          <weight>50</weight>
-                          <italic>false</italic>
-                          <bold>false</bold>
-                         </font>
-                        </property>
                         <property name="styleSheet">
                          <string notr="true"/>
                         </property>
@@ -1173,7 +989,7 @@ Button */
                        </widget>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="searchDateLayout">
+                       <layout class="QHBoxLayout" name="search_date_layout">
                         <item>
                          <widget class="QLabel" name="label_from_date">
                           <property name="enabled">
@@ -1375,7 +1191,7 @@ Button */
                           </property>
                           <property name="dateTime">
                            <datetime>
-                            <hour>18</hour>
+                            <hour>17</hour>
                             <minute>0</minute>
                             <second>0</second>
                             <year>1999</year>
@@ -1389,7 +1205,7 @@ Button */
                          </widget>
                         </item>
                         <item>
-                         <spacer name="dateSpacer">
+                         <spacer name="date_spacer">
                           <property name="orientation">
                            <enum>Qt::Horizontal</enum>
                           </property>
@@ -1496,9 +1312,9 @@ Button */
                        </widget>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="searchButtonLayout">
+                       <layout class="QHBoxLayout" name="search_button_layout">
                         <item>
-                         <spacer name="searchButtonSpacer">
+                         <spacer name="search_button_spacer">
                           <property name="orientation">
                            <enum>Qt::Horizontal</enum>
                           </property>
@@ -1527,15 +1343,6 @@ Button */
                             <height>16777215</height>
                            </size>
                           </property>
-                          <property name="font">
-                           <font>
-                            <family>Segoe UI</family>
-                            <pointsize>12</pointsize>
-                            <weight>50</weight>
-                            <italic>false</italic>
-                            <bold>false</bold>
-                           </font>
-                          </property>
                           <property name="cursor">
                            <cursorShape>PointingHandCursor</cursorShape>
                           </property>
@@ -1562,7 +1369,7 @@ Button */
                  </widget>
                 </item>
                 <item>
-                 <widget class="QFrame" name="rightContent">
+                 <widget class="QFrame" name="right_content">
                   <property name="minimumSize">
                    <size>
                     <width>300</width>
@@ -1616,15 +1423,6 @@ color:red !important;
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
-                        <property name="font">
-                         <font>
-                          <family>Segoe UI</family>
-                          <pointsize>12</pointsize>
-                          <weight>50</weight>
-                          <italic>false</italic>
-                          <bold>false</bold>
-                         </font>
-                        </property>
                         <property name="styleSheet">
                          <string notr="true"/>
                         </property>
@@ -1661,12 +1459,12 @@ color:red !important;
                        </widget>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="downloadButtonLayout">
+                       <layout class="QHBoxLayout" name="download_button_layout">
                         <property name="bottomMargin">
                          <number>0</number>
                         </property>
                         <item>
-                         <spacer name="downloadButtonSpacer">
+                         <spacer name="download_button_spacer">
                           <property name="orientation">
                            <enum>Qt::Horizontal</enum>
                           </property>
@@ -1698,15 +1496,6 @@ color:red !important;
                             <height>16777215</height>
                            </size>
                           </property>
-                          <property name="font">
-                           <font>
-                            <family>Segoe UI</family>
-                            <pointsize>12</pointsize>
-                            <weight>50</weight>
-                            <italic>false</italic>
-                            <bold>false</bold>
-                           </font>
-                          </property>
                           <property name="cursor">
                            <cursorShape>PointingHandCursor</cursorShape>
                           </property>
@@ -1736,7 +1525,7 @@ color:red !important;
               </widget>
              </item>
              <item>
-              <widget class="QFrame" name="bottomBar">
+              <widget class="QFrame" name="bottom_bar">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1772,7 +1561,7 @@ color:red !important;
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QLabel" name="creditsLabel">
+                 <widget class="QLabel" name="credits_label">
                   <property name="maximumSize">
                    <size>
                     <width>120</width>
@@ -1788,7 +1577,7 @@ color:red !important;
                  </widget>
                 </item>
                 <item>
-                 <spacer name="bottomBarLeftSpacer">
+                 <spacer name="bottom_bar_left_spacer">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -1837,7 +1626,7 @@ QProgressBar::chunk
                  </widget>
                 </item>
                 <item>
-                 <spacer name="bottomBarCentralSpacer">
+                 <spacer name="bottom_bar_central_spacer">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -1870,7 +1659,7 @@ color:#ffffff;</string>
                  </widget>
                 </item>
                 <item>
-                 <spacer name="bottomBarRightSpacer">
+                 <spacer name="bottom_bar_right_spacer">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>

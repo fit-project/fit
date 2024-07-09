@@ -32,7 +32,7 @@ from controller.configurations.tabs.general.general import (
 )
 from controller.case import Case as CaseController
 
-from common.utility import resolve_path, get_version, get_platform
+from common.utility import resolve_path, get_version
 
 from common.constants.view.tasks import status
 from common.constants import error, details
@@ -60,11 +60,17 @@ class Mail(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        # SET TOP BAR
-        self.topBarLeftBox.mouseMoveEvent = self.move_window
-        self.settingsTopButton.clicked.connect(show_configuration_dialog)
-        self.minimizeButton.clicked.connect(lambda: self.showMinimized())
-        self.closeButton.clicked.connect(lambda: self.close())
+        # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
+
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
+
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
+
+        # CONFIGURATION BUTTON
+        self.configuration_button.clicked.connect(show_configuration_dialog)
 
         # HIDE PROGRESS BAR
         self.progress_bar.setHidden(True)
@@ -138,7 +144,7 @@ class Mail(QtWidgets.QMainWindow):
         self.case_info = case_info
         self.wizard = wizard
 
-        self.caseButton.clicked.connect(lambda: show_case_info_dialog(self.case_info))
+        self.case_button.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 
         self.acquisition_manager = MailAcquisition(
             logging.getLogger(__name__),
