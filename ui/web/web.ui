@@ -1471,7 +1471,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/select.png</normaloff>../images/toolbar/select.png</iconset>
+                      <normalon>../images/toolbar/select.png</normalon>
+                      <disabledon>../images/toolbar/select-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -1506,7 +1508,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/scroll.png</normaloff>../images/toolbar/scroll.png</iconset>
+                      <normalon>../images/toolbar/scroll.png</normalon>
+                      <disabledon>../images/toolbar/scroll-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
