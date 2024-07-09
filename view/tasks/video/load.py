@@ -41,6 +41,7 @@ class VideoLoadWorker(QObject):
                 else:
                     controller.video_id = "facebook"
             except Exception as e:
+                __status = status.FAIL
                 self.error.emit(
                     {
                         "title": video.INVALID_URL,
@@ -50,6 +51,7 @@ class VideoLoadWorker(QObject):
                 )
             else:
                 try:
+
                     title, thumbnail, duration = controller.print_info()
                     is_youtube_video = controller.is_youtube_video()
                     audio_available = controller.is_audio_available()
@@ -66,6 +68,7 @@ class VideoLoadWorker(QObject):
                         "id_digest": id_digest,
                     }
                 except Exception as e:
+                    __status = status.FAIL
                     self.error.emit(
                         {
                             "title": video.SERVER_ERROR,

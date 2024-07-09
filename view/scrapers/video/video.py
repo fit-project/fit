@@ -25,6 +25,7 @@ from view.spinner import Spinner
 from controller.configurations.tabs.general.general import (
     General as GeneralConfigurationController,
 )
+from controller.case import Case as CaseController
 
 
 from common.constants import details, logger
@@ -193,13 +194,11 @@ class Video(QtWidgets.QMainWindow):
     def __start_task(self):
         if self.acquisition_directory is None:
             # Create acquisition directory
-            self.acquisition_directory = (
-                self.menu_bar.case_view.form.controller.create_acquisition_directory(
-                    "video",
-                    GeneralConfigurationController().configuration["cases_folder_path"],
-                    self.case_info["name"],
-                    self.form.input_url.text(),
-                )
+            self.acquisition_directory = CaseController().create_acquisition_directory(
+                "video",
+                GeneralConfigurationController().configuration["cases_folder_path"],
+                self.case_info["name"],
+                self.form.input_url.text(),
             )
 
         if self.acquisition_directory is not None:
