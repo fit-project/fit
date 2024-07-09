@@ -1293,6 +1293,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                   </property>
                   <item>
                    <widget class="QPushButton" name="start_acquisition_button">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="maximumSize">
                      <size>
                       <width>25</width>
@@ -1310,7 +1313,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/start.png</normaloff>../images/toolbar/start.png</iconset>
+                      <normalon>../images/toolbar/start.png</normalon>
+                      <disabledon>../images/toolbar/start-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -1342,7 +1347,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/stop.png</normaloff>../images/toolbar/stop.png</iconset>
+                      <normalon>../images/toolbar/stop.png</normalon>
+                      <disabledon>../images/toolbar/stop-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -1374,7 +1381,9 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                     </property>
                     <property name="icon">
                      <iconset>
-                      <normaloff>../images/toolbar/info.png</normaloff>../images/toolbar/info.png</iconset>
+                      <normalon>../images/toolbar/info.png</normalon>
+                      <disabledon>../images/toolbar/info-disabled.png</disabledon>
+                     </iconset>
                     </property>
                     <property name="iconSize">
                      <size>
