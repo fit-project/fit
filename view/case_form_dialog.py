@@ -31,10 +31,14 @@ class CaseFormDialog(QtWidgets.QDialog):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        # SET TOP BAR
-        self.topBarLeftBox.mouseMoveEvent = self.move_window
-        self.minimizeButton.clicked.connect(self.showMinimized)
-        self.closeButton.clicked.connect(self.close)
+        # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
+
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
+
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
 
         # SET VERSION
         self.version.setText("v" + get_version())
@@ -58,7 +62,7 @@ class CaseFormDialog(QtWidgets.QDialog):
         if "id" in self.__case_info:
             id = self.__case_info.get("id")
 
-        self.titleRightInfo.setText(DIALOG_TITLE.format(case_name, str(id)))
+        self.title_right_info.setText(DIALOG_TITLE.format(case_name, str(id)))
 
         self.form_manager.set_case_information()
 
