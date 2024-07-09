@@ -721,7 +721,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>0</number>
+                      <number>2</number>
                      </property>
                      <widget class="QWidget" name="general">
                       <property name="maximumSize">
@@ -774,7 +774,7 @@ Button */
                           </property>
                           <layout class="QVBoxLayout" name="form_layout">
                            <property name="spacing">
-                            <number>-1</number>
+                            <number>6</number>
                            </property>
                            <property name="leftMargin">
                             <number>0</number>
@@ -1272,23 +1272,13 @@ Button */
                          </widget>
                         </item>
                         <item>
-                         <layout class="QVBoxLayout" name="network_setting_box" stretch="0,0">
-                          <property name="topMargin">
-                           <number>0</number>
+                         <layout class="QVBoxLayout" name="network_setting_box" stretch="0">
+                          <property name="spacing">
+                           <number>10</number>
                           </property>
-                          <item>
-                           <widget class="QLabel" name="network_check_box_title">
-                            <property name="text">
-                             <string>Network check</string>
-                            </property>
-                            <property name="scaledContents">
-                             <bool>false</bool>
-                            </property>
-                            <property name="margin">
-                             <number>0</number>
-                            </property>
-                           </widget>
-                          </item>
+                          <property name="topMargin">
+                           <number>10</number>
+                          </property>
                           <item>
                            <widget class="QFrame" name="network_check_box_row">
                             <layout class="QHBoxLayout" name="ntp_and_nslookup" stretch="1,2">
@@ -1335,7 +1325,7 @@ Button */
                                   </property>
                                   <layout class="QVBoxLayout" name="ntp_layout">
                                    <property name="spacing">
-                                    <number>0</number>
+                                    <number>3</number>
                                    </property>
                                    <property name="leftMargin">
                                     <number>0</number>
@@ -1357,8 +1347,14 @@ Button */
                                        <height>16</height>
                                       </size>
                                      </property>
+                                     <property name="lineWidth">
+                                      <number>1</number>
+                                     </property>
                                      <property name="text">
                                       <string>NTP server</string>
+                                     </property>
+                                     <property name="margin">
+                                      <number>0</number>
                                      </property>
                                     </widget>
                                    </item>
@@ -1372,7 +1368,7 @@ Button */
                                      </property>
                                      <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="0">
                                       <property name="spacing">
-                                       <number>-1</number>
+                                       <number>6</number>
                                       </property>
                                       <property name="leftMargin">
                                        <number>0</number>
@@ -1439,7 +1435,7 @@ Button */
                                   </property>
                                   <layout class="QVBoxLayout" name="nslookup_layout">
                                    <property name="spacing">
-                                    <number>0</number>
+                                    <number>3</number>
                                    </property>
                                    <property name="leftMargin">
                                     <number>0</number>
@@ -1473,7 +1469,7 @@ Button */
                                      </property>
                                      <layout class="QHBoxLayout" name="horizontalLayout_14">
                                       <property name="spacing">
-                                       <number>-1</number>
+                                       <number>6</number>
                                       </property>
                                       <property name="leftMargin">
                                        <number>0</number>
@@ -1726,7 +1722,7 @@ Button */
                            <item>
                             <layout class="QHBoxLayout" name="credentials_configuration" stretch="2,0">
                              <property name="spacing">
-                              <number>-1</number>
+                              <number>6</number>
                              </property>
                              <property name="topMargin">
                               <number>0</number>
@@ -2235,7 +2231,7 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
                           </property>
                           <layout class="QVBoxLayout" name="pec_settings_layout_2">
                            <property name="spacing">
-                            <number>-1</number>
+                            <number>6</number>
                            </property>
                            <property name="leftMargin">
                             <number>0</number>
@@ -2252,7 +2248,7 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
                            <item>
                             <layout class="QHBoxLayout" name="server_timestamp_configuration" stretch="0,0">
                              <property name="spacing">
-                              <number>-1</number>
+                              <number>6</number>
                              </property>
                              <property name="topMargin">
                               <number>0</number>
@@ -2576,7 +2572,6 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
   </widget>
  </widget>
  <resources>
-  <include location="../../../Modern_GUI_PyDracula_PySide6_or_PyQt6/resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

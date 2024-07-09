@@ -609,7 +609,9 @@ QComboBox QAbstractItemView {
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_case.png</normaloff>../icons/icon_case.png</iconset>
+                    <normalon>../icons/icon_case.png</normalon>
+                    <disabledon>../icons/icon_case-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -644,7 +646,9 @@ QComboBox QAbstractItemView {
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_settings.png</normaloff>../icons/icon_settings.png</iconset>
+                    <normalon>../icons/icon_settings.png</normalon>
+                    <disabledon>../icons/icon_settings-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -679,7 +683,9 @@ QComboBox QAbstractItemView {
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_minimize.png</normaloff>../icons/icon_minimize.png</iconset>
+                    <normalon>../icons/icon_minimize.png</normalon>
+                    <disabledon>../icons/icon_minimize-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -714,7 +720,9 @@ QComboBox QAbstractItemView {
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icons/icon_close.png</normaloff>../icons/icon_close.png</iconset>
+                    <normalon>../icons/icon_close.png</normalon>
+                    <disabledon>../icons/icon_close-disabled.png</disabledon>
+                   </iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -1191,7 +1199,7 @@ QComboBox QAbstractItemView {
                           </property>
                           <property name="dateTime">
                            <datetime>
-                            <hour>17</hour>
+                            <hour>16</hour>
                             <minute>0</minute>
                             <second>0</second>
                             <year>1999</year>
