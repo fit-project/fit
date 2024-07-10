@@ -395,6 +395,13 @@ QToolTip {
        </property>
        <item>
         <widget class="QTableWidget" name="acquisition_table_info">
+         <property name="styleSheet">
+          <string notr="true">QHeaderView::section {
+    background-color: transparent;
+    color: white;
+}
+</string>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>

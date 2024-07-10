@@ -90,12 +90,3 @@ class TasksInfo(QtWidgets.QDialog):
                         QtCore.Qt.ItemFlag.ItemIsEnabled
                         | QtCore.Qt.ItemFlag.ItemIsSelectable
                     )
-
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-
-    w = TasksInfo()
-
-    w.show()
-    sys.exit(app.exec())
