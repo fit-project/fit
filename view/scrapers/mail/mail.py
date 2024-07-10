@@ -23,6 +23,7 @@ from view.util import (
     show_configuration_dialog,
     show_case_info_dialog,
     show_finish_acquisition_dialog,
+    show_acquisition_info_dialog,
     enable_all,
     validate_mail,
 )
@@ -71,6 +72,9 @@ class Mail(QtWidgets.QMainWindow):
 
         # CONFIGURATION BUTTON
         self.configuration_button.clicked.connect(show_configuration_dialog)
+
+        # ACQUISITION INFO BUTTON
+        self.acquisition_info.clicked.connect(show_acquisition_info_dialog)
 
         # HIDE PROGRESS BAR
         self.progress_bar.setHidden(True)
@@ -351,7 +355,7 @@ class Mail(QtWidgets.QMainWindow):
         enable_all(self.server_configuration.children(), True)
         self.emails_tree.clear()
         self.progress_bar.setHidden(True)
-        self.status.setText("")
+        self.status_message.setText("")
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()

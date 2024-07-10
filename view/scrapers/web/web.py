@@ -18,6 +18,7 @@ from view.util import (
     show_configuration_dialog,
     show_case_info_dialog,
     show_finish_acquisition_dialog,
+    show_acquisition_info_dialog,
     screenshot_filename,
 )
 
@@ -67,7 +68,7 @@ class Web(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-       # CUSTOM TOP BAR
+        # CUSTOM TOP BAR
         self.left_box.mouseMoveEvent = self.move_window
 
         # MINIMIZE BUTTON
@@ -78,6 +79,9 @@ class Web(QtWidgets.QMainWindow):
 
         # CONFIGURATION BUTTON
         self.configuration_button.clicked.connect(show_configuration_dialog)
+
+        # ACQUISITION INFO BUTTON
+        self.acquisition_info.clicked.connect(show_acquisition_info_dialog)
 
         # HIDE PROGRESS BAR
         self.progress_bar.setHidden(True)
@@ -99,7 +103,6 @@ class Web(QtWidgets.QMainWindow):
         # SET ACQUISITON BUTTONS
         self.start_acquisition_button.clicked.connect(self.__start_acquisition)
         self.stop_acquisition_button.clicked.connect(self.__stop_acquisition)
-        self.status_acquisition_button.clicked.connect(self.__acquisition_info)
         self.screenshot_visible_area_button.clicked.connect(self.__take_screenshot)
         self.screenshot_selected_area_button.clicked.connect(
             self.__take_screenshot_selected_area
@@ -255,9 +258,6 @@ class Web(QtWidgets.QMainWindow):
         self.__enable_all()
         show_finish_acquisition_dialog(self.acquisition_directory)
 
-    def __acquisition_info(self):
-        TasksInfo(self).show()
-
     def __enable_all(self):
         if self.acquisition_status == AcquisitionStatus.UNSTARTED:
             self.__enable_screenshot_buttons(False)
@@ -284,7 +284,6 @@ class Web(QtWidgets.QMainWindow):
 
         self.start_acquisition_button.setEnabled(start)
         self.stop_acquisition_button.setEnabled(stop)
-        self.status_acquisition_button.setEnabled(status)
 
     def __enable_screenshot_buttons(self, enable):
         self.screenshot_visible_area_button.setEnabled(enable)

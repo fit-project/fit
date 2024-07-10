@@ -591,6 +591,46 @@ QComboBox QAbstractItemView {
                  <number>0</number>
                 </property>
                 <item>
+                 <widget class="QPushButton" name="acquisition_info">
+                  <property name="minimumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip">
+                   <string>Acquisition info</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normalon>../icons/info-circle.png</normalon>
+                    <disabledon>../icons/info-circle-disabled.png</disabledon>
+                   </iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="case_button">
                   <property name="minimumSize">
                    <size>
@@ -603,6 +643,12 @@ QComboBox QAbstractItemView {
                     <width>28</width>
                     <height>28</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Case info</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -639,7 +685,10 @@ QComboBox QAbstractItemView {
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="toolTip">
-                   <string>Settings</string>
+                   <string>Configuration</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -1199,7 +1248,7 @@ QComboBox QAbstractItemView {
                           </property>
                           <property name="dateTime">
                            <datetime>
-                            <hour>16</hour>
+                            <hour>14</hour>
                             <minute>0</minute>
                             <second>0</second>
                             <year>1999</year>

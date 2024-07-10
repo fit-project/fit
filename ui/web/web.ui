@@ -432,6 +432,46 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                  <number>0</number>
                 </property>
                 <item>
+                 <widget class="QPushButton" name="acquisition_info">
+                  <property name="minimumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip">
+                   <string>Acquisition info</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normalon>../icons/info-circle.png</normalon>
+                    <disabledon>../icons/info-circle-disabled.png</disabledon>
+                   </iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="case_button">
                   <property name="enabled">
                    <bool>true</bool>
@@ -447,6 +487,12 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                     <width>28</width>
                     <height>28</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Case info</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -483,7 +529,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal{
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="toolTip">
-                   <string>Settings</string>
+                   <string>Configuration</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -1029,40 +1078,6 @@ QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; bo
                      <iconset>
                       <normalon>../images/toolbar/stop.png</normalon>
                       <disabledon>../images/toolbar/stop-disabled.png</disabledon>
-                     </iconset>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>25</width>
-                      <height>25</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="status_acquisition_button">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>25</width>
-                      <height>25</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>Acquisition status</string>
-                    </property>
-                    <property name="statusTip">
-                     <string/>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset>
-                      <normalon>../images/toolbar/info.png</normalon>
-                      <disabledon>../images/toolbar/info-disabled.png</disabledon>
                      </iconset>
                     </property>
                     <property name="iconSize">
