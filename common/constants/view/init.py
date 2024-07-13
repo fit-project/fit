@@ -23,3 +23,7 @@ FIT_NEW_VERSION_DOWNLOAD = "FIT download"
 
 USER_IS_NOT_ADMIN_TITLE = "User Privilege"
 USER_IS_NOT_ADMIN_MSG = 'Seems <strong>FIT</strong> is running without admin/root privileges.<br><br><strong style="color:red">Without this privileges FIT\'s functionality is very limited.</strong><br><br>Do you want exit and restart it whit admin/root privileges?'
+
+
+FFMPEG = "ffmpeg"
+WAR_FFMPEG_NOT_INSTALLED = "Seems <strong>ffmpeg</strong> it's not installed in your PC.<br><br><strong style=\"color:red\">Without ffmpeg you can't record audio and video screen.</strong><br><br>Do you want install it?"

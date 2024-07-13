@@ -7,6 +7,8 @@
 # -----
 ######
 
+import ffmpeg_downloader as ffdl
+
 from PyQt6 import QtCore, QtWidgets
 from view.configurations.tab import Tab
 
@@ -27,6 +29,12 @@ class ScreenRecorder(Tab):
         self.__set_current_config_values()
 
     def __init_ui(self):
+
+        # WARNGING MESSAGE
+        self.screen_recorder_warning_message = self.tab.findChild(
+            QtWidgets.QLabel, "screen_recorder_warning_message"
+        )
+
         # ENABLE SCREEN RECORDER
         self.enable_screen_recorder = self.tab.findChild(
             QtWidgets.QCheckBox, "enable_screen_recorder"
@@ -41,10 +49,20 @@ class ScreenRecorder(Tab):
             QtWidgets.QLineEdit, "screen_recorder_filename"
         )
 
+        # IF FFMPEG INSTALLED HIDE WARNGING MESSAGE
+        if ffdl.installed() is True:
+            self.screen_recorder_warning_message.hide()
+        else:
+            self.enable_screen_recorder.setEnabled(False)
+            self.screen_recorder_filename.setEnabled(False)
+
     def _is_enabled_screen_recorder(self):
-        self.screen_recorder_filename.setEnabled(
-            self.enable_screen_recorder.isChecked()
-        )
+        if ffdl.installed() is True:
+            self.screen_recorder_filename.setEnabled(
+                self.enable_screen_recorder.isChecked()
+            )
+        else:
+            self.enable_screen_recorder.setEnabled(False)
 
     def __set_current_config_values(self):
         self.enable_screen_recorder.setChecked(self.__options["enabled"])

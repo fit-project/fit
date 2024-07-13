@@ -721,7 +721,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>2</number>
+                      <number>5</number>
                      </property>
                      <widget class="QWidget" name="general">
                       <property name="maximumSize">
@@ -2112,6 +2112,16 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
                         </property>
                         <item>
                          <layout class="QVBoxLayout" name="screen_recorder_configuration_box">
+                          <item>
+                           <widget class="QLabel" name="screen_recorder_warning_message">
+                            <property name="text">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Seems &lt;span style=&quot; font-weight:600;&quot;&gt;ffmpeg&lt;/span&gt; it's not installed in your PC. &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;Without ffmpeg you can't record audio and video screen. &lt;/span&gt;If you want install it go to &lt;a href=&quot;https://www.ffmpeg.org/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;ffmpeg.org&lt;/span&gt;&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
+                            <property name="wordWrap">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
                           <item>
                            <widget class="QCheckBox" name="enable_screen_recorder">
                             <property name="text">
