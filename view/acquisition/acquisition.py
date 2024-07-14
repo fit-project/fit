@@ -46,8 +46,6 @@ class Acquisition(QObject):
         self.log_confing = LogConfigTools()
         self.tasks_manager = TasksManager(parent)
 
-        self.options = dict()
-
         self.start_tasks = list()
         self.stop_tasks = list()
         self.post_tasks = [

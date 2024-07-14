@@ -424,7 +424,6 @@ class Web(QtWidgets.QMainWindow):
             return
 
         title = self.tabs.currentWidget().page().title()
-        self.setWindowTitle("%s - Freezing Internet Tool" % title)
 
     def __navigate_home(self):
         self.tabs.currentWidget().setUrl(

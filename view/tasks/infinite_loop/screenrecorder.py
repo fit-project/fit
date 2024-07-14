@@ -11,6 +11,9 @@ import numpy as np
 import sys
 import os
 
+import ffmpeg_downloader as ffdl
+import subprocess
+
 
 from PIL import ImageGrab
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
@@ -30,6 +33,50 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
 from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
+
+
+class NewScreenRecorderWorker(QObject):
+    finished = pyqtSignal()
+    started = pyqtSignal()
+    error = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent=parent)
+        self.run = True
+        self.destroyed.connect(self.stop)
+        self.controller = CodecController()
+
+    def set_options(self, options):
+        pass
+
+    def start(self):
+        print(ffdl.ffmpeg_path)
+        self.started.emit()
+        cmd = (
+            ffdl.ffmpeg_path
+            + ' -f dshow -i video="screen-capture-recorder":audio="virtual-audio-capturer" output.mkv'
+        )
+
+        try:
+            self.process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+            )
+        except Exception as e:
+            print(e)
+
+    # https://trac.ffmpeg.org/wiki/Capture/Desktop
+
+    def stop(self):
+
+        output, error = self.process.communicate(input=b"q")
+        self.process.terminate()
+        self.process.kill()
+        self.process.wait()
+
+        self.finished.emit()
 
 
 class ScreenRecorderWorker(QObject):
@@ -101,7 +148,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = ScreenRecorderWorker()
+        self.worker = NewScreenRecorderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
