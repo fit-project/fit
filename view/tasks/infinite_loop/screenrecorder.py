@@ -16,8 +16,15 @@ import subprocess
 
 
 from PIL import ImageGrab
-from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from PyQt6.QtCore import QObject, pyqtSignal, QThread, QUrl
 from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtMultimedia import (
+    QMediaCaptureSession,
+    QWindowCapture,
+    QMediaRecorder,
+    QMediaDevices,
+    QAudioInput,
+)
 
 from screeninfo import get_monitors
 from common.constants.view.tasks import labels, state, status
@@ -33,6 +40,60 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
 from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
+
+
+class QtScreenRecorderWorker(QObject):
+    finished = pyqtSignal()
+    started = pyqtSignal()
+    error = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent=parent)
+        self.run = True
+        self.destroyed.connect(self.stop)
+        self._video_capture_session = QMediaCaptureSession()
+        self._window_capture = QWindowCapture()
+        self._video_capture_session.setWindowCapture(self._window_capture)
+        self._video_recorder = QMediaRecorder()
+        self._video_recorder.setOutputLocation(
+            QUrl.fromLocalFile(os.path.abspath("test.mp4"))
+        )
+        self._video_capture_session.setRecorder(self._video_recorder)
+
+        self._audio_capture_session = QMediaCaptureSession()
+        self._audio_input = QAudioInput(QMediaDevices().audioInputs()[0])
+        self._audio_capture_session.setAudioInput(self._audio_input)
+        self._audio_recorder = QMediaRecorder()
+        self._audio_recorder.setOutputLocation(
+            QUrl.fromLocalFile(os.path.abspath("test.mp3"))
+        )
+        self._audio_capture_session.setRecorder(self._audio_recorder)
+
+    def set_options(self, options):
+        pass
+
+    def start(self):
+        self.started.emit()
+
+        window = next(
+            (
+                window
+                for window in QWindowCapture.capturableWindows()
+                if window.description() == "FIT Web Scraper"
+            ),
+            None,
+        )
+        if window is not None:
+            self._window_capture.setWindow(window)
+            self._window_capture.start()
+            self._video_recorder.record()
+            self._audio_recorder.record()
+
+    def stop(self):
+        self._video_recorder.stop()
+        self._window_capture.stop()
+        self._audio_recorder.stop()
+        self.finished.emit()
 
 
 class NewScreenRecorderWorker(QObject):
@@ -148,7 +209,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = NewScreenRecorderWorker()
+        self.worker = QtScreenRecorderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
