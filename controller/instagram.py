@@ -57,71 +57,85 @@ class Instagram:
         self.loader.dirname_pattern = self.path
 
     def scrape_post(self):
-        posts = self.profile.get_posts()
-        self.__set_loader_dirname_pattern("posts")
-        for post in posts:
-            self.loader.download_post(post, self.profile)
-
-        self.__set_loader_dirname_pattern()
+        try:
+            posts = self.profile.get_posts()
+            self.__set_loader_dirname_pattern("posts")
+            for post in posts:
+                self.loader.download_post(post, self.profile)
+            self.__set_loader_dirname_pattern()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_stories(self):
-        id = []
-        id.append(self.profile.userid)
-        self.__set_loader_dirname_pattern("stories")
-        self.loader.download_stories(id)
-        self.__set_loader_dirname_pattern()
+        try:
+            id = []
+            id.append(self.profile.userid)
+            self.__set_loader_dirname_pattern("stories")
+            self.loader.download_stories(id)
+            self.__set_loader_dirname_pattern()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_followers(self):
-        n_followers = self.profile.followers
-        followers = self.profile.get_followers()
-        file = open(
-            os.path.join(
-                self.__make_scraped_type_directory("followers"), "followers.txt"
-            ),
-            "w",
-            encoding="utf-8",
-        )
-        file.write(instagram.N_FOLLOWERS + str(n_followers) + "\n")
-        file.write("\n")
-        file.write(instagram.FOLLOWERS)
-        for follower in followers:
-            file.write(follower.username + "\n")
-        file.close()
+        try:
+            n_followers = self.profile.followers
+            followers = self.profile.get_followers()
+            file = open(
+                os.path.join(
+                    self.__make_scraped_type_directory("followers"), "followers.txt"
+                ),
+                "w",
+                encoding="utf-8",
+            )
+            file.write(instagram.N_FOLLOWERS + str(n_followers) + "\n")
+            file.write("\n")
+            file.write(instagram.FOLLOWERS)
+            for follower in followers:
+                file.write(follower.username + "\n")
+            file.close()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_followees(self):
-        n_followees = self.profile.followees
-        followees = self.profile.get_followees()
+        try:
+            n_followees = self.profile.followees
+            followees = self.profile.get_followees()
 
-        file = open(
-            os.path.join(
-                self.__make_scraped_type_directory("followees"), "followees.txt"
-            ),
-            "w",
-            encoding="utf-8",
-        )
-        file.write(instagram.N_FOLLOWEES + str(n_followees) + "\n")
-        file.write("\n")
-        file.write(instagram.FOLLOWEES)
-        for followee in followees:
-            file.write(followee.username + "\n")
-        file.close()
+            file = open(
+                os.path.join(
+                    self.__make_scraped_type_directory("followees"), "followees.txt"
+                ),
+                "w",
+                encoding="utf-8",
+            )
+            file.write(instagram.N_FOLLOWEES + str(n_followees) + "\n")
+            file.write("\n")
+            file.write(instagram.FOLLOWEES)
+            for followee in followees:
+                file.write(followee.username + "\n")
+            file.close()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_saved_posts(self):
-        tmp_context_username = None
+        try:
+            tmp_context_username = None
 
-        if self.profile.username != self.profile._context.username:
-            tmp_context_username = self.profile._context.username
-            self.profile._context.username = self.profile.username
+            if self.profile.username != self.profile._context.username:
+                tmp_context_username = self.profile._context.username
+                self.profile._context.username = self.profile.username
 
-        saved_posts = self.profile.get_saved_posts()
+            saved_posts = self.profile.get_saved_posts()
 
-        if tmp_context_username is not None:
-            self.profile._context.username = tmp_context_username
+            if tmp_context_username is not None:
+                self.profile._context.username = tmp_context_username
 
-        self.__set_loader_dirname_pattern("saved_posts")
-        for saved_post in saved_posts:
-            self.loader.download_post(saved_post, self.profile_name)
-        self.__set_loader_dirname_pattern()
+            self.__set_loader_dirname_pattern("saved_posts")
+            for saved_post in saved_posts:
+                self.loader.download_post(saved_post, self.profile_name)
+            self.__set_loader_dirname_pattern()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_profile_picture(self):
         locale.setlocale(locale.LC_ALL, "en_US")
@@ -133,11 +147,14 @@ class Instagram:
             raise Exception(e)
 
     def scrape_tagged_posts(self):
-        tagged_posts = self.profile.get_tagged_posts()
-        self.__set_loader_dirname_pattern("tagged_posts")
-        for tagged_post in tagged_posts:
-            self.loader.download_post(tagged_post, self.profile_name)
-        self.__set_loader_dirname_pattern()
+        try:
+            tagged_posts = self.profile.get_tagged_posts()
+            self.__set_loader_dirname_pattern("tagged_posts")
+            for tagged_post in tagged_posts:
+                self.loader.download_post(tagged_post, self.profile_name)
+            self.__set_loader_dirname_pattern()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_info(self):
         verified = self.profile.is_verified
@@ -167,9 +184,12 @@ class Instagram:
         file.close()
 
     def scrape_highlights(self):
-        self.__set_loader_dirname_pattern("highlights")
-        self.loader.download_highlights(self.profile.userid)
-        self.__set_loader_dirname_pattern()
+        try:
+            self.__set_loader_dirname_pattern("highlights")
+            self.loader.download_highlights(self.profile.userid)
+            self.__set_loader_dirname_pattern()
+        except Exception as e:
+            raise Exception(e)
 
     def __make_scraped_type_directory(self, directory_name):
         scraped_type_directory = os.path.join(self.path, directory_name)
@@ -201,6 +221,7 @@ class Instagram:
                 )
             except Exception as e:
                 raise Exception(e)
+
             if self.profile.is_private:
                 followers = self.profile.followers
                 if followers == 0:
