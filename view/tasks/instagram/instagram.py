@@ -25,6 +25,7 @@ class TaskInstagram(Task):
     logged_in = pyqtSignal(str, int)
     scraped = pyqtSignal()
     progress = pyqtSignal()
+    scraped_status = pyqtSignal(object)
 
     def __init__(self, logger, progress_bar=None, status_bar=None, parent=None):
         super().__init__(logger, progress_bar, status_bar, parent)
@@ -101,7 +102,7 @@ class TaskInstagram(Task):
         self.sub_task_thread.started.connect(self.sub_task.scrape)
         self.sub_task.scraped.connect(self.__scrape_finished)
         self.sub_task.progress.connect(self.progress.emit)
-        self.sub_task.error.connect(self.__handle_error)
+        self.sub_task.scraped_status.connect(self.scraped_status.emit)
         self.sub_task.options = self.options
         self.sub_task_thread.start()
 

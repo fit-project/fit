@@ -125,9 +125,12 @@ class Instagram:
 
     def scrape_profile_picture(self):
         locale.setlocale(locale.LC_ALL, "en_US")
-        self.__set_loader_dirname_pattern("profile_pic")
-        self.loader.download_profilepic(self.profile)
-        self.__set_loader_dirname_pattern()
+        try:
+            self.__set_loader_dirname_pattern("profile_pic")
+            self.loader.download_profilepic(self.profile)
+            self.__set_loader_dirname_pattern()
+        except Exception as e:
+            raise Exception(e)
 
     def scrape_tagged_posts(self):
         tagged_posts = self.profile.get_tagged_posts()

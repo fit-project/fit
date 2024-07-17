@@ -1387,14 +1387,13 @@ color:red !important;
                        </widget>
                       </item>
                       <item>
-                       <widget class="QListWidget" name="listWidget">
+                       <widget class="QListWidget" name="acquisition_status_list">
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
                         <property name="styleSheet">
                          <string notr="true">QListWidget {
 background-color: rgb(33, 37, 43);
-color: rgb(33, 255, 6);
 font: italic 13pt &quot;Courier New&quot;;
 }
 
@@ -1455,7 +1454,12 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
 	border-radius: 0px;
  }
  QScrollBar::handle:vertical {	
-	background: rgb(189, 147, 249);
+	background: rgba(255, 255, 255, 30%);
+    min-height: 25px;
+	border-radius: 4px
+ }
+ QScrollBar::handle:vertical:disabled  {	
+	background: rgba(255, 255, 255, 5%);
     min-height: 25px;
 	border-radius: 4px
  }

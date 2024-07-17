@@ -85,6 +85,8 @@ class Instagram(QtWidgets.QMainWindow):
         # ACQUISITION STATUS
         self.acquisition_status.setEnabled(False)
 
+        self.__uncheck_checkboxes()
+
     def mousePressEvent(self, event):
         self.dragPos = event.globalPosition().toPoint()
 
@@ -99,6 +101,11 @@ class Instagram(QtWidgets.QMainWindow):
             input_field.text() for input_field in self.login_configuration_fields
         )
         self.login_button.setEnabled(all_field_filled)
+
+    def __uncheck_checkboxes(self):
+        for checkbox in self.acquisition_criteria.findChildren(QtWidgets.QCheckBox):
+            if checkbox.isChecked():
+                checkbox.setChecked(False)
 
     def init(self, case_info, wizard, options=None):
         self.acquisition_directory = None
@@ -129,11 +136,17 @@ class Instagram(QtWidgets.QMainWindow):
             self.__acquisition_is_finished
         )
 
+        self.acquisition_manager.scraped_status.connect(self.__scraped_status)
+
     def __login(self):
+        self.start_acquisition_button.setEnabled(True)
+        self.acquisition_status.setEnabled(False)
+        self.__uncheck_checkboxes()
         self.__enable_all(False)
         self.__start_spinner()
         self.progress_bar.setHidden(False)
         self.status_message.setHidden(False)
+        self.acquisition_status_list.clear()
 
         if self.is_task_started is False:
             self.__start_task()
@@ -194,7 +207,7 @@ class Instagram(QtWidgets.QMainWindow):
             self.acquisition_criteria.setEnabled(True)
             self.acquisition_status.setEnabled(True)
         elif account_type == 2 or account_type == 4:
-            self.saved_post.setEnabled(False)
+            self.scrape_saved_posts.setEnabled(False)
             self.acquisition_criteria.setEnabled(True)
             self.acquisition_status.setEnabled(True)
 
@@ -202,6 +215,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.is_acquisition_running = True
         self.progress_bar.setHidden(False)
         self.status_message.setHidden(False)
+
         self.__enable_all(False)
         self.__start_spinner()
 
@@ -233,8 +247,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.login_configuration.setEnabled(True)
 
         self.acquisition_criteria.setEnabled(False)
-        self.acquisition_status.setEnabled(False)
-        self.saved_post.setEnabled(True)
+        self.acquisition_status.setEnabled(True)
+        self.start_acquisition_button.setEnabled(False)
+        self.scrape_saved_posts.setEnabled(True)
 
         self.progress_bar.setHidden(True)
         self.status_message.setHidden(True)
@@ -251,6 +266,67 @@ class Instagram(QtWidgets.QMainWindow):
 
     def __handle_progress(self):
         self.progress_bar.setValue(self.progress_bar.value() + int(self.increment))
+
+    def __scraped_status(self, info):
+
+        __acquisition_name = None
+        __method = info.get("method")
+
+        if __method == "scrape_profile_picture":
+            __acquisition_name = instagram.PROFILE_PIC
+        elif __method == "scrape_info":
+            __acquisition_name = [
+                instagram.FULL_NAME,
+                instagram.BIO,
+                instagram.POST_NUMBER,
+                instagram.ACCOUNT_TYPE,
+            ]
+        else:
+            checkbox = self.acquisition_criteria.findChild(
+                QtWidgets.QCheckBox, info.get("method")
+            )
+
+            if checkbox:
+                __acquisition_name = checkbox.text()
+
+        if __acquisition_name is not None:
+
+            if isinstance(__acquisition_name, str):
+                label_text = self.__get_acquisition_label_text(
+                    __acquisition_name, info.get("status"), info.get("message")
+                )
+                self.__add_label_in_acquisition_status_list(label_text)
+
+            if isinstance(__acquisition_name, list):
+                for name in __acquisition_name:
+                    label_text = self.__get_acquisition_label_text(
+                        name, info.get("status"), info.get("message")
+                    )
+                    self.__add_label_in_acquisition_status_list(label_text)
+
+    def __get_acquisition_label_text(
+        self, acquisition_name, acquisition_status, acquisition_message
+    ):
+        __status = (
+            '<strong style="color:green">{}</strong>'.format(acquisition_status)
+            if acquisition_status == status.SUCCESS
+            else '<strong style="color:red">{}</strong>'.format(acquisition_status)
+        )
+        __message = (
+            ""
+            if acquisition_message == ""
+            else "details: {}".format(acquisition_message)
+        )
+
+        return "Acquisition {}: {} {}".format(acquisition_name, __status, __message)
+
+    def __add_label_in_acquisition_status_list(self, label_text):
+        item = QtWidgets.QListWidgetItem(self.acquisition_status_list)
+        label = QtWidgets.QLabel(label_text)
+        label.setWordWrap(True)
+        item.setSizeHint(label.sizeHint())
+        self.acquisition_status_list.addItem(item)
+        self.acquisition_status_list.setItemWidget(item, label)
 
     def __enable_all(self, enable):
         self.setEnabled(enable)

@@ -8,11 +8,13 @@
 ######
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from common.constants.view.tasks import status
+
 
 class InstagramScrapeWorker(QObject):
     scraped = pyqtSignal()
     progress = pyqtSignal()
-    error = pyqtSignal(object)
+    scraped_status = pyqtSignal(object)
 
     @property
     def options(self):
@@ -30,8 +32,20 @@ class InstagramScrapeWorker(QObject):
         controller.set_dir(profile_dir)
 
         for method in methods_to_execute:
+
+            __scraped_status = {"method": method}
             method = getattr(controller, method)
-            method()
+
+            try:
+                method()
+                __scraped_status["status"] = status.SUCCESS
+                __scraped_status["message"] = ""
+
+            except Exception as e:
+                __scraped_status["status"] = status.FAIL
+                __scraped_status["message"] = str(e)
+
+            self.scraped_status.emit(__scraped_status)
             self.progress.emit()
 
         self.scraped.emit()

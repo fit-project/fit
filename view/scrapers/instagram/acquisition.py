@@ -16,6 +16,7 @@ class InstagramAcquisition(Acquisition):
     logged_in = pyqtSignal(str, int)
     scraped = pyqtSignal()
     progress = pyqtSignal()
+    scraped_status = pyqtSignal(object)
 
     def __init__(self, logger, progress_bar, status_bar, parent=None):
         super().__init__(logger, progress_bar, status_bar, parent)
@@ -30,4 +31,5 @@ class InstagramAcquisition(Acquisition):
         self.task_instagram = self.tasks_manager.get_task(INSTAGRAM)
         self.task_instagram.scraped.connect(self.start_post_acquisition)
         self.task_instagram.progress.connect(self.progress.emit)
+        self.task_instagram.scraped_status.connect(self.scraped_status.emit)
         self.task_instagram.scrape()
