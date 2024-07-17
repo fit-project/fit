@@ -1317,7 +1317,7 @@ QComboBox QAbstractItemView {
                                 </size>
                                </property>
                                <property name="text">
-                                <string>INSTRAGRAM</string>
+                                <string>INSTAGRAM</string>
                                </property>
                                <property name="checked">
                                 <bool>false</bool>

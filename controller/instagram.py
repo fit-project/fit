@@ -10,6 +10,7 @@ import shutil
 
 from instaloader import Profile, instaloader
 import os
+import locale
 
 from common.constants.controller import instagram
 
@@ -123,6 +124,7 @@ class Instagram:
         self.__set_loader_dirname_pattern()
 
     def scrape_profile_picture(self):
+        locale.setlocale(locale.LC_ALL, "en_US")
         self.__set_loader_dirname_pattern("profile_pic")
         self.loader.download_profilepic(self.profile)
         self.__set_loader_dirname_pattern()

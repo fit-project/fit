@@ -6,13 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import os
-
 from PyQt6.QtCore import QObject, pyqtSignal
-from common.constants.view.tasks import status
-
-from common.constants.view import instagram
-from common.constants import error
 
 
 class InstagramScrapeWorker(QObject):
