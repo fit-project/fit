@@ -251,14 +251,15 @@ class Instagram(QtWidgets.QMainWindow):
         self.start_acquisition_button.setEnabled(False)
         self.scrape_saved_posts.setEnabled(True)
 
-        self.progress_bar.setHidden(True)
-        self.status_message.setHidden(True)
-        self.status_message.setText("")
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
 
         show_finish_acquisition_dialog(self.acquisition_directory)
+
+        self.progress_bar.setHidden(True)
+        self.status_message.setHidden(True)
+        self.status_message.setText("")
 
         self.acquisition_directory = None
         self.is_task_started = False
