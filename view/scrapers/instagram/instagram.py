@@ -62,6 +62,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.acquisition_info.clicked.connect(show_acquisition_info_dialog)
 
         # HIDE PROGRESS BAR
+        self.progress_bar.setValue(0)
         self.progress_bar.setHidden(True)
 
         # HIDE STATUS MESSAGE

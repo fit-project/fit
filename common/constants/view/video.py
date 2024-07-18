@@ -25,8 +25,9 @@ SUBTITLES = "Subtitles (Youtube/watch only)"
 COMMENTS = "Comments (Youtube/watch only)"
 SERVER_ERROR = "Server error"
 INVALID_URL = "Invalid URL"
-DURATION = "Duration: "
-SUPPORTED = "Check supported sites..."
+DURATION = "<strong>Duration:</strong> {}"
+VIDEO_TITLE = "<strong>Title:</strong> {}"
+SUPPORTED = "<u><i>supported sites</i></u>"
 SUPPORTED_SITES_LIST = (
     "https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/supportedsites.md"
 )

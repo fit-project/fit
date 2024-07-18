@@ -8,36 +8,124 @@
 ######
 import os
 import logging
-import subprocess
 import requests
 
-from PyQt6 import QtCore, QtGui, QtWidgets
-
+from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QPixmap, QImage
 
+from view.clickable_label import ClickableLabel as ClickableLabelView
 
-from view.scrapers.video.form import VideoForm
 from view.scrapers.video.acquisition import VideoAcquisition
-from view.menu_bar import MenuBar as MenuBarView
-
 from view.spinner import Spinner
+
+from view.util import (
+    show_configuration_dialog,
+    show_case_info_dialog,
+    show_finish_acquisition_dialog,
+    show_acquisition_info_dialog,
+)
+
 
 from controller.configurations.tabs.general.general import (
     General as GeneralConfigurationController,
 )
 from controller.case import Case as CaseController
 
-
-from common.constants import details, logger
-from common.constants.view import general
+from common.constants.view import general, video
 from common.constants.view.tasks import status
-from common.utility import get_platform, resolve_path
+from common.utility import resolve_path, get_version
 
 
 class Video(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Video, self).__init__(*args, **kwargs)
         self.spinner = Spinner()
+        self.__init_ui()
+
+    def __init_ui(self):
+        uic.loadUi(resolve_path("ui/video/video.ui"), self)
+
+        # HIDE STANDARD TITLE BAR
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
+
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
+
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
+
+        # CONFIGURATION BUTTON
+        self.configuration_button.clicked.connect(show_configuration_dialog)
+
+        # ACQUISITION INFO BUTTON
+        self.acquisition_info.clicked.connect(show_acquisition_info_dialog)
+
+        # HIDE PROGRESS BAR
+        self.progress_bar.setValue(0)
+        self.progress_bar.setHidden(True)
+
+        # HIDE STATUS MESSAGE
+        self.status_message.setHidden(True)
+
+        # SET VERSION
+        self.version.setText("v" + get_version())
+
+        # PREVIEW CONTAINER
+        self.preview_container.setEnabled(False)
+
+        # ACQUISITION CRITERIA CONTAINER
+        self.acquisition_criteria.setEnabled(False)
+
+        supported_site = ClickableLabelView(video.SUPPORTED_SITES_LIST, video.SUPPORTED)
+        supported_site.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+        self.url_configuration_top_layout.addWidget(supported_site)
+
+        # MULTIFUNCTION BUTTON
+        self.multifunction_button.setEnabled(False)
+        self.multifunction_button.clicked.connect(self.__select_task)
+
+        self.input_url.textEdited.connect(self.__remove_white_space)
+        self.input_url.textChanged.connect(self.__enable_multifunction_button)
+
+        self.__uncheck_checkboxes()
+
+    def __select_task(self):
+        sender = self.sender()
+        if sender.text() == general.BUTTON_LOAD:
+            self.__load()
+        elif sender.text() == general.DOWNLOAD:
+            self.__download()
+
+    def __swap_button_text(self):
+        if self.multifunction_button.text() == general.BUTTON_LOAD:
+            self.multifunction_button.setText(general.DOWNLOAD)
+        elif self.multifunction_button.text() == general.DOWNLOAD:
+            self.multifunction_button.setText(general.BUTTON_LOAD)
+
+    def __remove_white_space(self, text):
+        sender = self.sender()
+        sender.setText(text.replace(" ", ""))
+
+    def __enable_multifunction_button(self, text):
+        self.multifunction_button.setEnabled(bool(text))
+
+    def __uncheck_checkboxes(self):
+        for checkbox in self.acquisition_criteria.findChildren(QtWidgets.QCheckBox):
+            if checkbox.isChecked():
+                checkbox.setChecked(False)
+
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPosition().toPoint()
+
+    def move_window(self, event):
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
 
     def init(self, case_info, wizard, options=None):
         self.acquisition_directory = None
@@ -47,63 +135,14 @@ class Video(QtWidgets.QMainWindow):
         self.case_info = case_info
         self.wizard = wizard
 
-        self.setWindowIcon(
-            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
-        )
-
-        # set font
-        font = QtGui.QFont()
-        font.setPointSize(10)
-
-        self.setObjectName("mainWindow")
-        self.width = 990
-        self.height = 480
-        self.setFixedSize(self.width, self.height)
-        self.centralwidget = QtWidgets.QWidget(self)
-        self.centralwidget.setStyleSheet(
-            "QWidget {background-color: rgb(255, 255, 255);}"
-        )
-        self.centralwidget.setObjectName("centralwidget")
-        self.setCentralWidget(self.centralwidget)
-
-        #### - START MENU BAR - #####
-        # Uncomment to disable native menubar on Mac
-        self.menuBar().setNativeMenuBar(False)
-
-        # This bar is common on all main window
-        self.menu_bar = MenuBarView(self, self.case_info)
-
-        # Add default menu on menu bar
-        self.menu_bar.add_default_actions()
-        self.setMenuBar(self.menu_bar)
-        #### - END MENUBAR - #####
-
-        self.form = VideoForm(self.centralwidget)
-        self.form.load_button.clicked.connect(self.__load)
-
-        self.status = QtWidgets.QStatusBar()
-        self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progress_bar.setGeometry(QtCore.QRect(517, 340, 131, 23))
-        self.progress_bar.setValue(0)
-        self.progress_bar.setObjectName("progress_bar")
-        self.progress_bar.setHidden(True)
-        self.status.addPermanentWidget(self.progress_bar)
-        self.setStatusBar(self.status)
-
-        # DOWNLOAD BUTTON
-        self.download_button = QtWidgets.QPushButton(self.centralwidget)
-        self.download_button.setGeometry(QtCore.QRect(865, 385, 80, 25))
-        self.download_button.setObjectName("download_button")
-        self.download_button.setFont(font)
-        self.download_button.clicked.connect(self.__download)
-        self.download_button.setEnabled(False)
+        self.case_button.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 
         # ACQUISITION
         self.is_acquisition_running = False
         self.acquisition_manager = VideoAcquisition(
             logging.getLogger(__name__),
             self.progress_bar,
-            self.status,
+            self.status_message,
             self,
         )
 
@@ -119,16 +158,10 @@ class Video(QtWidgets.QMainWindow):
             self.__acquisition_is_finished
         )
 
-        self.retranslateUi()
-
-    def retranslateUi(self):
-        self.setWindowTitle(general.MAIN_WINDOW_TITLE)
-        self.download_button.setText(general.DOWNLOAD)
-
     def __load(self):
         self.__enable_all(False)
         self.__start_spinner()
-        self.form.quality.clear()
+        self.video_quality.clear()
 
         if self.is_task_started is False:
             self.__start_task()
@@ -140,6 +173,8 @@ class Video(QtWidgets.QMainWindow):
         self.__enable_all(True)
 
         if __status == status.SUCCESS:
+            self.preview_container.setEnabled(True)
+
             pixmap = QPixmap()
 
             thumbnail = info.get("thumbnail")
@@ -156,40 +191,45 @@ class Video(QtWidgets.QMainWindow):
             else:
                 response = requests.get(thumbnail)
                 pixmap.loadFromData(response.content)
-            self.form.thumbnail.setPixmap(pixmap)
-            self.form.title.setText(title)
-            self.form.label_duration.show()
-            self.form.duration.setText(duration)
+
+            self.preview_thumbnail.setPixmap(
+                pixmap.scaled(
+                    self.preview_thumbnail.maximumWidth(),
+                    self.preview_thumbnail.maximumHeight(),
+                    QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                    QtCore.Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+            self.preview_title.setText(video.VIDEO_TITLE.format(title))
+            self.preview_duration.setText(video.DURATION.format(duration))
 
             if not is_youtube_video:
-                self.form.checkbox_comments.setEnabled(False)
-                self.form.checkbox_subtitles.setEnabled(False)
+                self.get_comments.setEnabled(False)
+                self.get_subtitles.setEnabled(False)
 
             # check if audio only is available for download
             if not audio_available:
-                self.form.checkbox_audio.setEnabled(False)
+                self.get_audio.setEnabled(False)
 
             # get the list of supported quality
             unique_items = set()
             if availabe_resolution == "Default":
-                self.form.quality.addItem(availabe_resolution)
+                self.video_quality.addItem(availabe_resolution)
             else:
                 for format in availabe_resolution:
                     if "format_note" in format:
                         format_id = format["format_id"]
                         if "format_note" in format:
                             format_desc = format["format_note"]
-                            self.form.quality.addItem(f"{format_id}: {format_desc}")
+                            self.video_quality.addItem(f"{format_id}: {format_desc}")
                             unique_items.add(format_id)
                     else:
                         if "Default" not in unique_items:
-                            self.form.quality.addItem("Default")
+                            self.video_quality.addItem("Default")
                             unique_items.add("Default")
 
-            self.form.acquisition_group_box.setEnabled(True)
-            self.download_button.setEnabled(True)
-        else:
-            pass
+            self.acquisition_criteria.setEnabled(True)
+            self.__swap_button_text()
 
     def __start_task(self):
         if self.acquisition_directory is None:
@@ -198,7 +238,7 @@ class Video(QtWidgets.QMainWindow):
                 "video",
                 GeneralConfigurationController().configuration["cases_folder_path"],
                 self.case_info["name"],
-                self.form.input_url.text(),
+                self.input_url.text(),
             )
 
         if self.acquisition_directory is not None:
@@ -207,7 +247,7 @@ class Video(QtWidgets.QMainWindow):
                     "acquisition_directory": self.acquisition_directory,
                     "type": "video",
                     "case_info": self.case_info,
-                    "url": self.form.input_url.text(),
+                    "url": self.input_url.text(),
                 }
                 self.acquisition_manager.load_tasks()
                 self.acquisition_manager.start()
@@ -224,7 +264,7 @@ class Video(QtWidgets.QMainWindow):
         self.__start_spinner()
 
         methods_to_execute = ["get_info", "download_video"]
-        checkboxes = self.form.acquisition_group_box.findChildren(QtWidgets.QCheckBox)
+        checkboxes = self.acquisition_criteria.findChildren(QtWidgets.QCheckBox)
         checkboxes_checked = list(
             filter(lambda checkbox: checkbox.isChecked(), checkboxes)
         )
@@ -251,44 +291,29 @@ class Video(QtWidgets.QMainWindow):
         self.__enable_all(True)
 
         self.progress_bar.setHidden(True)
-        self.status.showMessage("")
+        self.status_message.setText("")
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
 
-        self.download_button.setEnabled(False)
-        self.form.acquisition_group_box.setEnabled(False)
-        self.form.quality.clear()
+        self.__swap_button_text()
+        self.video_quality.clear()
+        self.__uncheck_checkboxes()
+        self.preview_thumbnail.clear()
+        self.preview_title.clear()
+        self.preview_duration.clear()
+        self.input_url.clear()
 
-        self.__show_finish_acquisition_dialog()
+        self.acquisition_criteria.setEnabled(False)
+        self.preview_container.setEnabled(False)
+        self.multifunction_button.setEnabled(True)
+
+        show_finish_acquisition_dialog(self.acquisition_directory)
 
         self.acquisition_directory = None
         self.id_digest = None
         self.is_task_started = False
         self.is_acquisition_running = False
-
-    def __show_finish_acquisition_dialog(self):
-        msg = QtWidgets.QMessageBox(self)
-        msg.setWindowTitle(logger.ACQUISITION_FINISHED)
-        msg.setText(details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(
-            QtWidgets.QMessageBox.StandardButton.Yes
-            | QtWidgets.QMessageBox.StandardButton.No
-        )
-
-        return_value = msg.exec()
-        if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
-            self.__open_acquisition_directory()
-
-    def __open_acquisition_directory(self):
-        platform = get_platform()
-
-        if platform == "win":
-            os.startfile(self.acquisition_directory)
-        elif platform == "osx":
-            subprocess.call(["open", self.acquisition_directory])
-        else:  # platform == 'lin' || platform == 'other'
-            subprocess.call(["xdg-open", self.acquisition_directory])
 
     def __handle_progress(self):
         self.progress_bar.setValue(self.progress_bar.value() + int(self.increment))
@@ -297,8 +322,8 @@ class Video(QtWidgets.QMainWindow):
         self.setEnabled(enable)
 
     def __start_spinner(self):
-        center_x = self.x() + self.width / 2
-        center_y = self.y() + self.height / 2
+        center_x = self.x() + self.width() / 2
+        center_y = self.y() + self.height() / 2
         self.spinner.set_position(center_x, center_y)
         self.spinner.start()
 
