@@ -6,40 +6,120 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import os
-import shutil
 import logging
-import subprocess
 
-from PyQt6 import QtCore, QtGui, QtWidgets
+
+from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtWidgets import QListWidgetItem, QCheckBox
 
-from view.scrapers.entire_website.form import EntireWebsiteForm
 from view.scrapers.entire_website.acquisition import EntireWebsiteAcquisition
 
 
-from view.menu_bar import MenuBar as MenuBarView
-
 from view.error import Error as ErrorView
 from view.spinner import Spinner
+from view.util import (
+    show_configuration_dialog,
+    show_case_info_dialog,
+    show_finish_acquisition_dialog,
+    show_acquisition_info_dialog,
+)
 
-
+from controller.case import Case as CaseController
 from controller.configurations.tabs.general.general import (
     General as GeneralConfigurationController,
 )
 
-
 from common.constants.view.tasks import status
-from common.constants import details, logger
+from common.constants import details
 
-from common.constants.view import general, entire_site
-from common.utility import get_platform, resolve_path
+from common.constants.view import entire_site
+from common.utility import resolve_path, get_version
 
 
 class EntireWebsite(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(EntireWebsite, self).__init__(*args, **kwargs)
         self.spinner = Spinner()
+        self.__init_ui()
+
+    def __init_ui(self):
+        uic.loadUi(resolve_path("ui/entire_website/entire_website.ui"), self)
+
+        # HIDE STANDARD TITLE BAR
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
+
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
+
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
+
+        # CONFIGURATION BUTTON
+        self.configuration_button.clicked.connect(show_configuration_dialog)
+
+        # ACQUISITION INFO BUTTON
+        self.acquisition_info.clicked.connect(show_acquisition_info_dialog)
+
+        # HIDE PROGRESS BAR
+        self.progress_bar.setValue(0)
+        self.progress_bar.setHidden(True)
+
+        # HIDE STATUS MESSAGE
+        self.status_message.setHidden(True)
+
+        # SET VERSION
+        self.version.setText("v" + get_version())
+
+        # LOAD FROM DOMAIN CHECKBOX
+        self.load_from_domain.clicked.connect(self.__switch_load_type)
+
+        # LOAD FROM SITEMAP CHECKBOX
+        self.load_from_sitemap.clicked.connect(self.__switch_load_type)
+
+        self.load_website_button.setEnabled(False)
+        self.input_url.textChanged.connect(
+            lambda: self.__enable_button(self.input_url, self.load_website_button)
+        )
+
+        self.add_custom_url.setEnabled(False)
+        self.input_custom_url.textChanged.connect(
+            lambda: self.__enable_button(self.input_custom_url, self.add_url_button)
+        )
+
+        self.right_content.setEnabled(False)
+
+        # CHECK UNCHECK ALL
+        self.check_uncheck_all.stateChanged.connect(self.__check_uncheck_all)
+
+        self.url_list.clear()
+
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPosition().toPoint()
+
+    def move_window(self, event):
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
+
+    def __switch_load_type(self):
+        self.input_url.setText("")
+        if self.sender().objectName() == "load_from_domain":
+            self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_URL)
+            self.load_from_domain.setChecked(True)
+            self.load_from_sitemap.setChecked(False)
+        elif self.sender().objectName() == "load_from_sitemap":
+            self.input_url.setPlaceholderText(entire_site.PLACEHOLDER_SITEMAP_URL)
+            self.load_from_domain.setChecked(False)
+            self.load_from_sitemap.setChecked(True)
+
+    def __enable_button(self, input, button):
+        all_field_filled = bool(input.text())
+        button.setEnabled(all_field_filled)
 
     def init(self, case_info, wizard, options=None):
         self.acquisition_directory = None
@@ -49,55 +129,17 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.wizard = wizard
         self.case_info = case_info
 
-        self.setWindowIcon(
-            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
-        )
+        self.case_button.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 
-        # set font
-        font = QtGui.QFont()
-        font.setPointSize(10)
-
-        self.width = 990
-        self.height = 480
-        self.setFixedSize(self.width, self.height)
-        self.centralwidget = QtWidgets.QWidget(self)
-        self.centralwidget.setStyleSheet(
-            "QWidget {background-color: rgb(255, 255, 255);}"
-        )
-        self.setCentralWidget(self.centralwidget)
-
-        #### - START MENU BAR - #####
-        # Uncomment to disable native menubar on Mac
-        self.menuBar().setNativeMenuBar(False)
-
-        # This bar is common on all main window
-        self.menu_bar = MenuBarView(self, self.case_info)
-
-        # Add default menu on menu bar
-        self.menu_bar.add_default_actions()
-        self.setMenuBar(self.menu_bar)
-        #### - END MENUBAR - #####
-
-        self.status = QtWidgets.QStatusBar()
-        self.progress_bar = QtWidgets.QProgressBar(self)
-        self.progress_bar.setGeometry(QtCore.QRect(517, 340, 131, 23))
-        self.progress_bar.setValue(0)
-        self.progress_bar.setObjectName("progress_bar")
-        self.progress_bar.setHidden(True)
-        self.status.addPermanentWidget(self.progress_bar)
-        self.setStatusBar(self.status)
-
-        self.form = EntireWebsiteForm(self.centralwidget)
-
-        self.form.load_website_button.clicked.connect(self.__load_website)
-        self.form.add_button.clicked.connect(self.__add_url)
-        self.form.selector_button.clicked.connect(self.__select)
-        self.form.scrape_button.clicked.connect(self.__download)
+        self.load_website_button.clicked.connect(self.__load_website)
+        self.add_url_button.clicked.connect(self.__add_url)
+        # self.form.selector_button.clicked.connect(self.__select)
+        self.download_button.clicked.connect(self.__download)
 
         self.acquisition_manager = EntireWebsiteAcquisition(
             logging.getLogger(__name__),
             self.progress_bar,
-            self.status,
+            self.status_message,
             self,
         )
 
@@ -112,20 +154,16 @@ class EntireWebsite(QtWidgets.QMainWindow):
             self.__acquisition_is_finished
         )
 
-        self.retranslateUi()
-
-    def retranslateUi(self):
-        self.setWindowTitle(general.MAIN_WINDOW_TITLE)
-
     def __load_website(self):
+        self.url_list.clear()
+        self.input_custom_url.clear()
         self.__enable_all(False)
         self.__start_spinner()
-        self.form.set_default()
 
         if self.is_task_started is False:
             self.__start_task()
         else:
-            self.acquisition_manager.check_is_valid_url(self.form.input_url.text())
+            self.acquisition_manager.check_is_valid_url(self.input_url.text())
 
     def __is_valid_url(self, __status):
         if __status == status.SUCCESS:
@@ -133,17 +171,14 @@ class EntireWebsite(QtWidgets.QMainWindow):
                 loop = QtCore.QEventLoop()
                 QtCore.QTimer.singleShot(1000, loop.quit)
                 loop.exec()
-                self.acquisition_manager.options["start_url"] = (
-                    self.form.input_url.text()
-                )
+                self.acquisition_manager.options["start_url"] = self.input_url.text()
 
-                radio_buttons = self.form.load_type_widget.findChildren(
-                    QtWidgets.QRadioButton
-                )
-                for radio_button in radio_buttons:
-                    if radio_button.isChecked():
+                for checkbox in self.url_configuration.findChildren(
+                    QtWidgets.QCheckBox
+                ):
+                    if checkbox.isChecked():
                         self.acquisition_manager.options["load_type"] = (
-                            radio_button.objectName()
+                            checkbox.objectName()
                         )
 
                 self.acquisition_manager.get_sitemap()
@@ -156,13 +191,11 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __start_task(self):
         if self.acquisition_directory is None:
             # Create acquisition directory
-            self.acquisition_directory = (
-                self.menu_bar.case_view.form.controller.create_acquisition_directory(
-                    "entire_website",
-                    GeneralConfigurationController().configuration["cases_folder_path"],
-                    self.case_info["name"],
-                    self.form.input_url.text(),
-                )
+            self.acquisition_directory = CaseController().create_acquisition_directory(
+                "entire_website",
+                GeneralConfigurationController().configuration["cases_folder_path"],
+                self.case_info["name"],
+                self.input_url.text(),
             )
 
         if self.acquisition_directory is not None:
@@ -198,34 +231,31 @@ class EntireWebsite(QtWidgets.QMainWindow):
                 )
                 error_dlg.exec()
             else:
-                self.form.list_widget.clear()
+                self.check_uncheck_all.setChecked(True)
                 for url in sorted(urls):
                     item = QListWidgetItem()
                     check_box = QCheckBox(url)
-                    item.setSizeHint(check_box.sizeHint())
+                    item.setSizeHint(QtCore.QSize(check_box.width(), 25))
                     check_box.setChecked(True)
-                    self.form.list_widget.addItem(item)
-                    self.form.list_widget.setItemWidget(item, check_box)
+                    self.url_list.addItem(item)
+                    self.url_list.setItemWidget(item, check_box)
 
-                self.form.set_url_preview_group_box_title()
-                self.form.enable_preview_buttons(True)
-                self.form.enable_custom_urls_group_box(True)
+                self.add_custom_url.setEnabled(True)
+                self.right_content.setEnabled(True)
 
-    def __select(self):
-        if self.form.selector_button.text() == entire_site.DESELECT:
-            self.form.selector_button.setText(entire_site.SELECT)
-            for index in range(self.form.list_widget.count()):
-                item = self.form.list_widget.item(index)
+    def __check_uncheck_all(self):
+        if self.check_uncheck_all.isChecked() is False:
+            for index in range(self.url_list.count()):
+                item = self.url_list.item(index)
                 if isinstance(item, QListWidgetItem):
-                    widget = self.form.list_widget.itemWidget(item)
+                    widget = self.url_list.itemWidget(item)
                     if isinstance(widget, QCheckBox):
                         widget.setChecked(False)
         else:
-            self.form.selector_button.setText(entire_site.DESELECT)
-            for index in range(self.form.list_widget.count()):
-                item = self.form.list_widget.item(index)
+            for index in range(self.url_list.count()):
+                item = self.url_list.item(index)
                 if isinstance(item, QListWidgetItem):
-                    widget = self.form.list_widget.itemWidget(item)
+                    widget = self.url_list.itemWidget(item)
                     if isinstance(widget, QCheckBox):
                         widget.setChecked(True)
 
@@ -233,21 +263,17 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.__enable_all(False)
         self.__start_spinner()
         if __is_valid_url is False:
-            self.acquisition_manager.check_is_valid_url(
-                self.form.input_custom_url.text()
-            )
+            self.acquisition_manager.check_is_valid_url(self.input_custom_url.text())
         else:
             if not self.__item_exists_in_list_widget(
-                self.form.list_widget, self.form.input_custom_url.text()
+                self.url_list, self.input_custom_url.text()
             ):
                 item = QListWidgetItem()
-                check_box = QCheckBox(self.form.input_custom_url.text())
+                check_box = QCheckBox(self.input_custom_url.text())
                 item.setSizeHint(check_box.sizeHint())
                 check_box.setChecked(True)
-                self.form.list_widget.addItem(item)
-                self.form.list_widget.setItemWidget(item, check_box)
-
-            self.form.set_url_preview_group_box_title()
+                self.url_list.addItem(item)
+                self.url_list.setItemWidget(item, check_box)
 
             self.spinner.stop()
             self.__enable_all(True)
@@ -270,9 +296,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.progress_bar.setValue(0)
 
         self.selected_urls = []
-        for row in range(self.form.list_widget.count()):
-            item = self.form.list_widget.item(row)
-            check_box = self.form.list_widget.itemWidget(item)
+        for row in range(self.url_list.count()):
+            item = self.url_list.item(row)
+            check_box = self.url_list.itemWidget(item)
             if check_box.isChecked():
                 self.selected_urls.append(check_box.text())
 
@@ -285,51 +311,27 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __acquisition_is_finished(self):
         self.spinner.stop()
         self.__enable_all(True)
-        self.form.set_default()
-        self.form.enable_custom_urls_group_box(False)
-        self.form.enable_preview_buttons(False)
+        self.add_custom_url.setEnabled(False)
+        self.right_content.setEnabled(False)
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
 
         self.progress_bar.setHidden(True)
-        self.status.showMessage("")
+        self.status_message.setText("")
 
-        self.__show_finish_acquisition_dialog()
+        show_finish_acquisition_dialog(self.acquisition_directory)
 
         self.acquisition_directory = None
         self.is_task_started = False
         self.is_acquisition_running = False
 
-    def __show_finish_acquisition_dialog(self):
-        msg = QtWidgets.QMessageBox(self)
-        msg.setWindowTitle(logger.ACQUISITION_FINISHED)
-        msg.setText(details.ACQUISITION_FINISHED)
-        msg.setStandardButtons(
-            QtWidgets.QMessageBox.StandardButton.Yes
-            | QtWidgets.QMessageBox.StandardButton.No
-        )
-
-        return_value = msg.exec()
-        if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
-            self.__open_acquisition_directory()
-
-    def __open_acquisition_directory(self):
-        platform = get_platform()
-
-        if platform == "win":
-            os.startfile(self.acquisition_directory)
-        elif platform == "osx":
-            subprocess.call(["open", self.acquisition_directory])
-        else:  # platform == 'lin' || platform == 'other'
-            subprocess.call(["xdg-open", self.acquisition_directory])
-
     def __enable_all(self, enable):
         self.setEnabled(enable)
 
     def __start_spinner(self):
-        center_x = self.x() + self.width / 2
-        center_y = self.y() + self.height / 2
+        center_x = self.x() + self.width() / 2
+        center_y = self.y() + self.height() / 2
         self.spinner.set_position(center_x, center_y)
         self.spinner.start()
 
