@@ -727,6 +727,28 @@ QComboBox QAbstractItemView {
                  </widget>
                 </item>
                 <item>
+                 <widget class="Line" name="line_2">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(40, 44, 52);</string>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="configuration_button">
                   <property name="minimumSize">
                    <size>

@@ -427,6 +427,105 @@ QComboBox QAbstractItemView {
                  <number>0</number>
                 </property>
                 <item>
+                 <widget class="QPushButton" name="verify_timestamp_button">
+                  <property name="minimumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip">
+                   <string>Verify timestamp</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normalon>../images/wizard/verify_timestamp.png</normalon>
+                    <disabledon>../images/wizard/verify_timestamp-disabled.png</disabledon>
+                   </iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="case_button">
+                  <property name="minimumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Verify PEC</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolTip {font:13px;}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normalon>../images/wizard/verify_pec.png</normalon>
+                    <disabledon>../images/wizard/verify_pec-disabled.png</disabledon>
+                   </iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Line" name="line">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(40, 44, 52);</string>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="configuration_button">
                   <property name="minimumSize">
                    <size>
@@ -497,7 +596,7 @@ QComboBox QAbstractItemView {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="close_button">
+                 <widget class="QPushButton" name="verify_pec_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -1474,7 +1573,7 @@ QComboBox QAbstractItemView {
                            </property>
                            <property name="sizeHint" stdset="0">
                             <size>
-                             <width>40</width>
+                             <width>5</width>
                              <height>20</height>
                             </size>
                            </property>
@@ -1574,192 +1673,6 @@ QComboBox QAbstractItemView {
                           </widget>
                          </item>
                          <item>
-                          <widget class="QFrame" name="frame_verify_timestamp">
-                           <property name="minimumSize">
-                            <size>
-                             <width>160</width>
-                             <height>0</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>160</width>
-                             <height>100</height>
-                            </size>
-                           </property>
-                           <property name="frameShape">
-                            <enum>QFrame::Box</enum>
-                           </property>
-                           <property name="frameShadow">
-                            <enum>QFrame::Plain</enum>
-                           </property>
-                           <widget class="QWidget" name="verticalLayoutWidget_21">
-                            <property name="geometry">
-                             <rect>
-                              <x>0</x>
-                              <y>0</y>
-                              <width>161</width>
-                              <height>101</height>
-                             </rect>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>161</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>161</width>
-                              <height>101</height>
-                             </size>
-                            </property>
-                            <layout class="QVBoxLayout" name="vlayout_verify_timestamp">
-                             <property name="leftMargin">
-                              <number>5</number>
-                             </property>
-                             <property name="bottomMargin">
-                              <number>10</number>
-                             </property>
-                             <item>
-                              <widget class="QLabel" name="label_verify_timestamp">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>155</width>
-                                 <height>0</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>155</width>
-                                 <height>68</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string/>
-                               </property>
-                               <property name="pixmap">
-                                <pixmap>../images/wizard/verify_timestamp.png</pixmap>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QCheckBox" name="verify_timestamp">
-                               <property name="maximumSize">
-                                <size>
-                                 <width>150</width>
-                                 <height>16777215</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>VERIFY TIMESTAMP</string>
-                               </property>
-                               <property name="checked">
-                                <bool>false</bool>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </widget>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QFrame" name="frame_verify_pec">
-                           <property name="minimumSize">
-                            <size>
-                             <width>160</width>
-                             <height>0</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>160</width>
-                             <height>100</height>
-                            </size>
-                           </property>
-                           <property name="frameShape">
-                            <enum>QFrame::Box</enum>
-                           </property>
-                           <property name="frameShadow">
-                            <enum>QFrame::Plain</enum>
-                           </property>
-                           <widget class="QWidget" name="verticalLayoutWidget_22">
-                            <property name="geometry">
-                             <rect>
-                              <x>0</x>
-                              <y>0</y>
-                              <width>161</width>
-                              <height>101</height>
-                             </rect>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>161</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>161</width>
-                              <height>101</height>
-                             </size>
-                            </property>
-                            <layout class="QVBoxLayout" name="vlayout_verify_pec">
-                             <property name="leftMargin">
-                              <number>5</number>
-                             </property>
-                             <property name="bottomMargin">
-                              <number>10</number>
-                             </property>
-                             <item>
-                              <widget class="QLabel" name="label_verify_pec">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>155</width>
-                                 <height>0</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>155</width>
-                                 <height>68</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string/>
-                               </property>
-                               <property name="pixmap">
-                                <pixmap>../images/wizard/verify_pec.png</pixmap>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QCheckBox" name="verify_pec">
-                               <property name="maximumSize">
-                                <size>
-                                 <width>150</width>
-                                 <height>16777215</height>
-                                </size>
-                               </property>
-                               <property name="text">
-                                <string>VERIFY PEC</string>
-                               </property>
-                               <property name="checked">
-                                <bool>false</bool>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </widget>
-                          </widget>
-                         </item>
-                         <item>
                           <spacer name="right_spacer_tasks_row_2">
                            <property name="orientation">
                             <enum>Qt::Horizontal</enum>
@@ -1769,7 +1682,7 @@ QComboBox QAbstractItemView {
                            </property>
                            <property name="sizeHint" stdset="0">
                             <size>
-                             <width>210</width>
+                             <width>550</width>
                              <height>20</height>
                             </size>
                            </property>
