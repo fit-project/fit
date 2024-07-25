@@ -8,7 +8,6 @@
 ######
 import asyncio
 import logging
-from pathlib import Path
 
 from PyQt6.QtCore import QThread
 from mitmproxy import ctx
@@ -46,8 +45,8 @@ class MitmProxyWorker(QThread):
         try:
             ctx.master.shutdown()
             ctx.master = None
-        except:
-            pass
+        except Exception as e:
+            raise Exception(e)
 
 
 class MitmProxy:
@@ -92,7 +91,7 @@ class MitmProxy:
         try:
             await master.run()
         except Exception as e:
-            pass
+            raise Exception(e)
 
 
 # creating a custom addon to intercept requests and reponses

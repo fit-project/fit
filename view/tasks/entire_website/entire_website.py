@@ -22,6 +22,12 @@ from common.constants.view.tasks import labels, state, status
 from common.constants import logger
 
 
+from view.tasks.entire_website.mitm import MitmProxyWorker
+from common.utility import find_free_port
+from common.constants.view import entire_site
+from common.constants import error
+
+
 class TaskEntireWebsite(Task):
     valid_url = pyqtSignal(str)
     sitemap_finished = pyqtSignal(str, set)
@@ -137,15 +143,31 @@ class TaskEntireWebsite(Task):
         self.__quit_to_sub_task()
 
     def download_urls(self):
-        self.sub_task = EntireWebsiteDownloadWorker()
-        self.sub_task_thread = QThread()
-        self.sub_task.moveToThread(self.sub_task_thread)
-        self.sub_task_thread.started.connect(self.sub_task.download)
-        self.sub_task.download_finished.connect(self.__download_finished)
-        self.sub_task.progress.connect(self.progress.emit)
-        self.sub_task.error.connect(self.__handle_error)
-        self.sub_task.options = self.options
-        self.sub_task_thread.start()
+
+        self.options["proxy_port"] = find_free_port()
+
+        # start mitmproxy
+        try:
+            self.mitm_thread = MitmProxyWorker(self.options.get("proxy_port"))
+            self.mitm_thread.set_dir(self.options.get("acquisition_directory"))
+            self.mitm_thread.start()
+        except Exception as e:
+            __error = {
+                "title": entire_site.PROXY_SEVER_ERROR,
+                "msg": error.START_PROXY_SEVER_FAIL,
+                "details": str(e),
+            }
+            self.__handle_error(__error)
+        else:
+            self.sub_task = EntireWebsiteDownloadWorker()
+            self.sub_task_thread = QThread()
+            self.sub_task.moveToThread(self.sub_task_thread)
+            self.sub_task_thread.started.connect(self.sub_task.download)
+            self.sub_task.download_finished.connect(self.__download_finished)
+            self.sub_task.progress.connect(self.progress.emit)
+            self.sub_task.error.connect(self.__handle_error)
+            self.sub_task.options = self.options
+            self.sub_task_thread.start()
 
     def __download_finished(self, urls):
         sub_task_download = next(
@@ -164,6 +186,17 @@ class TaskEntireWebsite(Task):
             self.logger.info(logger.DOWNLOADED.format(url))
 
         self.download_finished.emit()
+
+        # stop mitmproxy
+        try:
+            self.mitm_thread.stop_proxy()
+        except Exception as e:
+            __error = {
+                "title": entire_site.PROXY_SEVER_ERROR,
+                "msg": error.STOP_PROXY_SEVER_FAIL,
+                "details": str(e),
+            }
+            self.__handle_error(__error)
 
         self.__quit_to_sub_task()
         self.__finished()

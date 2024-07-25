@@ -8,11 +8,7 @@
 ######
 
 from PyQt6.QtCore import QObject, pyqtSignal
-from common.constants.view.tasks import status
-
-from view.tasks.entire_website.mitm import MitmProxyWorker
-
-from common.utility import find_free_port
+from controller.entire_website import EntireWebsite as EntireWebsiteController
 
 from common.constants.view import entire_site
 from common.constants import error
@@ -32,16 +28,10 @@ class EntireWebsiteDownloadWorker(QObject):
         self._options = options
 
     def download(self):
-        controller = self.options.get("entire_website_controller")
         urls = list()
-
+        controller = EntireWebsiteController()
         controller.set_dir(self.options.get("acquisition_directory"))
-
-        port = find_free_port()
-        mitm_thread = MitmProxyWorker(port)
-        mitm_thread.set_dir(self.options.get("acquisition_directory"))
-        mitm_thread.start()
-        controller.set_proxy(port)
+        controller.set_proxy(self.options.get("proxy_port"))
         for url in self.options.get("urls"):
             try:
                 controller.download(url)
