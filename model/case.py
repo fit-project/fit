@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-from pathlib import Path
 
 from model.db import Db
 

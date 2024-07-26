@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import os
+
 import string
 from PIL import Image
 
@@ -24,7 +24,7 @@ from common.constants.view.case import *
 
 
 class CaseFormManager:
-    def __init__(self, form):
+    def __init__(self, form, temporary=False):
         self.controller = CaseController()
         self.cases = self.controller.cases
         self.proceedings = TypesProceedingsController().proceedings
@@ -33,9 +33,14 @@ class CaseFormManager:
         self.logo_background = ["transparent", "white"]
         self.logo_height = ""
         self.logo_width = ""
+        self.__temporary = temporary
 
         self.form = form
-        self.name = self.form.findChild(QtWidgets.QComboBox, "name")
+        if self.__temporary is True:
+            self.name = self.form.findChild(QtWidgets.QLineEdit, "temporary_name")
+        else:
+            self.name = self.form.findChild(QtWidgets.QComboBox, "name")
+
         self.proceeding_type = self.form.findChild(
             QtWidgets.QComboBox, "proceeding_type"
         )
@@ -46,7 +51,8 @@ class CaseFormManager:
         self.__set_current_proceeding_type()
         self.set_current_cases()
 
-        self.name.currentTextChanged.connect(self.__validate_input)
+        if self.__temporary is False:
+            self.name.currentTextChanged.connect(self.__validate_input)
 
     def __set_logo_info(self):
         logo_container = self.form.findChild(QtWidgets.QFrame, "logo_container")
@@ -140,12 +146,14 @@ class CaseFormManager:
 
     def set_current_cases(self):
         self.name.clear()
-        self.name.lineEdit().setPlaceholderText(SELECT_CASE_NAME)
 
-        for case in self.cases:
-            self.name.addItem(case["name"], case["id"])
-
-        self.name.setCurrentIndex(-1)
+        if self.__temporary is False:
+            self.name.lineEdit().setPlaceholderText(SELECT_CASE_NAME)
+            for case in self.cases:
+                self.name.addItem(case["name"], case["id"])
+            self.name.setCurrentIndex(-1)
+        else:
+            self.name.setPlaceholderText(SELECT_CASE_NAME)
 
     def __set_current_proceeding_type(self):
         self.proceeding_type.clear()
@@ -162,7 +170,11 @@ class CaseFormManager:
             self.logo_preview = QtWidgets.QLabel()
             self.logo_layout.insertWidget(0, self.logo_preview)
 
+        if self.logo_preview.isVisible() is False:
+            self.logo_preview.setVisible(True)
+
         qp = QtGui.QPixmap()
+
         qp.loadFromData(data)
 
         self.logo_height = "auto"
@@ -189,8 +201,13 @@ class CaseFormManager:
         self.logo_button.setText(SELECT_EMPTY_LOGO)
 
     def set_case_information(self):
+        if self.__temporary is False:
+            current_text = self.name.currentText()
+        else:
+            current_text = self.name.text()
+
         case_info = next(
-            (item for item in self.cases if item["name"] == self.name.currentText()),
+            (item for item in self.cases if item["name"] == current_text),
             None,
         )
 
@@ -246,15 +263,26 @@ class CaseFormManager:
         self.__unset_logo_preview()
 
     def get_current_case_info(self):
+
+        if self.__temporary is False:
+            current_text = self.name.currentText()
+        else:
+            current_text = self.name.text()
         case_info = next(
-            (item for item in self.cases if item["name"] == self.name.currentText()), {}
+            (item for item in self.cases if item["name"] == current_text), {}
         )
 
         for keyword in self.controller.keys:
             item = self.form.findChild(QtCore.QObject, keyword)
+
             if item is not None:
                 if isinstance(item, QtWidgets.QComboBox):
-                    item = item.currentText()
+                    if keyword in "name":
+                        if self.__temporary is True:
+                            item = self.name.text()
+                        else:
+                            item = self.name.currentText()
+
                     if keyword in "proceeding_type":
                         type_proceeding = next(
                             (

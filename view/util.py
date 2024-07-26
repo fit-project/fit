@@ -10,6 +10,7 @@
 import os
 import json
 import subprocess
+import base64
 from datetime import datetime
 
 from PyQt6 import QtCore, QtWidgets, QtGui
@@ -20,6 +21,8 @@ from view.tasks.tasks_info import TasksInfo
 
 from common.utility import get_platform
 from common.constants import logger, details
+
+from common.constants.view import case
 
 
 def validate_mail(mail):
@@ -91,25 +94,63 @@ def __open_acquisition_directory(dialog, acquisition_directory):
 
 def get_case_info(acquisition_directory):
     file = os.path.join(acquisition_directory, "caseinfo.json")
-    case_info = None
+    case_info = {}
 
     if os.path.isfile(file):
         with open(file, "r") as f:
             case_info = json.load(f)
+            logo_bin = case_info.get("logo_bin")
+        if logo_bin:
+            case_info["logo_bin"] = base64.b64decode(bytes(logo_bin, "utf-8"))
     else:
-        case_info = json.loads(
-            {
-                "name": "Unknown",
-                "operator": "",
-                "courthouse": "",
-                "notes": "",
-                "logo": "",
-                "logo_width": "",
-                "lawyer_name": "",
-                "proceeding_type": 0,
-                "proceeding_number": "",
-                "logo_bin": null,
-                "logo_height": "",
-            }
+        dialog = Dialog(
+            case.TITLE,
+            case.WAR_NOT_CASE_INFO_JSON_FILE_FOUND,
         )
+        dialog.message.setStyleSheet("font-size: 13px;")
+        dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+        dialog.right_button.clicked.connect(
+            lambda: __get_temporary_case_info(dialog, case_info, False)
+        )
+        dialog.left_button.clicked.connect(
+            lambda: __get_temporary_case_info(dialog, case_info, True)
+        )
+
+        dialog.exec()
+
     return case_info
+
+
+def __get_temporary_case_info(dialog, case_info, temporary=False):
+
+    dialog.close()
+    __case_info = {
+        "name": "Unknown",
+        "operator": "",
+        "courthouse": "",
+        "notes": "",
+        "logo": "",
+        "logo_width": "",
+        "lawyer_name": "",
+        "proceeding_type": 0,
+        "proceeding_number": "",
+        "logo_bin": None,
+        "logo_height": "",
+    }
+
+    if temporary:
+        case_form = CaseFormDialog(temporary=True)
+        return_value = case_form.exec()
+        if return_value:
+            __case_info = case_form.get_case_info()
+            if os.path.isfile(__case_info.get("logo")):
+                __case_info["logo_bin"] = __set_logo_bin(__case_info.get("logo"))
+            else:
+                __case_info["logo_bin"] = None
+
+    case_info.update(__case_info)
+
+
+def __set_logo_bin(file_path):
+    with open(file_path, "rb") as file:
+        return file.read()

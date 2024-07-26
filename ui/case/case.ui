@@ -680,6 +680,19 @@ QComboBox QAbstractItemView {
                        <number>0</number>
                       </property>
                       <item>
+                       <widget class="QLabel" name="temporary_msg">
+                        <property name="text">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;The information is temporary and will not be saved, so once the report is generated it will be lost.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
+                        </property>
+                        <property name="margin">
+                         <number>0</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QComboBox" name="name">
                         <property name="maximumSize">
                          <size>
@@ -704,6 +717,31 @@ QComboBox QAbstractItemView {
                         </property>
                         <property name="frame">
                          <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLineEdit" name="temporary_name">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>300</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">background-color: rgb(33, 37, 43);</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="placeholderText">
+                         <string>Case Name</string>
                         </property>
                        </widget>
                       </item>
@@ -733,7 +771,7 @@ QComboBox QAbstractItemView {
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="operator_2">
+                       <widget class="QLineEdit" name="operator">
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
@@ -852,7 +890,7 @@ QComboBox QAbstractItemView {
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
-                          <height>30</height>
+                          <height>40</height>
                          </size>
                         </property>
                         <property name="frameShape">
@@ -1044,6 +1082,9 @@ QComboBox QAbstractItemView {
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 255, 10%) }</string>
                   </property>
                   <property name="text">
                    <string>Save</string>

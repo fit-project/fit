@@ -9,6 +9,7 @@
 
 import os
 import json
+import base64
 
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from common.constants.view.tasks import labels, state, status
@@ -32,6 +33,12 @@ class SaveCaseInfoWorker(QObject):
     def start(self):
         self.started.emit()
         file = os.path.join(self.options.get("acquisition_directory"), "caseinfo.json")
+        case_info = self.options.get("case_info")
+        logo_bin = case_info.get("logo_bin")
+
+        if logo_bin:
+            logo_bin = base64.b64encode(logo_bin)
+            case_info["logo_bin"] = str(logo_bin, encoding="utf-8")
 
         with open(file, "w") as f:
             json.dump(self.options.get("case_info"), f, ensure_ascii=False)

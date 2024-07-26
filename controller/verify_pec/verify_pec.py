@@ -9,6 +9,7 @@
 import email
 import tempfile
 import os
+import locale
 
 from controller.verify_pec.expiration_date import ExpirationDate
 from controller.verify_pec.revoke import Revoke
@@ -23,6 +24,9 @@ class verifyPec:
         self.temp_textdata = os.path.join(tempfile.gettempdir(), "tmp_textdata")
 
     def verify(self, eml_file_path, case_info, ntp):
+
+        locale.setlocale(locale.LC_ALL, "en_US")
+
         report_info = {
             "case_info": case_info,
             "ntp": ntp,

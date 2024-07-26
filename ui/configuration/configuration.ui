@@ -721,7 +721,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>2</number>
+                      <number>4</number>
                      </property>
                      <widget class="QWidget" name="general">
                       <property name="maximumSize">
@@ -1811,9 +1811,15 @@ Button */
                                </property>
                                <item>
                                 <widget class="QLabel" name="retries_eml_download_title">
+                                 <property name="sizePolicy">
+                                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                                   <horstretch>0</horstretch>
+                                   <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                 </property>
                                  <property name="maximumSize">
                                   <size>
-                                   <width>118</width>
+                                   <width>16777215</width>
                                    <height>16777215</height>
                                   </size>
                                  </property>

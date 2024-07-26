@@ -89,11 +89,11 @@ class VerifyPec(QtWidgets.QMainWindow):
             NetworkControllerCheck().configuration["ntp_server"]
         )
 
-        path = os.path.dirname(str(self.input_eml.text()))
+        path = os.path.dirname(str(self.eml_folder_input.text()))
 
         try:
             pec = verifyPecController()
-            pec.verify(self.input_eml.text(), get_case_info(path), ntp)
+            pec.verify(self.eml_folder_input.text(), get_case_info(path), ntp)
             msg = QtWidgets.QMessageBox()
             msg.setWindowFlags(
                 QtCore.Qt.WindowType.CustomizeWindowHint
@@ -147,7 +147,7 @@ class VerifyPec(QtWidgets.QMainWindow):
             verify_pec.EML_FILES,
         )
         if check:
-            self.input_eml.setText(file)
+            self.eml_folder_input.setText(file)
 
     def __back_to_wizard(self):
         self.deleteLater()
