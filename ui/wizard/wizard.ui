@@ -467,7 +467,7 @@ QComboBox QAbstractItemView {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="case_button">
+                 <widget class="QPushButton" name="verify_pec_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>
@@ -596,7 +596,7 @@ QComboBox QAbstractItemView {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="verify_pec_button">
+                 <widget class="QPushButton" name="close_button">
                   <property name="minimumSize">
                    <size>
                     <width>28</width>

@@ -52,6 +52,7 @@ class Acquisition(QObject):
         self.stop_tasks = list()
         self.post_tasks = [
             ZIP_AND_REMOVE_FOLDER,
+            SAVE_CASE_INFO,
             HASH,
             REPORT,
             TIMESTAMP,

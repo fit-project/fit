@@ -22,6 +22,7 @@ REPORT = "TaskReport"
 TIMESTAMP = "TaskTimestamp"
 PEC_AND_DOWNLOAD_EML = "TaskPecAndDownloadEml"
 ZIP_AND_REMOVE_FOLDER = "TaskZipAndRemoveFolder"
+SAVE_CASE_INFO = "TaskSaveCaseInfo"
 # WEB TASKS
 TAKE_FULL_PAGE_SCREENSHOT = "TaskTakeFullPageScreenShot"
 SAVE_PAGE = "TaskSavePage"

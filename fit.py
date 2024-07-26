@@ -21,10 +21,6 @@ from view.scrapers.entire_website.entire_website import (
     EntireWebsite as EntireWebsiteView,
 )
 
-from view.verify_pec import VerifyPec as VerifyPecView
-from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
-
-
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
@@ -49,10 +45,6 @@ if __name__ == "__main__":
             acquisition_window = VideoView()
         elif task == "entire_website":
             acquisition_window = EntireWebsiteView()
-        elif task == "verify_timestamp":
-            acquisition_window = VerifyPDFTimestampView()
-        elif task == "verify_pec":
-            acquisition_window = VerifyPecView()
 
         acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()

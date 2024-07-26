@@ -9,110 +9,91 @@
 import os
 import subprocess
 
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from PyQt6.QtWidgets import QFileDialog
 
 from view.error import Error as ErrorView
-from view.menu_bar import MenuBar as MenuBarView
+
+from view.util import get_case_info
 
 from controller.verify_pec.verify_pec import verifyPec as verifyPecController
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
 
-from common.constants.view import verify_pec, general, verify_pdf_timestamp
-from common.utility import get_platform, get_ntp_date_and_time, resolve_path
+from controller.configurations.tabs.general.general import (
+    General as GeneralConfigurationController,
+)
+
+
+from common.constants.view import verify_pec, verify_pdf_timestamp
+from common.utility import (
+    get_platform,
+    get_ntp_date_and_time,
+    resolve_path,
+    get_version,
+)
 
 
 class VerifyPec(QtWidgets.QMainWindow):
     stop_signal = QtCore.pyqtSignal()
 
-    def __init__(self, *args, **kwargs):
-        super(VerifyPec, self).__init__(*args, **kwargs)
+    def __init__(self, wizard):
+        super(VerifyPec, self).__init__(wizard)
         self.acquisition_directory = None
-
-    def init(self, case_info, wizard, options=None):
         self.wizard = wizard
-        self.width = 600
-        self.height = 230
-        self.setFixedSize(self.width, self.height)
-        self.case_info = case_info
+        self.__init_ui()
 
-        self.setWindowIcon(
-            QtGui.QIcon(os.path.join(resolve_path("assets/svg/"), "FIT.svg"))
-        )
-        self.setObjectName("verify_pec_window")
+    def __init_ui(self):
+        uic.loadUi(resolve_path("ui/verify_pec/verify_pec.ui"), self)
 
-        self.centralwidget = QtWidgets.QWidget(self)
-        self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget.setStyleSheet(
-            "QWidget {background-color: rgb(255, 255, 255);}"
-        )
-        self.setCentralWidget(self.centralwidget)
+        # HIDE STANDARD TITLE BAR
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        #### - START MENU BAR - #####
-        # Uncomment to disable native menubar on Mac
-        self.menuBar().setNativeMenuBar(False)
+        # CUSTOM TOP BAR
+        self.left_box.mouseMoveEvent = self.move_window
 
-        # This bar is common on all main window
-        self.menu_bar = MenuBarView(self, self.case_info)
+        # MINIMIZE BUTTON
+        self.minimize_button.clicked.connect(self.showMinimized)
 
-        # Add default menu on menu bar
-        self.menu_bar.add_default_actions()
-        self.setMenuBar(self.menu_bar)
-        #### - END MENUBAR - #####
+        # CLOSE BUTTON
+        self.close_button.clicked.connect(self.close)
 
-        self.eml_group_box = QtWidgets.QGroupBox(self.centralwidget)
-        self.eml_group_box.setEnabled(True)
-        self.eml_group_box.setGeometry(QtCore.QRect(50, 20, 500, 160))
-        self.eml_group_box.setObjectName("eml_group_box")
+        # SET VERSION
+        self.version.setText("v" + get_version())
 
-        # EML
-        self.input_eml = QtWidgets.QLineEdit(self.centralwidget)
-        self.input_eml.setGeometry(QtCore.QRect(160, 60, 260, 20))
-        self.input_eml.setObjectName("input_eml")
-        self.input_eml.setEnabled(False)
-        self.input_eml_button = QtWidgets.QPushButton(self.centralwidget)
-        self.input_eml_button.setGeometry(QtCore.QRect(450, 60, 75, 20))
-        self.input_eml_button.clicked.connect(self.__dialog)
-
-        # EML LABEL
-        self.label_eml = QtWidgets.QLabel(self.centralwidget)
-        self.label_eml.setGeometry(QtCore.QRect(80, 60, 50, 20))
-        self.label_eml.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
-        self.label_eml.setObjectName("label_eml")
+        # EML FOLDER BUTTON
+        self.eml_folder_button.clicked.connect(self.__select_eml_file)
 
         # VERIFICATION BUTTON
-        self.verification_button = QtWidgets.QPushButton(self)
-        self.verification_button.setGeometry(QtCore.QRect(450, 140, 75, 30))
         self.verification_button.clicked.connect(self.__verify)
-        self.verification_button.setObjectName("StartAction")
         self.verification_button.setEnabled(False)
 
-        self.retranslateUi()
-        QtCore.QMetaObject.connectSlotsByName(self)
+        # DISABLE VERIFY BUTTON IF FIELD IS EMPTY
+        self.eml_folder_input.textChanged.connect(self.__enable_verify_button)
 
-        # DISABLE SCRAPE BUTTON IF FIELDS ARE EMPTY
-        self.input_fields = [self.input_eml]
-        for input_field in self.input_fields:
-            input_field.textChanged.connect(self.__onTextChanged)
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPosition().toPoint()
 
-    def retranslateUi(self):
-        self.setWindowTitle(general.MAIN_WINDOW_TITLE)
-        self.eml_group_box.setTitle(verify_pec.EML_SETTINGS)
-        self.label_eml.setText(verify_pec.EML_FILE)
-        self.verification_button.setText(general.BUTTON_VERIFY)
-        self.input_eml_button.setText(general.BROWSE)
+    def move_window(self, event):
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
 
-    def __onTextChanged(self):
-        all_fields_filled = all(input_field.text() for input_field in self.input_fields)
-        self.verification_button.setEnabled(all_fields_filled)
+    def __enable_verify_button(self):
+        self.verification_button.setEnabled(bool(self.eml_folder_input.text()))
 
     def __verify(self):
+
         ntp = get_ntp_date_and_time(
             NetworkControllerCheck().configuration["ntp_server"]
         )
-        pec = verifyPecController()
+
+        path = os.path.dirname(str(self.input_eml.text()))
+
         try:
-            pec.verify(self.input_eml.text(), self.case_info, ntp)
+            pec = verifyPecController()
+            pec.verify(self.input_eml.text(), get_case_info(path), ntp)
             msg = QtWidgets.QMessageBox()
             msg.setWindowFlags(
                 QtCore.Qt.WindowType.CustomizeWindowHint
@@ -127,7 +108,7 @@ class VerifyPec(QtWidgets.QMainWindow):
             msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             return_value = msg.exec()
             if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
-                path = os.path.dirname(str(self.input_eml.text()))
+
                 platform = get_platform()
                 if platform == "win":
                     os.startfile(
@@ -156,30 +137,17 @@ class VerifyPec(QtWidgets.QMainWindow):
             )
             error_dlg.exec()
 
-    def __dialog(self):
+    def __select_eml_file(self):
         file, check = QFileDialog.getOpenFileName(
             None,
             verify_pec.OPEN_EML_FILE,
-            self.__get_acquisition_directory(),
+            os.path.expanduser(
+                GeneralConfigurationController().configuration["cases_folder_path"]
+            ),
             verify_pec.EML_FILES,
         )
         if check:
             self.input_eml.setText(file)
-
-    def __get_acquisition_directory(self):
-        if not self.acquisition_directory:
-            configuration_general = self.menu_bar.configuration_view.get_tab_from_name(
-                "configuration_general"
-            )
-            open_folder = os.path.expanduser(
-                os.path.join(
-                    configuration_general.configuration["cases_folder_path"],
-                    self.case_info["name"],
-                )
-            )
-            return open_folder
-        else:
-            return self.acquisition_directory
 
     def __back_to_wizard(self):
         self.deleteLater()

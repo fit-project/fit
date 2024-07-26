@@ -24,7 +24,15 @@ class PostAcquisition(QObject):
     def start_post_acquisition_sequence(self, increment, options):
         self.options = options
         self.increment = increment
-        self.__zip_and_remove()
+        self.__save_case_info()
+
+    def __save_case_info(self):
+        task = self.task_handler.get_task(SAVE_CASE_INFO)
+        if task:
+            task.finished.connect(self.__zip_and_remove)
+            task.options = self.options
+            task.increment = self.increment
+            task.start()
 
     def __zip_and_remove(self):
         if (

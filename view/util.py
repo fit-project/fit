@@ -8,6 +8,7 @@
 ######
 
 import os
+import json
 import subprocess
 from datetime import datetime
 
@@ -86,3 +87,29 @@ def __open_acquisition_directory(dialog, acquisition_directory):
         subprocess.call(["xdg-open", acquisition_directory])
 
     dialog.close()
+
+
+def get_case_info(acquisition_directory):
+    file = os.path.join(acquisition_directory, "caseinfo.json")
+    case_info = None
+
+    if os.path.isfile(file):
+        with open(file, "r") as f:
+            case_info = json.load(f)
+    else:
+        case_info = json.loads(
+            {
+                "name": "Unknown",
+                "operator": "",
+                "courthouse": "",
+                "notes": "",
+                "logo": "",
+                "logo_width": "",
+                "lawyer_name": "",
+                "proceeding_type": 0,
+                "proceeding_number": "",
+                "logo_bin": null,
+                "logo_height": "",
+            }
+        )
+    return case_info

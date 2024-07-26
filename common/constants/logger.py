@@ -49,6 +49,7 @@ CALCULATE_HASHFILE_STARTED = "CALCULATE HASHFILE started"
 CALCULATE_HASHFILE_COMPLETED = "CALCULATE HASHFILE completed"
 CALCULATE_HASHFILE = "Calculate acquisition file hash"
 
+
 GENERATE_PDF_REPORT = "Generate PDF Report"
 GENERATE_PDF_REPORT_STARTED = "Generate PDF Report started"
 GENERATE_PDF_REPORT_COMPLETED = "Generate PDF Report completed"
@@ -61,6 +62,11 @@ TAKE_FULL_PAGE_SCREENSHOT_COMPLETED = "Take full page screenshot completed"
 SAVE_PAGE_STARTED = "Save page started"
 SAVE_PAGE_COMPLETED = "Save page completed"
 SAVE_PAGE = "Save all resource of current page"
+
+SAVE_CASE_INFO_STARTED = "Save case information started"
+SAVE_CASE_INFO_COMPLETED = "Save case information completed"
+SAVE_CASE_INFO = "Save case information on json file"
+
 
 ZIP_AND_REMOVE_FOLDER = "Zip and remove folder"
 ZIP_AND_REMOVE_FOLDER_STARTED = "Zip and remove folder started"

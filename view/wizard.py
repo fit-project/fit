@@ -13,6 +13,9 @@ from PyQt6 import QtCore, QtWidgets, uic
 from view.case_form_manager import CaseFormManager
 from view.error import Error as ErrorView
 
+from view.verify_pec import VerifyPec as VerifyPecView
+from view.verify_pdf_timestamp import VerifyPDFTimestamp as VerifyPDFTimestampView
+
 from view.util import show_configuration_dialog, show_case_info_dialog
 
 from common.constants import error
@@ -48,6 +51,14 @@ class Wizard(QtWidgets.QMainWindow):
 
         # CONFIGURATION BUTTON
         self.configuration_button.clicked.connect(show_configuration_dialog)
+
+        # VERIFY TIMESTAMP BUTTON
+        self.verify_timestamp_button.clicked.connect(self.__verify_timestamp)
+        self.verify_timestamp_button.setEnabled(False)
+
+        # VERIFY PEC BUTTON
+        self.verify_pec_button.clicked.connect(self.__verify_pec)
+        self.verify_pec_button.setEnabled(False)
 
         # PAGES
         self.pages.setCurrentIndex(0)
@@ -96,11 +107,18 @@ class Wizard(QtWidgets.QMainWindow):
                 self.__load_case_info()
                 self.next_button.setText("Start")
                 self.next_button.setEnabled(False)
+                self.verify_timestamp_button.setEnabled(True)
+                self.verify_pec_button.setEnabled(True)
 
         elif self.pages.currentIndex() == self.pages.count() - 1:
             self.__start()
 
     def __back_page(self):
+
+        if self.pages.currentIndex() - 1 < self.pages.count() - 1:
+            self.verify_timestamp_button.setEnabled(False)
+            self.verify_pec_button.setEnabled(False)
+
         if self.pages.currentIndex() > 0:
             self.pages.setCurrentIndex(self.pages.currentIndex() - 1)
             self.next_button.setText("Next >")
@@ -109,6 +127,15 @@ class Wizard(QtWidgets.QMainWindow):
         if self.pages.currentIndex() == 0:
             self.__unchecked_tasks()
             self.back_button.hide()
+
+    def __verify_timestamp(self):
+        verify_timestamp = VerifyPDFTimestampView()
+        verify_timestamp.init(self.case_info, self)
+        verify_timestamp.show()
+
+    def __verify_pec(self):
+        verify_pec = VerifyPecView(self)
+        verify_pec.show()
 
     def reload_case_info(self):
         self.form_manager.set_case_information()

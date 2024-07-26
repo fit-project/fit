@@ -22,6 +22,7 @@ SSLKEYLOG = "SSL Keylog"
 SSLCERTIFICATE = "SSL Certificate"
 
 # POST ACQUISITON TASKS
+SAVE_CASE_INFO = "Save Case Information"
 HASHFILE = "Calculate Hash File"
 REPORTFILE = "Generate PDF Report"
 TIMESTAMP = "Generate TIMESTAMP for the report"
