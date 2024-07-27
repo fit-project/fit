@@ -157,6 +157,8 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __load_website(self):
         self.url_list.clear()
         self.input_custom_url.clear()
+        self.progress_bar.setHidden(False)
+        self.status_message.setHidden(False)
         self.__enable_all(False)
         self.__start_spinner()
 
@@ -218,9 +220,10 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __get_sitemap_finished(self, __status, urls):
         self.spinner.stop()
         self.__enable_all(True)
+        self.progress_bar.setHidden(True)
+        self.status_message.setHidden(True)
         if __status == status.SUCCESS:
             if len(urls) == 0:
-                pass
                 error_dlg = ErrorView(
                     QtWidgets.QMessageBox.Icon.Information,
                     entire_site.NO_URLS_FOUND,
@@ -294,6 +297,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.is_acquisition_running = True
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
+        self.status_message.setHidden(False)
 
         self.selected_urls = []
         for row in range(self.url_list.count()):
@@ -318,6 +322,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.acquisition_manager.unload_tasks()
 
         self.progress_bar.setHidden(True)
+        self.status_message.setHidden(True)
         self.status_message.setText("")
 
         show_finish_acquisition_dialog(self.acquisition_directory)

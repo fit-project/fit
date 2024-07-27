@@ -23,6 +23,13 @@ from common.utility import get_platform
 from common.constants import logger, details
 
 from common.constants.view import case
+from common.constants.view import verify_pec, verify_pdf_timestamp
+from enum import Enum
+
+
+class VerificationTypes(Enum):
+    TIMESTAMP = 1
+    PEC = 2
 
 
 def validate_mail(mail):
@@ -86,7 +93,7 @@ def __open_acquisition_directory(dialog, acquisition_directory):
         os.startfile(acquisition_directory)
     elif platform == "osx":
         subprocess.call(["open", acquisition_directory])
-    else:  # platform == 'lin' || platform == 'other'
+    else:
         subprocess.call(["xdg-open", acquisition_directory])
 
     dialog.close()
@@ -154,3 +161,45 @@ def __get_temporary_case_info(dialog, case_info, temporary=False):
 def __set_logo_bin(file_path):
     with open(file_path, "rb") as file:
         return file.read()
+
+
+def show_finish_verification_dialog(path, verification_type):
+
+    title = verify_pdf_timestamp.VERIFICATION_COMPLETED
+    msg = verify_pec.VERIFY_PEC_SUCCESS_MSG
+
+    if verification_type == VerificationTypes.TIMESTAMP:
+        msg = verify_pdf_timestamp.VALID_TIMESTAMP_REPORT
+
+    dialog = Dialog(
+        title,
+        msg,
+    )
+    dialog.message.setStyleSheet("font-size: 13px;")
+    dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+    dialog.right_button.clicked.connect(dialog.close)
+    dialog.left_button.clicked.connect(
+        lambda: __open_verification_report(dialog, path, verification_type)
+    )
+
+    dialog.exec()
+
+
+def __open_verification_report(dialog, path, verification_type):
+
+    dialog.close()
+
+    filename = "report_integrity_pec_verification.pdf"
+
+    if verification_type == VerificationTypes.TIMESTAMP:
+        filename = "report_timestamp_verification.pdf"
+
+    pdf_file = os.path.join(path, filename)
+
+    platform = get_platform()
+    if platform == "win":
+        os.startfile(pdf_file)
+    elif platform == "osx":
+        subprocess.call(["open", pdf_file])
+    else:
+        subprocess.call(["xdg-open", pdf_file])
