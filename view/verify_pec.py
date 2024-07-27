@@ -11,8 +11,6 @@ import os
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtWidgets import QFileDialog
 
-from view.error import Error as ErrorView
-
 from view.util import (
     get_case_info,
     show_finish_verification_dialog,

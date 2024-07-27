@@ -121,8 +121,7 @@ class Wizard(QtWidgets.QMainWindow):
             self.back_button.hide()
 
     def __verify_timestamp(self):
-        verify_timestamp = VerifyPDFTimestampView()
-        verify_timestamp.init(self.case_info, self)
+        verify_timestamp = VerifyPDFTimestampView(self)
         verify_timestamp.show()
 
     def __verify_pec(self):

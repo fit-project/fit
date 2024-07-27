@@ -17,7 +17,7 @@ VERIFY_PEC_SUCCESS_MSG = "PEC verify has been completed and PDF report has been 
 
 
 CHECK_EXPIRATIONDATE = "Check expiration date"
-CHECK_EXPIRATIONDATE_FAIL = "Without the result of check expiration date result it is not possible to proceed with the verification PEC. Please retry!"
+CHECK_EXPIRATIONDATE_FAIL = "Without the result of check expiration date result, you cannot continue. Please try again!"
 CHECK_SIGNATURE = "Check if signature exist"
 CHECK_REVOKED = "Check if the PEC has been revoked"
 CHECK_AUTORITY = "Check autority"

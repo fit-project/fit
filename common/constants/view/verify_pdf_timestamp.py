@@ -35,3 +35,15 @@ REPORT_LABEL_DIGEST = "DIGEST"
 REPORT_LABEL_TIMESTAMP = "TIMESTAMP"
 REPORT_LABEL_SERVER = "SERVER"
 REPORT_LABEL_SHA256 = "sha-256"
+
+CHECK_TIMESTAMP_SERVER = "Check timestamper server on URL: {}"
+CHECK_TIMESTAMP_SERVER_FAIL = "Without the correct timestamp server, you cannot continue. Please check your configuration and try again!"
+VERIFY_TIMESTAMP = "Verify timestamp"
+VERIFY_TIMESTAMP_FAIL = (
+    "Without the timestamp verification result, you cannot continue. Please try again!"
+)
+GENERATE_FILE_TIMESTAMP_INFO = "Generate file timestamp_info.txt"
+GENERATE_FILE_TIMESTAMP_INFO_FAIL = (
+    "Without file timestamp_info.txt, you cannot continue. Please try again!"
+)
+GENARATE_REPORT = "Generate report"
