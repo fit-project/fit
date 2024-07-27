@@ -54,11 +54,9 @@ class Wizard(QtWidgets.QMainWindow):
 
         # VERIFY TIMESTAMP BUTTON
         self.verify_timestamp_button.clicked.connect(self.__verify_timestamp)
-        self.verify_timestamp_button.setEnabled(False)
 
         # VERIFY PEC BUTTON
         self.verify_pec_button.clicked.connect(self.__verify_pec)
-        self.verify_pec_button.setEnabled(False)
 
         # PAGES
         self.pages.setCurrentIndex(0)
@@ -107,17 +105,11 @@ class Wizard(QtWidgets.QMainWindow):
                 self.__load_case_info()
                 self.next_button.setText("Start")
                 self.next_button.setEnabled(False)
-                self.verify_timestamp_button.setEnabled(True)
-                self.verify_pec_button.setEnabled(True)
 
         elif self.pages.currentIndex() == self.pages.count() - 1:
             self.__start()
 
     def __back_page(self):
-
-        if self.pages.currentIndex() - 1 < self.pages.count() - 1:
-            self.verify_timestamp_button.setEnabled(False)
-            self.verify_pec_button.setEnabled(False)
 
         if self.pages.currentIndex() > 0:
             self.pages.setCurrentIndex(self.pages.currentIndex() - 1)

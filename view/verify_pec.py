@@ -7,14 +7,19 @@
 # -----
 ######
 import os
-import subprocess
 
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtWidgets import QFileDialog
 
 from view.error import Error as ErrorView
 
-from view.util import get_case_info, show_finish_verification_dialog, VerificationTypes
+from view.util import (
+    get_case_info,
+    show_finish_verification_dialog,
+    get_verification_label_text,
+    add_label_in_verification_status_list,
+    VerificationTypes,
+)
 
 from controller.verify_pec.verify_pec import verifyPec as verifyPecController
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
@@ -24,6 +29,7 @@ from controller.configurations.tabs.general.general import (
 )
 
 from common.constants.view import verify_pec
+from common.constants.view.tasks import status
 from common.utility import (
     get_ntp_date_and_time,
     resolve_path,
@@ -38,6 +44,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         super(VerifyPec, self).__init__(wizard)
         self.acquisition_directory = None
         self.wizard = wizard
+        self.verify_pec_controller = verifyPecController()
         self.__init_ui()
 
     def __init_ui(self):
@@ -81,27 +88,6 @@ class VerifyPec(QtWidgets.QMainWindow):
     def __enable_verify_button(self):
         self.verification_button.setEnabled(bool(self.eml_folder_input.text()))
 
-    def __verify(self):
-
-        ntp = get_ntp_date_and_time(
-            NetworkControllerCheck().configuration["ntp_server"]
-        )
-
-        path = os.path.dirname(str(self.eml_folder_input.text()))
-
-        try:
-            pec = verifyPecController()
-            pec.verify(self.eml_folder_input.text(), get_case_info(path), ntp)
-            show_finish_verification_dialog(path, VerificationTypes.PEC)
-        except Exception as e:
-            error_dlg = ErrorView(
-                QtWidgets.QMessageBox.Icon.Critical,
-                verify_pec.VERIFY_PEC_FAIL,
-                verify_pec.VERIFY_PEC_FAIL_MGS,
-                str(e),
-            )
-            error_dlg.exec()
-
     def __select_eml_file(self):
         file, check = QFileDialog.getOpenFileName(
             None,
@@ -113,6 +99,195 @@ class VerifyPec(QtWidgets.QMainWindow):
         )
         if check:
             self.eml_folder_input.setText(file)
+
+    def __verify(self):
+
+        self.verification_status_list.clear()
+        signature = {}
+        is_revoked = False
+        is_integrity = False
+        provider_name = ""
+        is_on_agid_list = False
+
+        expirationdate_result = self.__check_expirationdate()
+        verification_status = expirationdate_result.get("verification_status")
+        email_info = expirationdate_result.get("email_info")
+
+        if verification_status == status.SUCCESS:
+            if len(email_info) > 0:
+                signature = self.__check_signature_exist()
+                is_revoked = self.__check_revoked()
+                is_integrity = True
+                autority = self.__check_autority()
+                provider_name = autority.get("provider_name")
+                is_on_agid_list = autority.get("is_on_agid_list")
+
+            else:
+                label = "INFO: {}".format(
+                    verify_pec.NO_MAIL_INFO_FOUD_AFTER_CHECK_EXPIRATIONDATE
+                )
+                add_label_in_verification_status_list(
+                    self.verification_status_list, label
+                )
+                email_info = self.__get_mail_info_from_eml()
+                signature = self.__check_signature_exist()
+
+            eml_file_path = self.eml_folder_input.text()
+            path = os.path.dirname(str(eml_file_path))
+            ntp = get_ntp_date_and_time(
+                NetworkControllerCheck().configuration["ntp_server"]
+            )
+            case_info = get_case_info(path)
+
+            report_info = {
+                "case_info": case_info,
+                "ntp": ntp,
+                "eml_file_path": eml_file_path,
+                "is_integrity": is_integrity,
+                "is_revoked": is_revoked,
+                "provider_name": provider_name,
+                "is_on_agid_list": is_on_agid_list,
+            }
+            report_info.update(email_info)
+            report_info.update(signature)
+
+            if self.__generate_report(report_info) == status.SUCCESS:
+                show_finish_verification_dialog(path, VerificationTypes.PEC)
+        else:
+            label = "INFO: {}".format(verify_pec.CHECK_EXPIRATIONDATE_FAIL)
+            add_label_in_verification_status_list(self.verification_status_list, label)
+
+    def __check_expirationdate(self):
+
+        verification_status = status.SUCCESS
+        verification_name = verify_pec.CHECK_EXPIRATIONDATE
+        verification_message = ""
+
+        expirationdate_result = {
+            "verification_status": verification_status,
+            "email_info": dict(),
+        }
+
+        try:
+            expirationdate_result["email_info"] = (
+                self.verify_pec_controller.check_expirationdate(
+                    self.eml_folder_input.text()
+                )
+            )
+        except Exception as e:
+            verification_status = status.FAIL
+            expirationdate_result["verification_status"] = verification_status
+            verification_message = str(e)
+
+        label = get_verification_label_text(
+            verification_name, verification_status, verification_message
+        )
+
+        add_label_in_verification_status_list(self.verification_status_list, label)
+
+        return expirationdate_result
+
+    def __check_signature_exist(self):
+
+        signature = {}
+        verification_status = status.SUCCESS
+        verification_name = verify_pec.CHECK_SIGNATURE
+        verification_message = ""
+        try:
+            signature = self.verify_pec_controller.check_signature_exist(
+                self.eml_folder_input.text()
+            )
+        except Exception as e:
+            verification_status = status.FAIL
+            verification_message = str(e)
+
+        label = get_verification_label_text(
+            verification_name, verification_status, verification_message
+        )
+
+        add_label_in_verification_status_list(self.verification_status_list, label)
+
+        return signature
+
+    def __check_revoked(self):
+
+        is_revoked = False
+        verification_status = status.SUCCESS
+        verification_name = verify_pec.CHECK_REVOKED
+        verification_message = ""
+        try:
+            is_revoked = self.verify_pec_controller.check_revoked()
+        except Exception as e:
+            verification_status = status.FAIL
+            verification_message = str(e)
+
+        label = get_verification_label_text(
+            verification_name, verification_status, verification_message
+        )
+
+        add_label_in_verification_status_list(self.verification_status_list, label)
+
+        return is_revoked
+
+    def __check_autority(self):
+
+        autority = {}
+        verification_status = status.SUCCESS
+        verification_name = verify_pec.CHECK_AUTORITY
+        verification_message = ""
+        try:
+            autority = self.verify_pec_controller.check_autority()
+        except Exception as e:
+            verification_status = status.FAIL
+            verification_message = str(e)
+
+        label = get_verification_label_text(
+            verification_name, verification_status, verification_message
+        )
+
+        add_label_in_verification_status_list(self.verification_status_list, label)
+
+        return autority
+
+    def __get_mail_info_from_eml(self):
+        email_info = {}
+        verification_status = status.SUCCESS
+        verification_name = verify_pec.GET_MAIL_INFO_FROM_EML
+        verification_message = ""
+        try:
+            email_info = self.verify_pec_controller.get_mail_info_from_eml(
+                self.eml_folder_input.text()
+            )
+        except Exception as e:
+            verification_status = status.FAIL
+            verification_message = str(e)
+
+        label = get_verification_label_text(
+            verification_name, verification_status, verification_message
+        )
+
+        add_label_in_verification_status_list(self.verification_status_list, label)
+
+        return email_info
+
+    def __generate_report(self, report_info):
+
+        verification_status = status.SUCCESS
+        verification_name = verify_pec.GENARATE_REPORT
+        verification_message = ""
+        try:
+            self.verify_pec_controller.ganerate_report(report_info)
+        except Exception as e:
+            verification_status = status.FAIL
+            verification_message = str(e)
+
+        label = get_verification_label_text(
+            verification_name, verification_status, verification_message
+        )
+
+        add_label_in_verification_status_list(self.verification_status_list, label)
+
+        return verification_status
 
     def __back_to_wizard(self):
         self.deleteLater()

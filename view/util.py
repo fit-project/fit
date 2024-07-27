@@ -24,6 +24,7 @@ from common.constants import logger, details
 
 from common.constants.view import case
 from common.constants.view import verify_pec, verify_pdf_timestamp
+from common.constants.view.tasks import status
 from enum import Enum
 
 
@@ -203,3 +204,29 @@ def __open_verification_report(dialog, path, verification_type):
         subprocess.call(["open", pdf_file])
     else:
         subprocess.call(["xdg-open", pdf_file])
+
+
+def get_verification_label_text(
+    verification_name, verification_status, verification_message
+):
+    __status = (
+        '<strong style="color:green">{}</strong>'.format(verification_status)
+        if verification_status == status.SUCCESS
+        else '<strong style="color:red">{}</strong>'.format(verification_status)
+    )
+    __message = (
+        "" if verification_message == "" else "details: {}".format(verification_message)
+    )
+
+    return "{}: {} {}".format(verification_name, __status, __message)
+
+
+def add_label_in_verification_status_list(
+    status_list: QtWidgets.QListWidget, label_text: str
+):
+    item = QtWidgets.QListWidgetItem(status_list)
+    label = QtWidgets.QLabel(label_text)
+    label.setWordWrap(True)
+    item.setSizeHint(label.sizeHint())
+    status_list.addItem(item)
+    status_list.setItemWidget(item, label)

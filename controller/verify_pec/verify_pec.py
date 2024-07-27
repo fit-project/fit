@@ -23,16 +23,9 @@ class verifyPec:
         self.temp_pem = os.path.join(tempfile.gettempdir(), "tmp_cert.pem")
         self.temp_textdata = os.path.join(tempfile.gettempdir(), "tmp_textdata")
 
-    def verify(self, eml_file_path, case_info, ntp):
-
+    def check_expirationdate(self, eml_file_path):
+        email_info = list()
         locale.setlocale(locale.LC_ALL, "en_US")
-
-        report_info = {
-            "case_info": case_info,
-            "ntp": ntp,
-            "eml_file_path": eml_file_path,
-        }
-
         try:
             email_info = ExpirationDate().verify(
                 eml_file_path, self.temp_pem, self.temp_x509, self.temp_textdata
@@ -40,55 +33,44 @@ class verifyPec:
         except Exception as e:
             raise Exception(e)
 
-        if len(email_info) > 0:
-            # Check if signature exist
-            signature = self.__signature_exist(eml_file_path)
-            # Check if the PEC has been revoked
+        return email_info
+
+    def check_revoked(self):
+        is_revoked = False
+        try:
             revoke = Revoke(self.temp_x509)
             is_revoked = revoke.check_is_revoked()
+        except Exception as e:
+            raise Exception(e)
 
-            # Check autority
+        return is_revoked
+
+    def check_autority(self):
+        provider_name = ""
+        is_on_agid_list = False
+
+        try:
             provider = Provider(self.temp_x509)
             provider_name = provider.get_provider_name()
             is_on_agid_list = provider.check_if_provider_is_on_agid_list(provider_name)
+        except Exception as e:
+            raise Exception(e)
 
-            report_info.update(email_info)
-            report_info.update(signature)
-            report_info.update(
-                {
-                    "is_integrity": True,
-                    "is_revoked": is_revoked,
-                    "provider_name": provider_name,
-                    "is_on_agid_list": is_on_agid_list,
-                }
-            )
-        else:
-            with open(eml_file_path, "rb") as f:
-                msg = email.message_from_binary_file(f)
+        return {"provider_name": provider_name, "is_on_agid_list": is_on_agid_list}
 
-            email_info = {
-                "reply_to": msg["Reply-To"],
-                "to": msg["To"],
-                "subject": msg["Subject"],
-                "send_date": msg["Date"],
-            }
+    def get_mail_info_from_eml(self, eml_file_path):
 
-            signature = self.__signature_exist(eml_file_path)
+        with open(eml_file_path, "rb") as f:
+            msg = email.message_from_binary_file(f)
 
-            report_info.update(email_info)
-            report_info.update(signature)
-            report_info.update(
-                {
-                    "is_integrity": False,
-                    "is_revoked": False,
-                    "provider_name": "",
-                    "is_on_agid_list": False,
-                }
-            )
+        return {
+            "reply_to": msg["Reply-To"],
+            "to": msg["To"],
+            "subject": msg["Subject"],
+            "send_date": msg["Date"],
+        }
 
-        GenerateReport().pdf_creator(report_info)
-
-    def __signature_exist(self, eml_file_path):
+    def check_signature_exist(self, eml_file_path):
         message_text = " "
         exist = False
 
@@ -111,3 +93,10 @@ class verifyPec:
                         )
 
         return {"is_signature": exist, "message_text": message_text}
+
+    def ganerate_report(self, report_info):
+
+        try:
+            GenerateReport().pdf_creator(report_info)
+        except Exception as e:
+            raise Exception(e)
