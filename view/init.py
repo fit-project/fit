@@ -178,7 +178,7 @@ class Init(QtCore.QObject):
             dialog.exec()
 
         # If os is win check
-        if get_platform() == "win":
+        if get_platform() == "win" or get_platform() == "osx":
             if is_npcap_installed() is False:
                 dialog = Dialog(
                     NPCAP,
@@ -192,6 +192,8 @@ class Init(QtCore.QObject):
                 dialog.left_button.clicked.connect(
                     lambda: self.__download_npcap(dialog)
                 )
+
+                dialog.exec()
 
         if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
 
