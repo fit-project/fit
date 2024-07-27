@@ -24,7 +24,7 @@ class verifyPec:
         self.temp_textdata = os.path.join(tempfile.gettempdir(), "tmp_textdata")
 
     def check_expirationdate(self, eml_file_path):
-        email_info = list()
+        email_info = dict()
         locale.setlocale(locale.LC_ALL, "en_US")
         try:
             email_info = ExpirationDate().verify(
@@ -56,7 +56,7 @@ class verifyPec:
         except Exception as e:
             raise Exception(e)
 
-        return {"provider_name": provider_name, "is_on_agid_list": is_on_agid_list}
+        return provider_name, is_on_agid_list
 
     def get_mail_info_from_eml(self, eml_file_path):
 
@@ -95,7 +95,6 @@ class verifyPec:
         return {"is_signature": exist, "message_text": message_text}
 
     def ganerate_report(self, report_info):
-
         try:
             GenerateReport().pdf_creator(report_info)
         except Exception as e:

@@ -107,18 +107,14 @@ class VerifyPec(QtWidgets.QMainWindow):
         provider_name = ""
         is_on_agid_list = False
 
-        expirationdate_result = self.__check_expirationdate()
-        verification_status = expirationdate_result.get("verification_status")
-        email_info = expirationdate_result.get("email_info")
+        verification_status, email_info = self.__check_expirationdate()
 
         if verification_status == status.SUCCESS:
             if len(email_info) > 0:
                 signature = self.__check_signature_exist()
                 is_revoked = self.__check_revoked()
                 is_integrity = True
-                autority = self.__check_autority()
-                provider_name = autority.get("provider_name")
-                is_on_agid_list = autority.get("is_on_agid_list")
+                provider_name, is_on_agid_list = self.__check_autority()
 
             else:
                 label = "INFO: {}".format(
@@ -157,24 +153,17 @@ class VerifyPec(QtWidgets.QMainWindow):
 
     def __check_expirationdate(self):
 
+        email_info = dict()
         verification_status = status.SUCCESS
         verification_name = verify_pec.CHECK_EXPIRATIONDATE
         verification_message = ""
 
-        expirationdate_result = {
-            "verification_status": verification_status,
-            "email_info": dict(),
-        }
-
         try:
-            expirationdate_result["email_info"] = (
-                self.verify_pec_controller.check_expirationdate(
-                    self.eml_folder_input.text()
-                )
+            email_info = self.verify_pec_controller.check_expirationdate(
+                self.eml_folder_input.text()
             )
         except Exception as e:
             verification_status = status.FAIL
-            expirationdate_result["verification_status"] = verification_status
             verification_message = str(e)
 
         label = get_verification_label_text(
@@ -183,7 +172,7 @@ class VerifyPec(QtWidgets.QMainWindow):
 
         add_label_in_verification_status_list(self.verification_status_list, label)
 
-        return expirationdate_result
+        return verification_status, email_info
 
     def __check_signature_exist(self):
 
@@ -229,12 +218,14 @@ class VerifyPec(QtWidgets.QMainWindow):
 
     def __check_autority(self):
 
-        autority = {}
+        provider_name = ""
+        is_on_agid_list = False
+
         verification_status = status.SUCCESS
         verification_name = verify_pec.CHECK_AUTORITY
         verification_message = ""
         try:
-            autority = self.verify_pec_controller.check_autority()
+            provider_name, is_on_agid_list = self.verify_pec_controller.check_autority()
         except Exception as e:
             verification_status = status.FAIL
             verification_message = str(e)
@@ -245,7 +236,7 @@ class VerifyPec(QtWidgets.QMainWindow):
 
         add_label_in_verification_status_list(self.verification_status_list, label)
 
-        return autority
+        return provider_name, is_on_agid_list
 
     def __get_mail_info_from_eml(self):
         email_info = {}
