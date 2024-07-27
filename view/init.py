@@ -7,13 +7,13 @@
 # -----
 ######
 
-import os
+import subprocess
 
 from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 
 from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
-from view.clickable_label import ClickableLabel
+from view.clickable_label import ClickableLabel as ClickableLabelView
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
 
@@ -21,35 +21,28 @@ from controller.configurations.tabs.network.networktools import NetworkTools
 from common.utility import *
 from common.constants.view.init import *
 from common.constants.view.general import *
+from common.constants.view.tasks import status
 
 
 class DownloadAndInstallNpcap(QtWidgets.QDialog):
+    finished = QtCore.pyqtSignal(dict)
+
     def __init__(self, url, parent=None):
         super(DownloadAndInstallNpcap, self).__init__(parent)
 
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
         self.path = None
-        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
-        self.resize(255, 77)
-        self.setWindowFlags(
-            QtCore.Qt.WindowType.CustomizeWindowHint
-            | QtCore.Qt.WindowType.WindowTitleHint
+
+        self.progress_dialog = Dialog(
+            NPCAP,
+            NPCAP_DOWNLOAD,
         )
-
-        self.horizontalLayoutWidget = QtWidgets.QWidget(self)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 231, 41))
-        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label = QtWidgets.QLabel(self.horizontalLayoutWidget)
-        self.label.setObjectName("label")
-        self.horizontalLayout.addWidget(self.label)
-        self.progressBar = QtWidgets.QProgressBar(self.horizontalLayoutWidget)
-        self.progressBar.setObjectName("progressBar")
-        self.horizontalLayout.addWidget(self.progressBar)
-
-        self.setWindowTitle(NPCAP)
-        self.label.setText(NPCAP_DOWNLOAD)
+        self.progress_dialog.message.setStyleSheet("font-size: 13px;")
+        self.progress_dialog.set_buttons_type(DialogButtonTypes.NONE)
+        self.progress_dialog.show_progress_bar()
+        self.progress_dialog.progress_bar.setValue(0)
 
         self.web_view = QtWebEngineWidgets.QWebEngineView()
         self.web_view.page().profile().downloadRequested.connect(
@@ -58,10 +51,7 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
 
         self.web_view.load(QtCore.QUrl(url))
         self.web_view.hide()
-        hbox = QtWidgets.QHBoxLayout(self)
-        hbox.addWidget(self.web_view)
 
-    # @QtCore.pyqtSlot("QWebEngineDownloadItem*")
     def on_download_requested(self, download):
         old_path = download.url().path()
         suffix = QtCore.QFileInfo(old_path).suffix()
@@ -85,17 +75,42 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
                     download.totalBytes(),
                 )
             )
+            self.progress_dialog.show()
+        else:
+            self.reject()
 
     def __install(self):
+
         self.close()
-        os.system(
-            'Powershell -Command Start-Process "{}" -Verb RunAs'.format(self.path)
+        self.progress_dialog.close()
+
+        __status = status.SUCCESS
+        details = ""
+
+        cmd = 'Powershell -Command Start-Process "{}" -Verb RunAs'.format(self.path)
+        try:
+            process = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+            )
+            process.check_returncode()
+        except Exception as e:
+            __status = status.FAIL
+            details = str(e)
+
+        self.finished.emit(
+            {
+                "status": __status,
+                "details": details,
+            }
         )
 
     def __progress(self, bytes_received, bytes_total):
         if bytes_total > 0:
             download_percentage = int(bytes_received * 100 / bytes_total)
-            self.progressBar.setValue(download_percentage)
+            self.progress_dialog.progress_bar.setValue(download_percentage)
 
 
 class Init(QtCore.QObject):
@@ -116,8 +131,6 @@ class Init(QtCore.QObject):
             options["enabled"] = True
             PacketCapture().options = options
 
-        self.__quit()
-
     def __disable_functionality(self, dialog=None):
         if dialog:
             dialog.close()
@@ -137,14 +150,34 @@ class Init(QtCore.QObject):
             dialog.close()
         try:
             url = get_npcap_installer_url()
-            donwload_and_install = DownloadAndInstallNpcap(url)
-            donwload_and_install.exec()
+            self.donwload_and_install = DownloadAndInstallNpcap(url)
+            self.donwload_and_install.rejected.connect(self.__download_rejected)
+            self.donwload_and_install.finished.connect(
+                self.__donwload_and_install_finished
+            )
+            self.donwload_and_install.exec()
         except Exception as e:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
                 NPCAP,
                 ERR_NPCAP_RELEASE_VERSION,
                 str(e),
+            )
+            error_dlg.exec()
+
+    def __download_rejected(self):
+        self.__disable_functionality()
+
+    def __donwload_and_install_finished(self, result):
+        if result.get("status") == status.SUCCESS:
+            self.__enable_functionality()
+        else:
+            self.__disable_functionality()
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                NPCAP,
+                NPCAP_ERROR_DURING_INSTALLATION,
+                result.get("details"),
             )
             error_dlg.exec()
 
@@ -173,13 +206,14 @@ class Init(QtCore.QObject):
             dialog.right_button.clicked.connect(
                 lambda: self.__disable_functionality(dialog)
             )
-            dialog.left_button.clicked.connect(self.__enable_functionality)
+            dialog.left_button.clicked.connect(self.__quit)
+
+            dialog.content_box.adjustSize()
 
             dialog.exec()
 
-        # If os is win check
-        if get_platform() == "win" or get_platform() == "osx":
-            if is_npcap_installed() is False:
+        if get_platform() == "win":
+            if is_npcap_installed() is False and is_admin():
                 dialog = Dialog(
                     NPCAP,
                     WAR_NPCAP_NOT_INSTALLED,
@@ -196,47 +230,41 @@ class Init(QtCore.QObject):
                 dialog.exec()
 
         if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
-
-            dialog = QtWidgets.QDialog()
-            uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), dialog)
-
             parser = ConfigParser()
             parser.read(resolve_path("assets/config.ini"))
             url = parser.get("fit_properties", "fit_latest_download_url")
 
-            # HIDE STANDARD TITLE BAR
-            dialog.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-            dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+            dialog = Dialog(
+                FIT_NEW_VERSION_DOWNLOAD,
+                FIT_NEW_VERSION_MSG,
+            )
+            dialog.right_button.clicked.connect(dialog.close)
+            dialog.message.setStyleSheet("font-size: 13px;")
+            dialog.message.hide()
+            dialog.details.hide()
+            clickable_label_layout = QtWidgets.QHBoxLayout()
+            clickable_label_layout.setSpacing(0)
+            clickable_label_layout.addWidget(
+                QtWidgets.QLabel(
+                    "There is a new version of FIT. You can download it from: "
+                )
+            )
 
-            # TITLE
-            title = dialog.findChild(QtWidgets.QLabel, "titleRightInfo")
-            title.setText(FIT_NEW_VERSION_TITLE)
+            clickable_label_layout.addWidget(
+                ClickableLabelView(
+                    url, '<strong style="color:red"><i><u>here</u></i></strong>'
+                )
+            )
+            horizontal_spacer = QtWidgets.QSpacerItem(
+                20,
+                40,
+                QtWidgets.QSizePolicy.Policy.Expanding,
+                QtWidgets.QSizePolicy.Policy.Expanding,
+            )
+            clickable_label_layout.addItem(horizontal_spacer)
 
-            # CLOSE BUTTON
-            close_app_button = dialog.findChild(QtWidgets.QPushButton, "closeButton")
-            close_app_button.clicked.connect(dialog.close)
+            dialog.text_box.addLayout(clickable_label_layout)
 
-            # HIDE NAVIGATION BUTTON
-            navigationButtons = dialog.findChild(QtWidgets.QFrame, "navigationButtons")
-            navigationButtons.hide()
-
-            # LAYOUT
-            layout = dialog.findChild(QtWidgets.QVBoxLayout, "contentBoxLayout")
-
-            # TEXT LABEL
-            text = dialog.findChild(QtWidgets.QLabel, "text")
-
-            text.setText(FIT_NEW_VERSION_MSG)
-            label_url = ClickableLabel(url)
-            label_url.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
-            font = QtGui.QFont()
-            font.setPointSize(18)
-            label_url.setFont(font)
-            label_url.setText(FIT_NEW_VERSION_DOWNLOAD)
-
-            layout.addWidget(label_url)
-
-            contentBox = dialog.findChild(QtWidgets.QFrame, "contentBox")
-            contentBox.adjustSize()
+            dialog.content_box.adjustSize()
 
             dialog.exec()

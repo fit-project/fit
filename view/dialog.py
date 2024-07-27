@@ -33,10 +33,11 @@ class Dialog(QtWidgets.QDialog):
         self.__set_message(message)
         self.__set_details(details)
         self.__set_buttons_message()
-        self.content_box.adjustSize()
+        self.progress_bar.hide()
+
         self.setMinimumWidth(self.content_box.width())
         self.content_top_bg.setMinimumWidth(self.content_box.width())
-        self.progress_bar.hide()
+        self.content_box.adjustSize()
 
     def __init_ui(self):
         uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), self)
