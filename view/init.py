@@ -132,6 +132,22 @@ class Init(QtCore.QObject):
             options["enabled"] = False
             PacketCapture().options = options
 
+    def __download_npcap(self, dialog=None):
+        if dialog:
+            dialog.close()
+        try:
+            url = get_npcap_installer_url()
+            donwload_and_install = DownloadAndInstallNpcap(url)
+            donwload_and_install.exec()
+        except Exception as e:
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                NPCAP,
+                ERR_NPCAP_RELEASE_VERSION,
+                str(e),
+            )
+            error_dlg.exec()
+
     def init_check(self):
         # Check internet connection
         if check_internet_connection() is False:
@@ -164,38 +180,18 @@ class Init(QtCore.QObject):
         # If os is win check
         if get_platform() == "win":
             if is_npcap_installed() is False:
-                try:
-                    url = get_npcap_installer_url()
-                    msg = QtWidgets.QMessageBox()
-                    msg.setWindowFlags(
-                        QtCore.Qt.WindowType.CustomizeWindowHint
-                        | QtCore.Qt.WindowType.WindowTitleHint
-                    )
-                    msg.setWindowTitle(NPCAP)
-                    msg.setText(WAR_NPCAP_NOT_INSTALLED)
-                    msg.setStandardButtons(
-                        QtWidgets.QMessageBox.StandardButton.Yes
-                        | QtWidgets.QMessageBox.StandardButton.No
-                    )
-                    msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-
-                    return_value = msg.exec()
-                    if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
-                        donwload_and_install = DownloadAndInstallNpcap(url)
-                        donwload_and_install.exec()
-                    else:
-                        options = PacketCapture().options
-                        options["enabled"] = False
-                        PacketCapture().options = options
-
-                except Exception as e:
-                    error_dlg = ErrorView(
-                        QtWidgets.QMessageBox.Icon.Critical,
-                        NPCAP,
-                        ERR_NPCAP_RELEASE_VERSION,
-                        str(e),
-                    )
-                    error_dlg.exec()
+                dialog = Dialog(
+                    NPCAP,
+                    WAR_NPCAP_NOT_INSTALLED,
+                )
+                dialog.message.setStyleSheet("font-size: 13px;")
+                dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+                dialog.right_button.clicked.connect(
+                    lambda: self.__disable_functionality(dialog)
+                )
+                dialog.left_button.clicked.connect(
+                    lambda: self.__download_npcap(dialog)
+                )
 
         if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
 
