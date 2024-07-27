@@ -72,7 +72,7 @@ class EntireWebsite:
                     if sitemaps:
                         for sitemap in sitemaps:
                             response = requests.get(
-                                sitemap["href"], headers=self.headers
+                                sitemap.get("href"), headers=self.headers
                             )
                             if response.status_code == 200:
                                 urls = self.__crawl_links(response)

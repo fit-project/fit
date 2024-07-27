@@ -120,10 +120,10 @@ class Mail:
 
                     # prepare data for the dict
                     uid = str(email_id.decode("utf-8"))
-                    subject = email_part["subject"]
-                    date_str = str(email_part["date"])
-                    sender = email_part["from"]
-                    recipient = email_part["to"]
+                    subject = email_part.get("subject")
+                    date_str = str(email_part.get("date"))
+                    sender = email_part.get("from")
+                    recipient = email_part.get("to")
                     dict_value = (
                         "Mittente: "
                         + sender
