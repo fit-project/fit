@@ -46,8 +46,8 @@ class Case(Base):
         return self.db.session.query(Case).filter_by(id=id).one()
 
     def update(self, case_info):
-        if os.path.isfile(case_info["logo"]):
-            case_info["logo_bin"] = self.__set_logo_bin(case_info["logo"])
+        if os.path.isfile(case_info.get("logo")):
+            case_info["logo_bin"] = self.__set_logo_bin(case_info.get("logo"))
 
         self.db.session.query(Case).filter(Case.id == case_info.get("id")).update(
             case_info
@@ -56,16 +56,16 @@ class Case(Base):
 
     def add(self, case_info):
         case = Case()
-        case.name = case_info["name"]
-        case.lawyer_name = case_info["lawyer_name"]
-        case.operator = case_info["operator"]
-        case.proceeding_type = case_info["proceeding_type"]
-        case.courthouse = case_info["courthouse"]
-        case.proceeding_number = case_info["proceeding_number"]
-        case.notes = case_info["notes"]
-        case.logo = case_info["logo"]
-        case.logo_height = case_info["logo_height"]
-        case.logo_width = case_info["logo_width"]
+        case.name = case_info.get("name")
+        case.lawyer_name = case_info.get("lawyer_name")
+        case.operator = case_info.get("operator")
+        case.proceeding_type = case_info.get("proceeding_type")
+        case.courthouse = case_info.get("courthouse")
+        case.proceeding_number = case_info.get("proceeding_number")
+        case.notes = case_info.get("notes")
+        case.logo = case_info.get("logo")
+        case.logo_height = case_info.get("logo_height")
+        case.logo_width = case_info.get("logo_width")
         if os.path.isfile(case.logo):
             case.logo_bin = self.__set_logo_bin(case.logo)
 
@@ -80,9 +80,9 @@ class Case(Base):
 
     def create_acquisition_directory(self, directories):
         acquisition_type_directory = os.path.join(
-            os.path.expanduser(directories["cases_folder"]),
-            directories["case_folder"],
-            directories["acquisition_type_folder"],
+            os.path.expanduser(directories.get("cases_folder")),
+            directories.get("case_folder"),
+            directories.get("acquisition_type_folder"),
         )
 
         acquisition_directory = os.path.join(
