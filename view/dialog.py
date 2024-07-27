@@ -16,6 +16,7 @@ from enum import Enum
 class DialogButtonTypes(Enum):
     MESSAGE = 1
     QUESTION = 2
+    NONE = 3
 
 
 class Dialog(QtWidgets.QDialog):
@@ -35,6 +36,7 @@ class Dialog(QtWidgets.QDialog):
         self.content_box.adjustSize()
         self.setMinimumWidth(self.content_box.width())
         self.content_top_bg.setMinimumWidth(self.content_box.width())
+        self.progress_bar.hide()
 
     def __init_ui(self):
         uic.loadUi(resolve_path("ui/dialog/multipurpose.ui"), self)
@@ -44,6 +46,11 @@ class Dialog(QtWidgets.QDialog):
             self.__set_buttons_message()
         elif buttons_type == DialogButtonTypes.QUESTION:
             self.__set_buttons_question()
+        elif buttons_type == DialogButtonTypes.NONE:
+            self.__hide_buttons()
+
+    def show_progress_bar(self):
+        self.progress_bar.show()
 
     def __set_title(self, title):
         self.title_right_info.setText(title)
@@ -87,3 +94,8 @@ class Dialog(QtWidgets.QDialog):
         self.left_button.setText(YES)
         self.right_button.setText(NO)
         self.left_button.show()
+
+    def __hide_buttons(self):
+        self.close_button.hide()
+        self.left_button.hide()
+        self.right_button.hide()

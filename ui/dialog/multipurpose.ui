@@ -151,6 +151,46 @@
      </spacer>
     </item>
     <item>
+     <layout class="QVBoxLayout" name="progress_bar_layout">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QProgressBar" name="progress_bar">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QProgressBar
+{
+    color: #ffffff;
+    border-style: outset;
+border-width: 2px;
+    border-radius: 5px;
+    text-align: left;
+}
+QProgressBar::chunk
+{
+    background-color:#e06133;
+}</string>
+        </property>
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QFrame" name="navigation_buttons">
       <property name="maximumSize">
        <size>
