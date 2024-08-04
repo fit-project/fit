@@ -37,11 +37,13 @@ class SaveCaseInfoWorker(QObject):
         logo_bin = case_info.get("logo_bin")
 
         if logo_bin:
-            logo_bin = base64.b64encode(logo_bin)
-            case_info["logo_bin"] = str(logo_bin, encoding="utf-8")
+            __logo_bin = base64.b64encode(logo_bin)
+            case_info["logo_bin"] = str(__logo_bin, encoding="utf-8")
 
         with open(file, "w") as f:
             json.dump(self.options.get("case_info"), f, ensure_ascii=False)
+
+        case_info["logo_bin"] = logo_bin
 
         self.finished.emit()
 

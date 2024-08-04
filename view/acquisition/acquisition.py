@@ -43,7 +43,6 @@ class Acquisition(QObject):
         self.logger = logger
         self.options = dict()
 
-        self.log_confing = LogConfigTools()
         self.tasks_manager = TasksManager(parent)
 
         self.options = dict()
@@ -72,6 +71,8 @@ class Acquisition(QObject):
         self._options = options
 
     def load_tasks(self):
+        self.log_confing = LogConfigTools()
+
         if self.logger.name == "view.scrapers.web.web":
             self.log_confing.set_dynamic_loggers()
 
