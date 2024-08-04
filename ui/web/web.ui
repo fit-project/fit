@@ -58,7 +58,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>FIT Mail Scaper</string>
+   <string>FIT Web Scraper</string>
   </property>
   <widget class="QWidget" name="styleSheet">
    <property name="styleSheet">
