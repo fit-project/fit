@@ -229,6 +229,7 @@ class Init(QtCore.QObject):
 
                 dialog.exec()
 
+        # I need to review the UI
         if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
             parser = ConfigParser()
             parser.read(resolve_path("assets/config.ini"))
