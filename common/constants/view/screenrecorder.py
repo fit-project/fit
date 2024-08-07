@@ -17,3 +17,10 @@ PREVIEW_ERROR_NOT_VALID_WINDOW_MSG = (
 )
 PREVIEW_WINDOW_CAPTURE_ERROR_OCCURED_TITLE = "QWindowCapture: Error occurred"
 PREVIEW_SCREEN_CAPTURE_ERROR_OCCURED_TITLE = "QScreenCapture: Error occurred"
+
+SCREENS_CHANGED_TILE = "Screen changed"
+SCREENS_CHANGED_SCREEN_ADDED_MSG = "A new screen has been added. Do you want to use it?"
+SCREENS_CHANGED_SCREEN_REMOVED_MSG = (
+    "A new screen has been removed. Do you want to use it?"
+)
+SCREENS_PRIMARY_SCREEN_CHANGED_MSG = "Primary screen changed. Do you want to use it?"

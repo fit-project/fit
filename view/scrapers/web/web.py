@@ -47,6 +47,8 @@ from common.utility import resolve_path, get_version
 
 from ui.web import resources
 
+from PyQt6.QtWidgets import QApplication
+
 
 class Web(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -132,6 +134,10 @@ class Web(QtWidgets.QMainWindow):
     def init(self, case_info, wizard, options=None):
         self.wizard = wizard
         self.case_info = case_info
+
+        app = QApplication.instance()
+        if hasattr(app, "name"):
+            print(getattr(app, "name"))
 
         self.case_button.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 

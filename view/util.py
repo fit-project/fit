@@ -25,15 +25,20 @@ from view.configurations.screen_recorder_preview.screen_recorder_preview import 
 from common.utility import get_platform
 from common.constants import logger, details
 
-from common.constants.view import case
-from common.constants.view import verify_pec, verify_pdf_timestamp
+from common.constants.view import verify_pec, verify_pdf_timestamp, case, screenrecorder
 from common.constants.view.tasks import status
-from enum import Enum
+from enum import Enum, auto
 
 
 class VerificationTypes(Enum):
-    TIMESTAMP = 1
-    PEC = 2
+    TIMESTAMP = auto()
+    PEC = auto()
+
+
+class ScreensChangedType(Enum):
+    ADDED = auto()
+    REMOVED = auto()
+    PRIMARY_SCREEN_CHANGED = auto()
 
 
 def validate_mail(mail):
@@ -75,7 +80,10 @@ def show_acquisition_info_dialog():
     TasksInfo().exec()
 
 
-def show_screen_recorder_preview_dialog():
+def show_screen_recorder_preview_dialog(dialog=None):
+    if dialog:
+        dialog.close()
+
     ScreenRecorderPreview().exec()
 
 
@@ -237,3 +245,27 @@ def add_label_in_verification_status_list(
     item.setSizeHint(label.sizeHint())
     status_list.addItem(item)
     status_list.setItemWidget(item, label)
+
+
+def screens_changed(screen_changed_type: ScreensChangedType):
+    message = screenrecorder.SCREENS_CHANGED_SCREEN_ADDED_MSG
+
+    if screen_changed_type == ScreensChangedType.REMOVED:
+        message = message = screenrecorder.SCREENS_CHANGED_SCREEN_REMOVED_MSG
+    elif screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED:
+        message = message = screenrecorder.SCREENS_PRIMARY_SCREEN_CHANGED_MSG
+
+    dialog = Dialog(
+        screenrecorder.SCREENS_CHANGED_TILE,
+        message,
+    )
+
+    dialog.message.setStyleSheet("font-size: 13px;")
+    dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+    dialog.left_button.clicked.connect(
+        lambda: show_screen_recorder_preview_dialog(dialog)
+    )
+    dialog.right_button.clicked.connect(dialog.close)
+    dialog.content_box.adjustSize()
+
+    dialog.exec()
