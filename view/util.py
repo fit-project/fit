@@ -18,6 +18,9 @@ from view.configuration import Configuration as ConfigurationView
 from view.case_form_dialog import CaseFormDialog
 from view.dialog import Dialog, DialogButtonTypes
 from view.tasks.tasks_info import TasksInfo
+from view.configurations.screen_recorder_preview.screen_recorder_preview import (
+    ScreenRecorderPreview,
+)
 
 from common.utility import get_platform
 from common.constants import logger, details
@@ -70,6 +73,10 @@ def show_configuration_dialog():
 
 def show_acquisition_info_dialog():
     TasksInfo().exec()
+
+
+def show_screen_recorder_preview_dialog():
+    ScreenRecorderPreview().exec()
 
 
 def show_finish_acquisition_dialog(acquisition_directory):

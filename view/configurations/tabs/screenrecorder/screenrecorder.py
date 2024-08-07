@@ -14,6 +14,8 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
+from view.util import show_screen_recorder_preview_dialog
+
 __is_tab__ = True
 
 
@@ -33,16 +35,28 @@ class ScreenRecorder(Tab):
         )
 
         self.enable_screen_recorder.stateChanged.connect(
-            self._is_enabled_screen_recorder
+            self.__is_enabled_screen_recorder
         )
 
-        # PACKET CAPTURE RECORDER FILENAME
+        # SCREEN RECORDER FILENAME
         self.screen_recorder_filename = self.tab.findChild(
             QtWidgets.QLineEdit, "screen_recorder_filename"
         )
 
-    def _is_enabled_screen_recorder(self):
+        # SELECT SCREEN OR WINDOW BUTTON
+        self.select_screen_window_button = self.tab.findChild(
+            QtWidgets.QPushButton, "select_screen_window_button"
+        )
+
+        self.select_screen_window_button.clicked.connect(
+            show_screen_recorder_preview_dialog
+        )
+
+    def __is_enabled_screen_recorder(self):
         self.screen_recorder_filename.setEnabled(
+            self.enable_screen_recorder.isChecked()
+        )
+        self.select_screen_window_button.setEnabled(
             self.enable_screen_recorder.isChecked()
         )
 
@@ -50,7 +64,7 @@ class ScreenRecorder(Tab):
         self.enable_screen_recorder.setChecked(self.__options["enabled"])
         self.screen_recorder_filename.setText(self.__options["filename"])
 
-        self._is_enabled_screen_recorder()
+        self.__is_enabled_screen_recorder()
 
     def __get_current_values(self):
         for keyword in self.__options:
