@@ -45,7 +45,7 @@ class ScreenRecorder(Base):
         self.enabled = True
         self.codec_id = 1
         self.fps = 25
-        self.filename = "acquisition.avi"
+        self.filename = "acquisition_video"
 
         self.db.session.add(self)
         self.db.session.commit()

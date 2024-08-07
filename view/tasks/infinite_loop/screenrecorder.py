@@ -13,23 +13,85 @@ import os
 
 
 from PIL import ImageGrab
-from PyQt6.QtCore import QObject, pyqtSignal, QThread
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QObject, pyqtSignal, QThread, QUrl
+from PyQt6.QtWidgets import QMessageBox, QApplication
+
+from PyQt6.QtMultimedia import (
+    QMediaCaptureSession,
+    QWindowCapture,
+    QMediaRecorder,
+    QScreenCapture,
+)
 
 from screeninfo import get_monitors
 from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
 from view.error import Error as ErrorView
+from view.configurations.screen_recorder_preview.screen_recorder_preview import (
+    ScreenRecorderPreview,
+    SourceType,
+)
 
 from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
+
 from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
+
+
+class QtScreenRecorderWorker(QObject):
+    finished = pyqtSignal()
+    started = pyqtSignal()
+    error = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent=parent)
+
+        self.destroyed.connect(self.stop)
+
+        self.__video_to_record_session = QMediaCaptureSession()
+        self.__window_to_record = QWindowCapture()
+        self.__video_to_record_session.setWindowCapture(self.__window_to_record)
+        self.__screen_to_record = QScreenCapture()
+        self.__video_to_record_session.setScreenCapture(self.__screen_to_record)
+        self.__video_recorder = QMediaRecorder()
+
+        self.__video_to_record_session.setRecorder(self.__video_recorder)
+
+    def set_options(self, options):
+        self.__video_recorder.setOutputLocation(QUrl.fromLocalFile(options["filename"]))
+
+    def start(self):
+        app = QApplication.instance()
+        screen_information = getattr(app, "screen_information")
+        screen_to_record = screen_information.get("screen_to_record")
+        self.__source_type = screen_information.get("source_type")
+
+        if self.__source_type == SourceType.SCREEN:
+            self.__screen_to_record.setScreen(screen_to_record)
+            self.__screen_to_record.start()
+            self.__video_recorder.record()
+
+        elif self.__source_type == SourceType.WINDOW:
+            self.__window_to_record.setScreen(screen_to_record)
+            self.__window_to_record.start()
+            self.__video_recorder.record()
+
+        self.started.emit()
+
+    def stop(self):
+        self.__video_recorder.stop()
+        if self.__source_type == SourceType.SCREEN:
+            self.__screen_to_record.stop()
+        elif self.__source_type == SourceType.WINDOW:
+            self.__window_to_record.stop()
+
+        self.finished.emit()
 
 
 class ScreenRecorderWorker(QObject):
@@ -101,7 +163,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = ScreenRecorderWorker()
+        self.worker = QtScreenRecorderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
