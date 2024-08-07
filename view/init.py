@@ -14,6 +14,13 @@ from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel as ClickableLabelView
+from view.util import (
+    screens_changed,
+    show_multiple_screens_dialog,
+    ScreensChangedType,
+    SourceType,
+)
+
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
 
@@ -117,8 +124,29 @@ class Init(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.__set_initial_screen_to_record_information()
+
     def __quit(self):
         sys.exit(1)
+
+    def __set_initial_screen_to_record_information(self):
+        app = QtWidgets.QApplication.instance()
+        app.screenAdded.connect(lambda: screens_changed(ScreensChangedType.ADDED))
+        app.screenRemoved.connect(lambda: screens_changed(ScreensChangedType.REMOVED))
+        app.primaryScreenChanged.connect(
+            lambda: screens_changed(ScreensChangedType.PRIMARY_SCREEN_CHANGED)
+        )
+        # Set the initial screen information to record
+        screen_information = {
+            "source_type": SourceType.SCREEN,
+            "screen_to_record": app.primaryScreen(),
+        }
+
+        setattr(app, "screen_information", screen_information)
+
+        screens = len(QtGui.QGuiApplication.screens())
+        if screens > 1:
+            show_multiple_screens_dialog(screens)
 
     def __enable_functionality(self):
         configuration = NetworkTools().configuration

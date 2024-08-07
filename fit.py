@@ -20,19 +20,10 @@ from view.scrapers.video.video import Video as VideoView
 from view.scrapers.entire_website.entire_website import (
     EntireWebsite as EntireWebsiteView,
 )
-from view.util import screens_changed, ScreensChangedType
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
-
-    app.screenAdded.connect(lambda: screens_changed(ScreensChangedType.ADDED))
-    app.screenRemoved.connect(lambda: screens_changed(ScreensChangedType.REMOVED))
-    app.primaryScreenChanged.connect(
-        lambda: screens_changed(ScreensChangedType.PRIMARY_SCREEN_CHANGED)
-    )
-
-    setattr(app, "name", "Adam")
 
     init = InitView()
     init.init_check()

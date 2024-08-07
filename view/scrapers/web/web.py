@@ -25,7 +25,6 @@ from view.util import (
 from view.scrapers.web.selected_area_screenshot import SelectAreaScreenshot
 from view.scrapers.web.full_page_screenshot import FullPageScreenShot
 from view.scrapers.web.acquisition import WebAcquisition, AcquisitionStatus
-from view.tasks.tasks_info import TasksInfo
 from view.error import Error as ErrorView
 
 
@@ -38,7 +37,6 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
-
 from common.constants.view import general
 from common.constants.view.web import *
 
@@ -46,8 +44,6 @@ from common.config import LogConfigTools
 from common.utility import resolve_path, get_version
 
 from ui.web import resources
-
-from PyQt6.QtWidgets import QApplication
 
 
 class Web(QtWidgets.QMainWindow):
@@ -134,10 +130,6 @@ class Web(QtWidgets.QMainWindow):
     def init(self, case_info, wizard, options=None):
         self.wizard = wizard
         self.case_info = case_info
-
-        app = QApplication.instance()
-        if hasattr(app, "name"):
-            print(getattr(app, "name"))
 
         self.case_button.clicked.connect(lambda: show_case_info_dialog(self.case_info))
 

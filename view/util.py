@@ -14,13 +14,17 @@ import base64
 from datetime import datetime
 
 from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6.QtMultimedia import QWindowCapture
+
 from view.configuration import Configuration as ConfigurationView
 from view.case_form_dialog import CaseFormDialog
 from view.dialog import Dialog, DialogButtonTypes
 from view.tasks.tasks_info import TasksInfo
 from view.configurations.screen_recorder_preview.screen_recorder_preview import (
     ScreenRecorderPreview,
+    SourceType,
 )
+
 
 from common.utility import get_platform
 from common.constants import logger, details
@@ -250,14 +254,54 @@ def add_label_in_verification_status_list(
 def screens_changed(screen_changed_type: ScreensChangedType):
     message = screenrecorder.SCREENS_CHANGED_SCREEN_ADDED_MSG
 
+    app = QtWidgets.QApplication.instance()
+    if not hasattr(app, "screen_information"):
+        screen_information = {
+            "source_type": SourceType.SCREEN,
+            "screen_to_record": app.primaryScreen(),
+        }
+
+        setattr(app, "screen_information", screen_information)
+
+    screen_information = getattr(app, "screen_information")
+
     if screen_changed_type == ScreensChangedType.REMOVED:
         message = message = screenrecorder.SCREENS_CHANGED_SCREEN_REMOVED_MSG
+
     elif screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED:
         message = message = screenrecorder.SCREENS_PRIMARY_SCREEN_CHANGED_MSG
 
     dialog = Dialog(
         screenrecorder.SCREENS_CHANGED_TILE,
         message,
+    )
+    dialog.message.setStyleSheet("font-size: 13px;")
+    if (
+        screen_changed_type == ScreensChangedType.REMOVED
+        or screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED
+    ):
+        screen_information["screen_to_record"] = QWindowCapture.capturableWindows()[0]
+        screen_information["source_type"] = SourceType.WINDOW
+        dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
+        dialog.right_button.clicked.connect(
+            lambda: show_screen_recorder_preview_dialog(dialog)
+        )
+    else:
+        dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+        dialog.left_button.clicked.connect(
+            lambda: show_screen_recorder_preview_dialog(dialog)
+        )
+        dialog.right_button.clicked.connect(dialog.close)
+
+    dialog.content_box.adjustSize()
+
+    dialog.exec()
+
+
+def show_multiple_screens_dialog(screens):
+    dialog = Dialog(
+        screenrecorder.MULTIPLE_SCREEN_TILE,
+        screenrecorder.MULTIPLE_SCREEN_MSG.format(screens),
     )
 
     dialog.message.setStyleSheet("font-size: 13px;")

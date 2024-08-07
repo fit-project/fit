@@ -58,6 +58,8 @@ class ScreenListModel(QAbstractListModel):
         if not index.isValid():
             return False
         if role == Qt.ItemDataRole.CheckStateRole:
+            if self.rowCount(index) == 1 and value == 0:
+                value = 2
             self.checks.clear()
             self.checks[QPersistentModelIndex(index)] = value
             self.dataChanged.emit(index, index)
