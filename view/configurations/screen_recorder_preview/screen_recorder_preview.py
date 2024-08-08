@@ -193,7 +193,7 @@ class ScreenRecorderPreview(QtWidgets.QDialog):
 
     def __not_valid_window_dialog(self):
         dialog = Dialog(
-            PREVIEW_ERROR_NOT_VALID_WINDOW_TILE,
+            PREVIEW_ERROR_NOT_VALID_WINDOW_TITLE,
             PREVIEW_ERROR_NOT_VALID_WINDOW_MSG,
         )
         dialog.message.setStyleSheet("font-size: 13px;")

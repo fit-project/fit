@@ -29,7 +29,6 @@ from common.constants.view.tasks import labels, state, status
 from view.tasks.task import Task
 from view.error import Error as ErrorView
 from view.configurations.screen_recorder_preview.screen_recorder_preview import (
-    ScreenRecorderPreview,
     SourceType,
 )
 
@@ -78,7 +77,7 @@ class QtScreenRecorderWorker(QObject):
             self.__video_recorder.record()
 
         elif self.__source_type == SourceType.WINDOW:
-            self.__window_to_record.setScreen(screen_to_record)
+            self.__window_to_record.setWindow(screen_to_record)
             self.__window_to_record.start()
             self.__video_recorder.record()
 

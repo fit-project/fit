@@ -14,7 +14,7 @@ from view.acquisition.post import PostAcquisition
 from view.tasks.tasks_manager import TasksManager
 from view.tasks.class_names import *
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
-
+from view.util import show_setting_screen_dialog_before_acquisition_start
 
 from common.utility import get_ntp_date_and_time
 from common.config import LogConfigTools
@@ -93,6 +93,9 @@ class Acquisition(QObject):
 
     def start(self):
         self.log_start_message()
+        if SCREENRECORDER in self.start_tasks:
+            show_setting_screen_dialog_before_acquisition_start()
+
         tasks = self.tasks_manager.get_tasks_from_class_name(self.start_tasks)
 
         if len(tasks) == 0:

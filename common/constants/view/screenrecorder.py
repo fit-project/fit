@@ -11,7 +11,7 @@ SCREEN_RECODER = (
     "An error occurred during screen recoder acquisition! \nSee bellow for more detail."
 )
 
-PREVIEW_ERROR_NOT_VALID_WINDOW_TILE = "Invalid window"
+PREVIEW_ERROR_NOT_VALID_WINDOW_TITLE = "Invalid window"
 PREVIEW_ERROR_NOT_VALID_WINDOW_MSG = 'The window selected is no longer valid.<br><br><strong style="color:red"> It is necessary update the list of windows to setup another primary screen!</strong>'
 PREVIEW_WINDOW_CAPTURE_ERROR_OCCURED_TITLE = "QWindowCapture: Error occurred"
 PREVIEW_SCREEN_CAPTURE_ERROR_OCCURED_TITLE = "QScreenCapture: Error occurred"
@@ -23,5 +23,8 @@ SCREENS_CHANGED_SCREEN_ADDED_MSG = (
 SCREENS_CHANGED_SCREEN_REMOVED_MSG = 'A screen has been removed.<br><br><strong style="color:red"> It is necessary to setup the primary screen!</strong>'
 SCREENS_PRIMARY_SCREEN_CHANGED_MSG = 'Primary screen changed.<br><br><strong style="color:red"> It is necessary to setup the primary screen!</strong>'
 
-MULTIPLE_SCREEN_TILE = "Multiple Screen"
+MULTIPLE_SCREEN_TITLE = "Multiple Screen"
 MULTIPLE_SCREEN_MSG = "There are {} screens connected to your PC! Do you want setup a specific one as primary screen?"
+
+SETTING_SCREEN_BEFORE_ACQUISITION_START_TITLE = "Setting Screen"
+SETTING_SCREEN_BEFORE_ACQUISITION_START_MSG = "Before starting the acquisition, <strong>it is necessary</strong> to check the settings of the screen to be recorded"

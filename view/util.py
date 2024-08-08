@@ -300,7 +300,7 @@ def screens_changed(screen_changed_type: ScreensChangedType):
 
 def show_multiple_screens_dialog(screens):
     dialog = Dialog(
-        screenrecorder.MULTIPLE_SCREEN_TILE,
+        screenrecorder.MULTIPLE_SCREEN_TITLE,
         screenrecorder.MULTIPLE_SCREEN_MSG.format(screens),
     )
 
@@ -310,6 +310,22 @@ def show_multiple_screens_dialog(screens):
         lambda: show_screen_recorder_preview_dialog(dialog)
     )
     dialog.right_button.clicked.connect(dialog.close)
+    dialog.content_box.adjustSize()
+
+    dialog.exec()
+
+
+def show_setting_screen_dialog_before_acquisition_start():
+    dialog = Dialog(
+        screenrecorder.SETTING_SCREEN_BEFORE_ACQUISITION_START_TITLE,
+        screenrecorder.SETTING_SCREEN_BEFORE_ACQUISITION_START_MSG,
+    )
+
+    dialog.message.setStyleSheet("font-size: 13px;")
+    dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
+    dialog.right_button.clicked.connect(
+        lambda: show_screen_recorder_preview_dialog(dialog)
+    )
     dialog.content_box.adjustSize()
 
     dialog.exec()
