@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import cv2
 import numpy as np
 import sys
 import os
@@ -32,7 +31,6 @@ from view.configurations.screen_recorder_preview.screen_recorder_preview import 
     SourceType,
 )
 
-from controller.configurations.tabs.screenrecorder.codec import Codec as CodecController
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
@@ -43,7 +41,7 @@ from common.constants import error
 from common.constants.view import screenrecorder
 
 
-class QtScreenRecorderWorker(QObject):
+class ScreenRecorderWorker(QObject):
     finished = pyqtSignal()
     started = pyqtSignal()
     error = pyqtSignal(object)
@@ -70,16 +68,24 @@ class QtScreenRecorderWorker(QObject):
         screen_information = getattr(app, "screen_information")
         screen_to_record = screen_information.get("screen_to_record")
         self.__source_type = screen_information.get("source_type")
+        try:
+            if self.__source_type == SourceType.SCREEN:
+                self.__screen_to_record.setScreen(screen_to_record)
+                self.__screen_to_record.start()
+                self.__video_recorder.record()
 
-        if self.__source_type == SourceType.SCREEN:
-            self.__screen_to_record.setScreen(screen_to_record)
-            self.__screen_to_record.start()
-            self.__video_recorder.record()
-
-        elif self.__source_type == SourceType.WINDOW:
-            self.__window_to_record.setWindow(screen_to_record)
-            self.__window_to_record.start()
-            self.__video_recorder.record()
+            elif self.__source_type == SourceType.WINDOW:
+                self.__window_to_record.setWindow(screen_to_record)
+                self.__window_to_record.start()
+                self.__video_recorder.record()
+        except Exception as e:
+            self.error.emit(
+                {
+                    "title": screenrecorder.SCREEN_RECODER,
+                    "message": error.SCREEN_RECODER,
+                    "details": str(e),
+                }
+            )
 
         self.started.emit()
 
@@ -93,67 +99,6 @@ class QtScreenRecorderWorker(QObject):
         self.finished.emit()
 
 
-class ScreenRecorderWorker(QObject):
-    finished = pyqtSignal()
-    started = pyqtSignal()
-    error = pyqtSignal(object)
-
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent=parent)
-        self.run = True
-        self.destroyed.connect(self.stop)
-        self.controller = CodecController()
-
-    def set_options(self, options):
-        self.width = get_monitors()[0].width
-        self.height = get_monitors()[0].height
-        codec = next(
-            (
-                item
-                for item in self.controller.codec
-                if item["id"] == options["codec_id"]
-            )
-        )
-        self.codec = cv2.VideoWriter_fourcc(*codec["name"])
-
-        # TO-DO find the right way to calculate dynamic FPS
-        self.fps = options["fps"]
-        self.filename = options["filename"]
-
-    def start(self):
-        self.out = cv2.VideoWriter(
-            self.filename, self.codec, self.fps, (self.width, self.height)
-        )
-
-        self.started.emit()
-        try:
-            while self.run:
-                img = ImageGrab.grab(bbox=(0, 0, self.width, self.height))
-                frame = np.array(img)
-
-                # Convert it from BGR(Blue, Green, Red) to RGB(Red, Green, Blue)
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                self.out.write(frame)
-
-        except:
-            self.error.emit(
-                {
-                    "title": screenrecorder.SCREEN_RECODER,
-                    "message": error.SCREEN_RECODER,
-                    "details": str(sys.exc_info()[0]),
-                }
-            )
-
-        self.out.release()
-
-        cv2.destroyAllWindows()
-
-        self.finished.emit()
-
-    def stop(self):
-        self.run = False
-
-
 class TaskScreenRecorder(Task):
     def __init__(self, logger, progress_bar=None, status_bar=None, parent=None):
         super().__init__(logger, progress_bar, status_bar, parent)
@@ -162,7 +107,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = QtScreenRecorderWorker()
+        self.worker = ScreenRecorderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
