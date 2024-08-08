@@ -6,24 +6,17 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # -----
 ######
-import numpy as np
-import sys
+
+
 import os
-
-
-from PIL import ImageGrab
 from PyQt6.QtCore import QObject, pyqtSignal, QThread, QUrl
 from PyQt6.QtWidgets import QMessageBox, QApplication
-
 from PyQt6.QtMultimedia import (
     QMediaCaptureSession,
     QWindowCapture,
     QMediaRecorder,
     QScreenCapture,
 )
-
-from screeninfo import get_monitors
-from common.constants.view.tasks import labels, state, status
 
 from view.tasks.task import Task
 from view.error import Error as ErrorView
@@ -39,6 +32,7 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
 from common.constants import logger, details
 from common.constants import error
 from common.constants.view import screenrecorder
+from common.constants.view.tasks import labels, state, status
 
 
 class ScreenRecorderWorker(QObject):
