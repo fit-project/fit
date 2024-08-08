@@ -288,7 +288,7 @@ class CaseFormManager:
                             (
                                 proceeding
                                 for proceeding in self.proceedings
-                                if proceeding["name"] == item
+                                if proceeding["name"] == item.currentText()
                             ),
                             None,
                         )
