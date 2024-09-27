@@ -8,6 +8,7 @@
 ######
 
 import subprocess
+import ffmpeg_downloader as ffdl
 
 from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 
@@ -23,6 +24,7 @@ from view.util import (
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
+from controller.configurations.tabs.screenrecorder.screenrecorder import ScreenRecorder
 
 
 from common.utility import *
@@ -131,6 +133,7 @@ class Init(QtCore.QObject):
 
     def __set_initial_screen_to_record_information(self):
         app = QtWidgets.QApplication.instance()
+
         app.screenAdded.connect(lambda: screens_changed(ScreensChangedType.ADDED))
         app.screenRemoved.connect(lambda: screens_changed(ScreensChangedType.REMOVED))
         app.primaryScreenChanged.connect(
@@ -148,7 +151,7 @@ class Init(QtCore.QObject):
         if screens > 1:
             show_multiple_screens_dialog(screens)
 
-    def __enable_functionality(self):
+    def __enable_network_functionality(self):
         configuration = NetworkTools().configuration
         if configuration.get("traceroute") is False:
             configuration["traceroute"] = True
@@ -159,7 +162,7 @@ class Init(QtCore.QObject):
             options["enabled"] = True
             PacketCapture().options = options
 
-    def __disable_functionality(self, dialog=None):
+    def __disable_network_functionality(self, dialog=None):
         if dialog:
             dialog.close()
 
@@ -194,13 +197,13 @@ class Init(QtCore.QObject):
             error_dlg.exec()
 
     def __download_rejected(self):
-        self.__disable_functionality()
+        self.__disable_network_functionality()
 
     def __donwload_and_install_finished(self, result):
         if result.get("status") == status.SUCCESS:
-            self.__enable_functionality()
+            self.__enable_network_functionality()
         else:
-            self.__disable_functionality()
+            self.__disable_network_functionality()
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
                 NPCAP,
@@ -208,6 +211,36 @@ class Init(QtCore.QObject):
                 result.get("details"),
             )
             error_dlg.exec()
+
+    def __disable_screen_recorder_functionality(self, dialog=None):
+        if dialog:
+            dialog.close()
+
+        options = ScreenRecorder().options
+        if options.get("enabled") is True:
+            options["enabled"] = False
+            ScreenRecorder().options = options
+
+    def __enable_screen_recorder_functionality(self):
+        options = ScreenRecorder().options
+        if options.get("enabled") is False:
+            options["enabled"] = True
+            ScreenRecorder().options = options
+
+    def __download_and_install_ffmpeg(self, dialog=None):
+        is_ffmpeg_installed = False
+
+        if dialog:
+            dialog.close()
+
+        ffmpeg_istaller = "ffdl-gui"
+        if is_cmd(ffmpeg_istaller):
+            result = subprocess.run(ffmpeg_istaller, stdout=subprocess.DEVNULL)
+            if result.returncode == 0:
+                is_ffmpeg_installed = True
+
+        if is_ffmpeg_installed is True:
+            self.__enable_screen_recorder_functionality()
 
     def init_check(self):
         # Check internet connection
@@ -232,13 +265,33 @@ class Init(QtCore.QObject):
             dialog.message.setStyleSheet("font-size: 13px;")
             dialog.set_buttons_type(DialogButtonTypes.QUESTION)
             dialog.right_button.clicked.connect(
-                lambda: self.__disable_functionality(dialog)
+                lambda: self.__disable_network_functionality(dialog)
             )
             dialog.left_button.clicked.connect(self.__quit)
 
             dialog.content_box.adjustSize()
 
             dialog.exec()
+
+        # Check ffmpeg is installed
+        if ffdl.installed() is False and is_cmd("ffmpeg") is False:
+            dialog = Dialog(
+                FFMPEG,
+                WAR_FFMPEG_NOT_INSTALLED,
+            )
+            dialog.message.setStyleSheet("font-size: 13px;")
+            dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+
+            dialog.left_button.clicked.connect(
+                lambda: self.__download_and_install_ffmpeg(dialog)
+            )
+            dialog.right_button.clicked.connect(
+                lambda: self.__disable_screen_recorder_functionality(dialog)
+            )
+
+            dialog.exec()
+        else:
+            self.__enable_screen_recorder_functionality()
 
         if get_platform() == "win":
             if is_npcap_installed() is False and is_admin():
@@ -249,7 +302,7 @@ class Init(QtCore.QObject):
                 dialog.message.setStyleSheet("font-size: 13px;")
                 dialog.set_buttons_type(DialogButtonTypes.QUESTION)
                 dialog.right_button.clicked.connect(
-                    lambda: self.__disable_functionality(dialog)
+                    lambda: self.__disable_network_functionality(dialog)
                 )
                 dialog.left_button.clicked.connect(
                     lambda: self.__download_npcap(dialog)
