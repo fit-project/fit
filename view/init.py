@@ -14,12 +14,10 @@ from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel as ClickableLabelView
+from view.arc import ARC
 from view.util import (
-    get_vb_cable_virtual_audio_device,
     screens_changed,
-    show_multiple_screens_dialog,
     ScreensChangedType,
-    SourceType,
 )
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
@@ -125,7 +123,6 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
 class Init(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
-
         self.__set_initial_screen_to_record_information()
 
     def __quit(self):
@@ -139,17 +136,6 @@ class Init(QtCore.QObject):
         app.primaryScreenChanged.connect(
             lambda: screens_changed(ScreensChangedType.PRIMARY_SCREEN_CHANGED)
         )
-        # Set the initial screen information to record
-        screen_information = {
-            "source_type": SourceType.SCREEN,
-            "screen_to_record": app.primaryScreen(),
-        }
-
-        setattr(app, "screen_information", screen_information)
-
-        screens = len(QtGui.QGuiApplication.screens())
-        if screens > 1:
-            show_multiple_screens_dialog(screens)
 
     def __enable_network_functionality(self):
         configuration = NetworkTools().configuration
@@ -212,21 +198,6 @@ class Init(QtCore.QObject):
             )
             error_dlg.exec()
 
-    def __disable_screen_recorder_functionality(self, dialog=None):
-        if dialog:
-            dialog.close()
-
-        options = ScreenRecorder().options
-        if options.get("enabled") is True:
-            options["enabled"] = False
-            ScreenRecorder().options = options
-
-    def __enable_screen_recorder_functionality(self):
-        options = ScreenRecorder().options
-        if options.get("enabled") is False:
-            options["enabled"] = True
-            ScreenRecorder().options = options
-
     def __download_and_install_ffmpeg(self, dialog=None):
         is_ffmpeg_installed = False
 
@@ -273,25 +244,9 @@ class Init(QtCore.QObject):
 
             dialog.exec()
 
-        # Check ffmpeg and vb_cable_virtual_audio_device are installed
-        if is_cmd("ffmpeg") is False or get_vb_cable_virtual_audio_device() is None:
-            dialog = Dialog(
-                FFMPEG,
-                WAR_FFMPEG_NOT_INSTALLED,
-            )
-            dialog.message.setStyleSheet("font-size: 13px;")
-            dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-
-            dialog.left_button.clicked.connect(
-                lambda: self.__download_and_install_ffmpeg(dialog)
-            )
-            dialog.right_button.clicked.connect(
-                lambda: self.__disable_screen_recorder_functionality(dialog)
-            )
-
-            dialog.exec()
-        else:
-            self.__enable_screen_recorder_functionality()
+        if ScreenRecorder().options.get("show_arc_window_at_startup") is True:
+            ARC().exec()
+            # Mostra la finestra
 
         if get_platform() == "win":
             if is_npcap_installed() is False and is_admin():

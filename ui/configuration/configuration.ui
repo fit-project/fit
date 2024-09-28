@@ -2133,6 +2133,20 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
                            </layout>
                           </item>
                           <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_9">
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QCheckBox" name="enable_audio_recording">
+                              <property name="text">
+                               <string>Enable audio recording</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
                            <spacer name="screen_recorder_top_vertical_spacer">
                             <property name="orientation">
                              <enum>Qt::Vertical</enum>
