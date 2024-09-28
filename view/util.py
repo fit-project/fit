@@ -15,6 +15,7 @@ from datetime import datetime
 
 from PyQt6 import QtCore, QtWidgets, QtGui
 from PyQt6.QtMultimedia import QWindowCapture
+from PyQt6.QtMultimedia import QMediaDevices
 
 from view.configuration import Configuration as ConfigurationView
 from view.case_form_dialog import CaseFormDialog
@@ -329,3 +330,35 @@ def show_setting_screen_dialog_before_acquisition_start():
     dialog.content_box.adjustSize()
 
     dialog.exec()
+
+
+def get_vb_cable_virtual_audio_device():
+    device = None
+    for __device in QMediaDevices().audioInputs():
+        if (
+            "Virtual Cable" in __device.description()
+            or "CABLE Output" in __device.description()
+            or "VB-Audio" in __device.description()
+            or "VB-Cable" in __device.description()
+        ):
+            device = __device
+            break
+
+    return device
+
+
+def is_vb_cable_first_ouput_audio_device():
+    is_first_ouput_audio_device = False
+
+    for index, __device in enumerate(QMediaDevices().audioOutputs()):
+        if (
+            "Virtual Cable" in __device.description()
+            or "CABLE Output" in __device.description()
+            or "VB-Audio" in __device.description()
+            or "VB-Cable" in __device.description()
+        ):
+            if index == 0:
+                is_first_ouput_audio_device = True
+            break
+
+    return is_first_ouput_audio_device

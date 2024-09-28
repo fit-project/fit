@@ -8,7 +8,6 @@
 ######
 
 import subprocess
-import ffmpeg_downloader as ffdl
 
 from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 
@@ -16,6 +15,7 @@ from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel as ClickableLabelView
 from view.util import (
+    get_vb_cable_virtual_audio_device,
     screens_changed,
     show_multiple_screens_dialog,
     ScreensChangedType,
@@ -273,8 +273,8 @@ class Init(QtCore.QObject):
 
             dialog.exec()
 
-        # Check ffmpeg is installed
-        if ffdl.installed() is False and is_cmd("ffmpeg") is False:
+        # Check ffmpeg and vb_cable_virtual_audio_device are installed
+        if is_cmd("ffmpeg") is False or get_vb_cable_virtual_audio_device() is None:
             dialog = Dialog(
                 FFMPEG,
                 WAR_FFMPEG_NOT_INSTALLED,
