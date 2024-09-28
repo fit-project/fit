@@ -14,7 +14,7 @@ from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
 from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel as ClickableLabelView
-from view.arc import ARC
+from view.audio_recorder_checker import AudioRecorderChecker
 from view.util import (
     screens_changed,
     ScreensChangedType,
@@ -245,7 +245,7 @@ class Init(QtCore.QObject):
             dialog.exec()
 
         if ScreenRecorder().options.get("show_arc_window_at_startup") is True:
-            ARC().exec()
+            AudioRecorderChecker().exec()
             # Mostra la finestra
 
         if get_platform() == "win":

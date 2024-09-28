@@ -39,6 +39,26 @@
 #right_buttons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
 #right_buttons .QPushButton:hover { background-color: rgb(44, 49, 57); border-style: solid; border-radius: 4px; }
 #right_buttons .QPushButton:pressed { background-color: rgb(23, 26, 30); border-style: solid; border-radius: 4px; }
+
+/* CheckBox */
+QCheckBox::indicator {
+    border: 3px solid rgb(52, 59, 72);
+	width: 15px;
+	height: 15px;
+	border-radius: 10px;
+    background: rgb(44, 49, 60);
+    margin:0px 3px 0px 3px;
+}
+QCheckBox::indicator:hover {
+    border: 3px solid rgb(58, 66, 81);
+}
+QCheckBox::indicator:checked {
+    background: 3px solid rgb(52, 59, 72);
+	border: 3px solid rgb(52, 59, 72);	
+	background-image: url(:/icons/cil-check-alt.png);
+}
+
+QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
 </string>
   </property>
   <widget class="QFrame" name="content_box">
@@ -139,7 +159,7 @@
            <string notr="true">font-size: 13px;</string>
           </property>
           <property name="text">
-           <string>FFmpeg is installed (version 3.7.2 in this path: /opt/homebrew/bin/ffmpeg)</string>
+           <string>FFmpeg is installed</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -212,13 +232,6 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="show_this_dialog_box">
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-     </layout>
-    </item>
-    <item>
      <spacer name="vertical_spacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -253,23 +266,7 @@
         <number>0</number>
        </property>
        <item>
-        <spacer name="between_spacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="enable_arc_window_at_startup">
+        <widget class="QCheckBox" name="show_arc_window_at_startup">
          <property name="text">
           <string>Do not display this window at startup</string>
          </property>
@@ -289,7 +286,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="right_button">
+        <widget class="QPushButton" name="ok_button">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -507,6 +504,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
