@@ -9,12 +9,14 @@
 
 from PyQt6 import QtCore, QtWidgets
 from view.configurations.tab import Tab
+from view.audio_setting import AudioSetting
+from view.util import enable_audio_recording
+
 
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
-from view.util import show_screen_recorder_preview_dialog
 
 __is_tab__ = True
 
@@ -38,27 +40,48 @@ class ScreenRecorder(Tab):
             self.__is_enabled_screen_recorder
         )
 
+        # ENABLE AUDIO RECORDING
+        self.enable_audio_recording = self.tab.findChild(
+            QtWidgets.QCheckBox, "enable_audio_recording"
+        )
+
+        self.enable_audio_recording.stateChanged.connect(
+            self.__is_enabled_audio_recording
+        )
+
         # SCREEN RECORDER FILENAME
         self.screen_recorder_filename = self.tab.findChild(
             QtWidgets.QLineEdit, "screen_recorder_filename"
         )
 
-        # SELECT SCREEN OR WINDOW BUTTON
-        self.select_screen_window_button = self.tab.findChild(
-            QtWidgets.QPushButton, "select_screen_window_button"
+        # SETTING AUDIO BUTTON
+        self.verify_audio_setting = self.tab.findChild(
+            QtWidgets.QPushButton, "verify_audio_setting"
         )
+        self.verify_audio_setting.clicked.connect(self.__verify_audio_setting)
 
-        self.select_screen_window_button.clicked.connect(
-            show_screen_recorder_preview_dialog
-        )
+        # TEMPORARY LABEL
+        self.temporary_msg = self.tab.findChild(QtWidgets.QLabel, "temporary_msg")
+        self.temporary_msg.setVisible(False)
+
+    def __verify_audio_setting(self):
+        dialog = AudioSetting()
+        dialog.accepted.connect(self.__enable_audio_recording)
+        dialog.exec()
+
+    def __enable_audio_recording(self):
+        if self.enable_screen_recorder.isChecked() and enable_audio_recording():
+            self.verify_audio_setting.setEnabled(True)
 
     def __is_enabled_screen_recorder(self):
         self.screen_recorder_filename.setEnabled(
             self.enable_screen_recorder.isChecked()
         )
-        self.select_screen_window_button.setEnabled(
-            self.enable_screen_recorder.isChecked()
-        )
+        self.verify_audio_setting.setEnabled(self.enable_screen_recorder.isChecked())
+        self.__enable_audio_recording()
+
+    def __is_enabled_audio_recording(self):
+        self.temporary_msg.setVisible(True)
 
     def __set_current_config_values(self):
         self.enable_screen_recorder.setChecked(self.__options["enabled"])

@@ -20,7 +20,6 @@ class ScreenRecorder(Base):
 
     id = Column(Integer, primary_key=True)
     enabled = Column(Boolean)
-    show_arc_window_at_startup = Column(Boolean)
     filename = Column(String)
 
     def __init__(self) -> None:
@@ -42,7 +41,6 @@ class ScreenRecorder(Base):
 
     def set_default_values(self):
         self.enabled = True
-        self.show_arc_window_at_startup = True
         self.filename = "acquisition_video"
 
         self.db.session.add(self)

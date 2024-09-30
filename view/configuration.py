@@ -17,6 +17,7 @@ from PyQt6 import QtCore, QtWidgets, uic
 import view.configurations
 from view.configurations import classname2objectname
 
+
 from common.constants.view.configurations import tabs
 from common.utility import resolve_path, get_version
 

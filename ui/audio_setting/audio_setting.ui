@@ -118,7 +118,7 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
     <item>
      <layout class="QHBoxLayout" name="ffmpeg_box">
       <property name="rightMargin">
-       <number>10</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
        <number>0</number>
@@ -174,7 +174,7 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="vb_cable_box">
+     <layout class="QHBoxLayout" name="vb_cable_box_installed">
       <property name="rightMargin">
        <number>0</number>
       </property>
@@ -232,6 +232,66 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
      </layout>
     </item>
     <item>
+     <widget class="QFrame" name="vb_cable_box_first_output_audio_device">
+      <layout class="QHBoxLayout" name="vb_cable_box_first_output_audio_device_layout">
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="vb_cable_first_output_audio_device_img">
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>../icons/green-mark.png</pixmap>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="vb_cable_text_box_first_output_audio_device">
+         <property name="leftMargin">
+          <number>10</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="vb_cable_first_output_audio_device_msg">
+           <property name="styleSheet">
+            <string notr="true">font-size: 13px;</string>
+           </property>
+           <property name="text">
+            <string>VB-CABLE is first output audio device</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <spacer name="vertical_spacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -265,13 +325,6 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
-        <widget class="QCheckBox" name="show_arc_window_at_startup">
-         <property name="text">
-          <string>Do not display this window at startup</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <spacer name="left_spacer">
          <property name="orientation">

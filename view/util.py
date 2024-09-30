@@ -27,7 +27,7 @@ from view.configurations.screen_recorder_preview.screen_recorder_preview import 
 )
 
 
-from common.utility import get_platform
+from common.utility import get_platform, is_cmd
 from common.constants import logger, details
 
 from common.constants.view import verify_pec, verify_pdf_timestamp, case, screenrecorder
@@ -332,6 +332,10 @@ def show_setting_screen_dialog_before_acquisition_start():
     dialog.exec()
 
 
+def is_installed_ffmpeg():
+    return is_cmd("ffmpeg")
+
+
 def get_vb_cable_virtual_audio_device():
     device = None
     for __device in QMediaDevices().audioInputs():
@@ -362,3 +366,11 @@ def is_vb_cable_first_ouput_audio_device():
             break
 
     return is_first_ouput_audio_device
+
+
+def enable_audio_recording():
+    return (
+        is_installed_ffmpeg()
+        and get_vb_cable_virtual_audio_device()
+        and is_vb_cable_first_ouput_audio_device()
+    )

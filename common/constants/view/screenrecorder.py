@@ -28,3 +28,13 @@ MULTIPLE_SCREEN_MSG = "There are {} screens connected to your PC! Do you want se
 
 SETTING_SCREEN_BEFORE_ACQUISITION_START_TITLE = "Setting Screen"
 SETTING_SCREEN_BEFORE_ACQUISITION_START_MSG = "Before starting the acquisition, <strong>it is necessary</strong> to check the settings of the screen to be recorded"
+
+
+FFMPEG_INSTALLED = "FFmpeg is installed"
+FFMPEG_NOT_INSTALLED = "FFmpeg is not installed"
+
+VB_CABLE_INSTALLED = "VB-CABLE is installed"
+VB_CABLE_NOT_INSTALLED = "VB-CABLE is not installed"
+
+VB_CABLE_FIRST_OUPUT_AUDIO_DEVICE = "VB-CABLE is first output audio device"
+VB_CABLE_NOT_FIRST_OUPUT_AUDIO_DEVICE = "VB-CABLE is not first output audio device"

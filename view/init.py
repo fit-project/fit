@@ -9,20 +9,14 @@
 
 import subprocess
 
-from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
+from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
 
 from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel as ClickableLabelView
-from view.audio_recorder_checker import AudioRecorderChecker
-from view.util import (
-    screens_changed,
-    ScreensChangedType,
-)
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
-from controller.configurations.tabs.screenrecorder.screenrecorder import ScreenRecorder
 
 
 from common.utility import *
@@ -123,19 +117,9 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
 class Init(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.__set_initial_screen_to_record_information()
 
     def __quit(self):
         sys.exit(1)
-
-    def __set_initial_screen_to_record_information(self):
-        app = QtWidgets.QApplication.instance()
-
-        app.screenAdded.connect(lambda: screens_changed(ScreensChangedType.ADDED))
-        app.screenRemoved.connect(lambda: screens_changed(ScreensChangedType.REMOVED))
-        app.primaryScreenChanged.connect(
-            lambda: screens_changed(ScreensChangedType.PRIMARY_SCREEN_CHANGED)
-        )
 
     def __enable_network_functionality(self):
         configuration = NetworkTools().configuration
@@ -198,21 +182,6 @@ class Init(QtCore.QObject):
             )
             error_dlg.exec()
 
-    def __download_and_install_ffmpeg(self, dialog=None):
-        is_ffmpeg_installed = False
-
-        if dialog:
-            dialog.close()
-
-        ffmpeg_istaller = "ffdl-gui"
-        if is_cmd(ffmpeg_istaller):
-            result = subprocess.run(ffmpeg_istaller, stdout=subprocess.DEVNULL)
-            if result.returncode == 0:
-                is_ffmpeg_installed = True
-
-        if is_ffmpeg_installed is True:
-            self.__enable_screen_recorder_functionality()
-
     def init_check(self):
         # Check internet connection
         if check_internet_connection() is False:
@@ -243,10 +212,6 @@ class Init(QtCore.QObject):
             dialog.content_box.adjustSize()
 
             dialog.exec()
-
-        if ScreenRecorder().options.get("show_arc_window_at_startup") is True:
-            AudioRecorderChecker().exec()
-            # Mostra la finestra
 
         if get_platform() == "win":
             if is_npcap_installed() is False and is_admin():
