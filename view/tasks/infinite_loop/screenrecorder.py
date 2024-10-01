@@ -38,7 +38,7 @@ class ScreenRecorderWorker(QObject):
     started = pyqtSignal()
     error = pyqtSignal(object)
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
 
         self.destroyed.connect(self.stop)
@@ -65,8 +65,11 @@ class ScreenRecorderWorker(QObject):
         self.__acquisition_directory = options["acquisition_directory"]
         self.__filename = options["filename"]
         app = QApplication.instance()
-        screen = app.screenAt(self.parent().pos())
-        self.__screen_to_record.setScreen(screen)
+
+        screen = app.screenAt(options["window_pos"])
+        if screen:
+            print(screen.name())
+            self.__screen_to_record.setScreen(screen)
 
         if hasattr(app, "is_enabled_audio_recording"):
             self.__is_enabled_audio_recording = getattr(
@@ -158,7 +161,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = ScreenRecorderWorker(parent)
+        self.worker = ScreenRecorderWorker()
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
@@ -173,10 +176,10 @@ class TaskScreenRecorder(Task):
 
     @options.setter
     def options(self, options):
-        folder = options["acquisition_directory"]
-        options = ScreenRecorderConfigurationController().options
-        options["filename"] = os.path.join(folder, options["filename"])
-        options["acquisition_directory"] = folder
+        options["filename"] = os.path.join(
+            options["acquisition_directory"],
+            ScreenRecorderConfigurationController().options["filename"],
+        )
         self._options = options
 
     def __handle_error(self, error):

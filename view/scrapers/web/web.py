@@ -198,6 +198,7 @@ class Web(QtWidgets.QMainWindow):
                 "exclude_from_hash_calculation": [
                     ScreenRecorderConfigurationController().options["filename"]
                 ],
+                "window": self.pos(),
             }
 
             self.acquisition_manager.load_tasks()
