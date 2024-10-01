@@ -25,7 +25,7 @@ from view.tasks.tasks_info import TasksInfo
 from common.utility import get_platform, is_cmd
 from common.constants import logger, details
 
-from common.constants.view import verify_pec, verify_pdf_timestamp, case, screenrecorder
+from common.constants.view import verify_pec, verify_pdf_timestamp, case
 from common.constants.view.tasks import status
 from enum import Enum, auto
 
