@@ -9,6 +9,8 @@
 
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QPixmap
+from view.clickable_label import ClickableLabel as ClickableLabelView
+
 from common.utility import resolve_path
 
 from common.constants.view.screenrecorder import *
@@ -59,6 +61,12 @@ class AudioSetting(QtWidgets.QDialog):
             self.vb_cable_first_output_audio_device_msg.setText(
                 VB_CABLE_NOT_FIRST_OUPUT_AUDIO_DEVICE
             )
+
+        self.guide_link.addWidget(
+            ClickableLabelView(
+                AUDIO_RECORDING_MANAGEMENT_GUIDE_URL, AUDIO_RECORDING_MANAGEMENT_GUIDE
+            )
+        )
 
     def __init_ui(self):
         uic.loadUi(resolve_path("ui/audio_setting/audio_setting.ui"), self)

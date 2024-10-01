@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>multipurpose_dialog</class>
- <widget class="QDialog" name="multipurpose_dialog">
+ <class>audio_recording_checker_dialog</class>
+ <widget class="QDialog" name="audio_recording_checker_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -95,7 +95,7 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
     <item>
      <widget class="QLabel" name="disclaimer">
       <property name="text">
-       <string>Qt Multimedia is used to record video and audio on the screen. However, each operating system handles speakers in its own way, so to record audio regardless of the OS you need to install the third-party software described below:</string>
+       <string>Qt Multimedia is used to record video and audio on the screen. However, each operating system handles speakers in its own way, so to record audio regardless of the OS you need to install the third-party software described below.</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -234,11 +234,17 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
     <item>
      <widget class="QFrame" name="vb_cable_box_first_output_audio_device">
       <layout class="QHBoxLayout" name="vb_cable_box_first_output_audio_device_layout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
        <property name="rightMargin">
-        <number>1</number>
+        <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>1</number>
+        <number>0</number>
        </property>
        <item>
         <widget class="QLabel" name="vb_cable_first_output_audio_device_img">
@@ -325,6 +331,13 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <item>
+        <layout class="QHBoxLayout" name="guide_link">
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </item>
        <item>
         <spacer name="left_spacer">
          <property name="orientation">
