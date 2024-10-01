@@ -14,7 +14,6 @@ import base64
 from datetime import datetime
 
 from PyQt6 import QtCore, QtWidgets, QtGui
-from PyQt6.QtMultimedia import QWindowCapture
 from PyQt6.QtMultimedia import QMediaDevices
 
 from view.configuration import Configuration as ConfigurationView
