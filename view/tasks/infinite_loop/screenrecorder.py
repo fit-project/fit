@@ -68,7 +68,6 @@ class ScreenRecorderWorker(QObject):
 
         screen = app.screenAt(options["window_pos"])
         if screen:
-            print(screen.name())
             self.__screen_to_record.setScreen(screen)
 
         if hasattr(app, "is_enabled_audio_recording"):
