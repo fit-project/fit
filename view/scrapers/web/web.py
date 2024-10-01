@@ -122,7 +122,10 @@ class Web(QtWidgets.QMainWindow):
         self.dragPos = event.globalPosition().toPoint()
 
     def move_window(self, event):
-        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+        if (
+            event.buttons() == QtCore.Qt.MouseButton.LeftButton
+            and self.acquisition_status == AcquisitionStatus.UNSTARTED
+        ):
             self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
             self.dragPos = event.globalPosition().toPoint()
             event.accept()

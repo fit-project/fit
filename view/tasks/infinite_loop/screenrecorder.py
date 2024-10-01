@@ -13,16 +13,14 @@ from PyQt6.QtCore import QObject, pyqtSignal, QThread, QUrl
 from PyQt6.QtWidgets import QMessageBox, QApplication
 from PyQt6.QtMultimedia import (
     QMediaCaptureSession,
-    QWindowCapture,
     QMediaRecorder,
     QScreenCapture,
+    QAudioInput,
 )
 
 from view.tasks.task import Task
 from view.error import Error as ErrorView
-from view.configurations.screen_recorder_preview.screen_recorder_preview import (
-    SourceType,
-)
+from view.util import get_vb_cable_virtual_audio_device
 
 from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
@@ -40,38 +38,73 @@ class ScreenRecorderWorker(QObject):
     started = pyqtSignal()
     error = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         QObject.__init__(self, parent=parent)
 
         self.destroyed.connect(self.stop)
 
+        self.__is_enabled_audio_recording = False
+
+        # Video recording
         self.__video_to_record_session = QMediaCaptureSession()
-        self.__window_to_record = QWindowCapture()
-        self.__video_to_record_session.setWindowCapture(self.__window_to_record)
         self.__screen_to_record = QScreenCapture()
         self.__video_to_record_session.setScreenCapture(self.__screen_to_record)
         self.__video_recorder = QMediaRecorder()
-
+        self.__video_recorder.recorderStateChanged.connect(
+            self.__video_recorder_state_handler
+        )
         self.__video_to_record_session.setRecorder(self.__video_recorder)
 
+    def __video_recorder_state_handler(self, recorder_state):
+
+        if recorder_state == QMediaRecorder.RecorderState.StoppedState:
+            self.__join_audio_and_video()
+
     def set_options(self, options):
-        self.__video_recorder.setOutputLocation(QUrl.fromLocalFile(options["filename"]))
+
+        self.__acquisition_directory = options["acquisition_directory"]
+        self.__filename = options["filename"]
+        app = QApplication.instance()
+        screen = app.screenAt(self.parent().pos())
+        self.__screen_to_record.setScreen(screen)
+
+        if hasattr(app, "is_enabled_audio_recording"):
+            self.__is_enabled_audio_recording = getattr(
+                app, "is_enabled_audio_recording"
+            )
+
+        if self.__is_enabled_audio_recording is True:
+            self.__audio_path = os.path.join(
+                self.__acquisition_directory, "screenrecorder/audio"
+            )
+            self.__video_path = os.path.join(
+                self.__acquisition_directory, "screenrecorder/video"
+            )
+            self.__create_screen_recorder_directories()
+
+            # Set video recording path
+            self.__video_recorder.setOutputLocation(
+                QUrl.fromLocalFile(os.path.join(self.__video_path, "screenrecorder"))
+            )
+
+            # Audio recording
+            self.__audio_capture_session = QMediaCaptureSession()
+            self.__audio_input = QAudioInput(get_vb_cable_virtual_audio_device())
+            self.__audio_capture_session.setAudioInput(self.__audio_input)
+            self.__audio_recorder = QMediaRecorder()
+            self.__audio_recorder.setOutputLocation(
+                QUrl.fromLocalFile(os.path.join(self.__audio_path, "screenrecorder"))
+            )
+            self.__audio_capture_session.setRecorder(self.__audio_recorder)
+        else:
+            self.__video_recorder.setOutputLocation(QUrl.fromLocalFile(self.__filename))
 
     def start(self):
-        app = QApplication.instance()
-        screen_information = getattr(app, "screen_information")
-        screen_to_record = screen_information.get("screen_to_record")
-        self.__source_type = screen_information.get("source_type")
         try:
-            if self.__source_type == SourceType.SCREEN:
-                self.__screen_to_record.setScreen(screen_to_record)
-                self.__screen_to_record.start()
-                self.__video_recorder.record()
-
-            elif self.__source_type == SourceType.WINDOW:
-                self.__window_to_record.setWindow(screen_to_record)
-                self.__window_to_record.start()
-                self.__video_recorder.record()
+            self.__screen_to_record.start()
+            self.__video_recorder.record()
+            if self.__is_enabled_audio_recording is True:
+                self.__audio_recorder.record()
         except Exception as e:
             self.error.emit(
                 {
@@ -83,14 +116,38 @@ class ScreenRecorderWorker(QObject):
 
         self.started.emit()
 
+    def __create_screen_recorder_directories(self):
+        if not os.path.exists(self.__audio_path):
+            os.makedirs(self.__audio_path)
+        if not os.path.exists(self.__video_path):
+            os.makedirs(self.__video_path)
+
     def stop(self):
         self.__video_recorder.stop()
-        if self.__source_type == SourceType.SCREEN:
-            self.__screen_to_record.stop()
-        elif self.__source_type == SourceType.WINDOW:
-            self.__window_to_record.stop()
+        self.__screen_to_record.stop()
+        if self.__is_enabled_audio_recording is True:
+            self.__audio_recorder.stop()
+
+    def __join_audio_and_video(self):
+        if self.__is_enabled_audio_recording is True:
+            from moviepy.editor import VideoFileClip, AudioFileClip
+
+            output_path = self.__filename + ".mp4"
+            audio_path = self.__get_file_path(self.__audio_path)
+            video_path = self.__get_file_path(self.__video_path)
+            video = VideoFileClip(video_path)
+            audio = AudioFileClip(audio_path)
+            video = video.set_audio(audio)
+            video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
         self.finished.emit()
+
+    def __get_file_path(self, directory):
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if file.startswith("screenrecorder"):
+                    return os.path.join(root, file)
+        return None
 
 
 class TaskScreenRecorder(Task):
@@ -101,7 +158,7 @@ class TaskScreenRecorder(Task):
         self.is_infinite_loop = True
 
         self.worker_thread = QThread()
-        self.worker = ScreenRecorderWorker()
+        self.worker = ScreenRecorderWorker(parent)
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.started.connect(self.worker.start)
         self.worker.started.connect(self.__started)
@@ -119,6 +176,7 @@ class TaskScreenRecorder(Task):
         folder = options["acquisition_directory"]
         options = ScreenRecorderConfigurationController().options
         options["filename"] = os.path.join(folder, options["filename"])
+        options["acquisition_directory"] = folder
         self._options = options
 
     def __handle_error(self, error):

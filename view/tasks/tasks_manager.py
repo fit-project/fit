@@ -116,7 +116,7 @@ class TasksManager(QObject):
             if key in task_list:
                 value = self.class_names_modules.get(key)[0]
                 task = getattr(value, key)
-                task = task(logger, progress_bar, status_bar)
+                task = task(logger, progress_bar, status_bar, self.parent())
 
     def get_tasks(self):
         return self.task_handler.get_tasks()

@@ -93,8 +93,6 @@ class Acquisition(QObject):
 
     def start(self):
         self.log_start_message()
-        if SCREENRECORDER in self.start_tasks:
-            show_setting_screen_dialog_before_acquisition_start()
 
         tasks = self.tasks_manager.get_tasks_from_class_name(self.start_tasks)
 
