@@ -14,7 +14,6 @@ from view.acquisition.post import PostAcquisition
 from view.tasks.tasks_manager import TasksManager
 from view.tasks.class_names import *
 from controller.configurations.tabs.network.networkcheck import NetworkControllerCheck
-from view.util import show_setting_screen_dialog_before_acquisition_start
 
 from common.utility import get_ntp_date_and_time
 from common.config import LogConfigTools

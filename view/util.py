@@ -21,10 +21,6 @@ from view.configuration import Configuration as ConfigurationView
 from view.case_form_dialog import CaseFormDialog
 from view.dialog import Dialog, DialogButtonTypes
 from view.tasks.tasks_info import TasksInfo
-from view.configurations.screen_recorder_preview.screen_recorder_preview import (
-    ScreenRecorderPreview,
-    SourceType,
-)
 
 
 from common.utility import get_platform, is_cmd
@@ -83,13 +79,6 @@ def show_configuration_dialog():
 
 def show_acquisition_info_dialog():
     TasksInfo().exec()
-
-
-def show_screen_recorder_preview_dialog(dialog=None):
-    if dialog:
-        dialog.close()
-
-    ScreenRecorderPreview().exec()
 
 
 def show_finish_acquisition_dialog(acquisition_directory):
@@ -250,86 +239,6 @@ def add_label_in_verification_status_list(
     item.setSizeHint(label.sizeHint())
     status_list.addItem(item)
     status_list.setItemWidget(item, label)
-
-
-def screens_changed(screen_changed_type: ScreensChangedType):
-    message = screenrecorder.SCREENS_CHANGED_SCREEN_ADDED_MSG
-
-    app = QtWidgets.QApplication.instance()
-    if not hasattr(app, "screen_information"):
-        screen_information = {
-            "source_type": SourceType.SCREEN,
-            "screen_to_record": app.primaryScreen(),
-        }
-
-        setattr(app, "screen_information", screen_information)
-
-    screen_information = getattr(app, "screen_information")
-
-    if screen_changed_type == ScreensChangedType.REMOVED:
-        message = message = screenrecorder.SCREENS_CHANGED_SCREEN_REMOVED_MSG
-
-    elif screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED:
-        message = message = screenrecorder.SCREENS_PRIMARY_SCREEN_CHANGED_MSG
-
-    dialog = Dialog(
-        screenrecorder.SCREENS_CHANGED_TILE,
-        message,
-    )
-    dialog.message.setStyleSheet("font-size: 13px;")
-    if (
-        screen_changed_type == ScreensChangedType.REMOVED
-        or screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED
-    ):
-        screen_information["screen_to_record"] = QWindowCapture.capturableWindows()[0]
-        screen_information["source_type"] = SourceType.WINDOW
-        dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
-        dialog.right_button.clicked.connect(
-            lambda: show_screen_recorder_preview_dialog(dialog)
-        )
-    else:
-        dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-        dialog.left_button.clicked.connect(
-            lambda: show_screen_recorder_preview_dialog(dialog)
-        )
-        dialog.right_button.clicked.connect(dialog.close)
-
-    dialog.content_box.adjustSize()
-
-    dialog.exec()
-
-
-def show_multiple_screens_dialog(screens):
-    dialog = Dialog(
-        screenrecorder.MULTIPLE_SCREEN_TITLE,
-        screenrecorder.MULTIPLE_SCREEN_MSG.format(screens),
-    )
-
-    dialog.message.setStyleSheet("font-size: 13px;")
-    dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-    dialog.left_button.clicked.connect(
-        lambda: show_screen_recorder_preview_dialog(dialog)
-    )
-    dialog.right_button.clicked.connect(dialog.close)
-    dialog.content_box.adjustSize()
-
-    dialog.exec()
-
-
-def show_setting_screen_dialog_before_acquisition_start():
-    dialog = Dialog(
-        screenrecorder.SETTING_SCREEN_BEFORE_ACQUISITION_START_TITLE,
-        screenrecorder.SETTING_SCREEN_BEFORE_ACQUISITION_START_MSG,
-    )
-
-    dialog.message.setStyleSheet("font-size: 13px;")
-    dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
-    dialog.right_button.clicked.connect(
-        lambda: show_screen_recorder_preview_dialog(dialog)
-    )
-    dialog.content_box.adjustSize()
-
-    dialog.exec()
 
 
 def is_installed_ffmpeg():
