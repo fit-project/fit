@@ -17,6 +17,8 @@ from controller.configurations.tabs.screenrecorder.screenrecorder import (
     ScreenRecorder as ScreenRecorderConfigurationController,
 )
 
+from common.utility import get_platform
+
 
 __is_tab__ = True
 
@@ -48,6 +50,14 @@ class ScreenRecorder(Tab):
         self.enable_audio_recording.stateChanged.connect(
             self.__is_enabled_audio_recording
         )
+
+        # AUDIO RECORDING BOX
+        self.audio_recording_box = self.tab.findChild(
+            QtWidgets.QFrame, "audio_recording_box"
+        )
+
+        if get_platform() == "lin" or get_platform() == "other":
+            self.audio_recording_box.setVisible(False)
 
         # SCREEN RECORDER FILENAME
         self.screen_recorder_filename = self.tab.findChild(

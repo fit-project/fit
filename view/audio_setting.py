@@ -10,16 +10,16 @@
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtGui import QPixmap
 from view.clickable_label import ClickableLabel as ClickableLabelView
-
-from common.utility import resolve_path
-
-from common.constants.view.screenrecorder import *
-
 from view.util import (
     is_installed_ffmpeg,
     get_vb_cable_virtual_audio_device,
     is_vb_cable_first_ouput_audio_device,
 )
+
+from common.utility import resolve_path
+from common.constants.view.screenrecorder import *
+
+
 
 
 class AudioSetting(QtWidgets.QDialog):
