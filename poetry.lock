@@ -913,12 +913,12 @@ setuptools = "*"
 
 [[package]]
 name = "instaloader"
-version = "4.12"
+version = "4.13.1"
 description = "Download pictures (or videos) along with their captions and other metadata from Instagram."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "instaloader-4.12.tar.gz", hash = "sha256:0e3fa65dd4b033f2ef6022a04f95fec18e0258535aee985d0643895713f2eec3"},
+    {file = "instaloader-4.13.1.tar.gz", hash = "sha256:36774ea1076eeb236f8782d221e3737f71ddc023042f0b13761429ef137f1133"},
 ]
 
 [package.dependencies]
