@@ -8,7 +8,7 @@ a = Analysis(
     ["..\\..\\fit.py"],
     pathex=[],
     binaries=[],
-    datas=[("./whois/data", "./whois/data"), ("../../assets", "./assets")],
+    datas=[("./whois/data", "./whois/data"), ("../../assets", "./assets"), ('../../ui', './ui'), ('../../icon.ico', './icon.ico')],
     hiddenimports=[],
     hookspath=["./pyinstaller/windows/hooks"],
     hooksconfig={},
