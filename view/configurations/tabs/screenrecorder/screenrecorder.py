@@ -85,8 +85,14 @@ class ScreenRecorder(Tab):
             self.enable_audio_recording.setEnabled(True)
             app = QtWidgets.QApplication.instance()
             if hasattr(app, "is_enabled_audio_recording"):
-                self.enable_audio_recording.setChecked(getattr(app, "is_enabled_audio_recording"))
-                self.temporary_msg.setVisible(getattr(app, "is_enabled_audio_recording"))
+                self.enable_audio_recording.setChecked(
+                    getattr(app, "is_enabled_audio_recording")
+                )
+                self.temporary_msg.setVisible(
+                    getattr(app, "is_enabled_audio_recording")
+                )
+        else:
+            self.enable_audio_recording.setEnabled(False)
 
     def __is_enabled_screen_recorder(self):
         self.screen_recorder_filename.setEnabled(
