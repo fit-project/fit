@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>304</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -78,6 +78,12 @@ QCheckBox::disabled {color: rgba(255, 255, 255, 10%) }
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgb(40, 44, 52);</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
    </property>
    <layout class="QVBoxLayout" name="content_box_layout">
     <property name="leftMargin">

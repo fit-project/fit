@@ -2161,8 +2161,17 @@ QPushButton:disabled {background-color: rgb(52, 59, 72); color: rgba(255, 255, 2
                             <item>
                              <widget class="QFrame" name="audio_recording_box">
                               <layout class="QHBoxLayout" name="audio_recording_layout">
+                               <property name="leftMargin">
+                                <number>0</number>
+                               </property>
+                               <property name="topMargin">
+                                <number>0</number>
+                               </property>
+                               <property name="rightMargin">
+                                <number>0</number>
+                               </property>
                                <property name="bottomMargin">
-                                <number>1</number>
+                                <number>0</number>
                                </property>
                                <item>
                                 <widget class="QCheckBox" name="enable_audio_recording">
