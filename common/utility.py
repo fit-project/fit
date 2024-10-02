@@ -12,7 +12,6 @@ import distutils.spawn
 from distutils.version import StrictVersion
 import os
 import sys
-import ctypes
 import hashlib
 import ntplib
 
@@ -82,7 +81,7 @@ def resolve_path(path):
         # If the 'frozen' flag is set, we are in bundled-app mode!
         resolved_path = os.path.abspath(os.path.join(sys._MEIPASS, path))
     else:
-        # Normal development mode. Use os.getcwd() or __file__ as appropriate in your case...
+        # Normal development mode.
         resolved_path = os.path.abspath(os.path.join(os.getcwd(), path))
 
     return resolved_path

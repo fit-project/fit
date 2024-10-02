@@ -25,13 +25,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
 
-    init = InitView()
-    init.init_check()
-    # TO-DO we wait until init is done
-    wizard = WizardView()
-
     acquisition_window = None
-
     def start_task(task, case_info):
         global acquisition_window
         options = {}
@@ -49,8 +43,13 @@ if __name__ == "__main__":
         acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()
 
-    # Wizard sends a signal when finish button is clicked and case is stored on the DB
+    init = InitView()
+    wizard = WizardView()
+
+    init.finished.connect(wizard.show)
+    # Wizard sends a signal when start button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
-    wizard.show()
+    init.init_check()
+
     sys.exit(app.exec())

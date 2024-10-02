@@ -14,22 +14,18 @@ import base64
 from datetime import datetime
 
 from PyQt6 import QtCore, QtWidgets, QtGui
-from PyQt6.QtMultimedia import QWindowCapture
+from PyQt6.QtMultimedia import QMediaDevices
 
 from view.configuration import Configuration as ConfigurationView
 from view.case_form_dialog import CaseFormDialog
 from view.dialog import Dialog, DialogButtonTypes
 from view.tasks.tasks_info import TasksInfo
-from view.configurations.screen_recorder_preview.screen_recorder_preview import (
-    ScreenRecorderPreview,
-    SourceType,
-)
 
 
-from common.utility import get_platform
+from common.utility import get_platform, is_cmd
 from common.constants import logger, details
 
-from common.constants.view import verify_pec, verify_pdf_timestamp, case, screenrecorder
+from common.constants.view import verify_pec, verify_pdf_timestamp, case
 from common.constants.view.tasks import status
 from enum import Enum, auto
 
@@ -82,13 +78,6 @@ def show_configuration_dialog():
 
 def show_acquisition_info_dialog():
     TasksInfo().exec()
-
-
-def show_screen_recorder_preview_dialog(dialog=None):
-    if dialog:
-        dialog.close()
-
-    ScreenRecorderPreview().exec()
 
 
 def show_finish_acquisition_dialog(acquisition_directory):
@@ -251,81 +240,45 @@ def add_label_in_verification_status_list(
     status_list.setItemWidget(item, label)
 
 
-def screens_changed(screen_changed_type: ScreensChangedType):
-    message = screenrecorder.SCREENS_CHANGED_SCREEN_ADDED_MSG
+def is_installed_ffmpeg():
+    return is_cmd("ffmpeg")
 
-    app = QtWidgets.QApplication.instance()
-    if not hasattr(app, "screen_information"):
-        screen_information = {
-            "source_type": SourceType.SCREEN,
-            "screen_to_record": app.primaryScreen(),
-        }
 
-        setattr(app, "screen_information", screen_information)
+def get_vb_cable_virtual_audio_device():
+    device = None
+    for __device in QMediaDevices().audioInputs():
+        if (
+            "Virtual Cable" in __device.description()
+            or "CABLE Output" in __device.description()
+            or "VB-Audio" in __device.description()
+            or "VB-Cable" in __device.description()
+        ):
+            device = __device
+            break
 
-    screen_information = getattr(app, "screen_information")
+    return device
 
-    if screen_changed_type == ScreensChangedType.REMOVED:
-        message = message = screenrecorder.SCREENS_CHANGED_SCREEN_REMOVED_MSG
 
-    elif screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED:
-        message = message = screenrecorder.SCREENS_PRIMARY_SCREEN_CHANGED_MSG
+def is_vb_cable_first_ouput_audio_device():
+    is_first_ouput_audio_device = False
 
-    dialog = Dialog(
-        screenrecorder.SCREENS_CHANGED_TILE,
-        message,
+    for index, __device in enumerate(QMediaDevices().audioOutputs()):
+        if (
+            "Virtual Cable" in __device.description()
+            or "CABLE Output" in __device.description()
+            or "VB-Audio" in __device.description()
+            or "VB-Cable" in __device.description()
+        ):
+            if index == 0:
+                is_first_ouput_audio_device = True
+            break
+
+    return is_first_ouput_audio_device
+
+
+def enable_audio_recording():
+    return (
+        is_installed_ffmpeg()
+        and get_vb_cable_virtual_audio_device()
+        and is_vb_cable_first_ouput_audio_device()
     )
-    dialog.message.setStyleSheet("font-size: 13px;")
-    if (
-        screen_changed_type == ScreensChangedType.REMOVED
-        or screen_changed_type == ScreensChangedType.PRIMARY_SCREEN_CHANGED
-    ):
-        screen_information["screen_to_record"] = QWindowCapture.capturableWindows()[0]
-        screen_information["source_type"] = SourceType.WINDOW
-        dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
-        dialog.right_button.clicked.connect(
-            lambda: show_screen_recorder_preview_dialog(dialog)
-        )
-    else:
-        dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-        dialog.left_button.clicked.connect(
-            lambda: show_screen_recorder_preview_dialog(dialog)
-        )
-        dialog.right_button.clicked.connect(dialog.close)
-
-    dialog.content_box.adjustSize()
-
-    dialog.exec()
-
-
-def show_multiple_screens_dialog(screens):
-    dialog = Dialog(
-        screenrecorder.MULTIPLE_SCREEN_TITLE,
-        screenrecorder.MULTIPLE_SCREEN_MSG.format(screens),
-    )
-
-    dialog.message.setStyleSheet("font-size: 13px;")
-    dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-    dialog.left_button.clicked.connect(
-        lambda: show_screen_recorder_preview_dialog(dialog)
-    )
-    dialog.right_button.clicked.connect(dialog.close)
-    dialog.content_box.adjustSize()
-
-    dialog.exec()
-
-
-def show_setting_screen_dialog_before_acquisition_start():
-    dialog = Dialog(
-        screenrecorder.SETTING_SCREEN_BEFORE_ACQUISITION_START_TITLE,
-        screenrecorder.SETTING_SCREEN_BEFORE_ACQUISITION_START_MSG,
-    )
-
-    dialog.message.setStyleSheet("font-size: 13px;")
-    dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
-    dialog.right_button.clicked.connect(
-        lambda: show_screen_recorder_preview_dialog(dialog)
-    )
-    dialog.content_box.adjustSize()
-
-    dialog.exec()

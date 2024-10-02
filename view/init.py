@@ -8,18 +8,14 @@
 ######
 
 import subprocess
+import psutil
+import time
 
-from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui, uic
+from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
 
 from view.error import Error as ErrorView
 from view.dialog import Dialog, DialogButtonTypes
 from view.clickable_label import ClickableLabel as ClickableLabelView
-from view.util import (
-    screens_changed,
-    show_multiple_screens_dialog,
-    ScreensChangedType,
-    SourceType,
-)
 
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
@@ -121,34 +117,16 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
 
 
 class Init(QtCore.QObject):
+    finished = QtCore.pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.__set_initial_screen_to_record_information()
+        self.__is_running_npcap_process_installer = False
 
     def __quit(self):
         sys.exit(1)
 
-    def __set_initial_screen_to_record_information(self):
-        app = QtWidgets.QApplication.instance()
-        app.screenAdded.connect(lambda: screens_changed(ScreensChangedType.ADDED))
-        app.screenRemoved.connect(lambda: screens_changed(ScreensChangedType.REMOVED))
-        app.primaryScreenChanged.connect(
-            lambda: screens_changed(ScreensChangedType.PRIMARY_SCREEN_CHANGED)
-        )
-        # Set the initial screen information to record
-        screen_information = {
-            "source_type": SourceType.SCREEN,
-            "screen_to_record": app.primaryScreen(),
-        }
-
-        setattr(app, "screen_information", screen_information)
-
-        screens = len(QtGui.QGuiApplication.screens())
-        if screens > 1:
-            show_multiple_screens_dialog(screens)
-
-    def __enable_functionality(self):
+    def __enable_network_functionality(self):
         configuration = NetworkTools().configuration
         if configuration.get("traceroute") is False:
             configuration["traceroute"] = True
@@ -159,7 +137,7 @@ class Init(QtCore.QObject):
             options["enabled"] = True
             PacketCapture().options = options
 
-    def __disable_functionality(self, dialog=None):
+    def __disable_network_functionality(self, dialog=None):
         if dialog:
             dialog.close()
 
@@ -178,6 +156,9 @@ class Init(QtCore.QObject):
             dialog.close()
         try:
             url = get_npcap_installer_url()
+
+            self.ncap_process_name = QtCore.QUrl(url).path().split('/')[-1]
+
             self.donwload_and_install = DownloadAndInstallNpcap(url)
             self.donwload_and_install.rejected.connect(self.__download_rejected)
             self.donwload_and_install.finished.connect(
@@ -194,13 +175,50 @@ class Init(QtCore.QObject):
             error_dlg.exec()
 
     def __download_rejected(self):
-        self.__disable_functionality()
+        self.__disable_network_functionality()
+    
+
+    def __monitoring_npcap_process_installer(self):
+
+        pid = None
+        __is_npcap_installed = False
+
+        for proc in psutil.process_iter(['pid', 'name']):
+            if proc.info['name'] == self.ncap_process_name:
+                pid = proc.info["pid"]
+                break
+
+        if pid is not None:
+            try:
+                proc = psutil.Process(pid)
+                while True:
+                    if not proc.is_running():
+                        __is_npcap_installed = is_npcap_installed()
+                        break
+                    time.sleep(1)
+            except psutil.NoSuchProcess:
+                pass
+            except Exception as e:
+                pass
+        
+        if __is_npcap_installed is False:
+            self.__disable_network_functionality()
+        else:
+            self.__enable_network_functionality()
+        
+        self.__is_running_npcap_process_installer = False
+        
+        self.finished.emit()
+
+            
 
     def __donwload_and_install_finished(self, result):
         if result.get("status") == status.SUCCESS:
-            self.__enable_functionality()
+            self.__is_running_npcap_process_installer = True
+            self.__monitoring_npcap_process_installer()
+            
         else:
-            self.__disable_functionality()
+            self.__disable_network_functionality()
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
                 NPCAP,
@@ -232,7 +250,7 @@ class Init(QtCore.QObject):
             dialog.message.setStyleSheet("font-size: 13px;")
             dialog.set_buttons_type(DialogButtonTypes.QUESTION)
             dialog.right_button.clicked.connect(
-                lambda: self.__disable_functionality(dialog)
+                lambda: self.__disable_network_functionality(dialog)
             )
             dialog.left_button.clicked.connect(self.__quit)
 
@@ -249,7 +267,7 @@ class Init(QtCore.QObject):
                 dialog.message.setStyleSheet("font-size: 13px;")
                 dialog.set_buttons_type(DialogButtonTypes.QUESTION)
                 dialog.right_button.clicked.connect(
-                    lambda: self.__disable_functionality(dialog)
+                    lambda: self.__disable_network_functionality(dialog)
                 )
                 dialog.left_button.clicked.connect(
                     lambda: self.__download_npcap(dialog)
@@ -297,3 +315,5 @@ class Init(QtCore.QObject):
             dialog.content_box.adjustSize()
 
             dialog.exec()
+        if self.__is_running_npcap_process_installer is False:
+            self.finished.emit()

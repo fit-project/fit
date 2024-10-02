@@ -30,6 +30,9 @@ lxml = "^4.9.3"
 windows-tools-users = {version = "^1.3.0", markers = "sys_platform == 'win32'"}
 pyqt6-webengine-qt6 = "6.6.0"
 pyqt6-qt6 = "6.6.0"
+ffmpeg-downloader = "^0.3.0"
+moviepy = "^1.0.3"
+psutil = "^6.0.0"
 
 [tool.poetry.dev-dependencies]
 
