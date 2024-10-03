@@ -69,6 +69,20 @@ QWidget{
 	font: 13px;
 }
 
+QMenu {
+    background-color: rgb(40, 44, 52);
+	border: 1px solid rgb(44, 49, 58);
+}
+
+
+QMenu::item {
+    background-color: transparent;
+}
+
+QMenu::item:selected {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Tooltip */
 QToolTip {
 	color: #e06133;

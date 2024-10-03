@@ -28,6 +28,7 @@ class ZipAndRemoveFolderWorker(QObject):
 
     def set_options(self, options):
         self.acquisition_content_directory = options["acquisition_content_directory"]
+        self.acquisition_directory = options["acquisition_directory"]
 
     def start(self):
         self.started.emit()
@@ -39,7 +40,7 @@ class ZipAndRemoveFolderWorker(QObject):
 
         has_files_downloads_folder = []
 
-        downloads_folder = os.path.join(self.acquisition_content_directory, "downloads")
+        downloads_folder = os.path.join(self.acquisition_directory, "downloads")
         if os.path.isdir(downloads_folder):
             has_files_downloads_folder = os.listdir(downloads_folder)
 
