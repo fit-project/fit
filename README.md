@@ -2,14 +2,14 @@
 
 # Freezing Internet Tool
 `FIT` is a Python3 application for forensic acquisition of contents like web pages, emails, social media, etc. directly from the internet. 
-It's based on Fabio Zito (**@zitelog**) [final exam](https://github.com/zitelog/fit) for a Master named in Cybersecurity, Digital Forensics and Data Protection where the relator was Prof. Giovanni Bassetti (**@nannib**).
+It's based on Fabio Zito **@zitelog** [final exam](https://github.com/zitelog/fit) for a Master named in Cybersecurity, Digital Forensics and Data Protection where the relator was Prof. Giovanni Bassetti **@nannib**.
 
 For the implementation: 
 * MVC Pattern
 * Python Language
 * [Qt](https://www.qt.io/download-open-source) as graphical user interface and Web Engine 
 * Scapy for packet capture
-* OpenVC and Pillow for screen capture
+* [Qt Multimedia](https://doc.qt.io/qt-6/qtmultimedia-index.html) for screen video and audio recording. For more information about audio recording, refer to the [guide](https://github.com/fit-project/fit/wiki/Screen-recording-audio-management)
 * SQLite and SQLAlchemy for persistence
 
 ## Suggestions
