@@ -14,7 +14,6 @@ import os
 import sys
 import hashlib
 import ntplib
-
 import re
 
 import urllib.request
@@ -53,7 +52,7 @@ def get_platform():
         "linux": "lin",
         "linux1": "lin",
         "linux2": "lin",
-        "darwin": "osx",
+        "darwin": "macos",
         "win32": "win",
     }
 
@@ -85,6 +84,29 @@ def resolve_path(path):
         resolved_path = os.path.abspath(os.path.join(os.getcwd(), path))
 
     return resolved_path
+
+
+def get_executable_path():
+        if getattr(sys, "frozen", False):
+
+            if sys.platform == "win32":
+                resolve_executable_path = os.path.abspath(
+                    os.getcwd()
+                )
+            elif sys.platform == "darwin":
+                import macos_application_location
+
+                resolve_executable_path = os.path.abspath(
+                    str(macos_application_location.get().parent)
+                )
+            else:
+                resolve_executable_path = os.path.abspath(
+                    os.getcwd()
+                )
+        else:
+            resolve_executable_path = os.path.abspath(os.getcwd())
+
+        return resolve_executable_path
 
 
 def check_internet_connection():
@@ -121,9 +143,26 @@ def get_npcap_installer_url():
             return installer_url + version + ".exe"
         except Exception as e:
             raise Exception(e)
+    
+
+def get_portable_download_url():
+    parser = ConfigParser()
+    parser.read(resolve_path("assets/config.ini"))
+    url = parser.get("fit_properties", "fit_latest_version_url")
+    installer_url = None
+    with requests.get(url, stream=True, timeout=10, verify=False) as response:
+        try:
+            assets = response.json()["assets"]
+            for asset in assets:
+                if get_platform() in asset.get("browser_download_url"):
+                    installer_url = asset.get("browser_download_url")
+                    break
+            return installer_url
+        except Exception as e:
+            raise Exception(e)
 
 
-def is_there_a_new_portable_version():
+def has_new_portable_version():
     parser = ConfigParser()
     parser.read(resolve_path("assets/config.ini"))
     url = parser.get("fit_properties", "fit_latest_version_url")

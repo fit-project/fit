@@ -100,7 +100,7 @@ def __open_acquisition_directory(dialog, acquisition_directory):
     platform = get_platform()
     if platform == "win":
         os.startfile(acquisition_directory)
-    elif platform == "osx":
+    elif platform == "macos":
         subprocess.call(["open", acquisition_directory])
     else:
         subprocess.call(["xdg-open", acquisition_directory])
@@ -208,7 +208,7 @@ def __open_verification_report(dialog, path, verification_type):
     platform = get_platform()
     if platform == "win":
         os.startfile(pdf_file)
-    elif platform == "osx":
+    elif platform == "macos":
         subprocess.call(["open", pdf_file])
     else:
         subprocess.call(["xdg-open", pdf_file])
