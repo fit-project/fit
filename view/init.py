@@ -10,6 +10,7 @@
 import subprocess
 import psutil
 import time
+import shutil
 
 from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
 
@@ -27,20 +28,23 @@ from common.constants.view.general import *
 from common.constants.view.tasks import status
 
 
-class DownloadAndInstallNpcap(QtWidgets.QDialog):
-    finished = QtCore.pyqtSignal(dict)
+class DownloadAndSave(QtWidgets.QDialog):
+    finished = QtCore.pyqtSignal(str)
 
-    def __init__(self, url, parent=None):
-        super(DownloadAndInstallNpcap, self).__init__(parent)
+    def __init__(self, url, progress_dialog_title, progress_dialog_message,  parent=None):
+        super(DownloadAndSave, self).__init__(parent)
 
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        self.path = None
+        self.file_path = None
+        
+        self.filename = QtCore.QUrl(url).path()
+        self.suffix = QtCore.QFileInfo(self.filename).suffix()
 
         self.progress_dialog = Dialog(
-            NPCAP,
-            NPCAP_DOWNLOAD,
+            progress_dialog_title,
+            progress_dialog_message,
         )
         self.progress_dialog.message.setStyleSheet("font-size: 13px;")
         self.progress_dialog.set_buttons_type(DialogButtonTypes.NONE)
@@ -56,16 +60,14 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
         self.web_view.hide()
 
     def on_download_requested(self, download):
-        old_path = download.url().path()
-        suffix = QtCore.QFileInfo(old_path).suffix()
-        self.path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self, "Save File", old_path, "*." + suffix
+        self.file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save File", self.filename, "*." + self.suffix
         )
 
-        if self.path:
-            download.setDownloadFileName(self.path)
+        if self.file_path:
+            download.setDownloadFileName(self.file_path)
             download.accept()
-            download.isFinishedChanged.connect(self.__install)
+            download.isFinishedChanged.connect(self.__is_download_finished)
             download.receivedBytesChanged.connect(
                 lambda: self.__progress(
                     download.receivedBytes(),
@@ -81,34 +83,11 @@ class DownloadAndInstallNpcap(QtWidgets.QDialog):
             self.progress_dialog.show()
         else:
             self.reject()
-
-    def __install(self):
-
+    
+    def __is_download_finished(self):
         self.close()
         self.progress_dialog.close()
-
-        __status = status.SUCCESS
-        details = ""
-
-        cmd = 'Powershell -Command Start-Process "{}" -Verb RunAs'.format(self.path)
-        try:
-            process = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-            )
-            process.check_returncode()
-        except Exception as e:
-            __status = status.FAIL
-            details = str(e)
-
-        self.finished.emit(
-            {
-                "status": __status,
-                "details": details,
-            }
-        )
+        self.finished.emit(self.file_path)
 
     def __progress(self, bytes_received, bytes_total):
         if bytes_total > 0:
@@ -121,7 +100,6 @@ class Init(QtCore.QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.__is_running_npcap_process_installer = False
 
     def __quit(self):
         sys.exit(1)
@@ -159,12 +137,10 @@ class Init(QtCore.QObject):
 
             self.ncap_process_name = QtCore.QUrl(url).path().split('/')[-1]
 
-            self.donwload_and_install = DownloadAndInstallNpcap(url)
-            self.donwload_and_install.rejected.connect(self.__download_rejected)
-            self.donwload_and_install.finished.connect(
-                self.__donwload_and_install_finished
-            )
-            self.donwload_and_install.exec()
+            donwload_and_save = DownloadAndSave(url,  NPCAP, NPCAP_DOWNLOAD)
+            donwload_and_save.rejected.connect(self.__disable_network_functionality)
+            donwload_and_save.finished.connect(self.__install_ncap)
+            donwload_and_save.exec()
         except Exception as e:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
@@ -174,12 +150,28 @@ class Init(QtCore.QObject):
             )
             error_dlg.exec()
 
-    def __download_rejected(self):
-        self.__disable_network_functionality()
-    
+    def __install_ncap(self, file_path):
+        cmd = 'Powershell -Command Start-Process "{}" -Verb RunAs'.format(file_path)
+        try:
+            process = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+            )
+            process.check_returncode()
+            self.__monitoring_npcap_process_installer()
+        except Exception as e:
+            self.__disable_network_functionality()
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                NPCAP,
+                NPCAP_ERROR_DURING_INSTALLATION,
+                str(e),
+            )
+            error_dlg.exec()
 
     def __monitoring_npcap_process_installer(self):
-
         pid = None
         __is_npcap_installed = False
 
@@ -196,38 +188,92 @@ class Init(QtCore.QObject):
                         __is_npcap_installed = is_npcap_installed()
                         break
                     time.sleep(1)
-            except psutil.NoSuchProcess:
-                pass
+            except psutil.NoSuchProcess as e:
+                raise Exception(e)
             except Exception as e:
-                pass
+                raise Exception(e)
         
         if __is_npcap_installed is False:
             self.__disable_network_functionality()
         else:
             self.__enable_network_functionality()
-        
-        self.__is_running_npcap_process_installer = False
-        
-        self.finished.emit()
 
-            
-
-    def __donwload_and_install_finished(self, result):
-        if result.get("status") == status.SUCCESS:
-            self.__is_running_npcap_process_installer = True
-            self.__monitoring_npcap_process_installer()
-            
-        else:
-            self.__disable_network_functionality()
+    def __download_portable_version(self, dialog=None):
+        if dialog:
+            dialog.close()
+        try:
+            url = get_portable_download_url()
+            if url is None:
+                raise ValueError(DOWNLOAD_URL_ERROR)
+            donwload_and_save = DownloadAndSave(url,  FIT_NEW_VERSION_DOWNLOAD_TITLE, FIT_NEW_VERSION_DOWNLOAD_MSG)
+            donwload_and_save.finished.connect(self.__unzip_portable_zipfile)
+            donwload_and_save.exec()
+        except Exception as e:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
-                NPCAP,
-                NPCAP_ERROR_DURING_INSTALLATION,
-                result.get("details"),
+                FIT_NEW_VERSION_DOWNLOAD_TITLE,
+                FIT_NEW_VERSION_DOWNLOAD_ERROR,
+                str(e),
+            )
+            error_dlg.exec()
+    
+    def __unzip_portable_zipfile(self, file_path):
+        unzip_path = os.path.splitext(file_path)[0]
+        try:
+            shutil.unpack_archive(file_path, unzip_path)
+            self.__execute_portable_version(unzip_path)
+        except Exception as e:
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                FIT_NEW_VERSION_DOWNLOAD_TITLE,
+                FIT_NEW_VERSION_UNZIP_ERROR,
+                str(e),
+            )
+            error_dlg.exec()
+    
+    def __execute_portable_version(self, path):
+
+        excutable = None
+        if get_platform() == "win":
+            excutable = os.path.join(path, "fit.exe")
+
+        current_directory = os.getcwd()
+
+        if excutable is not None:
+            # Change working directory
+            os.chdir(path)
+            cmd = 'Powershell -Command Start-Process "{}" -Verb RunAs'.format(excutable)
+            try:
+                process = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    stdin=subprocess.PIPE,
+                )
+                process.check_returncode()
+                self.__quit()
+            except Exception as e:
+                # Change working directory
+                os.chdir(current_directory)
+                error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                FIT_NEW_VERSION_DOWNLOAD_TITLE,
+                FIT_NEW_VERSION_EXCUTE_ERROR,
+                str(e),
+            )
+            error_dlg.exec()
+        
+        else:
+            error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Critical,
+                FIT_NEW_VERSION_DOWNLOAD_TITLE,
+                FIT_NEW_VERSION_EXCUTE_ERROR,
+                "No excutable path found",
             )
             error_dlg.exec()
 
     def init_check(self):
+
         # Check internet connection
         if check_internet_connection() is False:
             error_dlg = ErrorView(
@@ -241,6 +287,7 @@ class Init(QtCore.QObject):
 
             error_dlg.exec()
 
+        # Check admin privileges
         if is_admin() is False:
 
             dialog = Dialog(
@@ -259,6 +306,7 @@ class Init(QtCore.QObject):
             dialog.exec()
 
         if get_platform() == "win":
+            # Check if NPCAP is installed
             if is_npcap_installed() is False and is_admin():
                 dialog = Dialog(
                     NPCAP,
@@ -274,46 +322,19 @@ class Init(QtCore.QObject):
                 )
 
                 dialog.exec()
-
-        # I need to review the UI
-        if getattr(sys, "frozen", False) and is_there_a_new_portable_version():
-            parser = ConfigParser()
-            parser.read(resolve_path("assets/config.ini"))
-            url = parser.get("fit_properties", "fit_latest_download_url")
-
+        
+        # Check there is a new portable version of FIT
+        if getattr(sys, "frozen", False) and has_new_portable_version():
             dialog = Dialog(
-                FIT_NEW_VERSION_DOWNLOAD,
-                FIT_NEW_VERSION_MSG,
-            )
-            dialog.right_button.clicked.connect(dialog.close)
+                    FIT_NEW_VERSION_TITLE,
+                    FIT_NEW_VERSION_MSG,
+                )
             dialog.message.setStyleSheet("font-size: 13px;")
-            dialog.message.hide()
-            dialog.details.hide()
-            clickable_label_layout = QtWidgets.QHBoxLayout()
-            clickable_label_layout.setSpacing(0)
-            clickable_label_layout.addWidget(
-                QtWidgets.QLabel(
-                    "There is a new version of FIT. You can download it from: "
-                )
-            )
-
-            clickable_label_layout.addWidget(
-                ClickableLabelView(
-                    url, '<strong style="color:red"><i><u>here</u></i></strong>'
-                )
-            )
-            horizontal_spacer = QtWidgets.QSpacerItem(
-                20,
-                40,
-                QtWidgets.QSizePolicy.Policy.Expanding,
-                QtWidgets.QSizePolicy.Policy.Expanding,
-            )
-            clickable_label_layout.addItem(horizontal_spacer)
-
-            dialog.text_box.addLayout(clickable_label_layout)
-
-            dialog.content_box.adjustSize()
+            dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+            dialog.right_button.clicked.connect(dialog.close)
+            dialog.left_button.clicked.connect(lambda: self.__download_portable_version(dialog))
 
             dialog.exec()
-        if self.__is_running_npcap_process_installer is False:
-            self.finished.emit()
+        
+        self.finished.emit()
+            

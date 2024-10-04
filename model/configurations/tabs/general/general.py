@@ -46,7 +46,7 @@ class General(Base):
     def set_default_values(self):
         default_path_by_os = {
             "lin": "~/Documents/FIT",
-            "osx": "~/Documents/FIT",
+            "macos": "~/Documents/FIT",
             "win": "~/Documents/FIT",
             "other": "~/Documents/FIT",
         }
