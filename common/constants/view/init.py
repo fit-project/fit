@@ -20,7 +20,7 @@ NPCAP_ERROR_DURING_INSTALLATION = (
 WAR_NPCAP_NOT_INSTALLED = "Seems <strong>Npcap</strong> it's not installed in your PC.<br><br><strong style=\"color:red\">Without Npcap fit's functionality is very limited.</strong><br><br>Do you want install it?"
 
 FIT_NEW_VERSION_TITLE = "New version of FIT"
-FIT_NEW_VERSION_MSG = "There is a new version of FIT.<br><br>Do you want install it?"
+FIT_NEW_VERSION_MSG = "There is a new version of FIT.<br><br>Do you want download and excute it?"
 FIT_NEW_VERSION_DOWNLOAD_TITLE = "FIT download"
 FIT_NEW_VERSION_DOWNLOAD_MSG = "Download new version of FIT"
 
