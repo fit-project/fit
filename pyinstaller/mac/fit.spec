@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-datas = [('../../assets', './assets'), ('../../ui', './ui'), ('../../icon.ico', './icon.ico')]
+datas = [('../../assets', './assets'), ('../../ui', './ui'), ('../../icon.ico', './icon.ico'), ("../windows/whois/data", "./whois/data")]
 
 a = Analysis(
     ['../../fit.py'],
