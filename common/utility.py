@@ -87,26 +87,22 @@ def resolve_path(path):
 
 
 def get_executable_path():
-        if getattr(sys, "frozen", False):
+    if getattr(sys, "frozen", False):
 
-            if sys.platform == "win32":
-                resolve_executable_path = os.path.abspath(
-                    os.getcwd()
-                )
-            elif sys.platform == "darwin":
-                import macos_application_location
+        if sys.platform == "win32":
+            resolve_executable_path = os.path.abspath(os.getcwd())
+        elif sys.platform == "darwin":
+            import macos_application_location
 
-                resolve_executable_path = os.path.abspath(
-                    str(macos_application_location.get().parent)
-                )
-            else:
-                resolve_executable_path = os.path.abspath(
-                    os.getcwd()
-                )
+            resolve_executable_path = os.path.abspath(
+                str(macos_application_location.get().parent)
+            )
         else:
             resolve_executable_path = os.path.abspath(os.getcwd())
+    else:
+        resolve_executable_path = os.path.abspath(os.getcwd())
 
-        return resolve_executable_path
+    return resolve_executable_path
 
 
 def check_internet_connection():
@@ -143,7 +139,7 @@ def get_npcap_installer_url():
             return installer_url + version + ".exe"
         except Exception as e:
             raise Exception(e)
-    
+
 
 def get_portable_download_url():
     parser = ConfigParser()

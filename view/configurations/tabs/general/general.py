@@ -22,6 +22,8 @@ from controller.configurations.tabs.general.typesproceedings import (
 from controller.configurations.tabs.general.general import General as GeneralController
 from common.constants.view.configurations import general
 
+from view.util import resolve_db_path
+
 
 import os
 
@@ -74,6 +76,9 @@ class General(Tab):
         self.types_proceedings = self.tab.findChild(
             QtWidgets.QPlainTextEdit, "types_proceedings"
         )
+
+        self.db_path = self.tab.findChild(QtWidgets.QLineEdit, "db_path")
+        self.db_path.setText(resolve_db_path("fit.db"))
 
     def __select_cases_folder(self):
         cases_folder = QtWidgets.QFileDialog.getExistingDirectory(

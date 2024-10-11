@@ -9,15 +9,13 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-import os
-import sys
+import sys, os
 
 
 class Db:
     def __init__(self) -> None:
         self._engine = create_engine(
-            "sqlite:///" + self.__resolve_executable_path("fit.db"), echo=False
+            "sqlite:///" + self.__resolve_db_path("fit.db"), echo=False
         )
         _Session = sessionmaker(bind=self._engine)
         self._session = _Session()
@@ -30,25 +28,17 @@ class Db:
     def session(self):
         return self._session
 
-    def __resolve_executable_path(self, path):
+    def __resolve_db_path(self, path):
         if getattr(sys, "frozen", False):
-
             if sys.platform == "win32":
-                resolve_executable_path = os.path.abspath(
-                    os.path.join(os.getcwd(), path)
-                )
+                local_path = os.path.join(os.path.expanduser("~"), "AppData", "Local")
             elif sys.platform == "darwin":
-                import macos_application_location
-
-                resolve_executable_path = os.path.abspath(
-                    os.path.join(str(macos_application_location.get().parent), path)
-                )
+                local_path = os.path.expanduser("~/Library/Application Support")
             else:
-                resolve_executable_path = os.path.abspath(
-                    os.path.join(os.getcwd(), path)
-                )
-        else:
-            # Normal development mode. Use os.getcwd() or __file__ as appropriate in your case...
-            resolve_executable_path = os.path.abspath(os.path.join(os.getcwd(), path))
+                local_path = os.path.expanduser("~/.local/share")
 
-        return resolve_executable_path
+            resolve_db_path = os.path.join(local_path, path)
+        else:
+            resolve_db_path = os.path.abspath(os.path.join(os.getcwd(), path))
+
+        return resolve_db_path

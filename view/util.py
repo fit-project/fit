@@ -7,7 +7,7 @@
 # -----
 ######
 
-import os
+import os, sys
 import json
 import subprocess
 import base64
@@ -282,3 +282,19 @@ def enable_audio_recording():
         and get_vb_cable_virtual_audio_device()
         and is_vb_cable_first_ouput_audio_device()
     )
+
+
+def resolve_db_path(path):
+    if getattr(sys, "frozen", False):
+        if sys.platform == "win32":
+            local_path = os.path.join(os.path.expanduser("~"), "AppData", "Local")
+        elif sys.platform == "darwin":
+            local_path = os.path.expanduser("~/Library/Application Support")
+        else:
+            local_path = os.path.expanduser("~/.local/share")
+
+        resolve_db_path = os.path.join(local_path, path)
+    else:
+        resolve_db_path = os.path.abspath(os.path.join(os.getcwd(), path))
+
+    return resolve_db_path
