@@ -12,6 +12,8 @@ import email
 import io
 import os
 import email.message
+from email.utils import parsedate_to_datetime
+from email.header import decode_header
 import re
 import sys
 import time
@@ -27,7 +29,8 @@ class Mail:
         self.password = None
         self.mailbox = None
         self.is_logged_in = False
-        self.logs = ""
+        self.imap_logs = ""
+        self.acquisition_emails_log = ""
 
     def check_server(self, server, port):
         # Connect and log to the mailbox using IMAP server
@@ -172,35 +175,74 @@ class Mail:
             os.makedirs(folder_dir)
         self.mailbox.select(folder, readonly=True)
         try:
-            status, raw_email = self.mailbox.fetch(email_id, "(RFC822)")
+            status, data = self.mailbox.fetch(email_id, "(UID INTERNALDATE RFC822)")
         except Exception as e:
-            print(e)
-        message_mail = raw_email[0][1]
+            raise Exception(e)
 
-        message = pyzmail.PyzMessage.factory(message_mail)
-        sanitized_id = re.sub(r'[<>:"/\\|?*]', "", message.get("message-id")[1:-8])
-        md5_hash = hashlib.md5()
-        md5_hash.update(sanitized_id.encode("utf-8"))
-        md5_digest = md5_hash.hexdigest()
-        filename = f"{md5_digest}.eml"
+        if status == "OK":
+            metadata = data[0][0].decode()
+            raw_email = data[0][1]
 
-        email_path = os.path.join(folder_dir, filename)
+            message = email.message_from_bytes(raw_email)
+            sanitized_id = re.sub(r'[<>:"/\\|?*]', "", message.get("message-id")[1:-8])
+            md5_hash = hashlib.md5()
+            md5_hash.update(sanitized_id.encode("utf-8"))
+            md5_digest = md5_hash.hexdigest()
+            filename = f"{md5_digest}.eml"
 
-        with open(email_path, "wb") as f:
-            f.write(message.as_bytes())
-        self.__save_logs()
+            subject = self.__decode_mime_header(message.get("subject"))
+
+            uid_start = metadata.find("UID ") + 4
+            uid_end = metadata.find(" ", uid_start)
+            uid = metadata[uid_start:uid_end]
+
+            date_start = metadata.find('INTERNALDATE "') + 14
+            date_end = metadata.find('"', date_start)
+            internal_date_str = metadata[date_start:date_end]
+            internal_date = parsedate_to_datetime(internal_date_str)
+
+            self.acquisition_emails_log += (
+                "=========================================================\n"
+            )
+            self.acquisition_emails_log += f"Filename: {filename}\n"
+            self.acquisition_emails_log += f"Subject: {subject}\n"
+            self.acquisition_emails_log += f"IMAP UID: {uid}\n"
+            self.acquisition_emails_log += f"Internnal Date: {internal_date}\n"
+
+            email_path = os.path.join(folder_dir, filename)
+
+            with open(email_path, "wb") as f:
+                f.write(message.as_bytes())
+            self.__save_logs()
 
     def __save_logs(self):
         logs_buffer = io.StringIO()
         original_stderr = sys.stderr
         sys.stderr = logs_buffer
         self.mailbox.print_log()
-        self.logs = self.logs + "\n" + logs_buffer.getvalue()
+        self.imap_logs = self.imap_logs + "\n" + logs_buffer.getvalue()
         sys.stderr = original_stderr
 
+    def __decode_mime_header(self, header_value):
+        decoded_bytes, charset = decode_header(header_value)[0]
+        if charset:
+            return decoded_bytes.decode(charset)
+        else:
+            return decoded_bytes
+
     def write_logs(self, acquisition_directory):
+        self.__write_imap_logs(acquisition_directory)
+        self.__write_acquisition_emails_log(acquisition_directory)
+
+    def __write_imap_logs(self, acquisition_directory):
         with open(os.path.join(acquisition_directory, "imap_logs.log"), "w") as f:
-            f.write(self.logs)
+            f.write(self.imap_logs)
+
+    def __write_acquisition_emails_log(self, acquisition_directory):
+        with open(
+            os.path.join(acquisition_directory, "acquisition_emails.log"), "w"
+        ) as f:
+            f.write(self.acquisition_emails_log)
 
     # unused methods
     """def download_single_messages(self, mail_dir, emails_dict):

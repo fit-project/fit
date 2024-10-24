@@ -48,17 +48,17 @@ class HashWorker(QObject):
             if file != "acquisition.hash" and file not in self.exclude_list:
                 filename = os.path.join(self.folder, file)
                 file_stats = os.stat(filename)
-                self.logger.info(file)
                 self.logger.info(
                     "========================================================="
                 )
+                self.logger.info(f"Name: {file}")
                 self.logger.info(f"Size: {file_stats.st_size}")
                 algorithm = "md5"
-                self.logger.info(f"MD5: {calculate_hash(filename, algorithm)}\n")
+                self.logger.info(f"MD5: {calculate_hash(filename, algorithm)}")
                 algorithm = "sha1"
-                self.logger.info(f"SHA-1: {calculate_hash(filename, algorithm)}\n")
+                self.logger.info(f"SHA-1: {calculate_hash(filename, algorithm)}")
                 algorithm = "sha256"
-                self.logger.info(f"SHA-256: {calculate_hash(filename, algorithm)}\n")
+                self.logger.info(f"SHA-256: {calculate_hash(filename, algorithm)}")
 
         self.finished.emit()
 
