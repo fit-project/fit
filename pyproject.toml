@@ -29,7 +29,9 @@ windows-tools-users = {version = "^1.3.0", markers = "sys_platform == 'win32'"}
 ffmpeg-downloader = "^0.3.0"
 moviepy = "^1.0.3"
 psutil = "^6.0.0"
-pyqt6 = "^6.7.1"
+pyqt6 = "6.7.1"
+pyqt6-sip = "13.8.0"
+pyqt6-qt6 = "6.7.2"
 pyqt6-webengine = "^6.7.0"
 
 [tool.poetry.dev-dependencies]
