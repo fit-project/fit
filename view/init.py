@@ -307,7 +307,7 @@ class Init(QtCore.QObject):
 
         if get_platform() == "win":
             # Check if NPCAP is installed
-            if is_npcap_installed() is False and is_admin():
+            if is_npcap_installed() is False:
                 dialog = Dialog(
                     NPCAP,
                     WAR_NPCAP_NOT_INSTALLED,

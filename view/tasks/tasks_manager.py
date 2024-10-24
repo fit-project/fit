@@ -98,8 +98,6 @@ class TasksManager(QObject):
                 and NetworkToolsController().configuration["nslookup"] is False
                 or task == class_names.TRACEROUTE
                 and NetworkToolsController().configuration["traceroute"] is False
-                or get_platform() == "win"
-                and is_npcap_installed() is False
             ):
                 _tasks.remove(task)
 
