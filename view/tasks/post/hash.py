@@ -44,8 +44,11 @@ class HashWorker(QObject):
         self.started.emit()
 
         files = [f.name for f in os.scandir(self.folder) if f.is_file()]
+        list().append
+        self.exclude_list.append("acquisition.hash")
+        self.exclude_list.append("acquisition.log")
         for file in files:
-            if file != "acquisition.hash" and file not in self.exclude_list:
+            if file not in self.exclude_list:
                 filename = os.path.join(self.folder, file)
                 file_stats = os.stat(filename)
                 self.logger.info(

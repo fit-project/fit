@@ -162,6 +162,10 @@ class Video(QtWidgets.QMainWindow):
         self.__enable_all(False)
         self.__start_spinner()
         self.video_quality.clear()
+        self.progress_bar.setValue(0)
+        self.progress_bar.setHidden(False)
+        self.status_message.setText("")
+        self.status_message.setHidden(False)
 
         if self.is_task_started is False:
             self.__start_task()
@@ -171,6 +175,8 @@ class Video(QtWidgets.QMainWindow):
     def __is_load_finished(self, __status, info):
         self.spinner.stop()
         self.__enable_all(True)
+        self.progress_bar.setHidden(True)
+        self.status_message.setHidden(True)
 
         if __status == status.SUCCESS:
             self.preview_container.setEnabled(True)
@@ -260,6 +266,8 @@ class Video(QtWidgets.QMainWindow):
         self.is_acquisition_running = True
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
+        self.status_message.setText("")
+        self.status_message.setHidden(False)
         self.__enable_all(False)
         self.__start_spinner()
 
@@ -291,7 +299,8 @@ class Video(QtWidgets.QMainWindow):
         self.__enable_all(True)
 
         self.progress_bar.setHidden(True)
-        self.status_message.setText("")
+        self.status_message.setHidden(True)
+
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()

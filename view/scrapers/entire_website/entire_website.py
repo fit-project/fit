@@ -157,7 +157,9 @@ class EntireWebsite(QtWidgets.QMainWindow):
     def __load_website(self):
         self.url_list.clear()
         self.input_custom_url.clear()
+        self.progress_bar.setValue(0)
         self.progress_bar.setHidden(False)
+        self.status_message.setText("")
         self.status_message.setHidden(False)
         self.__enable_all(False)
         self.__start_spinner()
@@ -297,6 +299,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.is_acquisition_running = True
         self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
+        self.status_message.setText("")
         self.status_message.setHidden(False)
 
         self.selected_urls = []
@@ -323,7 +326,6 @@ class EntireWebsite(QtWidgets.QMainWindow):
 
         self.progress_bar.setHidden(True)
         self.status_message.setHidden(True)
-        self.status_message.setText("")
 
         show_finish_acquisition_dialog(self.acquisition_directory)
 
