@@ -173,6 +173,10 @@ class Mail(QtWidgets.QMainWindow):
     def __login(self):
         enable_all(self.server_configuration.children(), False)
         self.__start_spinner()
+        self.progress_bar.setValue(0)
+        self.progress_bar.setHidden(False)
+        self.status_message.setText("")
+        self.status_message.setHidden(False)
 
         if self.is_task_started is False:
             self.__start_task()
@@ -196,6 +200,8 @@ class Mail(QtWidgets.QMainWindow):
 
     def __is_logged_in(self, __status):
         self.spinner.stop()
+        self.progress_bar.setHidden(True)
+        self.status_message.setHidden(True)
 
         if __status == status.SUCCESS:
             enable_all(self.search_criteria.children(), True)
@@ -238,6 +244,10 @@ class Mail(QtWidgets.QMainWindow):
     def __search(self):
         enable_all(self.search_criteria.children(), False)
         self.__start_spinner()
+        self.progress_bar.setValue(0)
+        self.progress_bar.setHidden(False)
+        self.status_message.setText("")
+        self.status_message.setHidden(False)
 
         from_date = self.search_date_from.date()
         to_date = self.search_date_to.date()
@@ -257,6 +267,8 @@ class Mail(QtWidgets.QMainWindow):
 
     def __search_emails_finished(self, __status, emails):
         self.spinner.stop()
+        self.progress_bar.setHidden(True)
+        self.status_message.setHidden(True)
         if __status == status.SUCCESS:
             if len(emails) == 0:
                 error_dlg = ErrorView(
@@ -325,8 +337,10 @@ class Mail(QtWidgets.QMainWindow):
         enable_all(self.select_email.children(), False)
         self.__start_spinner()
         self.is_acquisition_running = True
-        self.progress_bar.setHidden(False)
         self.progress_bar.setValue(0)
+        self.progress_bar.setHidden(False)
+        self.status_message.setText("")
+        self.status_message.setHidden(False)
 
         emails_to_download = {}
 
@@ -355,7 +369,7 @@ class Mail(QtWidgets.QMainWindow):
         enable_all(self.server_configuration.children(), True)
         self.emails_tree.clear()
         self.progress_bar.setHidden(True)
-        self.status_message.setText("")
+        self.status_message.setHidden(True)
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()

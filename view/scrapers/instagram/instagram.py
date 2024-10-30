@@ -145,7 +145,9 @@ class Instagram(QtWidgets.QMainWindow):
         self.__uncheck_checkboxes()
         self.__enable_all(False)
         self.__start_spinner()
+        self.progress_bar.setValue(0)
         self.progress_bar.setHidden(False)
+        self.status_message.setText("")
         self.status_message.setHidden(False)
         self.acquisition_status_list.clear()
 
@@ -163,10 +165,8 @@ class Instagram(QtWidgets.QMainWindow):
     def __is_logged_in(self, __status, __account_type):
         self.spinner.stop()
         self.__enable_all(True)
-
         self.progress_bar.setHidden(True)
         self.status_message.setHidden(True)
-        self.status_message.setText("")
 
         if __status == status.SUCCESS:
             self.login_configuration.setEnabled(False)
@@ -214,7 +214,9 @@ class Instagram(QtWidgets.QMainWindow):
 
     def __start_acquisition(self):
         self.is_acquisition_running = True
+        self.progress_bar.setValue(0)
         self.progress_bar.setHidden(False)
+        self.status_message.setText("")
         self.status_message.setHidden(False)
 
         self.__enable_all(False)
@@ -260,7 +262,6 @@ class Instagram(QtWidgets.QMainWindow):
 
         self.progress_bar.setHidden(True)
         self.status_message.setHidden(True)
-        self.status_message.setText("")
 
         self.acquisition_directory = None
         self.is_task_started = False

@@ -184,7 +184,9 @@ class Web(QtWidgets.QMainWindow):
                 os.makedirs(self.screenshot_directory)
 
             # show progress bar
+            self.progress_bar.setValue(0)
             self.progress_bar.setHidden(False)
+            self.status_message.setText("")
             self.status_message.setHidden(False)
 
             self.__enable_all()
@@ -206,7 +208,6 @@ class Web(QtWidgets.QMainWindow):
 
     def __start_tasks_is_finished(self):
         self.acquisition_manager.set_completed_progress_bar()
-        self.status_message.setText("")
 
         # show progress bar for 2 seconds
         loop = QtCore.QEventLoop()
@@ -214,16 +215,16 @@ class Web(QtWidgets.QMainWindow):
         loop.exec()
 
         self.progress_bar.setHidden(True)
-        self.progress_bar.setValue(0)
-
+        self.status_message.setHidden(True)
         self.__enable_all()
-
-        self.progress_bar.setHidden(True)
 
     def __stop_acquisition(self):
         self.acquisition_status = AcquisitionStatus.STOPED
         self.__enable_all()
+        self.progress_bar.setValue(0)
         self.progress_bar.setHidden(False)
+        self.status_message.setText("")
+        self.status_message.setHidden(False)
         url = self.tabs.currentWidget().url().toString()
 
         self.acquisition_manager.options["url"] = url
@@ -245,9 +246,8 @@ class Web(QtWidgets.QMainWindow):
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
 
-        # hidden progress bar
         self.progress_bar.setHidden(True)
-        self.status_message.setText("")
+        self.status_message.setHidden(True)
 
         profile = QWebEngineProfile.defaultProfile()
         profile.clearHttpCache()
