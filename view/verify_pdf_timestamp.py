@@ -69,7 +69,7 @@ class VerifyPDFTimestamp(QtWidgets.QMainWindow):
         self.close_button.clicked.connect(self.close)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # PDF FILE BUTTON
         self.pdf_file_button.clicked.connect(

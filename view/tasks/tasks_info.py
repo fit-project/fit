@@ -39,7 +39,7 @@ class TasksInfo(QtWidgets.QDialog):
         self.close_button.clicked.connect(self.close)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         self.icon = QtGui.QIcon(
             os.path.join(resolve_path("ui/icons"), "info-circle.png")

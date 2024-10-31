@@ -83,7 +83,7 @@ class Mail(QtWidgets.QMainWindow):
         self.status_message.setHidden(True)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
         self.server_configuration_vlayout.addWidget(
             ClickableLabelView(mail.TWO_FACTOR_AUTH_URL, mail.TWO_FACTOR_AUTH)
         )

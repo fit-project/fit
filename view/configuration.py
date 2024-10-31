@@ -48,7 +48,7 @@ class Configuration(QtWidgets.QDialog):
         self.close_button.clicked.connect(self.close)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # CANCEL BUTTON
         self.cancel_button.clicked.connect(self.reject)

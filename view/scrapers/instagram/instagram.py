@@ -69,7 +69,7 @@ class Instagram(QtWidgets.QMainWindow):
         self.status_message.setHidden(True)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # SERVER INPUT FIELDS
         self.login_configuration_fields = self.login_configuration.findChildren(

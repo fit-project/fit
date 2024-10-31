@@ -88,7 +88,7 @@ class Web(QtWidgets.QMainWindow):
         self.status_message.setHidden(True)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # SET NAVIGATION BUTTONS
         self.back_button.clicked.connect(self.__back)

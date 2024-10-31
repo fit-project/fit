@@ -72,7 +72,7 @@ class Video(QtWidgets.QMainWindow):
         self.status_message.setHidden(True)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # PREVIEW CONTAINER
         self.preview_container.setEnabled(False)

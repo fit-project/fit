@@ -70,7 +70,7 @@ class Wizard(QtWidgets.QMainWindow):
         self.back_button.hide()
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # PAGE1 CASE INFO FORM
         self.form_manager = CaseFormManager(self.form)

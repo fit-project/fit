@@ -72,7 +72,7 @@ class EntireWebsite(QtWidgets.QMainWindow):
         self.status_message.setHidden(True)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # LOAD FROM DOMAIN CHECKBOX
         self.load_from_domain.clicked.connect(self.__switch_load_type)

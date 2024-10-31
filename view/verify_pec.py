@@ -62,7 +62,7 @@ class VerifyPec(QtWidgets.QMainWindow):
         self.close_button.clicked.connect(self.close)
 
         # SET VERSION
-        self.version.setText("v" + get_version())
+        self.version.setText(get_version())
 
         # EML FOLDER BUTTON
         self.eml_folder_button.clicked.connect(self.__select_eml_file)
