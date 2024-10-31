@@ -40,3 +40,12 @@ FIT_NEW_VERSION_EXCUTE_ERROR = (
 
 USER_IS_NOT_ADMIN_TITLE = "User Privilege"
 USER_IS_NOT_ADMIN_MSG = 'Seems <strong>FIT</strong> is running without admin/root privileges.<br><br><strong style="color:red">Without this privileges FIT\'s functionality is very limited.</strong><br><br>Do you want exit and restart it whit admin/root privileges?'
+
+
+NVIDIA_GPU_PRESENT_TITLE = "NVIDIA GPU Configuration"
+NVIDIA_GPU_PRESENT_MSG = 'This PC has an <strong>NVIDIA graphics card</strong>.<br><br>Check the NVIDIA control panel to see which processor is selected for 3D acceleration. <strong>If it is NVIDIA, disable it.</strong><strong style="color:red"><br><br>Otherwise, the screen will not be recorded.</strong>'
+
+NVIDIA_GPU_GUIDE_URL = "https://github.com/fit-project/fit/wiki/Screen-recorder-Issue"
+NVIDIA_GPU_GUIDE = (
+    "<strong><i><u>For more info read the guide</u></i></strong>"
+)

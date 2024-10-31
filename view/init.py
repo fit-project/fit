@@ -292,7 +292,7 @@ class Init(QtCore.QObject):
 
             dialog = Dialog(
                 USER_IS_NOT_ADMIN_TITLE,
-                USER_IS_NOT_ADMIN_MSG,
+                USER_IS_NOT_ADMIN_MSG
             )
             dialog.message.setStyleSheet("font-size: 13px;")
             dialog.set_buttons_type(DialogButtonTypes.QUESTION)
@@ -322,6 +322,26 @@ class Init(QtCore.QObject):
                 )
 
                 dialog.exec()
+        
+
+        if is_nvidia_gpu_present():
+            dialog = Dialog(
+                NVIDIA_GPU_PRESENT_TITLE,
+                NVIDIA_GPU_PRESENT_MSG,
+                                "",
+                QtWidgets.QMessageBox.Icon.Warning,
+            )
+            dialog.message.setStyleSheet("font-size: 13px;")
+            dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
+            dialog.right_button.clicked.connect(lambda:dialog.close())
+            dialog.text_box.addWidget(
+            ClickableLabelView(
+                NVIDIA_GPU_GUIDE_URL, NVIDIA_GPU_GUIDE
+            ))
+            
+            dialog.content_box.adjustSize()
+
+            dialog.exec()
         
         # Check there is a new portable version of FIT
         if getattr(sys, "frozen", False) and has_new_portable_version():

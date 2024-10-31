@@ -10,6 +10,7 @@
 from model.db import Db
 
 import os
+import stat
 import re
 
 from sqlalchemy import ForeignKey, Column, Integer, String, Text, LargeBinary
@@ -119,6 +120,8 @@ class Case(Base):
             )
 
         os.makedirs(acquisition_directory)
+        os.makedirs(acquisition_directory, exist_ok=True)
+        os.chmod(acquisition_directory, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # rwxrwxrwx
 
         return acquisition_directory
 
