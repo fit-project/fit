@@ -21,7 +21,6 @@ from view.clickable_label import ClickableLabel as ClickableLabelView
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
 from controller.configurations.tabs.network.networktools import NetworkTools
 
-
 from common.utility import *
 from common.constants.view.init import *
 from common.constants.view.general import *
@@ -31,14 +30,16 @@ from common.constants.view.tasks import status
 class DownloadAndSave(QtWidgets.QDialog):
     finished = QtCore.pyqtSignal(str)
 
-    def __init__(self, url, progress_dialog_title, progress_dialog_message,  parent=None):
+    def __init__(
+        self, url, progress_dialog_title, progress_dialog_message, parent=None
+    ):
         super(DownloadAndSave, self).__init__(parent)
 
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.file_path = None
-        
+
         self.filename = QtCore.QUrl(url).path()
         self.suffix = QtCore.QFileInfo(self.filename).suffix()
 
@@ -83,7 +84,7 @@ class DownloadAndSave(QtWidgets.QDialog):
             self.progress_dialog.show()
         else:
             self.reject()
-    
+
     def __is_download_finished(self):
         self.close()
         self.progress_dialog.close()
@@ -100,9 +101,26 @@ class Init(QtCore.QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.is_finsished = True
+        self.process = None
+
+    def __del__(self):
+        if (
+            hasattr(self, "process")
+            and self.process.state() != QtCore.QProcess.ProcessState.NotRunning
+        ):
+            self.process.kill()
+            self.process.waitForFinished()
 
     def __quit(self):
-        sys.exit(1)
+        try:
+            self.__cleanup()
+        except Exception as e:
+            pass
+        if hasattr(self, "process") and self.process is not None:
+            self.process.kill()
+
+        sys.exit(0)
 
     def __enable_network_functionality(self):
         configuration = NetworkTools().configuration
@@ -135,9 +153,9 @@ class Init(QtCore.QObject):
         try:
             url = get_npcap_installer_url()
 
-            self.ncap_process_name = QtCore.QUrl(url).path().split('/')[-1]
+            self.ncap_process_name = QtCore.QUrl(url).path().split("/")[-1]
 
-            donwload_and_save = DownloadAndSave(url,  NPCAP, NPCAP_DOWNLOAD)
+            donwload_and_save = DownloadAndSave(url, NPCAP, NPCAP_DOWNLOAD)
             donwload_and_save.rejected.connect(self.__disable_network_functionality)
             donwload_and_save.finished.connect(self.__install_ncap)
             donwload_and_save.exec()
@@ -175,8 +193,8 @@ class Init(QtCore.QObject):
         pid = None
         __is_npcap_installed = False
 
-        for proc in psutil.process_iter(['pid', 'name']):
-            if proc.info['name'] == self.ncap_process_name:
+        for proc in psutil.process_iter(["pid", "name"]):
+            if proc.info["name"] == self.ncap_process_name:
                 pid = proc.info["pid"]
                 break
 
@@ -192,7 +210,7 @@ class Init(QtCore.QObject):
                 raise Exception(e)
             except Exception as e:
                 raise Exception(e)
-        
+
         if __is_npcap_installed is False:
             self.__disable_network_functionality()
         else:
@@ -205,7 +223,9 @@ class Init(QtCore.QObject):
             url = get_portable_download_url()
             if url is None:
                 raise ValueError(DOWNLOAD_URL_ERROR)
-            donwload_and_save = DownloadAndSave(url,  FIT_NEW_VERSION_DOWNLOAD_TITLE, FIT_NEW_VERSION_DOWNLOAD_MSG)
+            donwload_and_save = DownloadAndSave(
+                url, FIT_NEW_VERSION_DOWNLOAD_TITLE, FIT_NEW_VERSION_DOWNLOAD_MSG
+            )
             donwload_and_save.finished.connect(self.__unzip_portable_zipfile)
             donwload_and_save.exec()
         except Exception as e:
@@ -216,7 +236,7 @@ class Init(QtCore.QObject):
                 str(e),
             )
             error_dlg.exec()
-    
+
     def __unzip_portable_zipfile(self, file_path):
         unzip_path = os.path.splitext(file_path)[0]
         try:
@@ -230,7 +250,7 @@ class Init(QtCore.QObject):
                 str(e),
             )
             error_dlg.exec()
-    
+
     def __execute_portable_version(self, path):
 
         excutable = None
@@ -256,13 +276,13 @@ class Init(QtCore.QObject):
                 # Change working directory
                 os.chdir(current_directory)
                 error_dlg = ErrorView(
-                QtWidgets.QMessageBox.Icon.Critical,
-                FIT_NEW_VERSION_DOWNLOAD_TITLE,
-                FIT_NEW_VERSION_EXCUTE_ERROR,
-                str(e),
-            )
+                    QtWidgets.QMessageBox.Icon.Critical,
+                    FIT_NEW_VERSION_DOWNLOAD_TITLE,
+                    FIT_NEW_VERSION_EXCUTE_ERROR,
+                    str(e),
+                )
             error_dlg.exec()
-        
+
         else:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
@@ -271,6 +291,73 @@ class Init(QtCore.QObject):
                 "No excutable path found",
             )
             error_dlg.exec()
+
+    def __run_fit_with_privileges(self, dialog=None):
+        if dialog:
+            dialog.close()
+
+        loop = QtCore.QEventLoop()
+        QtCore.QTimer.singleShot(500, loop.quit)
+        loop.exec()
+
+        self.is_finsished = False
+
+        current_app = self.__get_current_app_path()
+        python_path = sys.executable
+
+        if get_platform() == "macos":
+            launch_script = resolve_path(
+                "assets/script/mac/launch_fit_with_privileges.sh"
+            )
+            args = [python_path, current_app]
+        elif get_platform() == "win":
+            launch_script = resolve_path(
+                "assets/script/win/launch_fit_with_privileges.bat"
+            )
+            args = [python_path, current_app]
+        elif sys.platform == "lin":
+            launch_script = resolve_path(
+                "assets/script/lin/launch_fit_with_privileges.sh"
+            )
+            args = [python_path, current_app]
+        else:
+            raise OSError("Sistema operativo non supportato.")
+
+        self.process = QtCore.QProcess(self)
+
+        self.process.started.connect(self.__on_process_started)
+        self.process.errorOccurred.connect(self.__on_process_error)
+
+        self.process.start(launch_script, args)
+
+    def __on_process_started(self):
+        QtCore.QTimer.singleShot(1000, self.__quit)
+
+    def __cleanup(self):
+        if (
+            hasattr(self, "process")
+            and self.process.state() != QtCore.QProcess.ProcessState.NotRunning
+        ):
+            self.process.terminate()
+            self.process.waitForFinished()
+
+    def __on_process_error(self, error):
+        error_map = {
+            QtCore.QProcess.ProcessError.FailedToStart: "Impossibile avviare il processo.",
+            QtCore.QProcess.ProcessError.Crashed: "Il processo è andato in crash.",
+            QtCore.QProcess.ProcessError.Timedout: "Il processo ha superato il tempo limite.",
+            QtCore.QProcess.ProcessError.WriteError: "Errore di scrittura nel processo.",
+            QtCore.QProcess.ProcessError.ReadError: "Errore di lettura dal processo.",
+            QtCore.QProcess.ProcessError.UnknownError: "Errore sconosciuto.",
+        }
+        error_message = error_map.get(error, "Errore non definito.")
+        print(f"Errore durante l'esecuzione del processo: {error_message}")
+
+    def __get_current_app_path(self):
+        if getattr(sys, "frozen", False):
+            return os.path.abspath(sys.executable)
+        else:
+            return os.path.abspath(sys.argv[0])
 
     def init_check(self):
 
@@ -289,21 +376,21 @@ class Init(QtCore.QObject):
 
         # Check admin privileges
         if is_admin() is False:
-
-            dialog = Dialog(
-                USER_IS_NOT_ADMIN_TITLE,
-                USER_IS_NOT_ADMIN_MSG
-            )
+            dialog = Dialog(USER_IS_NOT_ADMIN_TITLE, USER_IS_NOT_ADMIN_MSG)
             dialog.message.setStyleSheet("font-size: 13px;")
             dialog.set_buttons_type(DialogButtonTypes.QUESTION)
             dialog.right_button.clicked.connect(
                 lambda: self.__disable_network_functionality(dialog)
             )
-            dialog.left_button.clicked.connect(self.__quit)
+            dialog.left_button.clicked.connect(
+                lambda: self.__run_fit_with_privileges(dialog)
+            )
 
             dialog.content_box.adjustSize()
 
             dialog.exec()
+        else:
+            self.__enable_network_functionality()
 
         if get_platform() == "win":
             # Check if NPCAP is installed
@@ -322,39 +409,48 @@ class Init(QtCore.QObject):
                 )
 
                 dialog.exec()
-        
 
         if is_nvidia_gpu_present():
             dialog = Dialog(
                 NVIDIA_GPU_PRESENT_TITLE,
                 NVIDIA_GPU_PRESENT_MSG,
-                                "",
+                "",
                 QtWidgets.QMessageBox.Icon.Warning,
             )
             dialog.message.setStyleSheet("font-size: 13px;")
             dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
-            dialog.right_button.clicked.connect(lambda:dialog.close())
+            dialog.right_button.clicked.connect(lambda: dialog.close())
             dialog.text_box.addWidget(
-            ClickableLabelView(
-                NVIDIA_GPU_GUIDE_URL, NVIDIA_GPU_GUIDE
-            ))
-            
+                ClickableLabelView(NVIDIA_GPU_GUIDE_URL, NVIDIA_GPU_GUIDE)
+            )
+
             dialog.content_box.adjustSize()
 
             dialog.exec()
-        
+
         # Check there is a new portable version of FIT
         if getattr(sys, "frozen", False) and has_new_portable_version():
             dialog = Dialog(
-                    FIT_NEW_VERSION_TITLE,
-                    FIT_NEW_VERSION_MSG,
-                )
+                FIT_NEW_VERSION_TITLE,
+                FIT_NEW_VERSION_MSG,
+            )
             dialog.message.setStyleSheet("font-size: 13px;")
             dialog.set_buttons_type(DialogButtonTypes.QUESTION)
             dialog.right_button.clicked.connect(dialog.close)
-            dialog.left_button.clicked.connect(lambda: self.__download_portable_version(dialog))
+            dialog.left_button.clicked.connect(
+                lambda: self.__download_portable_version(dialog)
+            )
 
             dialog.exec()
-        
-        self.finished.emit()
-            
+        if self.is_finsished:
+            self.finished.emit()
+
+    def closeEvent(self, event):
+        if (
+            hasattr(self, "process")
+            and self.process.state() != QtCore.QProcess.ProcessState.NotRunning
+        ):
+            self.process.terminate()
+            if not self.process.waitForFinished(3000):  # Attendi fino a 3 secondi
+                self.process.kill()
+        event.accept()
