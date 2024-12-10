@@ -343,15 +343,18 @@ class Init(QtCore.QObject):
 
     def __on_process_error(self, error):
         error_map = {
-            QtCore.QProcess.ProcessError.FailedToStart: "Impossibile avviare il processo.",
-            QtCore.QProcess.ProcessError.Crashed: "Il processo è andato in crash.",
-            QtCore.QProcess.ProcessError.Timedout: "Il processo ha superato il tempo limite.",
-            QtCore.QProcess.ProcessError.WriteError: "Errore di scrittura nel processo.",
-            QtCore.QProcess.ProcessError.ReadError: "Errore di lettura dal processo.",
-            QtCore.QProcess.ProcessError.UnknownError: "Errore sconosciuto.",
+            QtCore.QProcess.ProcessError.FailedToStart: "Failed to start the process.",
+            QtCore.QProcess.ProcessError.Crashed: "The process has crashed.",
+            QtCore.QProcess.ProcessError.Timedout: "The process timed out.",
+            QtCore.QProcess.ProcessError.WriteError: "Write error in the process.",
+            QtCore.QProcess.ProcessError.ReadError: "Read error from the process.",
+            QtCore.QProcess.ProcessError.UnknownError: "Unknown error.",
         }
-        error_message = error_map.get(error, "Errore non definito.")
-        print(f"Errore durante l'esecuzione del processo: {error_message}")
+        error_message = error_map.get(error, "Undefined error.")
+
+        debug_mode = "--debug" in QtWidgets.QApplication.instance().arguments()
+        if debug_mode:
+            print(f"Error during process execution: {error_message}")
 
     def __get_current_app_path(self):
         if getattr(sys, "frozen", False):
