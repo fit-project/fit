@@ -4,9 +4,9 @@ python_path=${1:-}
 app_path=${2}
 
 if [[ -z "$python_path" ]]; then
-    echo "Esecuzione dell'app senza Python..."
+    echo "Running the app without Python..."
     pkexec "$app_path"
 else
-    echo "Esecuzione con Python..."
+    echo "Running with Python..."
     pkexec "$python_path" "$app_path"
 fi

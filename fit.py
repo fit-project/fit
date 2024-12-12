@@ -11,7 +11,8 @@ import sys
 from PyQt6 import QtWidgets, QtGui
 from common.utility import resolve_path
 
-from view.init import Init as InitView
+
+from view.checks.initial_checks import InitialChecks
 from view.wizard import Wizard as WizardView
 from view.scrapers.web.web import Web as WebView
 from view.scrapers.mail.mail import Mail as MailView
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
 
     acquisition_window = None
+
     def start_task(task, case_info):
         global acquisition_window
         options = {}
@@ -43,13 +45,13 @@ if __name__ == "__main__":
         acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()
 
-    init = InitView()
+    initial_checks = InitialChecks()
     wizard = WizardView()
 
-    init.finished.connect(wizard.show)
+    initial_checks.finished.connect(wizard.show)
     # Wizard sends a signal when start button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
 
-    init.init_check()
+    initial_checks.run_checks()
 
     sys.exit(app.exec())

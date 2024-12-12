@@ -338,20 +338,24 @@ def is_cmd(name):
     return distutils.spawn.find_executable(name) is not None
 
 
-def is_nvidia_gpu_present():
+def is_nvidia_gpu_installed():
     is_present = bool(is_cmd("nvidia-smi"))
 
     if is_present is False:
         if get_platform() == "win":
             try:
-                result = subprocess.run(["wmic", "path", "win32_VideoController", "get", "name"], 
-                                capture_output=True, text=True, check=True)
+                result = subprocess.run(
+                    ["wmic", "path", "win32_VideoController", "get", "name"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
                 is_present = "NVIDIA" in result.stdout
             except FileNotFoundError:
                 is_present = False
 
             if is_present is False:
-                 with tempfile.TemporaryDirectory() as temp_dir:
+                with tempfile.TemporaryDirectory() as temp_dir:
                     dxdiag_output_path = os.path.join(temp_dir, "dxdiag_output.txt")
                     try:
                         subprocess.run(["dxdiag", "/t", dxdiag_output_path], check=True)
@@ -360,19 +364,20 @@ def is_nvidia_gpu_present():
 
                         gpu_names = re.findall(r"Card name: (.*NVIDIA.*)", output)
                         is_present = bool(gpu_names)
-            
+
                     except subprocess.CalledProcessError as e:
                         is_present = False
                     except FileNotFoundError:
                         is_present = False
-        
+
         if get_platform() == "lin":
             try:
-                result = subprocess.run(["lspci"], capture_output=True, text=True, check=True)
+                result = subprocess.run(
+                    ["lspci"], capture_output=True, text=True, check=True
+                )
                 is_present = "NVIDIA" in result.stdout
             except FileNotFoundError:
                 is_present = False
-
 
     return is_present
 
@@ -394,8 +399,6 @@ def get_logo():
 def get_language():
     controller = LanguageController()
     return controller.options["language"]
-
-
 
 
 # search for the first free port to bind the proxy

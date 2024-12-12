@@ -10,3 +10,4 @@
 PENDING = "Pending"
 FAIL = "Fail"
 SUCCESS = "Success"
+UNKNOW = "Unknow"

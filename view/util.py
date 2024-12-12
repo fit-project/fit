@@ -21,9 +21,13 @@ from view.case_form_dialog import CaseFormDialog
 from view.dialog import Dialog, DialogButtonTypes
 from view.tasks.tasks_info import TasksInfo
 
+from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
+from controller.configurations.tabs.network.networktools import NetworkTools
+
 
 from common.utility import get_platform, is_cmd
 from common.constants import logger, details
+
 
 from common.constants.view import verify_pec, verify_pdf_timestamp, case
 from common.constants.view.tasks import status
@@ -298,3 +302,27 @@ def resolve_db_path(path):
         resolve_db_path = os.path.abspath(os.path.join(os.getcwd(), path))
 
     return resolve_db_path
+
+
+def enable_network_functionality():
+    configuration = NetworkTools().configuration
+    if configuration.get("traceroute") is False:
+        configuration["traceroute"] = True
+        NetworkTools().configuration = configuration
+
+    options = PacketCapture().options
+    if options.get("enabled") is False:
+        options["enabled"] = True
+        PacketCapture().options = options
+
+
+def disable_network_functionality():
+    configuration = NetworkTools().configuration
+    if configuration.get("traceroute") is True:
+        configuration["traceroute"] = False
+        NetworkTools().configuration = configuration
+
+    options = PacketCapture().options
+    if options.get("enabled") is True:
+        options["enabled"] = False
+        PacketCapture().options = options
