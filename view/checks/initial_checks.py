@@ -31,6 +31,7 @@ class InitialChecks(QtCore.QObject):
             "NpcapInstalledCheck",
             "NvidiaGPUInstalledCheck",
             "NewPortableVersionCheck",
+            "FFmpegInstalledCheck",
         ]
         self.module_instances = self.__load_checks_modules()
         self.current_check_index = 0

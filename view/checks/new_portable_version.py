@@ -29,7 +29,7 @@ from common.utility import (
 )
 
 from common.constants.view.tasks import status
-from common.constants.view.init import (
+from common.constants.view.initial_checks import (
     FIT_NEW_VERSION_TITLE,
     FIT_NEW_VERSION_MSG,
     DOWNLOAD_URL_ERROR,

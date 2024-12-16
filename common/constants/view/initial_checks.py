@@ -56,3 +56,7 @@ NVIDIA_GPU_PRESENT_MSG = 'This PC has an <strong>NVIDIA graphics card</strong>.<
 
 NVIDIA_GPU_GUIDE_URL = "https://github.com/fit-project/fit/wiki/Screen-recorder-Issue"
 NVIDIA_GPU_GUIDE = "<strong><i><u>For more info read the guide</u></i></strong>"
+
+
+FFMPEG = "ffmpeg"
+WAR_FFMPEG_NOT_INSTALLED = "Seems <strong>ffmpeg</strong> it's not installed in your PC.<br><br><strong style=\"color:red\">Without ffmpeg you can't record audio and video screen.</strong><br><br>Do you want install it?"

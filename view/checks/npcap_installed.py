@@ -21,7 +21,7 @@ from view.checks.download_and_save import DownloadAndSave
 
 from common.utility import is_npcap_installed, get_npcap_installer_url, get_platform
 from common.constants.view.tasks import status
-from common.constants.view.init import (
+from common.constants.view.initial_checks import (
     NPCAP,
     WAR_NPCAP_NOT_INSTALLED,
     NPCAP_DOWNLOAD,

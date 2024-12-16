@@ -16,7 +16,10 @@ from view.error import Error as ErrorView
 from common.utility import check_internet_connection
 
 from common.constants.view.tasks import status
-from common.constants.view.init import CHECK_CONNETION, ERR_INTERNET_DISCONNECTED
+from common.constants.view.initial_checks import (
+    CHECK_CONNETION,
+    ERR_INTERNET_DISCONNECTED,
+)
 
 
 class NetworkCheck(Check):

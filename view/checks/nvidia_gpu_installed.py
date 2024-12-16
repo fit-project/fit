@@ -16,7 +16,7 @@ from view.checks.check import Check
 from common.utility import is_nvidia_gpu_installed
 
 from common.constants.view.tasks import status
-from common.constants.view.init import (
+from common.constants.view.initial_checks import (
     NVIDIA_GPU_PRESENT_TITLE,
     NVIDIA_GPU_PRESENT_MSG,
     NVIDIA_GPU_GUIDE_URL,

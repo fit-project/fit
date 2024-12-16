@@ -17,7 +17,10 @@ from view.dialog import Dialog, DialogButtonTypes
 from common.utility import is_admin, resolve_path, get_platform
 
 from common.constants.view.tasks import status
-from common.constants.view.init import USER_IS_NOT_ADMIN_TITLE, USER_IS_NOT_ADMIN_MSG
+from common.constants.view.initial_checks import (
+    USER_IS_NOT_ADMIN_TITLE,
+    USER_IS_NOT_ADMIN_MSG,
+)
 
 
 class AdminPrivilegesCheck(Check):
