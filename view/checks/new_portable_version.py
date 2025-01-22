@@ -49,7 +49,8 @@ class NewPortableVersionCheck(Check):
         super().__init__(parent)
 
     def run_check(self):
-        if getattr(sys, "frozen", False) and has_new_portable_version():
+        #if getattr(sys, "frozen", False) and has_new_portable_version():
+        if True:
             dialog = Dialog(
                 FIT_NEW_VERSION_TITLE,
                 FIT_NEW_VERSION_MSG,
@@ -86,7 +87,7 @@ class NewPortableVersionCheck(Check):
             donwload_and_save = DownloadAndSave(
                 url, FIT_NEW_VERSION_DOWNLOAD_TITLE, FIT_NEW_VERSION_DOWNLOAD_MSG
             )
-            # donwload_and_save.finished.connect(self.__unzip_portable_zipfile)
+
             donwload_and_save.finished.connect(self.__install_portable)
             donwload_and_save.rejected.connect(self.__not_install)
             donwload_and_save.exec()
@@ -99,7 +100,7 @@ class NewPortableVersionCheck(Check):
             )
             error_dlg.exec()
 
-    def __install_portable(self, file_path):
+    def __install_portable(self, downloaded_file_path):
 
         app_dir = os.path.abspath(sys.executable)
 
@@ -109,19 +110,26 @@ class NewPortableVersionCheck(Check):
                 launch_script = resolve_path(
                     "assets/script/mac/install_new_portable_version.sh"
                 )
-                args = [app_dir, file_path]
-            elif get_platform() == "win":
-                app_dir = os.path.dirname(app_dir)
-                launch_script = resolve_path(
-                    "assets/script/win/install_new_portable_version.ps1"
-                )
-                args = [app_dir, file_path]
-            elif sys.platform == "lin":
-                app_dir = os.path.dirname(app_dir)
-                launch_script = resolve_path(
-                    "assets/script/lin/install_new_portable_version.sh"
-                )
-                args = [app_dir, file_path]
+                args = [app_dir, downloaded_file_path]
+        elif get_platform() == "win":
+            app_dir = os.path.dirname(app_dir)
+            launch_script = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+
+            app_dir = "C:\\Users\\zitel\\NO_ONEDRIVE\\test"
+            args = [
+                    "-ExecutionPolicy", 
+                    "Bypass",
+                    "-File", 
+                    resolve_path("assets/script/win/install_new_portable_version.ps1"), 
+                    downloaded_file_path,
+                    app_dir
+                ]
+        elif sys.platform == "lin":
+            app_dir = os.path.dirname(app_dir)
+            launch_script = resolve_path(
+                "assets/script/lin/install_new_portable_version.sh"
+            )
+            args = [app_dir, downloaded_file_path]
 
         self.process = QtCore.QProcess(self)
         self.process.errorOccurred.connect(self.__on_process_error)
@@ -136,6 +144,7 @@ class NewPortableVersionCheck(Check):
         self.process.waitForFinished()
 
         exit_code = self.process.exitCode()
+
         if exit_code == 0:
             message = FIT_NEW_VERSION_INSTALLATION_SUCCESS
             severity = QtWidgets.QMessageBox.Icon.Information

@@ -18,7 +18,6 @@ if (-not (Test-Path -Path $DEST_DIR)) {
     exit 1
 }
 
-
 Write-Host "Extracting $ZIP_PATH..."
 try {
     Expand-Archive -Path $ZIP_PATH -DestinationPath $DEST_DIR -Force
@@ -27,20 +26,10 @@ try {
     exit 1
 }
 
-$APP_NAME = (Get-ChildItem -Path $DEST_DIR | Where-Object { $_.PSIsContainer }).Name
-$TARGET_PATH = Join-Path -Path $DEST_DIR -ChildPath $APP_NAME
-
-if (Test-Path -Path $TARGET_PATH) {
-    Write-Host "Removing existing version of $APP_NAME in $DEST_DIR..."
-    Remove-Item -Path $TARGET_PATH -Recurse -Force
-}
-
-Write-Host "Moving extracted files to $DEST_DIR..."
-Move-Item -Path (Join-Path -Path $DEST_DIR -ChildPath $APP_NAME) -Destination $DEST_DIR
-
+$APP_NAME = Get-ChildItem -Path $DEST_DIR -Recurse -Filter "*.exe" | Select-Object -First 1
 
 Write-Host "Launching $APP_NAME..."
-$exePath = Join-Path -Path $DEST_DIR -ChildPath "$APP_NAME\your_application.exe"
+$exePath = Join-Path -Path $DEST_DIR -ChildPath "\$APP_NAME"
 if (Test-Path -Path $exePath) {
     Start-Process -FilePath $exePath
 } else {
