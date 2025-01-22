@@ -8,8 +8,6 @@
 ######
 
 import sys
-import subprocess
-import shutil
 import os
 
 from PyQt6 import QtWidgets, QtCore
@@ -36,8 +34,6 @@ from common.constants.view.initial_checks import (
     FIT_NEW_VERSION_DOWNLOAD_TITLE,
     FIT_NEW_VERSION_DOWNLOAD_MSG,
     FIT_NEW_VERSION_DOWNLOAD_ERROR,
-    FIT_NEW_VERSION_UNZIP_ERROR,
-    FIT_NEW_VERSION_EXCUTE_ERROR,
     FIT_NEW_VERSION_INSTALLATION_TITLE,
     FIT_NEW_VERSION_INSTALLATION_ERROR,
     FIT_NEW_VERSION_INSTALLATION_SUCCESS,
@@ -49,8 +45,7 @@ class NewPortableVersionCheck(Check):
         super().__init__(parent)
 
     def run_check(self):
-        #if getattr(sys, "frozen", False) and has_new_portable_version():
-        if True:
+        if getattr(sys, "frozen", False) and has_new_portable_version():
             dialog = Dialog(
                 FIT_NEW_VERSION_TITLE,
                 FIT_NEW_VERSION_MSG,
