@@ -8,6 +8,7 @@
 ######
 
 import subprocess
+import os
 
 from PyQt6 import QtCore
 
@@ -17,7 +18,7 @@ from view.checks.check import Check
 from view.dialog import Dialog, DialogButtonTypes
 
 
-from common.utility import is_cmd
+from common.utility import is_cmd, is_admin
 from common.constants.view.tasks import status
 from common.constants.view.initial_checks import (
     FFMPEG,
@@ -31,20 +32,26 @@ class FFmpegInstalledCheck(Check):
 
     def run_check(self):
         if is_cmd("ffmpeg") is False:
-            dialog = Dialog(
-                FFMPEG,
-                WAR_FFMPEG_NOT_INSTALLED,
-            )
-            dialog.message.setStyleSheet("font-size: 13px;")
-            dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+            if ffdl.installed():
+                ffdl.add_path()
+                self.finished.emit(status.SUCCESS)
+            else:
+                dialog = Dialog(
+                    FFMPEG,
+                    WAR_FFMPEG_NOT_INSTALLED,
+                )
+                dialog.message.setStyleSheet("font-size: 13px;")
+                dialog.set_buttons_type(DialogButtonTypes.QUESTION)
 
-            dialog.left_button.clicked.connect(
-                lambda: self.__download_and_install_ffmpeg(dialog)
-            )
-            dialog.right_button.clicked.connect(lambda: self.__not_install(dialog))
+                dialog.left_button.clicked.connect(
+                    lambda: self.__download_and_install_ffmpeg(dialog)
+                )
+                dialog.right_button.clicked.connect(lambda: self.__not_install(dialog))
 
-            dialog.exec()
+                dialog.exec()
         else:
+            if ffdl.installed():
+                ffdl.add_path()
             self.finished.emit(status.SUCCESS)
 
     def __not_install(self, dialog=None):
@@ -69,5 +76,6 @@ class FFmpegInstalledCheck(Check):
                 is_ffmpeg_installed = True
 
         if is_ffmpeg_installed is True:
+            os.chmod(ffdl.ffmpeg_dir, 0o755)
             ffdl.add_path()
             self.finished.emit(status.SUCCESS)
