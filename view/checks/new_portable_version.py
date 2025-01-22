@@ -102,29 +102,32 @@ class NewPortableVersionCheck(Check):
         if get_platform() == "macos":
             if app_dir.endswith(".app/Contents/MacOS"):
                 app_dir = os.path.dirname(os.path.dirname(os.path.dirname(app_dir)))
-                launch_script = resolve_path(
-                    "assets/script/mac/install_new_portable_version.sh"
-                )
-                args = [app_dir, downloaded_file_path]
+
+            launch_script = resolve_path(
+                "assets/script/mac/install_new_portable_version.sh"
+            )
+            args = [downloaded_file_path, app_dir]
+
         elif get_platform() == "win":
             app_dir = os.path.dirname(app_dir)
-            launch_script = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            launch_script = (
+                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            )
 
-            app_dir = "C:\\Users\\zitel\\NO_ONEDRIVE\\test"
             args = [
-                    "-ExecutionPolicy", 
-                    "Bypass",
-                    "-File", 
-                    resolve_path("assets/script/win/install_new_portable_version.ps1"), 
-                    downloaded_file_path,
-                    app_dir
-                ]
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                resolve_path("assets/script/win/install_new_portable_version.ps1"),
+                downloaded_file_path,
+                app_dir,
+            ]
         elif sys.platform == "lin":
             app_dir = os.path.dirname(app_dir)
             launch_script = resolve_path(
                 "assets/script/lin/install_new_portable_version.sh"
             )
-            args = [app_dir, downloaded_file_path]
+            args = [downloaded_file_path, app_dir]
 
         self.process = QtCore.QProcess(self)
         self.process.errorOccurred.connect(self.__on_process_error)
