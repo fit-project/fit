@@ -33,6 +33,7 @@ from common.constants.view.initial_checks import (
 class NpcapInstalledCheck(Check):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.donwload_and_save = None
 
     def run_check(self):
         if get_platform() == "win":
@@ -50,12 +51,16 @@ class NpcapInstalledCheck(Check):
                 )
 
                 dialog.exec()
+            else:
+                self.finished.emit(status.SUCCESS)
         else:
             self.finished.emit(status.SUCCESS)
 
     def __not_install(self, dialog=None):
         if dialog:
             dialog.close()
+        if  self.donwload_and_save is not None:
+            self.donwload_and_save.close()
         self.finished.emit(status.FAIL)
 
     def __download_npcap(self, dialog=None):
@@ -66,10 +71,10 @@ class NpcapInstalledCheck(Check):
 
             self.ncap_process_name = QtCore.QUrl(url).path().split("/")[-1]
 
-            donwload_and_save = DownloadAndSave(url, NPCAP, NPCAP_DOWNLOAD)
-            donwload_and_save.rejected.connect(self.__not_install)
-            donwload_and_save.finished.connect(self.__install_ncap)
-            donwload_and_save.exec()
+            self.donwload_and_save = DownloadAndSave(url, NPCAP, NPCAP_DOWNLOAD)
+            self.donwload_and_save.rejected.connect(self.__not_install)
+            self.donwload_and_save.finished.connect(self.__install_ncap)
+            self.donwload_and_save.exec()
         except Exception as e:
             error_dlg = ErrorView(
                 QtWidgets.QMessageBox.Icon.Critical,
@@ -126,3 +131,4 @@ class NpcapInstalledCheck(Check):
             self.__not_install()
         else:
             self.finished.emit(status.SUCCESS)
+            self.donwload_and_save.close()
