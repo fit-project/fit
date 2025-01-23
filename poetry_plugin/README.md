@@ -7,7 +7,7 @@ custom_framework_path = Path("INSERT-FRAMEWORK-PATH")
 
 ### 3. Remove this comment from pyproject.toml
 #[tool.poetry.scripts]
-#post-install = "scripts.poetry_plugin:post_install"
+#post-install = "poetry_plugin.post_install:post_install"
 
 ### 4. Config poetry virtualenvs.path
 ```
