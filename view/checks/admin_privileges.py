@@ -36,6 +36,7 @@ class AdminPrivilegesCheck(Check):
             self.process.waitForFinished()
 
     def run_check(self):
+        print("Sono un amministartore: " + str(is_admin()))
         if is_admin() is False:
             dialog = Dialog(USER_IS_NOT_ADMIN_TITLE, USER_IS_NOT_ADMIN_MSG)
             dialog.message.setStyleSheet("font-size: 13px;")
@@ -83,7 +84,10 @@ class AdminPrivilegesCheck(Check):
             launch_script = resolve_path(
                 "assets/script/mac/launch_fit_with_admin_privileges.sh"
             )
-            args = [python_path, current_app]
+            if getattr(sys, "frozen", False):
+                args = ["", current_app]
+            else:
+                args = [python_path, current_app]
         elif get_platform() == "win":
             launch_script = resolve_path(
                 "assets/script/win/launch_fit_with_admin_privileges.ps1"
