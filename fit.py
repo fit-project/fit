@@ -7,9 +7,10 @@
 # -----
 ######
 import sys
+import ctypes
 
 from PyQt6 import QtWidgets, QtGui
-from common.utility import resolve_path
+from common.utility import resolve_path, get_platform
 
 
 from view.checks.initial_checks import InitialChecks
@@ -24,6 +25,11 @@ from view.scrapers.entire_website.entire_website import (
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+
+    if get_platform() == "win":
+        app_id = "org.fit-project.fit"
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
 
     acquisition_window = None
