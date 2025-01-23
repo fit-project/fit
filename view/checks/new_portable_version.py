@@ -100,12 +100,13 @@ class NewPortableVersionCheck(Check):
         app_dir = os.path.abspath(sys.executable)
 
         if get_platform() == "macos":
-            if app_dir.endswith(".app/Contents/MacOS"):
+            if ".app/Contents/MacOS" in app_dir:
                 app_dir = os.path.dirname(os.path.dirname(os.path.dirname(app_dir)))
 
             launch_script = resolve_path(
                 "assets/script/mac/install_new_portable_version.sh"
             )
+
             args = [downloaded_file_path, app_dir]
 
         elif get_platform() == "win":
