@@ -42,5 +42,5 @@ pyqt6-webenginesubwheel-qt6 = "6.7.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-#[tool.poetry.scripts]
-#post-install = "scripts.poetry_plugin:post_install"
+[tool.poetry.scripts]
+post-install = "poetry_plugin.post_install:post_install"
