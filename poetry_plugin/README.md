@@ -18,18 +18,16 @@ poetry3.11 config virtualenvs.path .virtualenvs/fit
 ```
 poetry3.11 install  
 ```
-
-### 5. Run post install
+### 6. activate local virtualenvs
+```
+source .virtualenvs/fit/fit-AiLXs-z0-py3.11/bin/activate
+```
+### 7. Run post install
 ```
 poetry3.11 run post-install
 ```
-
 ### 6. reset virtualenvs.path
 ```
 poetry3.11 config --unset virtualenvs.path
 ```
 
-### 7. activate local virtualenvs
-```
-source .virtualenvs/fit/fit-AiLXs-z0-py3.11/bin/activate
-```
