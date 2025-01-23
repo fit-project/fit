@@ -10,6 +10,8 @@
 
 import sys
 import os
+import shutil
+import atexit
 from PyQt6 import QtCore
 from view.checks.check import Check
 from view.dialog import Dialog, DialogButtonTypes
@@ -21,6 +23,19 @@ from common.constants.view.initial_checks import (
     USER_IS_NOT_ADMIN_TITLE,
     USER_IS_NOT_ADMIN_MSG,
 )
+
+
+if get_platform() == "macos" and is_admin():
+    # Temporary directory created for elevated privileges
+    MACOS_TEMP_ROOT_PRIV_DIR = "/tmp/__FIT__"
+
+    def clean_up_temp_dir():
+        if os.path.exists(MACOS_TEMP_ROOT_PRIV_DIR):
+            print(f"Pulizia della directory temporanea: {MACOS_TEMP_ROOT_PRIV_DIR}")
+            shutil.rmtree(MACOS_TEMP_ROOT_PRIV_DIR, ignore_errors=True)
+
+    # Register the cleanup function to run when the program exits
+    atexit.register(clean_up_temp_dir)
 
 
 class AdminPrivilegesCheck(Check):
@@ -36,7 +51,6 @@ class AdminPrivilegesCheck(Check):
             self.process.waitForFinished()
 
     def run_check(self):
-        print("Sono un amministartore: " + str(is_admin()))
         if is_admin() is False:
             dialog = Dialog(USER_IS_NOT_ADMIN_TITLE, USER_IS_NOT_ADMIN_MSG)
             dialog.message.setStyleSheet("font-size: 13px;")
