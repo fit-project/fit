@@ -103,19 +103,28 @@ class AdminPrivilegesCheck(Check):
             else:
                 args = [python_path, current_app]
         elif get_platform() == "win":
-            launch_script = (
-                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            launch_script = "powershell.exe"
+            # window_style = "Normal"
+            # window_style = "Hidden"
+            window_style = "Minimized"
+            # window_style = "Maximized"
+
+            powershell_args = (
+                f"-NoProfile -ExecutionPolicy Bypass -File \"{resolve_path('assets/script/win/launch_fit_with_admin_privileges.ps1')}\" "
+                f'-PythonPath "{python_path}" '
+                f'-AppPath "{current_app}"'
             )
 
             args = [
+                "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
-                "-File",
-                resolve_path("assets/script/win/launch_fit_with_admin_privileges.ps1"),
-                "-PythonPath",
-                python_path,
-                "-AppPath",
-                current_app,
+                "-Command",
+                (
+                    f"Start-Process -FilePath 'powershell.exe' "
+                    f"-ArgumentList '{powershell_args}' "
+                    f"-WindowStyle {window_style}"
+                ),
             ]
 
         elif sys.platform == "lin":

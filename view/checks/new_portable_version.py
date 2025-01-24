@@ -110,18 +110,22 @@ class NewPortableVersionCheck(Check):
             args = [downloaded_file_path, app_dir]
 
         elif get_platform() == "win":
-            app_dir = os.path.dirname(app_dir)
-            launch_script = (
-                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
-            )
+            launch_script = "powershell.exe"
+            window_style = "Normal"
+            # window_style = "Hidden"
+            # window_style = "Minimized"
+            # window_style = "Maximized"
 
             args = [
+                "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
-                "-File",
-                resolve_path("assets/script/win/install_new_portable_version.ps1"),
-                downloaded_file_path,
-                app_dir,
+                "-Command",
+                (
+                    f"Start-Process -FilePath 'powershell.exe' "
+                    f"-ArgumentList '-NoProfile -ExecutionPolicy Bypass -File \"{resolve_path('assets/script/win/install_new_portable_version.ps1')}\" {downloaded_file_path}' "
+                    f"-WindowStyle {window_style}"
+                ),
             ]
         elif sys.platform == "lin":
             app_dir = os.path.dirname(app_dir)
@@ -132,7 +136,7 @@ class NewPortableVersionCheck(Check):
 
         self.process = QtCore.QProcess(self)
         self.process.errorOccurred.connect(self.__on_process_error)
-
+        self.process.started.connect(self.__on_process_started)
         self.process.readyReadStandardError.connect(self.__capture_process_output)
         self.process.readyReadStandardOutput.connect(self.__capture_process_output)
 
@@ -140,38 +144,8 @@ class NewPortableVersionCheck(Check):
 
         self.process.start(launch_script, args)
 
-        self.process.waitForFinished()
-
-        exit_code = self.process.exitCode()
-
-        if exit_code == 0:
-            message = FIT_NEW_VERSION_INSTALLATION_SUCCESS
-            severity = QtWidgets.QMessageBox.Icon.Information
-        else:
-            message = FIT_NEW_VERSION_INSTALLATION_ERROR
-            severity = QtWidgets.QMessageBox.Icon.Warning
-
-        dialog = Dialog(
-            FIT_NEW_VERSION_INSTALLATION_TITLE,
-            message,
-            "",
-            severity,
-        )
-
-        dialog.message.setStyleSheet("font-size: 13px;")
-        dialog.set_buttons_type(DialogButtonTypes.MESSAGE)
-        if exit_code == 0:
-            dialog.right_button.clicked.connect(lambda: dialog.close())
-            dialog.right_button.clicked.connect(self.__quit)
-        else:
-            dialog.right_button.clicked.connect(lambda: dialog.close())
-            dialog.right_button.clicked.connect(
-                lambda: self.finished.emit(status.SUCCESS)
-            )
-
-        dialog.content_box.adjustSize()
-
-        dialog.exec()
+    def __on_process_started(self):
+        QtCore.QTimer.singleShot(1000, self.__quit)
 
     def __quit(self):
         try:

@@ -22,10 +22,12 @@ if (-not (Test-Path $AppPath)) {
 try {
     # Check if Python is specified
     if (-not $PythonPath) {
-        Write-Host "Starting the app without Python..."
+        Write-Host "Starting $AppPath with admin privileges..."
+        Start-Sleep -Seconds 2
         Start-Process -FilePath $AppPath -Verb RunAs
     } else {
-        Write-Host "Starting the app with Python..."
+        Write-Host "Run $PythonPath with admin privileges to start $AppPath"
+        Start-Sleep -Seconds 2
         Start-Process -FilePath $PythonPath -ArgumentList $AppPath -Verb RunAs
     }
 } catch {
@@ -34,3 +36,6 @@ try {
 }
 
 Write-Host "The operation completed successfully." -ForegroundColor Green
+
+Write-Host "Waiting for 10 seconds before exit..."
+Start-Sleep -Seconds 10
