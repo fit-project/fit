@@ -11,7 +11,12 @@ import logging
 import os.path
 
 from PyQt6 import QtCore, QtWidgets, QtGui, uic
-from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
+from PyQt6.QtWebEngineCore import (
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineDownloadRequest,
+)
+
 
 from view.scrapers.web.web_engine_view import WebEngineView, WebEnginePage
 from view.util import (
@@ -227,6 +232,7 @@ class Web(QtWidgets.QMainWindow):
         self.status_message.setHidden(False)
         url = self.tabs.currentWidget().url().toString()
 
+        self.tabs.currentWidget().page().reset_default_path()
         self.acquisition_manager.options["url"] = url
         self.acquisition_manager.options["current_widget"] = self.tabs.currentWidget()
 
@@ -241,7 +247,6 @@ class Web(QtWidgets.QMainWindow):
     def __task_screenrecorder_is_finished(self):
         self.acquisition_status = AcquisitionStatus.UNSTARTED
 
-        self.tabs.currentWidget().reconnect_signal()
         self.acquisition_manager.log_end_message()
         self.acquisition_manager.set_completed_progress_bar()
         self.acquisition_manager.unload_tasks()
@@ -340,6 +345,7 @@ class Web(QtWidgets.QMainWindow):
     def __add_new_tab(self, qurl=None, label="Blank", page=None):
         if qurl is None:
             qurl = QtCore.QUrl("")
+
         self.web_engine_view = WebEngineView()
 
         user_agent = GeneralConfigurationController().configuration["user_agent"]
@@ -358,7 +364,10 @@ class Web(QtWidgets.QMainWindow):
         self.web_engine_view.setPage(page)
 
         self.web_engine_view.setUrl(qurl)
+
         i = self.tabs.addTab(self.web_engine_view, label)
+        if i == 0:
+            self.web_engine_view.set_download_request_handler()
 
         self.tabs.setCurrentIndex(i)
 
@@ -382,6 +391,14 @@ class Web(QtWidgets.QMainWindow):
             lambda qurl: self.__allow_notifications(qurl)
         )
 
+        self.web_engine_view.downloadStarted.connect(
+            self.__handle_download_item_started
+        )
+
+        self.web_engine_view.downloadProgressChanged.connect(
+            self.__handle_download_item_progress
+        )
+
         self.web_engine_view.downloadItemFinished.connect(
             self.__handle_download_item_finished
         )
@@ -389,12 +406,43 @@ class Web(QtWidgets.QMainWindow):
         if i == 0:
             self.showMaximized()
 
-    def __handle_download_item_finished(self, filename):
-        self.status_message.setText(general.DOWNLOAD + ": " + filename)
+    def __handle_download_item_started(self, download):
+
+        self.progress_bar.setValue(0)
+        if self.progress_bar.isHidden():
+            self.progress_bar.setHidden(False)
+
+        self.status_message.setText("")
+        if self.status_message.isHidden():
+            self.status_message.setHidden(False)
+
+    def __handle_download_item_progress(self, bytes_received, bytes_total):
+        if bytes_total > 0:
+            download_percentage = int(bytes_received * 100 / bytes_total)
+            self.progress_bar.setValue(download_percentage)
+
+    def __handle_download_item_finished(self, download):
+
+        filename = download.downloadFileName()
+        directory = download.downloadDirectory()
+        filename = os.path.join(directory, filename)
+        url = download.url()
+
+        for index in range(self.tabs.count()):
+            if self.tabs.widget(index).url() == url:
+                self.tabs.setCurrentIndex(index - 1)
+                self.tabs.removeTab(index)
+
+        self.status_message.setText(general.DOWNLOADED + ": " + filename)
         loop = QtCore.QEventLoop()
         QtCore.QTimer.singleShot(2000, loop.quit)
         loop.exec()
+
+        self.status_message.setHidden(True)
         self.status_message.setText("")
+
+        self.progress_bar.setHidden(True)
+        self.progress_bar.setValue(0)
 
     def __page_on_loaded(self, tab_index, browser):
         self.tabs.setTabText(tab_index, browser.page().title())
@@ -404,11 +452,6 @@ class Web(QtWidgets.QMainWindow):
             self.add_new_tab()
 
     def current_tab_changed(self, i):
-        self.tabs.currentWidget().page().profile().disconnect()  # Disconnect the current tab
-        for index in range(self.tabs.count()):
-            if self.tabs.widget(index) == self.tabs.currentWidget():
-                self.tabs.currentWidget().reconnect()  # Reconnect only the new current tab
-
         if self.tabs.currentWidget() is not None:
             qurl = self.tabs.currentWidget().url()
             self.__update_urlbar(qurl, self.tabs.currentWidget())

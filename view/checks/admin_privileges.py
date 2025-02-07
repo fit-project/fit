@@ -24,23 +24,26 @@ from common.constants.view.initial_checks import (
     USER_IS_NOT_ADMIN_MSG,
 )
 
+MACOS_TEMP_ROOT_PRIV_DIR = "/tmp/__FIT__"
+MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT = (
+    "/tmp/fit_launch_fit_with_admin_privileges.sh"
+)
 
 if get_platform() == "macos" and is_admin():
-    # Temporary directory created for elevated privileges
-    MACOS_TEMP_ROOT_PRIV_DIR = "/tmp/__FIT__"
 
-    def clean_up_temp_dir():
+    def clean_up_temp_fit_dir():
         if os.path.exists(MACOS_TEMP_ROOT_PRIV_DIR):
-            print(f"Pulizia della directory temporanea: {MACOS_TEMP_ROOT_PRIV_DIR}")
             shutil.rmtree(MACOS_TEMP_ROOT_PRIV_DIR, ignore_errors=True)
 
-    # Register the cleanup function to run when the program exits
-    atexit.register(clean_up_temp_dir)
+    atexit.register(clean_up_temp_fit_dir)
 
 
 class AdminPrivilegesCheck(Check):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        if os.path.exists(MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT):
+            os.remove(MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT)
 
     def __del__(self):
         if (
@@ -95,13 +98,21 @@ class AdminPrivilegesCheck(Check):
         python_path = sys.executable
 
         if get_platform() == "macos":
-            launch_script = resolve_path(
+            original_script = resolve_path(
                 "assets/script/mac/launch_fit_with_admin_privileges.sh"
             )
+
+            shutil.copy(original_script, MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT)
+            os.chmod(MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT, 0o777)
+            os.chown(MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT, os.getuid(), -1)
+
+            launch_script = MACOS_TEMP_ADMIN_PRIVILEGES_LAUNCH_SCRIPT
+
             if getattr(sys, "frozen", False):
                 args = ["", current_app]
             else:
                 args = [python_path, current_app]
+
         elif get_platform() == "win":
             launch_script = "powershell.exe"
             # window_style = "Normal"
@@ -146,6 +157,8 @@ class AdminPrivilegesCheck(Check):
         self.process_output = ""  # Buffer to store process output
 
         self.process.start(launch_script, args)
+
+        self.process.waitForReadyRead()
 
     def __on_process_started(self):
         QtCore.QTimer.singleShot(1000, self.__quit)

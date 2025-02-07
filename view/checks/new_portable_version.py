@@ -9,6 +9,7 @@
 
 import sys
 import os
+import shutil
 
 from PyQt6 import QtWidgets, QtCore
 
@@ -34,15 +35,19 @@ from common.constants.view.initial_checks import (
     FIT_NEW_VERSION_DOWNLOAD_TITLE,
     FIT_NEW_VERSION_DOWNLOAD_MSG,
     FIT_NEW_VERSION_DOWNLOAD_ERROR,
-    FIT_NEW_VERSION_INSTALLATION_TITLE,
-    FIT_NEW_VERSION_INSTALLATION_ERROR,
-    FIT_NEW_VERSION_INSTALLATION_SUCCESS,
+)
+
+MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT = (
+    "/tmp/fit_install_new_portable_version.sh"
 )
 
 
 class NewPortableVersionCheck(Check):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        if os.path.exists(MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT):
+            os.remove(MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT)
 
     def run_check(self):
         if getattr(sys, "frozen", False) and has_new_portable_version():
@@ -100,14 +105,49 @@ class NewPortableVersionCheck(Check):
         app_dir = os.path.abspath(sys.executable)
 
         if get_platform() == "macos":
+            macos_temp_root_priv_dir = "/tmp/__FIT__"
+            if macos_temp_root_priv_dir in app_dir:
+                try:
+                    with open(
+                        os.path.join(
+                            macos_temp_root_priv_dir, "original_app_path_and_user"
+                        ),
+                        "r",
+                        encoding="utf-8",
+                    ) as file:
+                        original_app_path_and_user = file.read()
+                        original_app_path_and_user = original_app_path_and_user.split(
+                            ":"
+                        )
+                        app_dir = original_app_path_and_user[0]
+                        uid = original_app_path_and_user[1]
+                except FileNotFoundError:
+                    if self.debug_mode:
+                        print(f"{app_dir} doesn't exist")
+                except IOError as e:
+                    if self.debug_mode:
+                        print(f"Error while reading file: {e}")
+            else:
+                uid = os.getuid()
+
             if ".app/Contents/MacOS" in app_dir:
                 app_dir = os.path.dirname(os.path.dirname(os.path.dirname(app_dir)))
 
-            launch_script = resolve_path(
+            script_path = resolve_path(
                 "assets/script/mac/install_new_portable_version.sh"
             )
 
-            args = [downloaded_file_path, app_dir]
+            shutil.copy(script_path, MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT)
+            os.chmod(MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT, 0o777)
+            os.chown(MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT, int(uid), -1)
+
+            launch_script = "bash"
+            command = (
+                f'osascript -e \'tell application "Terminal" to do script '
+                f'"bash \\"{MACOS_TEMP_INSTALL_NEW_PORTABLE_VERSION_SCRIPT}\\" {downloaded_file_path} {app_dir}"\''
+            )
+
+            args = ["-c", command]
 
         elif get_platform() == "win":
             launch_script = "powershell.exe"
