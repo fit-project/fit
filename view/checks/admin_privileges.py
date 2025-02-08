@@ -158,8 +158,6 @@ class AdminPrivilegesCheck(Check):
 
         self.process.start(launch_script, args)
 
-        self.process.waitForReadyRead()
-
     def __on_process_started(self):
         QtCore.QTimer.singleShot(1000, self.__quit)
 
