@@ -55,18 +55,19 @@ class AdminPrivilegesCheck(Check):
 
     def run_check(self):
         if is_admin() is False:
-            dialog = Dialog(USER_IS_NOT_ADMIN_TITLE, USER_IS_NOT_ADMIN_MSG)
-            dialog.message.setStyleSheet("font-size: 13px;")
-            dialog.set_buttons_type(DialogButtonTypes.QUESTION)
-            dialog.right_button.clicked.connect(
-                lambda: self.__run_fit_with_user_privileges(dialog)
-            )
-            dialog.left_button.clicked.connect(
-                lambda: self.__run_fit_with_admin_privileges(dialog)
-            )
-            dialog.content_box.adjustSize()
+            # dialog = Dialog(USER_IS_NOT_ADMIN_TITLE, USER_IS_NOT_ADMIN_MSG)
+            # dialog.message.setStyleSheet("font-size: 13px;")
+            # dialog.set_buttons_type(DialogButtonTypes.QUESTION)
+            # dialog.right_button.clicked.connect(
+            #     lambda: self.__run_fit_with_user_privileges(dialog)
+            # )
+            # dialog.left_button.clicked.connect(
+            #     lambda: self.__run_fit_with_admin_privileges(dialog)
+            # )
+            # dialog.content_box.adjustSize()
 
-            dialog.exec()
+            # dialog.exec()
+            self.finished.emit(status.FAIL)
         else:
             self.finished.emit(status.SUCCESS)
 

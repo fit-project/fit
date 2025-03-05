@@ -27,7 +27,7 @@ class InitialChecks(QtCore.QObject):
         super().__init__(parent)
         self.predefined_order = [
             "NetworkCheck",
-            #"AdminPrivilegesCheck",
+            "AdminPrivilegesCheck",
             "NpcapInstalledCheck",
             "NvidiaGPUInstalledCheck",
             #"NewPortableVersionCheck",
