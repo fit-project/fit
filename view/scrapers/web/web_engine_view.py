@@ -14,7 +14,6 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
-from PyQt6.QtWidgets import QFileDialog
 
 
 class WebEngineProfile(object):
@@ -35,6 +34,7 @@ class WebEnginePage(QWebEnginePage):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.__default_profile = WebEngineProfile()
 
     def handleCertificateError(self, error):
         error.acceptCertificate()
@@ -46,40 +46,35 @@ class WebEnginePage(QWebEnginePage):
         _type,
     ):
         page = WebEnginePage(self)
+        page.profile().setDownloadPath(self.profile().downloadPath())
         self.new_page_after_link_with_target_blank_attribute.emit(page)
         return page
+
+    def reset_default_path(self):
+        self.profile().setDownloadPath(self.__default_profile.default_download_path)
 
 
 class WebEngineView(QWebEngineView):
     saveResourcesFinished = pyqtSignal()
-    downloadItemFinished = pyqtSignal(str)
+    downloadItemFinished = pyqtSignal(QWebEngineDownloadRequest)
+    downloadProgressChanged = pyqtSignal(int, int)
+    downloadStarted = pyqtSignal(QWebEngineDownloadRequest)
+    downloadError = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.singleton = WebEngineProfile()
 
-    def reconnect(self):
-        self.selected_directory = self.singleton.default_download_path
-
-        self.page().profile().setDownloadPath(self.selected_directory)
-        self.page().profile().downloadRequested.connect(self.__retrieve_download_item)
+    def set_download_request_handler(self):
         self.page().profile().downloadRequested.connect(self.__handle_download_request)
 
-    def set_acquisition_dir(self, directory):
-        self.acquisition_directory = directory
-        self.selected_directory = os.path.join(self.acquisition_directory, "downloads")
-        if not os.path.isdir(self.selected_directory):
-            os.makedirs(self.selected_directory)
-        self.page().profile().setDownloadPath(self.selected_directory)
+    def set_acquisition_dir(self, acquisition_directory):
+        default_download_path = os.path.join(acquisition_directory, "downloads")
+        if not os.path.isdir(default_download_path):
+            os.makedirs(default_download_path)
 
-    def write_html_to_file(html):
-        with open("index.html", "w") as f:
-            f.write(html)
+        self.page().profile().setDownloadPath(default_download_path)
 
     def save_resources(self, acquisition_page_folder):
-        self.page().profile().downloadRequested.disconnect(
-            self.__handle_download_request
-        )
         hostname = urlparse(self.url().toString()).hostname
         if not hostname:
             hostname = "unknown"
@@ -89,33 +84,32 @@ class WebEngineView(QWebEngineView):
             format=QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat,
         )
 
-    def reconnect_signal(self):
-        self.page().profile().downloadRequested.connect(self.__handle_download_request)
-
-    def disconnect_signals(self):
-        self.page().profile().downloadRequested.disconnect(
-            self.__retrieve_download_item
-        )
-        self.page().profile().downloadRequested.disconnect(
-            self.__handle_download_request
-        )
-
     def __handle_download_request(self, download):
-        if not os.path.isdir(self.selected_directory):
-            self.selected_directory = self.singleton.default_download_path
-        file_dialog = QFileDialog()
-        file_dialog.setFileMode(QFileDialog.FileMode.Directory)
-        file_dialog.setDirectory(self.selected_directory)
-        filename = download.downloadFileName()
-        download.isFinishedChanged.connect(
-            lambda: self.downloadItemFinished.emit(filename)
-        )
-        if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
-            self.selected_directory = file_dialog.selectedFiles()[0]
-            download.accept()
 
-    def __retrieve_download_item(self, download_item):
-        download_item.isFinishedChanged.connect(self.saveResourcesFinished.emit)
+        if download.isSavePageDownload():
+            download.isFinishedChanged.connect(self.saveResourcesFinished.emit)
+
+        else:
+            self.downloadStarted.emit(download)
+
+            download.receivedBytesChanged.connect(
+                lambda: self.downloadProgressChanged.emit(
+                    download.receivedBytes(),
+                    download.totalBytes(),
+                )
+            )
+            download.totalBytesChanged.connect(
+                lambda: self.downloadProgressChanged.emit(
+                    download.receivedBytes(),
+                    download.totalBytes(),
+                )
+            )
+
+            download.isFinishedChanged.connect(
+                lambda: self.downloadItemFinished.emit(download)
+            )
+
+            download.accept()
 
     def closeEvent(self, event):
         self.page().profile().clearHttpCache()
