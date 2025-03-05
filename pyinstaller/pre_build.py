@@ -33,10 +33,13 @@ def get_version():
 
 
 def update_version_in_pyproject_toml():
+    stripped_version = VERSION[1:] if VERSION.startswith("v") else VERSION
+
     with open("pyproject.toml", "r") as file:
         content = file.read()
+
     new_content = re.sub(
-        r'version\s*=\s*"[0-9a-zA-Z.-]+"', f'version = "{VERSION}"', content
+        r'version\s*=\s*"[0-9a-zA-Z.-]+"', f'version = "{stripped_version}"', content
     )
 
     with open("pyproject.toml", "w") as file:
@@ -59,7 +62,7 @@ def update_version():
     update_version_in_config_ini()
 
 
-VERSION = get_version()
+VERSION = "2.0.0"  # get_version()
 
 if VERSION is not None:
     update_version()

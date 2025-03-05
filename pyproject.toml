@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fit"
-version = "v.2.0.1"
+version = "2.0.0"
 description = "FIT is a Python3 application for forensic acquisition of contents like web pages, emails, social media, etc. directly from the internet."
 authors = ["Fit Project <info@fit-project.org>"]
 license = "GPL-3.0-only"
@@ -41,3 +41,6 @@ pyqt6-webenginesubwheel-qt6 = "6.7.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+#[tool.poetry.scripts]
+#post-install = "poetry_plugin.post_install:post_install"

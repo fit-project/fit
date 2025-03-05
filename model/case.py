@@ -10,6 +10,7 @@
 from model.db import Db
 
 import os
+import stat
 import re
 
 from sqlalchemy import ForeignKey, Column, Integer, String, Text, LargeBinary
@@ -79,22 +80,34 @@ class Case(Base):
             return file.read()
 
     def create_acquisition_directory(self, directories):
-        acquisition_type_directory = os.path.join(
-            os.path.expanduser(directories.get("cases_folder")),
-            directories.get("case_folder"),
-            directories.get("acquisition_type_folder"),
-        )
 
-        acquisition_directory = os.path.join(
-            acquisition_type_directory, "acquisition_1"
+        cases_folder = os.path.expanduser(directories.get("cases_folder"))
+        if not os.path.exists(cases_folder):
+            os.makedirs(cases_folder)
+            os.chmod(cases_folder, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+        case_folder = os.path.join(cases_folder, directories.get("case_folder"))
+        if not os.path.exists(case_folder):
+            os.makedirs(case_folder)
+            os.chmod(case_folder, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+        acquisition_type_folder = os.path.join(
+            case_folder, directories.get("acquisition_type_folder")
         )
+        if not os.path.exists(acquisition_type_folder):
+            os.makedirs(acquisition_type_folder)
+            os.chmod(
+                acquisition_type_folder, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
+            )
+
+        acquisition_directory = os.path.join(acquisition_type_folder, "acquisition_1")
 
         if os.path.isdir(acquisition_directory):
             # Get all subdirectories from acquisition directory
             acquisition_directories = [
                 d
-                for d in os.listdir(acquisition_type_directory)
-                if os.path.isdir(os.path.join(acquisition_type_directory, d))
+                for d in os.listdir(acquisition_type_folder)
+                if os.path.isdir(os.path.join(acquisition_type_folder, d))
             ]
 
             # get only directories with the right "name". This resolve issue 109
@@ -115,10 +128,10 @@ class Case(Base):
 
             # Increment index and create the new content folder
             acquisition_directory = os.path.join(
-                acquisition_type_directory, "acquisition_" + str(index + 1)
+                acquisition_type_folder, "acquisition_" + str(index + 1)
             )
 
-        os.makedirs(acquisition_directory)
+        os.makedirs(acquisition_directory, exist_ok=True)
 
         return acquisition_directory
 

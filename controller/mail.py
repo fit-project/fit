@@ -18,9 +18,6 @@ import re
 import sys
 import time
 import locale
-import pyzmail
-
-from common.constants import error, details as Details, logger as Logger
 
 
 class Mail:
@@ -196,10 +193,17 @@ class Mail:
             uid_end = metadata.find(" ", uid_start)
             uid = metadata[uid_start:uid_end]
 
-            date_start = metadata.find('INTERNALDATE "') + 14
-            date_end = metadata.find('"', date_start)
-            internal_date_str = metadata[date_start:date_end]
-            internal_date = parsedate_to_datetime(internal_date_str)
+            match = re.search(r'INTERNALDATE\s+"([^"]+)"', metadata)
+            internal_date_str = None
+
+            if match:
+                internal_date_str = match.group(1)
+            # gmail workaroud
+            else:
+                internal_date = self.__extract_internal_date(data)
+
+            if internal_date_str is not None:
+                internal_date = parsedate_to_datetime(internal_date_str)
 
             self.acquisition_emails_log += (
                 "=========================================================\n"
@@ -243,6 +247,24 @@ class Mail:
             os.path.join(acquisition_directory, "acquisition_emails.log"), "w"
         ) as f:
             f.write(self.acquisition_emails_log)
+
+    # gmail workaround
+    def __extract_internal_date(self, data):
+        internaldate = None
+        for item in data:
+            if isinstance(item, tuple):
+                for part in item:
+                    if isinstance(part, bytes):
+                        response = part.decode("utf-8", errors="ignore")
+                        match = re.search(r'INTERNALDATE\s+"([^"]+)"', response)
+                        if match:
+                            internaldate = match.group(1)
+            elif isinstance(item, bytes):
+                response = item.decode("utf-8", errors="ignore")
+                match = re.search(r'INTERNALDATE\s+"([^"]+)"', response)
+                if match:
+                    internaldate = match.group(1)
+        return internaldate
 
     # unused methods
     """def download_single_messages(self, mail_dir, emails_dict):

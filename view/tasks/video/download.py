@@ -39,7 +39,6 @@ class VideoDownloadWorker(QObject):
             try:
                 method()
             except Exception as e:
-                print(method)
                 self.error.emit(
                     {
                         "title": video.INVALID_URL,
