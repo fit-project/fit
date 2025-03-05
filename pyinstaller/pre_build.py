@@ -62,7 +62,7 @@ def update_version():
     update_version_in_config_ini()
 
 
-VERSION = "2.0.0"  # get_version()
+VERSION = get_version()
 
 if VERSION is not None:
     update_version()

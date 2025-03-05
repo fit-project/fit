@@ -27,10 +27,10 @@ class InitialChecks(QtCore.QObject):
         super().__init__(parent)
         self.predefined_order = [
             "NetworkCheck",
-            "AdminPrivilegesCheck",
+            #"AdminPrivilegesCheck",
             "NpcapInstalledCheck",
             "NvidiaGPUInstalledCheck",
-            "NewPortableVersionCheck",
+            #"NewPortableVersionCheck",
             "FFmpegInstalledCheck",
         ]
         self.module_instances = self.__load_checks_modules()
