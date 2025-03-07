@@ -8,12 +8,12 @@
 ######
 import sys
 import ctypes
+import os
+import signal
 
 from PyQt6 import QtWidgets, QtGui
 from common.utility import resolve_path, get_platform
 
-
-from view.checks.initial_checks import InitialChecks
 from view.wizard import Wizard as WizardView
 from view.scrapers.web.web import Web as WebView
 from view.scrapers.mail.mail import Mail as MailView
@@ -23,8 +23,28 @@ from view.scrapers.entire_website.entire_website import (
     EntireWebsite as EntireWebsiteView,
 )
 
+
+class FitApplication(QtWidgets.QApplication):
+    def __init__(self, argv, fit_bootstrap_pid):
+        super().__init__(argv)
+        self.fit_bootstrap_pid = fit_bootstrap_pid
+
+
+class FitWizard(WizardView):
+    def __init__(self, fit_bootstrap_pid):
+        super().__init__()
+        self.fit_bootstrap_pid = fit_bootstrap_pid
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.fit_bootstrap_pid:
+            print("Finestra di Fit visibile! Notifico fit-bootstrap...")
+            os.kill(self.fit_bootstrap_pid, signal.SIGTERM)
+
+
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    fit_bootstrap_pid = int(sys.argv[1]) if len(sys.argv) > 1 else None
+    app = FitApplication(sys.argv, fit_bootstrap_pid)
 
     if get_platform() == "win":
         app_id = "org.fit-project.fit"
@@ -51,13 +71,10 @@ if __name__ == "__main__":
         acquisition_window.init(case_info, wizard, options)
         acquisition_window.show()
 
-    initial_checks = InitialChecks()
-    wizard = WizardView()
+    wizard = FitWizard(fit_bootstrap_pid)
+    wizard.show()
 
-    initial_checks.finished.connect(wizard.show)
     # Wizard sends a signal when start button is clicked and case is stored on the DB
     wizard.finished.connect(lambda task, case_info: start_task(task, case_info))
-
-    initial_checks.run_checks()
 
     sys.exit(app.exec())
