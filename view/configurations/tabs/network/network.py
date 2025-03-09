@@ -45,6 +45,12 @@ class Network(Tab):
             QtWidgets.QCheckBox, "ssl_certificate"
         )
 
+        self.traceroute.setEnabled(False)
+
+        app = QtWidgets.QApplication.instance()
+        if app.user_type == "admin" and app.npcap_flag != "--no-npcap":
+            self.traceroute.setEnabled(True)
+
         # NTP SERVER
         self.ntp_server = self.tab.findChild(QtWidgets.QLineEdit, "ntp_server")
         # NSLOOKUP DNS SERVER
