@@ -5,7 +5,7 @@ a = Analysis(
     ['fit.py'],
     pathex=[],
     binaries=[],
-    datas=[('./assets', 'assets'), ('./ui', 'ui'), ('./icon.ico', 'icon.ico'), ('./pyinstaller/windows/whois/data', 'whois/data')],
+    datas = [('../../assets', './assets'), ('../../ui', './ui'), ('../../icon.ico', './icon.ico'), ("../windows/whois/data", "./whois/data")],
     hiddenimports=['reportlab.graphics.barcode.code128', 'view.acquisition', 'view.configurations', 'view.tasks', 'numpy'],
     hookspath=['./pyinstaller/hooks'],
     hooksconfig={},
@@ -32,7 +32,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['./pyinstaller/icon.png'],
+    icon=['../icon.png'],
 )
 coll = COLLECT(
     exe,
