@@ -33,6 +33,7 @@ pyqt6-qt6 = "6.7.2"
 pyqt6-webengine = "6.7.0"
 pyqt6-webengine-qt6 = "6.7.1"
 pyqt6-webenginesubwheel-qt6 = "6.7.1"
+packaging = "^24.2"
 
 [poetry.group.dev.dependencies]
 

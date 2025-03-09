@@ -84,8 +84,6 @@ if __name__ == "__main__":
         sys.argv, fit_bootstrap_pid, user_type, ffmpeg_flag, npcap_flag
     )
 
-    fit_bootstrap_pid = None
-
     if get_platform() == "win":
         app_id = "org.fit-project.fit"
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)

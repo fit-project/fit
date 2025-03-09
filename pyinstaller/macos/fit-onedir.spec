@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['fit.py'],
+    ['../../fit.py'],
     pathex=[],
     binaries=[],
     datas = [('../../assets', './assets'), ('../../ui', './ui'), ('../../icon.ico', './icon.ico'), ("../windows/whois/data", "./whois/data")],
