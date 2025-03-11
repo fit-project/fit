@@ -8,14 +8,13 @@
 ######
 
 import sys
+import argparse
 import ctypes
 import os
 import stat
-import sys
 import subprocess
 
 from PyQt6 import QtWidgets, QtGui
-
 
 from view.wizard import Wizard as WizardView
 from view.scrapers.web.web import Web as WebView
@@ -27,14 +26,61 @@ from view.scrapers.entire_website.entire_website import (
 )
 
 from view.util import disable_network_functionality, enable_network_functionality
-from common.utility import resolve_path, get_platform
+from common.utility import resolve_path, get_platform, debug_log
+import common.config_debug
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Start FIT application")
+
+    parser.add_argument(
+        "fit_bootstrap_pid",
+        nargs="?",
+        type=int,
+        default=None,
+        help="Fit bootstrap process ID (optional)",
+    )
+
+    parser.add_argument(
+        "user_type",
+        nargs="?",
+        choices=["user", "admin"],
+        default=None,
+        help="User type (optional: 'user' or 'admin')",
+    )
+
+    parser.add_argument(
+        "ffmpeg_flag",
+        nargs="?",
+        choices=["--no-ffmpeg"],
+        default=None,
+        help="Disable FFmpeg support (optional: '--no-ffmpeg')",
+    )
+
+    parser.add_argument(
+        "npcap_flag",
+        nargs="?",
+        choices=["--no-npcap"],
+        default=None,
+        help="Disable Npcap support (optional: '--no-npcap')",
+    )
+
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+
+    args = parser.parse_args()
+
+    if args.debug:
+        common.config_debug.set_debug_mode(True)
+
+    return args.fit_bootstrap_pid, args.user_type, args.ffmpeg_flag, args.npcap_flag
 
 
 def get_shared_temp_dir():
-    if get_platform() == "win":
-        return "C:\\ProgramData\\fit-bootstrap"
-    else:
-        return "/var/tmp/fit-bootstrap"
+    return (
+        "C:\\ProgramData\\fit-bootstrap"
+        if get_platform() == "win"
+        else "/var/tmp/fit-bootstrap"
+    )
 
 
 def notify_fit_bootstrap(fit_bootstrap_pid):
@@ -50,6 +96,7 @@ def notify_fit_bootstrap(fit_bootstrap_pid):
             subprocess.run(["icacls", ready_file, "/grant", "Everyone:F"], check=True)
         else:
             os.chmod(ready_file, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
     except Exception as e:
         pass
 
@@ -75,10 +122,7 @@ class FitWizard(WizardView):
 
 
 if __name__ == "__main__":
-    fit_bootstrap_pid = int(sys.argv[1]) if len(sys.argv) > 1 else None
-    user_type = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != "null" else None
-    ffmpeg_flag = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != "null" else None
-    npcap_flag = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] != "null" else None
+    fit_bootstrap_pid, user_type, ffmpeg_flag, npcap_flag = parse_args()
 
     app = FitApplication(
         sys.argv, fit_bootstrap_pid, user_type, ffmpeg_flag, npcap_flag
@@ -90,11 +134,14 @@ if __name__ == "__main__":
 
     app.setWindowIcon(QtGui.QIcon(resolve_path("icon.ico")))
 
+    debug_log("Starting fit...")
+
     acquisition_window = None
 
     def start_task(task, case_info):
         global acquisition_window
         options = {}
+
         if task == "web":
             acquisition_window = WebView()
         elif task == "mail":

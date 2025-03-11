@@ -48,6 +48,13 @@ from contextlib import redirect_stdout
 
 from nslookup import Nslookup
 
+import common.config_debug
+
+
+def debug_log(message):
+    if common.config_debug.DEBUG_MODE:
+        print(f"[DEBUG] {message}")
+
 
 def get_platform():
     platforms = {
