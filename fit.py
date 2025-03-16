@@ -30,49 +30,73 @@ from common.utility import resolve_path, get_platform, debug_log
 import common.config_debug
 
 
+import sys
+
+
 def parse_args():
-    parser = argparse.ArgumentParser(description="Start FIT application")
+    parser = argparse.ArgumentParser(
+        description="Start FIT application",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
     parser.add_argument(
         "fit_bootstrap_pid",
         nargs="?",
         type=int,
         default=None,
-        help="Fit bootstrap process ID (optional)",
+        help="FIT bootstrap process ID (default: None)",
     )
 
     parser.add_argument(
         "user_type",
         nargs="?",
         choices=["user", "admin"],
-        default=None,
-        help="User type (optional: 'user' or 'admin')",
+        default="user",
+        help="Specify user privileges:\n"
+        "- 'user' (default): Standard user mode.\n"
+        "- 'admin': The user executing FIT has administrative privileges.\n"
+        "  If not running as admin, it will not be possible to capture network traffic and execute traceroute.",
     )
 
     parser.add_argument(
-        "ffmpeg_flag",
-        nargs="?",
-        choices=["--no-ffmpeg"],
-        default=None,
-        help="Disable FFmpeg support (optional: '--no-ffmpeg')",
+        "--with-ffmpeg",
+        action="store_true",
+        help="Enable FFmpeg support for media processing.",
     )
 
     parser.add_argument(
-        "npcap_flag",
-        nargs="?",
-        choices=["--no-npcap"],
-        default=None,
-        help="Disable Npcap support (optional: '--no-npcap')",
+        "--without-ffmpeg",
+        action="store_true",
+        help="Disable FFmpeg support (default).",
     )
 
-    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    if get_platform() == "win":
+        parser.add_argument(
+            "--with-npcap",
+            action="store_true",
+            help="Enable Npcap support (only on Windows) to capture network traffic.",
+        )
+
+        parser.add_argument(
+            "--without-npcap",
+            action="store_true",
+            help="Disable Npcap support (default, only on Windows). Without Npcap, it will not be possible to capture network traffic.",
+        )
+
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode.")
 
     args = parser.parse_args()
+
+    ffmpeg_flag = "--with-ffmpeg" if args.with_ffmpeg else "--without-ffmpeg"
+
+    npcap_flag = "--without-npcap"
+    if get_platform() == "win":
+        npcap_flag = "--with-npcap" if args.with_npcap else "--without-npcap"
 
     if args.debug:
         common.config_debug.set_debug_mode(True)
 
-    return args.fit_bootstrap_pid, args.user_type, args.ffmpeg_flag, args.npcap_flag
+    return args.fit_bootstrap_pid, args.user_type, ffmpeg_flag, npcap_flag
 
 
 def get_shared_temp_dir():

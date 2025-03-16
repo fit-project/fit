@@ -3,12 +3,31 @@
 
 block_cipher = None
 
+datas = [
+    ('../../assets/config.ini', './assets/config.ini'),
+    ('../../assets/templates/front.html', './assets/templates/front.html'),
+    ('../../assets/templates/template_verification.html', './assets/templates/template_verification.html'),
+    ('../../assets/templates/template_pec.html', './assets/templates/template_pec.html'),
+    ('../../assets/templates/template_web.html', './assets/templates/template_web.html'),
+    ('../../assets/templates/template_web_no_whois.html', './assets/templates/template_web_no_whois.html'),
+    ('../../assets/templates/template_email.html', './assets/templates/template_email.html'),
+    ('../../assets/branding/FIT-640.png', './assets/branding/FIT-640.png'),
+    ('../../assets/svg/FIT.svg', './assets/svg/FIT.svg'),
+    ('../../assets/images/no-preview.png', './assets/images/no-preview.png'),
+    ('../../assets/images/loader.gif', './assets/images/loader.gif'),
+    ('../../ui', './ui'),
+    ('../../icon.ico', './icon.ico'),
+    ("../windows/whois/data", "./whois/data"),
+    ('../../ext_lib', './ext_lib')
+]
+
+
 
 a = Analysis(
     ["..\\..\\fit.py"],
     pathex=[],
     binaries=[],
-    datas=[("./whois/data", "./whois/data"), ("../../assets", "./assets"), ('../../ui', './ui'), ('../../icon.ico', './icon.ico'), ('../../ext_lib', './ext_lib')],
+    datas=datas,
     hiddenimports=[],
     hookspath=["./pyinstaller/hooks"],
     hooksconfig={},

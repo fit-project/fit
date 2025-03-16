@@ -5,7 +5,23 @@ import subprocess
 from pathlib import Path
 from shutil import copy, move
 
-datas = [('../../assets', './assets'), ('../../ui', './ui'), ('../../icon.ico', './icon.ico'), ("../windows/whois/data", "./whois/data")]
+datas = [
+    ('../../assets/config.ini', './assets/config.ini'),
+    ('../../assets/templates/front.html', './assets/templates/front.html'),
+    ('../../assets/templates/template_verification.html', './assets/templates/template_verification.html'),
+    ('../../assets/templates/template_pec.html', './assets/templates/template_pec.html'),
+    ('../../assets/templates/template_web.html', './assets/templates/template_web.html'),
+    ('../../assets/templates/template_web_no_whois.html', './assets/templates/template_web_no_whois.html'),
+    ('../../assets/templates/template_email.html', './assets/templates/template_email.html'),
+    ('../../assets/branding/FIT-640.png', './assets/branding/FIT-640.png'),
+    ('../../assets/svg/FIT.svg', './assets/svg/FIT.svg'),
+    ('../../assets/images/no-preview.png', './assets/images/no-preview.png'),
+    ('../../assets/images/loader.gif', './assets/images/loader.gif'),
+    ('../../ui', './ui'),
+    ('../../icon.ico', './icon.ico'),
+    ("../windows/whois/data", "./whois/data")
+]
+
 
 config = runpy.run_path("./pyinstaller/pre_build.py")
 version = config.get("VERSION")
