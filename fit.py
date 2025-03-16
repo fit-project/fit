@@ -182,7 +182,9 @@ if __name__ == "__main__":
 
     wizard = FitWizard(fit_bootstrap_pid)
 
-    if user_type == "admin" and npcap_flag != "--no-npcap":
+    if user_type == "admin" and (
+        get_platform() != "win" or npcap_flag == "--with-npcap"
+    ):
         enable_network_functionality()
     else:
         disable_network_functionality()
