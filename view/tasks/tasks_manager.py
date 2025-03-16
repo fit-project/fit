@@ -33,8 +33,6 @@ from controller.configurations.tabs.network.networktools import (
     NetworkTools as NetworkToolsController,
 )
 
-from common.utility import is_npcap_installed, get_platform
-
 
 class TasksManager(QObject):
     all_task_list_completed = pyqtSignal()

@@ -48,6 +48,13 @@ from contextlib import redirect_stdout
 
 from nslookup import Nslookup
 
+import common.config_debug
+
+
+def debug_log(message):
+    if common.config_debug.DEBUG_MODE:
+        print(f"[DEBUG] {message}")
+
 
 def get_platform():
     platforms = {
@@ -64,19 +71,6 @@ def get_platform():
     return platforms[sys.platform]
 
 
-def is_admin():
-    is_admin = False
-    try:
-        is_admin = os.getuid() == 0
-    except AttributeError:
-        if get_platform() == "win":
-            import windows_tools.users as users
-
-            is_admin = users.is_user_local_admin(os.getlogin())
-
-    return is_admin
-
-
 def resolve_path(path):
     if getattr(sys, "frozen", False):
         # If the 'frozen' flag is set, we are in bundled-app mode!
@@ -86,78 +80,6 @@ def resolve_path(path):
         resolved_path = os.path.abspath(os.path.join(os.getcwd(), path))
 
     return resolved_path
-
-
-def get_executable_path():
-    if getattr(sys, "frozen", False):
-
-        if sys.platform == "win32":
-            resolve_executable_path = os.path.abspath(os.getcwd())
-        elif sys.platform == "darwin":
-            import macos_application_location
-
-            resolve_executable_path = os.path.abspath(
-                str(macos_application_location.get().parent)
-            )
-        else:
-            resolve_executable_path = os.path.abspath(os.getcwd())
-    else:
-        resolve_executable_path = os.path.abspath(os.getcwd())
-
-    return resolve_executable_path
-
-
-def check_internet_connection():
-    try:
-        parser = SafeConfigParser()
-        parser.read(resolve_path("assets/config.ini"))
-        url = parser.get("fit_properties", "check_connection_url")
-        urllib.request.urlopen(url)
-        return True
-    except:
-        return False
-
-
-def is_npcap_installed():
-    # reference https://npcap.com/guide/npcap-devguide.html section (Install-time detection)
-    return os.path.exists("C:\\Program Files\\Npcap\\NPFInstall.exe")
-
-
-def get_npcap_installer_url():
-    parser = ConfigParser()
-    parser.read(resolve_path("assets/config.ini"))
-    url = parser.get("fit_properties", "npcap_latest_version_url")
-    installer_url = None
-    with requests.get(url, stream=True, timeout=10, verify=False) as response:
-        try:
-            version = response.json()["name"]
-            if version == "":
-                version = response.json()["tag_name"]
-                version = "npcap {}".format(version[1:])
-
-            version = version.lower()
-            version = version.replace(" ", "-")
-            installer_url = parser.get("fit_properties", "npcap_installer_url")
-            return installer_url + version + ".exe"
-        except Exception as e:
-            raise Exception(e)
-
-
-def get_portable_download_url():
-    parser = ConfigParser()
-    parser.read(resolve_path("assets/config.ini"))
-    url = parser.get("fit_properties", "fit_latest_version_url")
-    installer_url = None
-    with requests.get(url, stream=True, timeout=10, verify=False) as response:
-        try:
-            assets = response.json()["assets"]
-            for asset in assets:
-                if get_platform() in asset.get("browser_download_url"):
-                    installer_url = asset.get("browser_download_url")
-                    break
-            return installer_url
-        except Exception as e:
-            raise Exception(e)
 
 
 def has_new_portable_version():
@@ -336,50 +258,6 @@ def import_modules(start_path, start_module_name=""):
 
 def is_cmd(name):
     return distutils.spawn.find_executable(name) is not None
-
-
-def is_nvidia_gpu_installed():
-    is_present = bool(is_cmd("nvidia-smi"))
-
-    if is_present is False:
-        if get_platform() == "win":
-            try:
-                result = subprocess.run(
-                    ["wmic", "path", "win32_VideoController", "get", "name"],
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                )
-                is_present = "NVIDIA" in result.stdout
-            except FileNotFoundError:
-                is_present = False
-
-            if is_present is False:
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    dxdiag_output_path = os.path.join(temp_dir, "dxdiag_output.txt")
-                    try:
-                        subprocess.run(["dxdiag", "/t", dxdiag_output_path], check=True)
-                        with open(dxdiag_output_path, "r") as file:
-                            output = file.read()
-
-                        gpu_names = re.findall(r"Card name: (.*NVIDIA.*)", output)
-                        is_present = bool(gpu_names)
-
-                    except subprocess.CalledProcessError as e:
-                        is_present = False
-                    except FileNotFoundError:
-                        is_present = False
-
-        if get_platform() == "lin":
-            try:
-                result = subprocess.run(
-                    ["lspci"], capture_output=True, text=True, check=True
-                )
-                is_present = "NVIDIA" in result.stdout
-            except FileNotFoundError:
-                is_present = False
-
-    return is_present
 
 
 def get_version():
