@@ -1,6 +1,30 @@
+![FIT Banner](./assets/branding/banner.png)
+
 # FIT – Freezing Internet Tool
 
-The project is based on the final exam by **Fabio Zito (@zitelog)** for the Master's program in **Cybersecurity, Digital Forensics, and Data Protection**.
+**FIT** is a Python 3 application for forensic acquisition of online content, including web pages, emails, and social media.
+
+The project is based on the [final exam](https://github.com/zitelog/fit) by **Fabio Zito (@zitelog)** for the Master's program in **Cybersecurity, Digital Forensics, and Data Protection**.
+
+---
+
+## Technologies Used
+- **MVC Pattern** for design
+- **Python** as the programming language
+- **[Qt](https://www.qt.io/download-open-source)** for the graphical user interface and Web Engine
+- **Scapy** for network traffic capture
+- **[Qt Multimedia](https://doc.qt.io/qt-6/qtmultimedia-index.html)** for screen video and audio recording
+  - More information about audio recording [here](https://github.com/fit-project/fit/wiki/Screen-recording-audio-management)
+- **SQLite and SQLAlchemy** for data management
+
+---
+
+## Prerequisites
+Before installing FIT, make sure you have the following dependencies installed:
+
+- **[FFmpeg](https://ffmpeg.org/download.html)** (required for screen recording and media processing)
+- **[NPCAP](https://npcap.com/dist/)** (required only for Windows, to capture network traffic and execute traceroute)  
+  **Note:** Do not install WinPCAP as it is deprecated.
 
 ---
 
