@@ -1,7 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file>../images/logo-42x42.png</file>
-    <file>../icons/cil-arrow-bottom.png</file>
-    <file>../icons/cil-check-alt.png</file>
-  </qresource>
-</RCC>
