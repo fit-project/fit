@@ -1,43 +1,46 @@
 {
-    "psi-header.config": {
-		"forceToTop": true,
-        "blankLinesAfter": 1,
-        "license": "Custom"
-	},
-
-	"psi-header.license-text": [
-		"Copyright (c) <<yeartoyear(fc, now)>> <<company>>",
-		"SPDX-License-Identifier: GPL-3.0-only",
-	  ],
-	"psi-header.variables": [
-        ["company", "FIT-Project"]
-    ],
-    "psi-header.lang-config": [
-        {
-            "language": "python",
-			"begin": "#####",
-			"end": "#####",
-			"prefix": "# ",
-            "blankLinesAfter": 1,
-            "beforeHeader": [
-                "#!/usr/bin/env python3",
-                "# -*- coding:utf-8 -*-"
-            ]
-        }
-    ],
-	"psi-header.templates": [
-		{
-			"language": "python",
-			"template": [
-				"-----",
-				"<<licensetext>>",
-				"-----"
-			]
-		}
-	],
-    "python.formatting.provider": "none",
-    "[python]": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter",
-    },
+  "psi-header.config": {
+    "forceToTop": true,
+    "blankLinesAfter": 1,
+    "license": "Custom"
+  },
+  "psi-header.license-text": [
+    "Copyright (c) <<yeartoyear(fc, now)>> <<company>>",
+    "SPDX-License-Identifier: LGPL-3.0-or-later"
+  ],
+  "psi-header.variables": [
+    ["company", "FIT-Project"]
+  ],
+  "psi-header.lang-config": [
+    {
+      "language": "python",
+      "begin": "#####",
+      "end": "#####",
+      "prefix": "# ",
+      "blankLinesAfter": 1,
+      "beforeHeader": [
+        "#!/usr/bin/env python3",
+        "# -*- coding:utf-8 -*-"
+      ]
+    }
+  ],
+  "psi-header.templates": [
+    {
+      "language": "python",
+      "template": [
+        "-----",
+        "<<licensetext>>",
+        "-----"
+      ]
+    }
+  ],
+  "[python]": {
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  }
+},
+"ruff.enable": true
 }
