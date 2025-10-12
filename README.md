@@ -1,4 +1,4 @@
-![FIT Banner](./assets/branding/banner.png)
+![FIT Banner](https://github.com/fit-project/fit-assets/blob/main/fit_assets/branding/banner.png)
 
 # FIT – Freezing Internet Tool
 
