@@ -7,7 +7,7 @@ license = "GPL-3.0-only"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.14"
+python = ">=3.11,<3.13"
 
 # Modular components (external repositories)
 fit-wizard = { git = "https://github.com/fit-project/fit-wizard.git", rev = "main" }
