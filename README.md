@@ -2,7 +2,7 @@
 
 # FIT – Freezing Internet Tool
 
-**FIT** is a Python 3 application for forensic acquisition of online content, including web pages, emails, and social media.
+**FIT** is a modular suite of Python applications for digital forensic acquisition of online contents such as web pages, emails, social media, and more. Each module can run independently or as part of the full FIT suite.
 
 The project is based on the [final exam](https://github.com/zitelog/fit) by **Fabio Zito (@zitelog)** for the Master's program in **Cybersecurity, Digital Forensics, and Data Protection**.
 
@@ -67,5 +67,13 @@ Each module can be installed as a standalone package. For example:
 pip install poetry
 poetry add git+https://github.com/fit-project/fit-web.git@main
 ```
+
+---
+
+## Contributing
+1. Fork this repository.  
+2. Create a new branch (`git checkout -b feat/my-feature`).  
+3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).  
+4. Submit a Pull Request describing your modification.
 
 ---
