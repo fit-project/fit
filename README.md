@@ -1,73 +1,62 @@
-![FIT Banner](./assets/branding/banner.png)
+# FIT 2.X.X — End of Support Notice
 
-# Freezing Internet Tool (FIT)
+The 2.X.X release line of **FIT (Freezing Internet Tool)** contains several known bugs and architectural limitations.  
+For this reason, the project is now being **redesigned into a modular suite**, which will officially debut with **FIT 3.0.0**.
 
-**FIT** is a Python 3 application for forensic acquisition of online content, including web pages, emails, and social media.
+---
 
-The project is based on the [final exam](https://github.com/zitelog/fit) by **Fabio Zito (@zitelog)** for the Master's program in **Cybersecurity, Digital Forensics, and Data Protection**, supervised by Prof. **Giovanni Bassetti (@nannib)**.
+## Transition to FIT 3.0.0
 
-## Technologies Used
-- **MVC Pattern** for design
-- **Python** as the programming language
-- **[Qt](https://www.qt.io/download-open-source)** for the graphical user interface and Web Engine
-- **Scapy** for network traffic capture
-- **[Qt Multimedia](https://doc.qt.io/qt-6/qtmultimedia-index.html)** for screen video and audio recording
-  - More information about audio recording [here](https://github.com/fit-project/fit/wiki/Screen-recording-audio-management)
-- **SQLite and SQLAlchemy** for data management
+Starting from version **3.0.0**, FIT will no longer be a single monolithic application,  
+but a **modular suite** composed of several independent Python packages — each focused on a specific type of acquisition.
 
-## Prerequisites
-Before installing FIT, make sure you have the following dependencies installed:
+Each module can be installed and executed separately, or as part of the complete FIT suite.
 
-- **[FFmpeg](https://ffmpeg.org/download.html)** (required for screen recording and media processing)
-- **[NPCAP](https://npcap.com/dist/)** (required only for Windows, to capture network traffic and execute traceroute)  
-  **Note:** Do not install WinPCAP as it is deprecated.
+### FIT Modular Repositories Overview
 
-## Cloning the GitHub Repository
-To get the latest version of the source code:
-```sh
-git clone git@github.com:fit-project/fit.git fit
-```
+| Module | Repository | Dependencies | Status |
+|---------|-------------|---------------|---------|
+| `fit-web` | [fit-project/fit-web](https://github.com/fit-project/fit-web) | `fit-scraper` | Created |
+| `fit-mail` | [fit-project/fit-mail](https://github.com/fit-project/fit-mail) | `fit-scraper` | Not created |
+| `fit-instagram` | [fit-project/fit-instagram](https://github.com/fit-project/fit-instagram) | `fit-scraper` | Not created |
+| `fit-video` | [fit-project/fit-video](https://github.com/fit-project/fit-video) | `fit-scraper` | Not created |
+| `fit-entire_website` | [fit-project/fit-entire_website](https://github.com/fit-project/fit-entire_website) | `fit-scraper` | Not created |
+| `fit-bootstrap` | [fit-project/fit-bootstrap](https://github.com/fit-project/fit-bootstrap) | — | Not created |
+| `fit-scraper` | [fit-project/fit-scraper](https://github.com/fit-project/fit-scraper) | `fit-acquisition` | Created |
+| `fit-acquisition` | [fit-project/fit-acquisition](https://github.com/fit-project/fit-acquisition) | `fit-cases` | Created |
+| `fit-cases` | [fit-project/fit-cases](https://github.com/fit-project/fit-cases) | `fit-configurations` | Created |
+| `fit-configurations` | [fit-project/fit-configurations](https://github.com/fit-project/fit-configurations) | `fit-assets`, `fit-common` | Created |
+| `fit-assets` | [fit-project/fit-assets](https://github.com/fit-project/fit-assets) | — | Created |
+| `fit-common` | [fit-project/fit-common](https://github.com/fit-project/fit-common) | — | Created |
+| `fit-wizard` | [fit-project/fit-wizard](https://github.com/fit-project/fit-wizard) | `fit-verify-pdf-timestamp`, `fit-verify-pec` | Created |
+| `fit-verify-pdf-timestamp` | [fit-project/fit-verify-pdf-timestamp](https://github.com/fit-project/fit-verify-pdf-timestamp) | `fit-cases` | Created |
+| `fit-verify-pec` | [fit-project/fit-verify-pec](https://github.com/fit-project/fit-verify-pec) | `fit-cases` | Created |
 
-## Installation
-Once you've downloaded FIT and installed all prerequisites:
+---
 
-1. Navigate to the project folder:
-   ```sh
-   cd fit
-   ```
-2. If you don't have [Poetry](https://python-poetry.org/), install it via pip:
-   ```sh
-   pip install poetry
-   ```
-3. Install dependencies:
-   ```sh
-   poetry install
-   ```
+### 🧠 Legend
+- **Created** → Repository exists and is under development  
+- **Not created** → Repository planned but not yet initialized  
+- `—` → No dependencies
 
-## Running FIT
-To see available options and parameters, run:
-```sh
-poetry run python fit.py -h
-usage: fit.py [-h] [--with-ffmpeg] [--without-ffmpeg] [--with-npcap] [--without-npcap] [--debug] [fit_bootstrap_pid] [{user,admin}]
 
-Start FIT application
+---
 
-positional arguments:
-  fit_bootstrap_pid  FIT bootstrap process ID (default: None)
-  {user,admin}       Specify user privileges:
-                     - 'user' (default): Standard user mode.
-                     - 'admin': The user executing FIT has administrative privileges.
-                       If not running as admin, it will not be possible to capture network traffic and execute traceroute.
+## Current status
 
-options:
-  -h, --help         show this help message and exit
-  --with-ffmpeg      Enable FFmpeg support for media processing. (default: False)
-  --without-ffmpeg   Disable FFmpeg support (default). (default: False)
-  --with-npcap       Enable Npcap support (only on Windows) to capture network traffic. (default: False)
-  --without-npcap    Disable Npcap support (default, only on Windows). Without Npcap, it will not be possible to capture network traffic. (default: False)
-  --debug            Enable debug mode. (default: False)
-```
-If no parameters are specified, FIT will run with default values:
-```sh
-poetry run python fit.py
-```
+- All **2.X.X versions are no longer supported** and will not receive further updates.  
+- Users are encouraged to **download and test the new scrapers directly** from their repositories.  
+- Each repository will soon provide **its own binary release**.  
+- The main `fit` repository will include a **bundle binary** that integrates all modules.
+
+---
+
+## Stay updated
+Follow the progress of the **FIT 3.0.0 modular release** in the official project board:  
+[https://github.com/orgs/fit-project/projects/18](https://github.com/orgs/fit-project/projects/18)
+
+---
+
+### Credits
+The FIT project is based on the final exam by **Fabio Zito (@zitelog)**  
+for the Master's program in **Cybersecurity, Digital Forensics, and Data Protection**.
