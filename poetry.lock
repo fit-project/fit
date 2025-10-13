@@ -454,7 +454,7 @@ PySide6 = "6.9.0"
 type = "git"
 url = "https://github.com/fit-project/fit-assets.git"
 reference = "main"
-resolved_reference = "aac263f01f8cfbc24d2b679db94108a22276b8f5"
+resolved_reference = "7ae9a869c7936628bba15916ff36ffd69e898470"
 
 [[package]]
 name = "fit-cases"
@@ -631,7 +631,7 @@ PySide6 = "6.9.0"
 type = "git"
 url = "https://github.com/fit-project/fit-wizard.git"
 reference = "main"
-resolved_reference = "44c269f51da1a86b9021af4bd71e5681491a3810"
+resolved_reference = "2cada62bdc0592ce3715ce9e8854c2611e367aac"
 
 [[package]]
 name = "freetype-py"

@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (c) 2023 FIT-Project
+
+name: Update pyproject.toml version from tag
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if pyproject.toml exists
+        run: |
+          if [ ! -f pyproject.toml ]; then
+            echo "❌ pyproject.toml not found. Exiting workflow."
+            exit 1
+          fi
+
+      - name: Check if version field exists in pyproject.toml
+        run: |
+          if ! grep -q '^version = ".*"' pyproject.toml; then
+            echo '❌ No "version = ..." line found in pyproject.toml'
+            exit 1
+          fi
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          TAG=${GITHUB_REF##*/}
+          VERSION=${TAG#v}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Show extracted version
+        run: |
+          echo "📦 Version to apply: ${{ steps.extract_version.outputs.version }}"
+
+      - name: Update version in pyproject.toml
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+
+      - name: Show updated file (preview)
+        run: grep '^version = ' pyproject.toml
+
+      - name: Commit and push changes
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: bump version to $VERSION" || echo "ℹ️ No changes to commit"
+          git push origin HEAD:main
