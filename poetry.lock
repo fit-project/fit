@@ -487,8 +487,8 @@ PySide6 = "6.9.0"
 [package.source]
 type = "git"
 url = "https://github.com/fit-project/fit-assets.git"
-reference = "3-align-all-report-templates-into-two-macro-templates-fronthtml-and-contenthtml"
-resolved_reference = "00f67205e006ef801651ac8fcdd1d228f0218399"
+reference = "main"
+resolved_reference = "097c8a1f0c0e99768d709335476dc183120ff38b"
 
 [[package]]
 name = "fit-cases"
@@ -535,8 +535,8 @@ xhtml2pdf = "^0.2.17"
 [package.source]
 type = "git"
 url = "https://github.com/fit-project/fit-common.git"
-reference = "refactor/core/pdf-report-builder"
-resolved_reference = "7cc7ddf180cdf6d715fe105926821a9cc7f25031"
+reference = "main"
+resolved_reference = "08dd28e15cb5397b541d8afc44db15c61d2c11eb"
 
 [[package]]
 name = "fit-configurations"
@@ -549,8 +549,8 @@ files = []
 develop = false
 
 [package.dependencies]
-fit-assets = {git = "https://github.com/fit-project/fit-assets.git", branch = "3-align-all-report-templates-into-two-macro-templates-fronthtml-and-contenthtml"}
-fit-common = {git = "https://github.com/fit-project/fit-common.git", branch = "refactor/core/pdf-report-builder"}
+fit-assets = {git = "https://github.com/fit-project/fit-assets.git", rev = "main"}
+fit-common = {git = "https://github.com/fit-project/fit-common.git", rev = "main"}
 PySide6 = "6.9.0"
 sqlalchemy = "^2.0.40"
 
@@ -558,7 +558,7 @@ sqlalchemy = "^2.0.40"
 type = "git"
 url = "https://github.com/fit-project/fit-configurations.git"
 reference = "main"
-resolved_reference = "1de57ac5b1780f14d045c9e16c818b213f6c3e31"
+resolved_reference = "2a426798dc34a329138c2da0df9fee3cce541ed6"
 
 [[package]]
 name = "fit-scraper"
@@ -627,7 +627,7 @@ xhtml2pdf = "^0.2.17"
 type = "git"
 url = "https://github.com/fit-project/fit-verify-pec.git"
 reference = "main"
-resolved_reference = "c7eb18f5a6d2af3c104b633ebfc6e827876c10ec"
+resolved_reference = "9cf1a23fc219e873c20e7e33db4399334f0be4b7"
 
 [[package]]
 name = "fit-web"
