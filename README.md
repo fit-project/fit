@@ -17,7 +17,7 @@ Each module can be installed and executed separately, or as part of the complete
 | Module | Repository | Dependencies | Status |
 |---------|-------------|---------------|---------|
 | `fit-web` | [fit-project/fit-web](https://github.com/fit-project/fit-web) | `fit-scraper` | Created |
-| `fit-mail` | [fit-project/fit-mail](https://github.com/fit-project/fit-mail) | `fit-scraper` | Not created |
+| `fit-mail` | [fit-project/fit-mail](https://github.com/fit-project/fit-mail) | `fit-scraper` | Created |
 | `fit-instagram` | [fit-project/fit-instagram](https://github.com/fit-project/fit-instagram) | `fit-scraper` | Not created |
 | `fit-video` | [fit-project/fit-video](https://github.com/fit-project/fit-video) | `fit-scraper` | Not created |
 | `fit-entire_website` | [fit-project/fit-entire_website](https://github.com/fit-project/fit-entire_website) | `fit-scraper` | Not created |
