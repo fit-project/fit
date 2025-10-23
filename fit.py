@@ -17,6 +17,7 @@ from fit_common.core import (
     set_debug_level,
     set_gui_crash_handler,
 )
+from fit_mail.mail import Mail
 from fit_web.web import Web
 from fit_wizard.view.wizard import Wizard
 from PySide6 import QtGui, QtWidgets
@@ -48,6 +49,8 @@ def main():
         task = None
         if wizard.selcted_task == "web":
             task = Web(wizard)
+        if wizard.selcted_task == "mail":
+            task = Mail(wizard)
 
         if task is not None and task.has_valid_case:
             wizard.hide()

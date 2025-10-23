@@ -12,6 +12,7 @@ python = ">=3.11,<3.13"
 # Modular components (external repositories)
 fit-wizard = { git = "https://github.com/fit-project/fit-wizard.git", rev = "main" }
 fit-web = { git = "https://github.com/fit-project/fit-web.git", rev = "main" }
+fit-mail = { git = "https://github.com/fit-project/fit-mail.git", rev = "main" }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
