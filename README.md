@@ -1,3 +1,9 @@
+# 🧩 Module Updates
+
+## 📬 fit-mail `v3.0.0-beta`
+First beta release of the new mail acquisition module, now based on **PySide6**.  
+[View release](https://github.com/fit-project/fit-mail/releases/tag/v3.0.0-beta)
+
 # FIT 2.X.X — End of Support Notice
 
 The 2.X.X release line of **FIT (Freezing Internet Tool)** contains several known bugs and architectural limitations.  
