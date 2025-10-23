@@ -1,6 +1,6 @@
-# 🧩 Module Updates
+# Module Updates
 
-## 📬 fit-mail `v3.0.0-beta`
+## fit-mail `v3.0.0-beta`
 First beta release of the new mail acquisition module, now based on **PySide6**.  
 [View release](https://github.com/fit-project/fit-mail/releases/tag/v3.0.0-beta)
 
