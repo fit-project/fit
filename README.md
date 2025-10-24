@@ -48,15 +48,14 @@ This modular architecture allows investigators to:
 ---
 
 ## Installation (Bundle)
-
 ```bash
-git clone https://github.com/fit-project/fit.git
-cd fit
+python3 -m venv .venv
+source .venv/bin/activate
 pip install poetry
+poetry lock
 poetry install
 poetry run python fit.py
 ```
-
 ---
 
 ## Installation (Single Module)
