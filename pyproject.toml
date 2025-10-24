@@ -5,14 +5,18 @@ description = "FIT is a modular suite of Python applications for digital forensi
 authors = ["FIT Project <info@fit-project.org>"]
 license = "GPL-3.0-only"
 readme = "README.md"
+packages = []
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = ">=3.11,<3.14"
 
 # Modular components (external repositories)
 fit-wizard = { git = "https://github.com/fit-project/fit-wizard.git", rev = "main" }
 fit-web = { git = "https://github.com/fit-project/fit-web.git", rev = "main" }
 fit-mail = { git = "https://github.com/fit-project/fit-mail.git", rev = "main" }
+
+[tool.poetry.scripts]
+fit = "main:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
