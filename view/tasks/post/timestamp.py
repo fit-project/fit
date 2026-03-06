@@ -14,6 +14,7 @@ from rfc3161ng.api import RemoteTimestamper
 
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from common.constants.view.tasks import labels, state, status
+from common.rfc3161_compat import patch_rfc3161ng_ec_compat
 
 from view.tasks.task import Task
 
@@ -22,6 +23,9 @@ from controller.configurations.tabs.timestamp.timestamp import (
 )
 
 from common.constants import logger
+
+
+patch_rfc3161ng_ec_compat()
 
 
 class TimestampWorker(QObject):

@@ -13,6 +13,7 @@ import rfc3161ng
 
 from PyQt6 import QtCore, QtWidgets, uic
 from PyQt6.QtWidgets import QFileDialog
+from common.rfc3161_compat import patch_rfc3161ng_ec_compat
 
 
 from view.util import (
@@ -41,6 +42,9 @@ from common.utility import (
 )
 from common.constants.view import verify_pdf_timestamp
 from common.constants.view.tasks import status
+
+
+patch_rfc3161ng_ec_compat()
 
 
 class VerifyPDFTimestamp(QtWidgets.QMainWindow):
